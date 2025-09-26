@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Trident Robotics 4296 - Sponsors</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --dark-purple: #1f0d3a;
+      --purple: #4b2e84;
+      --white: #f4f8fb;
+      --accent: #ffd700;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--dark-purple);
+      color: var(--white);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--purple);
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    header p {
+      font-size: 1.1rem;
+      max-width: 800px;
+      margin: 0 auto 1.5rem;
+      line-height: 1.5;
+    }
+
+    .sponsor-button {
+      background: var(--accent);
+      color: var(--dark-purple);
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .sponsor-button:hover {
+      background: #e6c200;
+    }
+
+    .sponsor-logos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 2rem;
+      justify-items: center;
+      align-items: center;
+      padding: 3rem 1.5rem;
+      background: #1a0930;
+    }
+
+    .sponsor-logos img {
+      max-width: 150px;
+      height: auto;
+      object-fit: contain;
+      transition: transform 0.3s;
+    }
+
+    .sponsor-logos img:hover {
+      transform: scale(1.1);
+    }
+
+    footer {
+      background: var(--purple);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+      border-top: 2px solid var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Our Sponsors</h1>
+    <p>
+      Trident Robotics 4296 is funded by team membership fees, sponsor funding, and in-kind donations.
+      Our participation in competitions across the country is dependent on the generosity of our sponsors.
+    </p>
+    <button class="sponsor-button" onclick="window.location.href='mailto:tridentrobotics4296@example.com'">Sponsor Us</button>
+  </header>
+
+  <!-- Sponsor Logos -->
+  <section class="sponsor-logos">
+    <img src="assets/Baxter-Logo.png" alt="Baxter Logo">
+    <img src="assets/NASA-Logo.png" alt="NASA Logo">
+    <img src="assets/Kubota-Logo.png" alt="Kubota Logo">
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    © 2025 Trident Robotics 4296 | Built with GitHub Pages
+  </footer>
+
+</body>
+</html>

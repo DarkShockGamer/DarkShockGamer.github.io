@@ -6,8 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
-      --dark-purple: #1f0d3a;
-      --purple: #4b2e84;
+      --dark-blue: #0a1f44;
+      --medium-blue: #1f4d7a;
+      --light-blue: #4fa3d1;
       --white: #f4f8fb;
       --accent: #ffd700;
     }
@@ -16,15 +17,16 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 0;
-      background: var(--dark-purple);
+      background: var(--dark-blue);
       color: var(--white);
       line-height: 1.6;
     }
 
     header {
-      background: var(--purple);
+      background: linear-gradient(90deg, var(--medium-blue), var(--light-blue));
       text-align: center;
       padding: 3rem 1.5rem;
+      border-bottom: 3px solid var(--light-blue);
     }
 
     header h1 {
@@ -37,11 +39,12 @@
       max-width: 800px;
       margin: 0 auto 1.5rem;
       line-height: 1.5;
+      color: #e0e7ff;
     }
 
     .sponsor-button {
       background: var(--accent);
-      color: var(--dark-purple);
+      color: var(--dark-blue);
       padding: 0.75rem 1.5rem;
       border: none;
       border-radius: 5px;
@@ -61,7 +64,7 @@
       justify-items: center;
       align-items: center;
       padding: 3rem 1.5rem;
-      background: #1a0930;
+      background: var(--medium-blue);
     }
 
     .sponsor-logos img {
@@ -76,11 +79,12 @@
     }
 
     footer {
-      background: var(--purple);
+      background: var(--medium-blue);
       text-align: center;
       padding: 1.5rem;
       font-size: 0.9rem;
-      border-top: 2px solid var(--accent);
+      border-top: 3px solid var(--light-blue);
+      color: #dce1f2;
     }
   </style>
 </head>

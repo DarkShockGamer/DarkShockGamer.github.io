@@ -59,8 +59,8 @@
 
     .sponsor-logos {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* increased min size */
+      gap: 2.5rem; /* slightly larger gap */
       justify-items: center;
       align-items: center;
       padding: 3rem 1.5rem;
@@ -68,10 +68,12 @@
     }
 
     .sponsor-logos img {
-      max-width: 150px;
+      max-width: 200px; /* bigger logos */
       height: auto;
       object-fit: contain;
       transition: transform 0.3s;
+      background: var(--white); /* add a white background */
+      padding: 0.5rem 1rem; /* some padding around logo */
     }
 
     .sponsor-logos img:hover {

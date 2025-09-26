@@ -15,93 +15,160 @@
     }
 
     /* ====== Global Styles ====== */
-    body {
+    * {
+      box-sizing: border-box;
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: var(--dark-blue);
       color: var(--white);
       line-height: 1.6;
     }
 
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* ====== Header ====== */
     header {
       background: linear-gradient(90deg, var(--medium-blue), var(--light-blue));
-      padding: 2rem;
+      padding: 3rem 1.5rem 4rem;
       text-align: center;
+      border-bottom: 3px solid var(--light-blue);
+    }
+
+    header img {
+      max-width: 600px;   /* Larger image */
+      width: 90%;         /* Responsive */
+      height: auto;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      margin: 0 auto 1.5rem;
     }
 
     header h1 {
-      margin: 0;
-      font-size: 2.5rem;
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
     }
 
     header p {
-      margin: 0.5rem 0 0;
-      font-size: 1.2rem;
+      font-size: 1.4rem;
+      font-weight: 300;
+      color: #e0e7ff;
     }
 
+    /* ====== Navigation ====== */
     nav {
       background: var(--medium-blue);
       display: flex;
       justify-content: center;
       gap: 2rem;
-      padding: 0.75rem;
+      padding: 1rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
     nav a {
-      color: var(--white);
-      text-decoration: none;
       font-weight: bold;
-      transition: color 0.3s;
+      text-transform: uppercase;
+      transition: 0.3s;
+      padding: 0.25rem 0.5rem;
     }
 
     nav a:hover {
-      color: var(--light-blue);
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
     }
 
+    /* ====== Sections ====== */
     section {
-      padding: 3rem 1.5rem;
-      max-width: 1000px;
+      padding: 4rem 1.5rem;
+      max-width: 1100px;
       margin: auto;
     }
 
     h2 {
       color: var(--light-blue);
-      border-bottom: 2px solid var(--light-blue);
+      font-size: 2rem;
+      border-bottom: 3px solid var(--light-blue);
       display: inline-block;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.25rem;
+    }
+
+    p, li {
+      font-size: 1.1rem;
       margin-bottom: 1rem;
     }
 
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    /* ====== Team Grid ====== */
     .team-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
     }
 
     .card {
       background: var(--medium-blue);
-      padding: 1rem;
-      border-radius: 10px;
+      padding: 1.5rem;
+      border-radius: 15px;
       text-align: center;
-      transition: transform 0.3s;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
     }
 
     .card:hover {
-      transform: scale(1.05);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.35);
     }
 
+    /* ====== Footer ====== */
     footer {
       background: var(--medium-blue);
       text-align: center;
-      padding: 1rem;
+      padding: 2rem;
       margin-top: 2rem;
+      font-size: 0.95rem;
+      color: #dce1f2;
+      border-top: 3px solid var(--light-blue);
     }
+
+    /* ====== Responsive ====== */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2.2rem;
+      }
+
+      header p {
+        font-size: 1.1rem;
+      }
+
+      .team-grid {
+        gap: 1rem;
+      }
+    }
+
   </style>
 </head>
 <body>
+
   <!-- ====== Header ====== -->
   <header>
-    <img src="assets/group.png" alt="Team Group Photo" 
-       style="max-width:300px; width:80%; height:auto; display:block; margin:0 auto 1rem;">
+    <img src="assets/group.png" alt="Team Group Photo">
     <h1>Trident Robotics 4296</h1>
     <p>Engineering Innovation | Driving the Future</p>
   </header>
@@ -162,7 +229,7 @@
     <h2>Team Updates</h2>
     <ul>
       <li>⚡ September 23, 2025: First Robotics Meeting</li>
-      <li>👤 September 25, 2025: STEM Activity day</li>
+      <li>👤 September 25, 2025: STEM Activity Day</li>
       <li>🔧 September 30, 2025: Prototyping new drivetrain design</li>
       <li>🏆 November 2025: Kickoff meeting for new season</li>
     </ul>
@@ -179,5 +246,6 @@
   <footer>
     <p>© 2025 Trident Robotics 4296 | Built with GitHub Pages</p>
   </footer>
+
 </body>
 </html>

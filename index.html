@@ -1,11 +1,179 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Our Robotics Team</title>
-  </head>
-  <body>
-    <h1>Welcome to Our Robotics Team!</h1>
-    <p>This is our first website hosted on GitHub Pages 🚀</p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Trident Robotics 4296</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* ====== Colors ====== */
+    :root {
+      --dark-blue: #0a1f44;
+      --medium-blue: #1f4d7a;
+      --light-blue: #4fa3d1;
+      --white: #f4f8fb;
+    }
+
+    /* ====== Global Styles ====== */
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--dark-blue);
+      color: var(--white);
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(90deg, var(--medium-blue), var(--light-blue));
+      padding: 2rem;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+
+    header p {
+      margin: 0.5rem 0 0;
+      font-size: 1.2rem;
+    }
+
+    nav {
+      background: var(--medium-blue);
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      padding: 0.75rem;
+    }
+
+    nav a {
+      color: var(--white);
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: var(--light-blue);
+    }
+
+    section {
+      padding: 3rem 1.5rem;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    h2 {
+      color: var(--light-blue);
+      border-bottom: 2px solid var(--light-blue);
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--medium-blue);
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    footer {
+      background: var(--medium-blue);
+      text-align: center;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- ====== Header ====== -->
+  <header>
+    <h1>Trident Robotics 4296</h1>
+    <p>Engineering Innovation | Driving the Future</p>
+  </header>
+
+  <!-- ====== Navigation ====== -->
+  <nav>
+    <a href="#about">About</a>
+    <a href="#team">Team</a>
+    <a href="#projects">Projects</a>
+    <a href="#updates">Updates</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <!-- ====== About Section ====== -->
+  <section id="about">
+    <h2>About Us</h2>
+    <p>
+      We are <strong>Trident Robotics Team 4296</strong>, a high school robotics team passionate about 
+      engineering, teamwork, and pushing the limits of innovation. Our team designs, builds, and 
+      programs competitive robots while learning real-world problem-solving skills.
+    </p>
+  </section>
+
+  <!-- ====== Team Section ====== -->
+  <section id="team">
+    <h2>Meet the Team</h2>
+    <div class="team-grid">
+      <div class="card">
+        <h3>Lucas</h3>
+        <p>Design Team Lead</p>
+      </div>
+      <div class="card">
+        <h3>[Name]</h3>
+        <p>Programming</p>
+      </div>
+      <div class="card">
+        <h3>[Name]</h3>
+        <p>Mechanical</p>
+      </div>
+      <div class="card">
+        <h3>[Name]</h3>
+        <p>Driver</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== Projects Section ====== -->
+  <section id="projects">
+    <h2>Our Projects</h2>
+    <p>
+      From CAD modeling to 3D printing and fabrication, we bring ideas to life. Using 
+      tools like Fusion 360 and Bambu Studio, our designs evolve into competition-ready robots.
+    </p>
+  </section>
+
+  <!-- ====== Updates Section ====== -->
+  <section id="updates">
+    <h2>Team Updates</h2>
+    <ul>
+      <li>🔧 September 2025: Prototyping new drivetrain design</li>
+      <li>⚡ August 2025: Kickoff meeting for new season</li>
+      <li>🏆 April 2025: Competed at Regional Championship</li>
+    </ul>
+  </section>
+
+  <!-- ====== Contact Section ====== -->
+  <section id="contact">
+    <h2>Contact Us</h2>
+    <p>Email: <a href="mailto:tridentrobotics4296@example.com">tridentrobotics4296@example.com</a></p>
+    <p>Instagram: @TridentRobotics4296</p>
+  </section>
+
+  <!-- ====== Footer ====== -->
+  <footer>
+    <p>© 2025 Trident Robotics 4296 | Built with GitHub Pages</p>
+  </footer>
+</body>
 </html>

@@ -130,9 +130,24 @@
       padding-left: 0;
     }
 
+    .nav-logo {
+      display: flex;
+      align-items: center; /* vertical align with nav text */
+    }
+
+    
     .nav-logo img {
       height: 28px;
       width: auto;
+      transition: 0.3s ease;
+    }
+
+    .nav-logo a {
+      border-bottom: none !important;
+    }
+
+    .nav-logo img:hover {
+      filter: drop-shadow(0 0 6px var(--accent));
     }
     
     /* ====== Team Grid ====== */

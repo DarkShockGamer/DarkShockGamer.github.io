@@ -154,6 +154,41 @@
       box-shadow: 0 12px 25px rgba(0,0,0,0.35);
     }
 
+    .timeline {
+      position: relative;
+      margin: 2rem auto;
+      padding-left: 2rem;
+      border-left: 3px solid var(--light-blue);
+      max-width: 700px;
+    }
+
+    .timeline-item {
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -11px;
+      top: 5px;
+      width: 18px;
+      height: 18px;
+      background: var(--accent);
+      border-radius: 50%;
+      border: 3px solid var(--light-blue);
+    }
+
+    .timeline-date {
+      font-weight: bold;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-text {
+      font-size: 1.05rem;
+    }
+    
     /* ====== Footer ====== */
     footer {
       background: var(--medium-blue);
@@ -267,12 +302,24 @@
   <!-- ====== Updates Section ====== -->
   <section id="updates">
     <h2>Team Updates</h2>
-    <ul>
-      <li>⚡ September 23, 2025: First Robotics Meeting</li>
-      <li>👤 September 25, 2025: STEM Activity Day</li>
-      <li>🔧 September 30, 2025: Prototyping new drivetrain design</li>
-      <li>🏆 November 2025: Kickoff meeting for new season</li>
-    </ul>
+    <div class="timeline">
+      <div class="timeline-item">
+        <p class="timeline-date">⚡ September 23, 2025</p>
+        <p class="timeline-text">First Robotics Meeting</p>
+      </div>
+      <div class="timeline-item">
+        <p class="timeline-date">👤 September 25, 2025</p>
+        <p class="timeline-text">STEM Activity Day</p>
+      </div>
+      <div class="timeline-item">
+        <p class="timeline-date">🔧 September 30, 2025</p>
+        <p class="timeline-text">Prototyping new drivetrain design</p>
+      </div>
+      <div class="timeline-item">
+        <p class="timeline-date">🏆 November 2025</p>
+        <p class="timeline-text">Kickoff meeting for new season</p>
+      </div>
+    </div>
   </section>
 
   <!-- ====== Contact Section ====== -->

@@ -81,8 +81,9 @@
       background: var(--medium-blue);
       display: flex;
       justify-content: center;
-      flex-wrap: wrap;   /* 🔹 allow wrapping */
-      gap: 1rem;         /* adjust spacing for smaller screens */
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
       padding: 1rem;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       position: sticky;
@@ -131,15 +132,16 @@
     }
 
     .nav-logo {
+      position: absolute;
+      left: 1.5rem;
       display: flex;
-      align-items: center; /* vertical align with nav text */
+      align-items: center;
     }
 
     
     .nav-logo img {
-      height: 35px;
+      height: 20px;
       width: auto;
-      transition: 0.3s ease;
     }
 
     .nav-logo a {

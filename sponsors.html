@@ -24,59 +24,86 @@
       line-height: 1.6;
     }
 
-    nav {
+    /* ====== Navigation ====== */
+    nav.site-nav {
       background: var(--medium-blue);
       display: flex;
-      justify-content: center;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      padding: 1rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       position: sticky;
       top: 0;
       z-index: 1000;
       border-bottom: 3px solid var(--light-blue);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
-    nav a {
-      color: var(--white);
-      font-weight: bold;
-      text-transform: uppercase;
-      transition: 0.3s;
-      padding: 0.25rem 0.5rem;
-      border-bottom: 2px solid transparent;
-      text-decoration: none;
-    }
-
-    nav a:hover {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 1rem;
+      position: relative;
     }
 
     .nav-logo {
-      position: absolute;
-      left: 1.5rem;
       display: flex;
       align-items: center;
-      height: 100%;
+      margin-left: 0;
     }
 
-    
     .nav-logo img {
       height: 50px;
       width: auto;
       margin-right: 0.5rem;
     }
 
-    .nav-logo a {
-      border-bottom: none !important;
-    }
-
     .nav-logo img:hover {
       filter: drop-shadow(0 0 6px var(--accent));
     }
-    
+
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .nav-links a {
+      font-weight: bold;
+      text-transform: uppercase;
+      padding: 0.25rem 0.5rem;
+      border-bottom: 2px solid transparent;
+      transition: 0.25s;
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .nav-toggle .hamburger,
+    .nav-toggle .hamburger::before,
+    .nav-toggle .hamburger::after {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--white);
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .nav-toggle .hamburger::before { content: ""; position: absolute; left: 0; top: -7px; }
+    .nav-toggle .hamburger::after  { content: ""; position: absolute; left: 0; top: 7px; }
+
+    /* ====== Header ====== */
     header {
       background: linear-gradient(90deg, var(--medium-blue), var(--light-blue));
       text-align: center;
@@ -112,10 +139,11 @@
       background: #e6c200;
     }
 
+    /* ====== Sponsor Logos ====== */
     .sponsor-logos {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* slightly larger min */
-      gap: 3rem; /* more space between logos */
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 3rem;
       justify-items: center;
       align-items: center;
       padding: 3rem 1.5rem;
@@ -123,18 +151,18 @@
     }
 
     .sponsor-logos img {
-      max-width: 180px; /* increase size */
+      max-width: 180px;
       height: auto;
       object-fit: contain;
       transition: transform 0.3s, filter 0.3s;
-      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6)); /* subtle glow */
+      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6));
     }
 
     .sponsor-logos img:hover {
       transform: scale(1.1);
       filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
     }
-    
+
     footer {
       background: var(--medium-blue);
       text-align: center;
@@ -143,26 +171,65 @@
       border-top: 3px solid var(--light-blue);
       color: #dce1f2;
     }
+
+    /* ====== Responsive ====== */
+    @media (max-width: 768px) {
+      .nav-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1002;
+        width: 40px;
+        height: 40px;
+      }
+
+      .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        display: none;
+        background: var(--medium-blue);
+        border-top: 3px solid var(--light-blue);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+        z-index: 1001;
+      }
+
+      .nav-links.show { display: flex; }
+
+      .nav-links a {
+        width: 100%;
+        text-align: center;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+      }
+    }
   </style>
 </head>
 <body>
   
   <!-- ====== Navigation ====== -->
-  <nav>
-    <div class="nav-logo">
-      <a href="index.html">
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="index.html">
         <img src="assets/icon.png" alt="Trident Robotics Logo">
       </a>
-    </div>
-    <div class="nav-links">
-      <a href="index.html#about">About</a>
-      <a href="index.html#team">Team</a>
-      <a href="index.html#updates">Updates</a>
-      <a href="index.html#contact">Contact</a>
-      <a href="sponsors.html">Sponsors</a>
+
+      <div class="nav-links" id="navLinks">
+        <a href="index.html#about">About</a>
+        <a href="index.html#team">Team</a>
+        <a href="index.html#updates">Updates</a>
+        <a href="index.html#contact">Contact</a>
+        <a href="sponsors.html">Sponsors</a>
+      </div>
+
+      <button class="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="hamburger"></span>
+      </button>
     </div>
   </nav>
-  
+
   <!-- Header -->
   <header>
     <h1>Our Sponsors</h1>
@@ -187,5 +254,21 @@
     © 2025 Trident Robotics 4296 | Built with GitHub Pages
   </footer>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const navToggle = document.querySelector('.nav-toggle');
+      const navLinks = document.getElementById('navLinks');
+
+      navToggle.addEventListener('click', function () {
+        const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+        navToggle.setAttribute('aria-expanded', (!expanded).toString());
+        navLinks.classList.toggle('show');
+      });
+
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => navLinks.classList.remove('show'));
+      });
+    });
+  </script>
 </body>
 </html>

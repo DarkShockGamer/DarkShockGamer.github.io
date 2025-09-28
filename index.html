@@ -110,15 +110,16 @@
       border-radius: 2px;
       position: absolute;  /* position relative to button */
       left: 50%;
+      top: 50%;
       transform: translateX(-50%);
     }
     .nav-toggle .hamburger::before { 
       content: "";
-      top: -7px;
+      top: calc(50% - 7px);
     }
     .nav-toggle .hamburger::after  { 
       content: "";
-      top: 7px;
+      top: calc(50% + 7px);
     }
     
     /* ====== Sections ====== */

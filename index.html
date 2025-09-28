@@ -86,31 +86,43 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
+    /* Use grid so links can be perfectly centered while logo stays left */
     nav .nav-inner {
       max-width: 1100px;
       margin: 0 auto;
-      display: flex;
+      display: grid;
+      grid-template-columns: auto 1fr auto; /* logo | center links | toggle */
       align-items: center;
-      justify-content: space-between; /* logo left, links right on wide screens */
       gap: 1rem;
       padding: 0.6rem 1rem;
       position: relative;
     }
 
-    /* logo */
+    /* logo (left column) */
+    .nav-logo {
+      grid-column: 1;
+      display: flex;
+      align-items: center;
+    }
     .nav-logo img {
       height: 50px;
       width: auto;
       display: block;
     }
+    .nav-logo img:hover {
+      filter: drop-shadow(0 0 6px var(--accent));
+    }
 
-    /* links (desktop) */
+    /* nav links (center column) */
     .nav-links {
+      grid-column: 2;
       display: flex;
       gap: 1rem;
+      justify-content: center; /* center the group of links */
       align-items: center;
     }
 
+    /* links styling */
     .nav-links a {
       font-weight: bold;
       text-transform: uppercase;
@@ -118,15 +130,16 @@
       border-bottom: 2px solid transparent;
       transition: 0.25s;
     }
-
     .nav-links a:hover {
       color: var(--accent);
       border-bottom-color: var(--accent);
     }
 
-    /* hamburger toggle (hidden on desktop) */
+    /* toggle (right column) */
     .nav-toggle {
-      display: none;
+      grid-column: 3;
+      justify-self: end;
+      display: none; /* visible only on mobile via media query */
       background: none;
       border: 0;
       padding: 0.25rem;
@@ -152,41 +165,6 @@
     }
     .nav-toggle .hamburger::before { top: -7px; }
     .nav-toggle .hamburger::after  { top: 7px; }
-
-    /* ====== Mobile behavior ====== */
-    @media (max-width: 768px) {
-      nav .nav-inner { padding: 0.5rem 0.75rem; }
-
-      /* show hamburger */
-      .nav-toggle { display: block; }
-
-      /* stack and hide nav-links by default */
-      .nav-links {
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 100%;
-        display: none;                 /* hidden until toggle */
-        flex-direction: column;
-        gap: 0.25rem;
-        padding: 0.75rem 1rem 1rem;
-        background: var(--medium-blue);
-        border-top: 3px solid var(--light-blue);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-      }
-
-      /* visible state when .show is added */
-      .nav-links.show {
-        display: flex;
-      }
-
-      .nav-links a {
-        width: 100%;
-        text-align: center;
-        padding: 0.8rem 0;
-        border-radius: 8px;
-      }
-    }
 
     /* ====== Sections ====== */
     section {
@@ -298,37 +276,39 @@
 
     /* ====== Responsive ====== */
     @media (max-width: 768px) {
-      header h1 {
-        font-size: 2.2rem;
+      nav .nav-inner { padding: 0.5rem 0.75rem; }
+
+      /* show hamburger on mobile */
+      .nav-toggle { display: block; }
+
+      /* mobile menu: absolute below the nav */
+      .nav-links {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        display: none;                 /* hidden until toggle */
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 0.75rem 1rem 1rem;
+        background: var(--medium-blue);
+        border-top: 3px solid var(--light-blue);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+        z-index: 999; /* above page content */
       }
 
-      header p {
-        font-size: 1.1rem;
+      /* visible state when .show is added by JS */
+      .nav-links.show {
+        display: flex;
       }
 
-      .team-grid {
-        gap: 1rem;
+      .nav-links a {
+        width: 100%;
+        text-align: center;
+        padding: 0.8rem 0;
+        border-radius: 8px;
       }
     }
-
-  </style>
-</head>
-<script>
-  const navToggle = document.querySelector('.nav-toggle');
-  const navLinks = document.getElementById('navLinks');
-
-  navToggle.addEventListener('click', () => {
-    const expanded = navToggle.getAttribute('aria-expanded') === 'true';
-    navToggle.setAttribute('aria-expanded', (!expanded).toString());
-    navLinks.classList.toggle('show');
-  });
-
-  // Optional: close menu when clicking a link (good for single-page)
-  document.querySelectorAll('.nav-links a').forEach(a => {
-    a.addEventListener('click', () => navLinks.classList.remove('show'));
-  });
-</script>
-<body>
 
   <!-- ====== Header ====== -->
   <header>
@@ -460,6 +440,27 @@
   <footer>
     <p>© 2025 Trident Robotics 4296 | Built with GitHub Pages</p>
   </footer>
+
+  <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const navToggle = document.querySelector('.nav-toggle');
+        const navLinks = document.getElementById('navLinks');
+
+        if (!navToggle || !navLinks) return;
+
+        // open/close menu on button click
+        navToggle.addEventListener('click', function () {
+          const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+          navToggle.setAttribute('aria-expanded', (!expanded).toString());
+          navLinks.classList.toggle('show');
+        });
+
+        // close the menu when any link is clicked
+        document.querySelectorAll('.nav-links a').forEach(link => {
+          link.addEventListener('click', () => navLinks.classList.remove('show'));
+        });
+      });
+    </script>
 
 </body>
 </html>

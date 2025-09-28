@@ -185,34 +185,23 @@
 
     /* ====== Footer ===== */
     footer {
-      background: var(--medium-blue);
+      background: var(--medium-blue);       /* matches your palette */
       color: #f4f8fb;                       /* light, readable text */
       text-align: center;
-      padding: 1rem 1.5rem;
-      font-size: 0.85rem;                    /* professional small text */
-      line-height: 1.4;                      /* reduced extra space */
+      padding: 1rem 1.5rem;                 /* compact but comfortable */
+      font-size: 0.85rem;                    /* clean professional size */
+      line-height: 1.4;                      /* reduces extra height */
       border-top: 3px solid var(--light-blue);
-      max-width: 1100px;                     /* center and constrain width */
+      max-width: 1100px;
       margin: 0 auto;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1); /* subtle texture */
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
     }
 
     footer p {
-      margin: 0.3rem 0;                      /* small spacing between lines */
+      margin: 0;
+      font-weight: 500;
     }
-
-    footer a {
-      color: var(--accent);                  /* standout link color */
-      text-decoration: none;
-      font-weight: 600;
-      transition: color 0.25s;
-    }
-
-    footer a:hover {
-      color: #fff;
-      text-decoration: underline;
-    }
-
+    
     /* ====== Responsive ====== */
     @media (max-width: 768px) {
       .nav-toggle { display: flex; }
@@ -343,10 +332,6 @@
   <!-- ====== Footer ====== -->
   <footer>
     <p>© 2025 Trident Robotics 4296</p>
-    <p>
-      Built with <a href="https://pages.github.com/">GitHub Pages</a> | 
-      Contact: <a href="mailto:tridentrobotics4296@example.com">tridentrobotics4296@wths.net</a>
-    </p>
   </footer>
 
   <script>

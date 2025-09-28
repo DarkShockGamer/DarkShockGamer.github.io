@@ -275,22 +275,29 @@
 
     /* ====== Responsive ====== */
     @media (max-width: 768px) {
-      nav .nav-inner { padding: 0.5rem 0.75rem; }
-      .nav-toggle { display: block; }
+      .nav-inner {
+        padding: 0.5rem 0.75rem;
+        justify-content: space-between; /* Logo left, toggle right */
+      }
+
+      .nav-toggle {
+        display: block;
+      }
 
       .nav-links {
         position: absolute;
+        top: 100%;
         left: 0;
         right: 0;
-        top: 100%;
         display: none;
         flex-direction: column;
         gap: 0.25rem;
-        padding: 0.75rem 1rem 1rem;
+        padding: 0.75rem 0;
         background: var(--medium-blue);
         border-top: 3px solid var(--light-blue);
         box-shadow: 0 6px 18px rgba(0,0,0,0.25);
         z-index: 999;
+        width: 100%; /* Make sure dropdown covers full width */
       }
 
       .nav-links.show {

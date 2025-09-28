@@ -27,14 +27,15 @@
       background: var(--medium-blue);
       display: flex;
       justify-content: center;
-      flex-wrap: wrap;   /* 🔹 allow wrapping */
-      gap: 1rem;         /* adjust spacing for smaller screens */
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
       padding: 1rem;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      position: sticky;   /* keeps it at the top */
+      position: sticky;
       top: 0;
-      z-index: 1000;      /* stays above content */
-      border-bottom: 3px solid var(--light-blue);
+      z-index: 1000;
+      border-bottom: 3px solid var(--light-blue); /* 🔹 add this line */
     }
 
     nav a {
@@ -42,8 +43,6 @@
       text-transform: uppercase;
       transition: 0.3s;
       padding: 0.25rem 0.5rem;
-      color: var(--white); /* ensures links start white */
-      text-decoration: none;
       border-bottom: 2px solid transparent;
     }
 

@@ -72,6 +72,7 @@
     .nav-logo {
       display: flex;
       align-items: center;
+      margin-left: 0;
     }
     .nav-logo img {
       height: 50px;
@@ -170,6 +171,15 @@
 
     /* ====== Responsive ====== */
     @media (max-width: 768px) {
+      .nav-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1002;
+        width: 40px;
+        height: 40px;
+      }
+
       .nav-links {
         position: absolute;
         top: 100%;
@@ -180,11 +190,10 @@
         background: var(--medium-blue);
         border-top: 3px solid var(--light-blue);
         box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-        z-index: 999;
+        z-index: 1001;
       }
       .nav-links.show { display: flex; }
       .nav-links a { width: 100%; text-align: center; padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-      .nav-toggle { display: block; }
     }
   </style>
 </head>

@@ -47,17 +47,16 @@
       padding: 3rem 1.5rem 4rem;
       text-align: center;
       border-bottom: 3px solid var(--light-blue);
-
       display: flex;
       flex-direction: column;
-      justify-content: center; /* vertically centers content */
+      justify-content: center;
       align-items: center;
-      gap: 1.5rem; /* space between image, h1, and p */
+      gap: 1.5rem;
     }
 
     header img {
-      max-width: 750px;   /* Larger image */
-      width: 90%;         /* Responsive */
+      max-width: 750px;
+      width: 90%;
       height: auto;
       border-radius: 15px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.4);
@@ -86,43 +85,41 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
-    /* Use grid so links can be perfectly centered while logo stays left */
     nav .nav-inner {
       max-width: 1100px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: auto 1fr auto; /* logo | center links | toggle */
+      grid-template-columns: auto 1fr auto;
       align-items: center;
       gap: 1rem;
       padding: 0.6rem 1rem;
       position: relative;
     }
 
-    /* logo (left column) */
     .nav-logo {
       grid-column: 1;
       display: flex;
       align-items: center;
     }
+
     .nav-logo img {
       height: 50px;
       width: auto;
       display: block;
     }
+
     .nav-logo img:hover {
       filter: drop-shadow(0 0 6px var(--accent));
     }
 
-    /* nav links (center column) */
     .nav-links {
       grid-column: 2;
       display: flex;
       gap: 1rem;
-      justify-content: center; /* center the group of links */
+      justify-content: center;
       align-items: center;
     }
 
-    /* links styling */
     .nav-links a {
       font-weight: bold;
       text-transform: uppercase;
@@ -130,23 +127,22 @@
       border-bottom: 2px solid transparent;
       transition: 0.25s;
     }
+
     .nav-links a:hover {
       color: var(--accent);
       border-bottom-color: var(--accent);
     }
 
-    /* toggle (right column) */
     .nav-toggle {
       grid-column: 3;
       justify-self: end;
-      display: none; /* visible only on mobile via media query */
+      display: none;
       background: none;
       border: 0;
       padding: 0.25rem;
       cursor: pointer;
     }
 
-    /* simple 3-line hamburger */
     .nav-toggle .hamburger,
     .nav-toggle .hamburger::before,
     .nav-toggle .hamburger::after {
@@ -157,12 +153,14 @@
       border-radius: 2px;
       position: relative;
     }
+
     .nav-toggle .hamburger::before,
     .nav-toggle .hamburger::after {
       content: "";
       position: absolute;
       left: 0;
     }
+
     .nav-toggle .hamburger::before { top: -7px; }
     .nav-toggle .hamburger::after  { top: 7px; }
 
@@ -192,16 +190,6 @@
       padding-left: 0;
     }
 
-    .nav-logo img {
-      height: 50px;
-      width: auto;
-      display: block;
-    }
-
-    .nav-logo img:hover {
-      filter: drop-shadow(0 0 6px var(--accent));
-    }
-
     /* ====== Team Grid ====== */
     .team-grid {
       display: grid;
@@ -228,6 +216,17 @@
       box-shadow: 0 12px 25px rgba(0,0,0,0.35);
     }
 
+    /* ====== Team Photo ====== */
+    #team-photo img {
+      max-width: 900px;
+      width: 100%;
+      margin: 2rem auto 0;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+      display: block;
+    }
+
+    /* ====== Timeline ====== */
     .timeline {
       position: relative;
       margin: 2rem auto;
@@ -242,7 +241,7 @@
     }
 
     .timeline-item::before {
-      content: none;
+      content: "";
       position: absolute;
       left: -11px;
       top: 5px;
@@ -262,7 +261,7 @@
     .timeline-text {
       font-size: 1.05rem;
     }
-    
+
     /* ====== Footer ====== */
     footer {
       background: var(--medium-blue);
@@ -277,27 +276,23 @@
     /* ====== Responsive ====== */
     @media (max-width: 768px) {
       nav .nav-inner { padding: 0.5rem 0.75rem; }
-
-      /* show hamburger on mobile */
       .nav-toggle { display: block; }
 
-      /* mobile menu: absolute below the nav */
       .nav-links {
         position: absolute;
         left: 0;
         right: 0;
         top: 100%;
-        display: none;                 /* hidden until toggle */
+        display: none;
         flex-direction: column;
         gap: 0.25rem;
         padding: 0.75rem 1rem 1rem;
         background: var(--medium-blue);
         border-top: 3px solid var(--light-blue);
         box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-        z-index: 999; /* above page content */
+        z-index: 999;
       }
 
-      /* visible state when .show is added by JS */
       .nav-links.show {
         display: flex;
       }
@@ -309,7 +304,9 @@
         border-radius: 8px;
       }
     }
-
+  </style>
+</head>
+<body>
   <!-- ====== Header ====== -->
   <header>
     <img src="assets/group.png" alt="Team Group Photo">
@@ -351,37 +348,27 @@
   <!-- ====== Team Section ====== -->
   <section id="team">
     <h2>Meet the Team</h2>
-
     <div class="team-grid">
-      <!-- Design Team -->
       <div class="card">
         <h3>Design Team</h3>
         <p><strong>Lead:</strong> [Name]</p>
         <p><strong>Lead:</strong> [Name]</p>
       </div>
-
-      <!-- Mechanical Team -->
       <div class="card">
         <h3>Mechanical Team</h3>
         <p><strong>Lead:</strong> [Name]</p>
         <p><strong>Lead:</strong> [Name]</p>
       </div>
-
-      <!-- Electrical Team -->
       <div class="card">
         <h3>Electrical Team</h3>
         <p><strong>Lead:</strong> [Name]</p>
         <p><strong>Lead:</strong> [Name]</p>
       </div>
-
-      <!-- Programming Team -->
       <div class="card">
         <h3>Programming Team</h3>
         <p><strong>Lead:</strong> [Name]</p>
         <p><strong>Lead:</strong> [Name]</p>
       </div>
-
-      <!-- Drive Team -->
       <div class="card">
         <h3>Drive Team</h3>
         <p><strong>Driver:</strong> [Name]</p>
@@ -392,14 +379,7 @@
 
   <!-- ====== Extra Image Section ====== -->
   <section id="team-photo">
-    <img src="assets/Shark-Photo.png" alt="Team Members" style="
-      max-width: 900px;
-      width: 100%;
-      margin: 2rem auto 0;
-      border-radius: 15px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-      display: block;
-    ">
+    <img src="assets/Shark-Photo.png" alt="Team Members">
   </section>
 
   <!-- ====== Updates Section ====== -->
@@ -419,8 +399,8 @@
         <p class="timeline-text">Subteam Stations</p>
       </div>
       <div class="timeline-item">
-        <p class="timeline-date"> ℹ️ September 32, 2025</p>
-        <p class="timeline-text">Applications Avalible</p>
+        <p class="timeline-date"> ℹ️ September 30, 2025</p>
+        <p class="timeline-text">Applications Available</p>
       </div>
       <div class="timeline-item">
         <p class="timeline-date"> 🏆 November 2025</p>
@@ -442,25 +422,22 @@
   </footer>
 
   <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        const navToggle = document.querySelector('.nav-toggle');
-        const navLinks = document.getElementById('navLinks');
+    document.addEventListener('DOMContentLoaded', function () {
+      const navToggle = document.querySelector('.nav-toggle');
+      const navLinks = document.getElementById('navLinks');
 
-        if (!navToggle || !navLinks) return;
+      if (!navToggle || !navLinks) return;
 
-        // open/close menu on button click
-        navToggle.addEventListener('click', function () {
-          const expanded = navToggle.getAttribute('aria-expanded') === 'true';
-          navToggle.setAttribute('aria-expanded', (!expanded).toString());
-          navLinks.classList.toggle('show');
-        });
-
-        // close the menu when any link is clicked
-        document.querySelectorAll('.nav-links a').forEach(link => {
-          link.addEventListener('click', () => navLinks.classList.remove('show'));
-        });
+      navToggle.addEventListener('click', function () {
+        const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+        navToggle.setAttribute('aria-expanded', (!expanded).toString());
+        navLinks.classList.toggle('show');
       });
-    </script>
 
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => navLinks.classList.remove('show'));
+      });
+    });
+  </script>
 </body>
 </html>

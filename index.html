@@ -77,43 +77,114 @@
     }
 
     /* ====== Navigation ====== */
-    nav {
+    nav.site-nav {
       background: var(--medium-blue);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      padding: 1rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       position: sticky;
       top: 0;
       z-index: 1000;
-      border-bottom: 3px solid var(--light-blue); /* 🔹 add this line */
+      border-bottom: 3px solid var(--light-blue);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
-    nav a {
+    nav .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between; /* logo left, links right on wide screens */
+      gap: 1rem;
+      padding: 0.6rem 1rem;
+      position: relative;
+    }
+
+    /* logo */
+    .nav-logo img {
+      height: 50px;
+      width: auto;
+      display: block;
+    }
+
+    /* links (desktop) */
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .nav-links a {
       font-weight: bold;
       text-transform: uppercase;
-      transition: 0.3s;
       padding: 0.25rem 0.5rem;
       border-bottom: 2px solid transparent;
+      transition: 0.25s;
     }
 
-    nav a:hover {
+    .nav-links a:hover {
       color: var(--accent);
       border-bottom-color: var(--accent);
     }
 
+    /* hamburger toggle (hidden on desktop) */
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: 0;
+      padding: 0.25rem;
+      cursor: pointer;
+    }
+
+    /* simple 3-line hamburger */
+    .nav-toggle .hamburger,
+    .nav-toggle .hamburger::before,
+    .nav-toggle .hamburger::after {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--white);
+      border-radius: 2px;
+      position: relative;
+    }
+    .nav-toggle .hamburger::before,
+    .nav-toggle .hamburger::after {
+      content: "";
+      position: absolute;
+      left: 0;
+    }
+    .nav-toggle .hamburger::before { top: -7px; }
+    .nav-toggle .hamburger::after  { top: 7px; }
+
+    /* ====== Mobile behavior ====== */
     @media (max-width: 768px) {
-      nav {
+      nav .nav-inner { padding: 0.5rem 0.75rem; }
+
+      /* show hamburger */
+      .nav-toggle { display: block; }
+
+      /* stack and hide nav-links by default */
+      .nav-links {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        display: none;                 /* hidden until toggle */
         flex-direction: column;
-        align-items: center;
+        gap: 0.25rem;
+        padding: 0.75rem 1rem 1rem;
+        background: var(--medium-blue);
+        border-top: 3px solid var(--light-blue);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
       }
 
-      .nav-links {
-        justify-content: center;
-        margin-top: 0.5rem;
+      /* visible state when .show is added */
+      .nav-links.show {
+        display: flex;
+      }
+
+      .nav-links a {
+        width: 100%;
+        text-align: center;
+        padding: 0.8rem 0;
+        border-radius: 8px;
       }
     }
 
@@ -143,29 +214,6 @@
       padding-left: 0;
     }
 
-    .nav-logo {
-      position: absolute;
-      left: 1.5rem;
-      display: flex;
-      align-items: center;
-      height: 100%;
-    }
-
-    
-    .nav-logo img {
-      height: 50px;
-      width: auto;
-      margin-right: 0.5rem;
-    }
-
-    .nav-logo a {
-      border-bottom: none !important;
-    }
-
-    .nav-logo img:hover {
-      filter: drop-shadow(0 0 6px var(--accent));
-    }
-    
     /* ====== Team Grid ====== */
     .team-grid {
       display: grid;
@@ -255,6 +303,21 @@
 
   </style>
 </head>
+<script>
+  const navToggle = document.querySelector('.nav-toggle');
+  const navLinks = document.getElementById('navLinks');
+
+  navToggle.addEventListener('click', () => {
+    const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+    navToggle.setAttribute('aria-expanded', (!expanded).toString());
+    navLinks.classList.toggle('show');
+  });
+
+  // Optional: close menu when clicking a link (good for single-page)
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.addEventListener('click', () => navLinks.classList.remove('show'));
+  });
+</script>
 <body>
 
   <!-- ====== Header ====== -->
@@ -265,18 +328,23 @@
   </header>
 
   <!-- ====== Navigation ====== -->
-  <nav>
-    <div class="nav-logo">
-      <a href="#">
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="#">
         <img src="assets/icon.png" alt="Trident Robotics Logo">
       </a>
-    </div>
-    <div class="nav-links">
-      <a href="#about">About</a>
-      <a href="#team">Team</a>
-      <a href="#updates">Updates</a>
-      <a href="#contact">Contact</a>
-      <a href="sponsors.html">Sponsors</a>
+
+      <button class="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="hamburger"></span>
+      </button>
+
+      <div class="nav-links" id="navLinks">
+        <a href="#about">About</a>
+        <a href="#team">Team</a>
+        <a href="#updates">Updates</a>
+        <a href="#contact">Contact</a>
+        <a href="sponsors.html">Sponsors</a>
+      </div>
     </div>
   </nav>
 

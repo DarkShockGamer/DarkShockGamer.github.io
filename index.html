@@ -76,8 +76,11 @@
     }
 
     /* ====== Navigation ====== */
-    nav.site-nav {
+    .site-nav {
       background: var(--medium-blue);
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
       position: sticky;
       top: 0;
       z-index: 1000;
@@ -96,18 +99,15 @@
     }
 
     .nav-logo {
-      position: absolute;
-      left: 0;
       display: flex;
       align-items: center;
       height: 100%;
-      padding-left: 0;
+      margin-right: 1rem;
     }
 
     .nav-logo img {
       height: 50px;
       width: auto;
-      display: block;
     }
 
     .nav-logo img:hover {
@@ -116,7 +116,6 @@
 
     .nav-links {
       display: flex;
-      justify-content: center;
       gap: 1rem;
     }
 
@@ -316,15 +315,13 @@
 
   <!-- ====== Navigation ====== -->
   <nav class="site-nav">
+    <a class="nav-logo" href="#">
+      <img src="assets/icon.png" alt="Trident Robotics Logo">
+    </a>
     <div class="nav-inner">
-      <a class="nav-logo" href="#">
-        <img src="assets/icon.png" alt="Trident Robotics Logo">
-      </a>
-
       <button class="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">
         <span class="hamburger"></span>
       </button>
-
       <div class="nav-links" id="navLinks">
         <a href="#about">About</a>
         <a href="#team">Team</a>

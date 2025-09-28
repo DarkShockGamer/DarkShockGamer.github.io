@@ -44,8 +44,6 @@
       align-items: center;
       padding: 0.6rem 1rem;
       width: 100%;
-      max-width: 1100px;
-      margin: 0 auto;
     }
     .nav-logo {
       justify-self: start;
@@ -53,10 +51,8 @@
     .nav-logo img {
       height: 50px;
       width: auto;
-      transition: filter 0.25s;
     }
     .nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
-
     .nav-links {
       display: flex;
       justify-content: center;
@@ -73,7 +69,7 @@
 
     .nav-toggle {
       justify-self: end;
-      display: none; /* hidden on desktop */
+      display: none;
       width: 40px;
       height: 40px;
       background: none;
@@ -95,8 +91,14 @@
       top: 50%;
       transform: translateX(-50%);
     }
-    .nav-toggle .hamburger::before { content: ""; top: -7px; }
-    .nav-toggle .hamburger::after  { content: ""; top: 7px; }
+    .nav-toggle .hamburger::before { 
+      content: "";
+      top: -7px;
+    }
+    .nav-toggle .hamburger::after  { 
+      content: "";
+      top: 7px;
+    }
 
     /* ====== Header ====== */
     header {

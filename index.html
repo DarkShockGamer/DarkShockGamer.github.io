@@ -183,13 +183,34 @@
     .timeline-date { font-weight: bold; color: var(--accent); margin-bottom: 0.25rem; }
     .timeline-text { font-size: 1.05rem; }
 
+    /* ====== Footer ===== */
     footer {
       background: var(--medium-blue);
+      color: #f4f8fb;                       /* light, readable text */
       text-align: center;
-      padding: 1.5rem;
-      font-size: 0.9rem;
+      padding: 1rem 1.5rem;
+      font-size: 0.85rem;                    /* professional small text */
+      line-height: 1.4;                      /* reduced extra space */
       border-top: 3px solid var(--light-blue);
-      color: #dce1f2;
+      max-width: 1100px;                     /* center and constrain width */
+      margin: 0 auto;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1); /* subtle texture */
+    }
+
+    footer p {
+      margin: 0.3rem 0;                      /* small spacing between lines */
+    }
+
+    footer a {
+      color: var(--accent);                  /* standout link color */
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.25s;
+    }
+
+    footer a:hover {
+      color: #fff;
+      text-decoration: underline;
     }
 
     /* ====== Responsive ====== */

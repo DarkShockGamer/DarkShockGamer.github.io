@@ -276,12 +276,16 @@
     /* ====== Responsive ====== */
     @media (max-width: 768px) {
       .nav-inner {
-        padding: 0.5rem 0.75rem;
-        justify-content: space-between; /* Logo left, toggle right */
+        display: flex;
+        justify-content: space-between; /* logo left, toggle right */
+        align-items: center;
+        position: relative; /* for dropdown absolute positioning */
+        padding: 0.5rem 1rem;
       }
 
       .nav-toggle {
         display: block;
+        z-index: 1001; /* above dropdown */
       }
 
       .nav-links {
@@ -291,13 +295,11 @@
         right: 0;
         display: none;
         flex-direction: column;
-        gap: 0.25rem;
-        padding: 0.75rem 0;
+        gap: 0;
         background: var(--medium-blue);
         border-top: 3px solid var(--light-blue);
         box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-        z-index: 999;
-        width: 100%; /* Make sure dropdown covers full width */
+        z-index: 1000;
       }
 
       .nav-links.show {
@@ -308,7 +310,7 @@
         width: 100%;
         text-align: center;
         padding: 0.8rem 0;
-        border-radius: 8px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
       }
     }
   </style>
@@ -323,13 +325,15 @@
 
   <!-- ====== Navigation ====== -->
   <nav class="site-nav">
-    <a class="nav-logo" href="#">
-      <img src="assets/icon.png" alt="Trident Robotics Logo">
-    </a>
     <div class="nav-inner">
+      <a class="nav-logo" href="#">
+        <img src="assets/icon.png" alt="Trident Robotics Logo">
+      </a>
+
       <button class="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">
         <span class="hamburger"></span>
       </button>
+
       <div class="nav-links" id="navLinks">
         <a href="#about">About</a>
         <a href="#team">Team</a>

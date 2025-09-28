@@ -17,108 +17,71 @@
     }
 
     /* ====== Global Styles ====== */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: var(--dark-blue);
       color: var(--white);
       line-height: 1.6;
     }
-
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-
-    img {
-      display: block;
-      max-width: 100%;
-      height: auto;
-    }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; height: auto; }
 
     /* ====== Header ====== */
     header {
       background: linear-gradient(90deg, var(--medium-blue), var(--light-blue));
-      padding: 3rem 1.5rem 4rem;
+      padding: 2.5rem 1rem 3rem;
       text-align: center;
       border-bottom: 3px solid var(--light-blue);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 1.5rem;
+      gap: 1rem;
     }
-
     header img {
       max-width: 750px;
       width: 90%;
-      height: auto;
       border-radius: 15px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-      margin: 0 auto 1.5rem;
+      margin-bottom: 1rem;
     }
-
-    header h1 {
-      font-size: 3rem;
-      margin: 0;
-    }
-
-    header p {
-      font-size: 1.4rem;
-      font-weight: 300;
-      color: #e0e7ff;
-      margin: 0;
-    }
+    header h1 { font-size: 3rem; margin-bottom: 0.5rem; }
+    header p { font-size: 1.2rem; font-weight: 300; color: #e0e7ff; }
 
     /* ====== Navigation ====== */
     .site-nav {
       background: var(--medium-blue);
       display: flex;
       align-items: center;
-      padding: 0;
       position: sticky;
       top: 0;
       z-index: 1000;
       border-bottom: 3px solid var(--light-blue);
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
-
     .nav-inner {
       max-width: 1100px;
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.6rem 1.5rem;
+      padding: 0.6rem 1rem;
       position: relative;
     }
-
     .nav-logo {
       display: flex;
       align-items: center;
-      height: 100%;
-      margin-left: 1.5rem;
     }
-
     .nav-logo img {
       height: 50px;
       width: auto;
     }
-
-    .nav-logo img:hover {
-      filter: drop-shadow(0 0 6px var(--accent));
-    }
-
+    .nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
     .nav-links {
       display: flex;
       gap: 1rem;
     }
-
     .nav-links a {
       font-weight: bold;
       text-transform: uppercase;
@@ -126,50 +89,19 @@
       border-bottom: 2px solid transparent;
       transition: 0.25s;
     }
+    .nav-links a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
-    .nav-links a:hover {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-    }
-
-    .nav-toggle {
-      grid-column: 3;
-      justify-self: end;
-      display: none;
-      background: none;
-      border: 0;
-      padding: 0.25rem;
-      cursor: pointer;
-    }
-
+    .nav-toggle { display: none; background: none; border: 0; cursor: pointer; }
     .nav-toggle .hamburger,
     .nav-toggle .hamburger::before,
     .nav-toggle .hamburger::after {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background: var(--white);
-      border-radius: 2px;
-      position: relative;
+      display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; position: relative;
     }
-
-    .nav-toggle .hamburger::before,
-    .nav-toggle .hamburger::after {
-      content: "";
-      position: absolute;
-      left: 0;
-    }
-
-    .nav-toggle .hamburger::before { top: -7px; }
-    .nav-toggle .hamburger::after  { top: 7px; }
+    .nav-toggle .hamburger::before { content: ""; position: absolute; left: 0; top: -7px; }
+    .nav-toggle .hamburger::after  { content: ""; position: absolute; left: 0; top: 7px; }
 
     /* ====== Sections ====== */
-    section {
-      padding: 4rem 1.5rem;
-      max-width: 1100px;
-      margin: auto;
-    }
-
+    section { padding: 4rem 1rem; max-width: 1100px; margin: auto; }
     h2 {
       color: var(--light-blue);
       font-size: 2rem;
@@ -178,16 +110,8 @@
       margin-bottom: 1.5rem;
       padding-bottom: 0.25rem;
     }
-
-    p, li {
-      font-size: 1.1rem;
-      margin-bottom: 1rem;
-    }
-
-    ul {
-      list-style: none;
-      padding-left: 0;
-    }
+    p, li { font-size: 1.1rem; margin-bottom: 1rem; }
+    ul { list-style: none; padding-left: 0; }
 
     /* ====== Team Grid ====== */
     .team-grid {
@@ -198,7 +122,6 @@
       gap: 2rem;
       justify-items: center;
     }
-
     .card {
       background: var(--medium-blue);
       padding: 1.5rem;
@@ -209,36 +132,18 @@
       width: 100%;
       max-width: 280px;
     }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.35); }
 
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 25px rgba(0,0,0,0.35);
-    }
-
-    /* ====== Team Photo ====== */
     #team-photo img {
       max-width: 900px;
       width: 100%;
       margin: 2rem auto 0;
       border-radius: 15px;
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-      display: block;
     }
 
-    /* ====== Timeline ====== */
-    .timeline {
-      position: relative;
-      margin: 2rem auto;
-      padding-left: 2rem;
-      border-left: 3px solid var(--light-blue);
-      max-width: 700px;
-    }
-
-    .timeline-item {
-      margin-bottom: 2rem;
-      position: relative;
-    }
-
+    .timeline { position: relative; margin: 2rem auto; padding-left: 2rem; border-left: 3px solid var(--light-blue); max-width: 700px; }
+    .timeline-item { margin-bottom: 2rem; position: relative; }
     .timeline-item::before {
       content: "";
       position: absolute;
@@ -249,20 +154,10 @@
       background: var(--accent);
       border-radius: 50%;
       border: 3px solid var(--light-blue);
-      display: none;
     }
+    .timeline-date { font-weight: bold; color: var(--accent); margin-bottom: 0.25rem; }
+    .timeline-text { font-size: 1.05rem; }
 
-    .timeline-date {
-      font-weight: bold;
-      color: var(--accent);
-      margin-bottom: 0.25rem;
-    }
-
-    .timeline-text {
-      font-size: 1.05rem;
-    }
-
-    /* ====== Footer ====== */
     footer {
       background: var(--medium-blue);
       text-align: center;
@@ -287,25 +182,9 @@
         box-shadow: 0 6px 18px rgba(0,0,0,0.25);
         z-index: 999;
       }
-
-      .nav-links.show {
-        display: flex;
-      }
-
-      .nav-links a {
-        width: 100%;
-        text-align: center;
-        padding: 0.8rem 0;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-      }
-
-      .nav-toggle {
-        display: block;
-        background: none;
-        border: 0;
-        cursor: pointer;
-        z-index: 1001;
-      }
+      .nav-links.show { display: flex; }
+      .nav-links a { width: 100%; text-align: center; padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      .nav-toggle { display: block; }
     }
   </style>
 </head>
@@ -341,11 +220,7 @@
   <!-- ====== About Section ====== -->
   <section id="about">
     <h2>About Us</h2>
-    <p>
-      We are <strong>Trident Robotics Team 4296</strong>, a high school robotics team passionate about 
-      engineering, teamwork, and pushing the limits of innovation. Our team designs, builds, and 
-      programs competitive robots while learning real-world problem-solving skills.
-    </p>
+    <p>We are <strong>Trident Robotics Team 4296</strong>, a high school robotics team passionate about engineering, teamwork, and pushing the limits of innovation. Our team designs, builds, and programs competitive robots while learning real-world problem-solving skills.</p>
   </section>
 
   <!-- ====== Team Section ====== -->
@@ -355,22 +230,22 @@
       <div class="card">
         <h3>Design Team</h3>
         <p><strong>Lead:</strong> [Name]</p>
-        <p><strong>Lead:</strong> [Name]</p>
+        <p><strong>Co-Lead:</strong> [Name]</p>
       </div>
       <div class="card">
         <h3>Mechanical Team</h3>
         <p><strong>Lead:</strong> [Name]</p>
-        <p><strong>Lead:</strong> [Name]</p>
+        <p><strong>Co-Lead:</strong> [Name]</p>
       </div>
       <div class="card">
         <h3>Electrical Team</h3>
         <p><strong>Lead:</strong> [Name]</p>
-        <p><strong>Lead:</strong> [Name]</p>
+        <p><strong>Co-Lead:</strong> [Name]</p>
       </div>
       <div class="card">
         <h3>Programming Team</h3>
         <p><strong>Lead:</strong> [Name]</p>
-        <p><strong>Lead:</strong> [Name]</p>
+        <p><strong>Co-Lead:</strong> [Name]</p>
       </div>
       <div class="card">
         <h3>Drive Team</h3>
@@ -390,23 +265,23 @@
     <h2>Team Updates</h2>
     <div class="timeline">
       <div class="timeline-item">
-        <p class="timeline-date"> ⚡ September 23, 2025</p>
+        <p class="timeline-date">⚡ September 23, 2025</p>
         <p class="timeline-text">First Robotics Meeting</p>
       </div>
       <div class="timeline-item">
-        <p class="timeline-date"> 👤 September 25, 2025</p>
+        <p class="timeline-date">👤 September 25, 2025</p>
         <p class="timeline-text">STEM Activity Day</p>
       </div>
       <div class="timeline-item">
-        <p class="timeline-date"> 🔧 September 30, 2025</p>
+        <p class="timeline-date">🔧 September 30, 2025</p>
         <p class="timeline-text">Subteam Stations</p>
       </div>
       <div class="timeline-item">
-        <p class="timeline-date"> ℹ️ September 30, 2025</p>
+        <p class="timeline-date">ℹ️ September 30, 2025</p>
         <p class="timeline-text">Applications Available</p>
       </div>
       <div class="timeline-item">
-        <p class="timeline-date"> 🏆 November 2025</p>
+        <p class="timeline-date">🏆 November 2025</p>
         <p class="timeline-text">Kickoff meeting for new season</p>
       </div>
     </div>
@@ -428,8 +303,6 @@
     document.addEventListener('DOMContentLoaded', function () {
       const navToggle = document.querySelector('.nav-toggle');
       const navLinks = document.getElementById('navLinks');
-
-      if (!navToggle || !navLinks) return;
 
       navToggle.addEventListener('click', function () {
         const expanded = navToggle.getAttribute('aria-expanded') === 'true';

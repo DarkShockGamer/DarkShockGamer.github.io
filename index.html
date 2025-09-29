@@ -167,7 +167,7 @@
     }
 
     .timeline { position: relative; margin: 2rem auto; padding-left: 2rem; border-left: 3px solid var(--light-blue); max-width: 700px; }
-    .timeline-item { margin-bottom: 2rem; position: relative; }
+    .timeline-item { margin-bottom: 2rem; position: relative; cursor: pointer; }
     .timeline-item::before {
       content: "";
       position: absolute;
@@ -183,6 +183,33 @@
     .timeline-date { font-weight: bold; color: var(--accent); margin-bottom: 0.25rem; }
     .timeline-text { font-size: 1.05rem; }
 
+    .timeline-item .info-bubble {
+      display: none;
+      position: absolute;
+      left: 25px; /* adjust horizontally */
+      top: -5px;  /* adjust vertically */
+      background: var(--light-blue);
+      color: var(--white);
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      font-size: 0.95rem;
+      max-width: 250px;
+      z-index: 10;
+      transition: opacity 0.3s;
+    }
+
+    .timeline-item .info-bubble::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -8px;
+      transform: translateY(-50%);
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent var(--light-blue) transparent transparent;
+    }
+    
     /* ====== Footer ===== */
     footer {
       background: var(--medium-blue);
@@ -299,25 +326,25 @@
   <section id="updates">
     <h2>Team Updates</h2>
     <div class="timeline">
-      <div class="timeline-item">
+      <div class="timeline-item" data-info="We had our first meeting to kickoff the season!">
         <p class="timeline-date">⚡ September 23, 2025</p>
         <p class="timeline-text">First Robotics Meeting</p>
       </div>
-      <div class="timeline-item">
+      <div class="timeline-item" data-info="STEM activitie where we tried tp build the tallest tower and old Team Leads talking about how subteams work.">
         <p class="timeline-date">👤 September 25, 2025</p>
         <p class="timeline-text">STEM Activity Day</p>
       </div>
-      <div class="timeline-item">
+      <div class="timeline-item" data-info="Teams set up their stations for subteam activities where new people to robotics can more easily decide what subteam they wanted to join.">
         <p class="timeline-date">🔧 September 30, 2025</p>
         <p class="timeline-text">Subteam Stations</p>
       </div>
-      <div class="timeline-item">
+      <div class="timeline-item" data-info="Applications for the team became available to students.">
         <p class="timeline-date">ℹ️ October 2, 2025</p>
         <p class="timeline-text">Applications Available</p>
       </div>
-      <div class="timeline-item">
+      <div class="timeline-item" data-info="Kickoff day announces the new challenge and what our robot will need to acomplish.">
         <p class="timeline-date">🏆 November 2025</p>
-        <p class="timeline-text">Kickoff meeting for new season</p>
+        <p class="timeline-text">Kickoff day for new season</p>
       </div>
     </div>
   </section>

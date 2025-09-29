@@ -185,21 +185,24 @@
 
     .timeline-item .info-bubble {
       position: absolute;
-      top: 50%;
-      left: 110%; /* closer to the item */
-      transform: translateY(-50%); /* center vertically */
+      top: 100%;             /* place below the item */
+      left: 50%;
+      transform: translateX(-50%); /* center horizontally */
+      margin-top: 0.5rem;
       background: var(--light-blue);
       color: var(--white);
       padding: 0.8rem 1rem;
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       font-size: 0.95rem;
       line-height: 1.4;
-      min-width: 200px;    /* ensures a good base width */
-      max-width: 300px;    /* prevents it from getting too wide */
-      white-space: normal; /* allow wrapping instead of one long line */
+      width: max-content;
+      min-width: 200px;
+      max-width: 280px;
+      white-space: normal;   /* wrap text */
       z-index: 20;
       opacity: 0;
+      pointer-events: none;  /* no accidental hovers */
       transition: opacity 0.3s ease;
     }
 
@@ -216,6 +219,7 @@
 
     .timeline-item .info-bubble.show {
       opacity: 1;
+      pointer-events: auto;
     }
     
     /* ====== Footer ===== */

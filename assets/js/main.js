@@ -19,17 +19,19 @@ document.addEventListener('DOMContentLoaded', function () {
       // Remove any existing bubbles
       document.querySelectorAll('.info-bubble').forEach(bubble => bubble.remove());
 
+      // Only show bubble if there is data-info
+      const infoText = item.dataset.info;
+      if (!infoText) return;
+
       // Create new bubble
       const bubble = document.createElement('div');
       bubble.className = 'info-bubble';
-      bubble.textContent = item.dataset.info;
+      bubble.textContent = infoText;
 
       item.appendChild(bubble);
 
-      // Optional: remove bubble after 5 seconds
-      setTimeout(() => {
-        bubble.remove();
-      }, 5000);
+      // Force it to display (if CSS was hiding)
+      bubble.style.display = 'block';
     });
   });
 });

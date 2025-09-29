@@ -1,9 +1,9 @@
-document.addEventListener('DOMContentLoaded', function () {
-  // ===== Navigation Toggle =====
+document.addEventListener('DOMContentLoaded', function() {
+  // ======= Mobile Navigation Toggle =======
   const navToggle = document.querySelector('.nav-toggle');
   const navLinks = document.getElementById('navLinks');
 
-  navToggle.addEventListener('click', function () {
+  navToggle.addEventListener('click', function() {
     const expanded = navToggle.getAttribute('aria-expanded') === 'true';
     navToggle.setAttribute('aria-expanded', (!expanded).toString());
     navLinks.classList.toggle('show');
@@ -13,31 +13,34 @@ document.addEventListener('DOMContentLoaded', function () {
     link.addEventListener('click', () => navLinks.classList.remove('show'));
   });
 
-  // ===== Timeline Info Bubbles =====
-  document.querySelectorAll('.timeline-item').forEach(item => {
-    item.addEventListener('click', e => {
-      // Prevent document click from immediately removing bubble
+  // ======= Timeline Info Bubbles =======
+  const timelineItems = document.querySelectorAll('.timeline-item');
+
+  timelineItems.forEach(item => {
+    const infoText = item.getAttribute('data-info');
+    if (!infoText) return;
+
+    // Create info bubble
+    const bubble = document.createElement('div');
+    bubble.className = 'info-bubble';
+    bubble.textContent = infoText;
+    item.appendChild(bubble);
+
+    // Show/hide on hover (desktop)
+    item.addEventListener('mouseenter', () => bubble.classList.add('show'));
+    item.addEventListener('mouseleave', () => bubble.classList.remove('show'));
+
+    // Show/hide on click/tap (mobile)
+    item.addEventListener('click', (e) => {
       e.stopPropagation();
-
-      // Remove existing bubbles
-      document.querySelectorAll('.timeline-item .info-bubble').forEach(bubble => bubble.remove());
-
-      const infoText = item.dataset.info;
-      if (!infoText) return;
-
-      const bubble = document.createElement('div');
-      bubble.className = 'info-bubble';
-      bubble.textContent = infoText;
-
-      item.appendChild(bubble);
-
-      // Fade in
-      requestAnimationFrame(() => bubble.classList.add('show'));
+      bubble.classList.toggle('show');
     });
   });
 
-  // Click outside closes bubbles
+  // Hide any open info bubbles when clicking outside
   document.addEventListener('click', () => {
-    document.querySelectorAll('.timeline-item .info-bubble').forEach(bubble => bubble.remove());
+    document.querySelectorAll('.info-bubble.show').forEach(bubble => {
+      bubble.classList.remove('show');
+    });
   });
 });

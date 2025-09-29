@@ -14,24 +14,30 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // ===== Timeline Info Bubbles =====
-  document.querySelectorAll('.timeline-item').forEach(item => {
-    item.addEventListener('click', () => {
-      // Remove any existing bubbles
-      document.querySelectorAll('.info-bubble').forEach(bubble => bubble.remove());
+// Timeline Info Bubbles
+document.querySelectorAll('.timeline-item').forEach(item => {
+  item.addEventListener('click', () => {
+    // Remove existing bubbles
+    document.querySelectorAll('.timeline-item .info-bubble').forEach(bubble => bubble.remove());
 
-      // Only show bubble if there is data-info
-      const infoText = item.dataset.info;
-      if (!infoText) return;
+    const infoText = item.dataset.info;
+    if (!infoText) return;
 
-      // Create new bubble
-      const bubble = document.createElement('div');
-      bubble.className = 'info-bubble';
-      bubble.textContent = infoText;
+    const bubble = document.createElement('div');
+    bubble.className = 'info-bubble'; // still use 'info-bubble', scoped via parent
+    bubble.textContent = infoText;
 
-      item.appendChild(bubble);
+    item.appendChild(bubble);
 
-      // Force it to display (if CSS was hiding)
-      bubble.style.display = 'block';
-    });
+    // Animate fade in
+    requestAnimationFrame(() => bubble.classList.add('show'));
   });
 });
+
+// Close bubbles when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.timeline-item')) {
+    document.querySelectorAll('.timeline-item .info-bubble').forEach(bubble => bubble.remove());
+  }
+});
+

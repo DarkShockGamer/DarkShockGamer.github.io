@@ -1,18 +1,19 @@
-console.log("✅ main.js is loaded and running");
 document.addEventListener('DOMContentLoaded', function() {
   // ======= Mobile Navigation Toggle =======
   const navToggle = document.querySelector('.nav-toggle');
   const navLinks = document.getElementById('navLinks');
 
-  navToggle.addEventListener('click', function() {
-    const expanded = navToggle.getAttribute('aria-expanded') === 'true';
-    navToggle.setAttribute('aria-expanded', (!expanded).toString());
-    navLinks.classList.toggle('show');
-  });
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', function() {
+      const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+      navToggle.setAttribute('aria-expanded', (!expanded).toString());
+      navLinks.classList.toggle('show');
+    });
 
-  document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', () => navLinks.classList.remove('show'));
-  });
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => navLinks.classList.remove('show'));
+    });
+  }
 
   // ======= Timeline Info Bubbles =======
   const timelineItems = document.querySelectorAll('.timeline-item');
@@ -27,22 +28,17 @@ document.addEventListener('DOMContentLoaded', function() {
     bubble.textContent = infoText;
     item.appendChild(bubble);
 
-    // Show/hide on hover (desktop)
-    item.addEventListener('mouseenter', () => bubble.classList.add('show'));
-    item.addEventListener('mouseleave', () => bubble.classList.remove('show'));
-
-    // Show/hide on click/tap (mobile)
+    // Toggle bubble on click/tap only
     item.addEventListener('click', (e) => {
       e.stopPropagation();
+      // Close all other bubbles first
+      document.querySelectorAll('.info-bubble.show').forEach(b => b.classList.remove('show'));
       bubble.classList.toggle('show');
     });
   });
 
-  // Hide any open info bubbles when clicking outside
+  // Hide bubbles when clicking outside
   document.addEventListener('click', () => {
-    document.querySelectorAll('.info-bubble.show').forEach(bubble => {
-      bubble.classList.remove('show');
-    });
+    document.querySelectorAll('.info-bubble.show').forEach(bubble => bubble.classList.remove('show'));
   });
 });
-

@@ -184,10 +184,9 @@
     .timeline-text { font-size: 1.05rem; }
 
     .timeline-item .info-bubble {
-      display: none;
       position: absolute;
-      left: 25px; /* adjust horizontally */
-      top: -5px;  /* adjust vertically */
+      top: 0;
+      left: 120%;
       background: var(--light-blue);
       color: var(--white);
       padding: 0.6rem 1rem;
@@ -196,7 +195,9 @@
       font-size: 0.95rem;
       max-width: 250px;
       z-index: 10;
-      transition: opacity 0.3s;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      white-space: normal;
     }
 
     .timeline-item .info-bubble::after {
@@ -208,6 +209,10 @@
       border-width: 5px;
       border-style: solid;
       border-color: transparent var(--light-blue) transparent transparent;
+    }
+
+    .timeline-item .info-bubble.show {
+      opacity: 1;
     }
     
     /* ====== Footer ===== */

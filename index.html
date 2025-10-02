@@ -49,30 +49,15 @@
     header h1 { font-size: 3rem;; margin-bottom: 0.5rem; }
     header p { font-size: 1.2rem; font-weight: 300; color: #e0e7ff; }
 
-    .wave-top {
+    .wave-container {
       width: 100%;
-      height: 80px; /* adjust for desired thickness */
-      background: linear-gradient(90deg, #4fa3d1, #1f4d7a); /* gradient colors */
-      clip-path: polygon(
-        0 0, 
-        100% 0, 
-        100% 60%, 
-        75% 80%, 
-        50% 60%, 
-        25% 80%, 
-        0 60%
-      );
+      overflow: hidden;
+      line-height: 0;
     }
-
-    /* Add subtle animation for moving wave */
-    @keyframes waveMove {
-      0% { transform: translateX(0); }
-      50% { transform: translateX(-20px); }
-      100% { transform: translateX(0); }
-    }
-
-    .wave-top {
-      animation: waveMove 6s infinite linear;
+    .wave-container svg {
+      display: block;
+      width: 100%;
+      height: 80px;
     }
     
     /* ====== Navigation ====== */
@@ -334,7 +319,19 @@
   </style>
 </head>
 <body>
-  <div class="wave-top"></div>
+  <!-- ====== Smooth Wavy Gradient Top ====== -->
+  <div class="wave-container">
+    <svg viewBox="0 0 1440 150" preserveAspectRatio="none">
+      <path d="M0,50 C360,150 1080,-50 1440,50 L1440,0 L0,0 Z" fill="url(#waveGradient)"></path>
+      <defs>
+        <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#4fa3d1"/>
+          <stop offset="100%" stop-color="#1f4d7a"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  </div>
+  
   <!-- ====== Header ====== -->
   <header>
     <img src="assets/group.png" alt="Team Group Photo">

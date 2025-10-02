@@ -49,15 +49,53 @@
     header h1 { font-size: 3rem;; margin-bottom: 0.5rem; }
     header p { font-size: 1.2rem; font-weight: 300; color: #e0e7ff; }
 
-    .wave-container {
+    /* Wrapper for waves */
+    .real-water {
+      position: relative;
       width: 100%;
+      height: 200px;
       overflow: hidden;
-      line-height: 0;
+      background: linear-gradient(to bottom, #0a1f44 0%, #1f4d7a 100%);
     }
-    .wave-container svg {
-      display: block;
-      width: 100%;
-      height: 80px;
+
+    /* Common wave style */
+    .wave {
+      position: absolute;
+      width: 200%;
+      height: 100%;
+      top: 0;
+      left: -50%;
+      border-radius: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      animation: waveMove 10s linear infinite;
+      filter: blur(2px);
+    }
+
+    /* Layered waves for depth */
+    .wave1 {
+      background: rgba(79, 163, 209, 0.5);
+      height: 200px;
+      animation-duration: 12s;
+    }
+    .wave2 {
+      background: rgba(31, 77, 122, 0.5);
+      height: 180px;
+      animation-duration: 18s;
+      opacity: 0.7;
+      top: 20px;
+    }
+    .wave3 {
+      background: rgba(10, 31, 68, 0.4);
+      height: 160px;
+      animation-duration: 25s;
+      top: 40px;
+    }
+
+    /* Smooth horizontal wave movement */
+    @keyframes waveMove {
+      0% { transform: translateX(0) translateY(0); }
+      50% { transform: translateX(-25%) translateY(10px); }
+      100% { transform: translateX(-50%) translateY(0); }
     }
     
     /* ====== Navigation ====== */
@@ -319,17 +357,11 @@
   </style>
 </head>
 <body>
-  <!-- ====== Smooth Wavy Gradient Top ====== -->
-  <div class="wave-container">
-    <svg viewBox="0 0 1440 150" preserveAspectRatio="none">
-      <path d="M0,50 C360,150 1080,-50 1440,50 L1440,0 L0,0 Z" fill="url(#waveGradient)"></path>
-      <defs>
-        <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#4fa3d1"/>
-          <stop offset="100%" stop-color="#1f4d7a"/>
-        </linearGradient>
-      </defs>
-    </svg>
+  <!-- ====== Realistic Water Waves ====== -->
+  <div class="real-water">
+    <div class="wave wave1"></div>
+    <div class="wave wave2"></div>
+    <div class="wave wave3"></div>
   </div>
   
   <!-- ====== Header ====== -->

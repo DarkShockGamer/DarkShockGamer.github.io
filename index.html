@@ -49,53 +49,17 @@
     header h1 { font-size: 3rem;; margin-bottom: 0.5rem; }
     header p { font-size: 1.2rem; font-weight: 300; color: #e0e7ff; }
 
-    /* Wrapper for waves */
-    .real-water {
-      position: relative;
+    .water-container {
       width: 100%;
-      height: 200px;
       overflow: hidden;
-      background: linear-gradient(to bottom, #0a1f44 0%, #1f4d7a 100%);
+      background: linear-gradient(to bottom, #0a1f44, #1f4d7a);
+      height: 220px;
     }
 
-    /* Common wave style */
-    .wave {
-      position: absolute;
-      width: 200%;
+    .waves {
+      width: 100%;
       height: 100%;
-      top: 0;
-      left: -50%;
-      border-radius: 100%;
-      background: rgba(255, 255, 255, 0.2);
-      animation: waveMove 10s linear infinite;
-      filter: blur(2px);
-    }
-
-    /* Layered waves for depth */
-    .wave1 {
-      background: rgba(79, 163, 209, 0.5);
-      height: 200px;
-      animation-duration: 12s;
-    }
-    .wave2 {
-      background: rgba(31, 77, 122, 0.5);
-      height: 180px;
-      animation-duration: 18s;
-      opacity: 0.7;
-      top: 20px;
-    }
-    .wave3 {
-      background: rgba(10, 31, 68, 0.4);
-      height: 160px;
-      animation-duration: 25s;
-      top: 40px;
-    }
-
-    /* Smooth horizontal wave movement */
-    @keyframes waveMove {
-      0% { transform: translateX(0) translateY(0); }
-      50% { transform: translateX(-25%) translateY(10px); }
-      100% { transform: translateX(-50%) translateY(0); }
+      display: block;
     }
     
     /* ====== Navigation ====== */
@@ -357,11 +321,28 @@
   </style>
 </head>
 <body>
-  <!-- ====== Realistic Water Waves ====== -->
-  <div class="real-water">
-    <div class="wave wave1"></div>
-    <div class="wave wave2"></div>
-    <div class="wave wave3"></div>
+  <!-- ====== Realistic Water Top Section ====== -->
+  <div class="water-container">
+    <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+      <defs>
+        <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#4fa3d1" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#1f4d7a" stop-opacity="0.6"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#waveGradient)" d="M0,160 C360,200 1080,120 1440,160 L1440,320 L0,320 Z">
+        <animate 
+          attributeName="d" 
+          dur="12s" 
+          repeatCount="indefinite" 
+          values="
+            M0,160 C360,200 1080,120 1440,160 L1440,320 L0,320 Z;
+            M0,150 C360,130 1080,180 1440,150 L1440,320 L0,320 Z;
+            M0,160 C360,200 1080,120 1440,160 L1440,320 L0,320 Z
+          "
+        />
+      </path>
+    </svg>
   </div>
   
   <!-- ====== Header ====== -->

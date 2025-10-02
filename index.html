@@ -48,19 +48,6 @@
     }
     header h1 { font-size: 3rem;; margin-bottom: 0.5rem; }
     header p { font-size: 1.2rem; font-weight: 300; color: #e0e7ff; }
-
-    .water-container {
-      width: 100%;
-      overflow: hidden;
-      background: linear-gradient(to bottom, #0a1f44, #1f4d7a);
-      height: 220px;
-    }
-
-    .waves {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
     
     /* ====== Navigation ====== */
     .site-nav {
@@ -321,29 +308,6 @@
   </style>
 </head>
 <body>
-  <!-- ====== Realistic Water Top Section ====== -->
-  <div class="water-container">
-    <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-      <defs>
-        <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#4fa3d1" stop-opacity="0.6"/>
-          <stop offset="100%" stop-color="#1f4d7a" stop-opacity="0.6"/>
-        </linearGradient>
-      </defs>
-      <path fill="url(#waveGradient)" d="M0,160 C360,200 1080,120 1440,160 L1440,320 L0,320 Z">
-        <animate 
-          attributeName="d" 
-          dur="12s" 
-          repeatCount="indefinite" 
-          values="
-            M0,160 C360,200 1080,120 1440,160 L1440,320 L0,320 Z;
-            M0,150 C360,130 1080,180 1440,150 L1440,320 L0,320 Z;
-            M0,160 C360,200 1080,120 1440,160 L1440,320 L0,320 Z
-          "
-        />
-      </path>
-    </svg>
-  </div>
   
   <!-- ====== Header ====== -->
   <header>

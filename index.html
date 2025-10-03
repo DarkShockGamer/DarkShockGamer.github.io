@@ -48,7 +48,7 @@
       height: 100%;
       object-fit: cover;
       filter: brightness(0.55);
-      z-index: -1;
+      z-index: 0;
     }
 
     header::after {
@@ -79,16 +79,15 @@
       animation: fadeInUp 1.4s ease forwards;
     }
 
-    /* Slant + border */
     .header-slant {
       position: absolute;
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 122px; /* slant height */
+      height: 122px;
       background: linear-gradient(to top right, var(--medium-blue), var(--dark-blue));
       clip-path: polygon(0 20%, 100% 0, 100% 100%, 0% 100%);
-      z-index: 0;
+      z-index: 1;
     }
 
     .header-slant::before {
@@ -99,7 +98,7 @@
       width: 100%;
       height: 4px;
       background: var(--light-blue);
-      z-index: 1;
+      z-index: 2;
     }
 
     @keyframes fadeInUp {

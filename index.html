@@ -55,17 +55,12 @@
     header::after {
       content: "";
       position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: -1px; left: 0; right: 0;
       height: 122px;
-      background: url('data:image/svg+xml;utf8,
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" preserveAspectRatio="none">
-          <path d="M0,96L1440,0L1440,120L0,120Z" fill="%231f4d7a"/>
-          <path d="M0,96L1440,0" fill="none" stroke="%2339a9db" stroke-width="4"/>
-        </svg>') no-repeat;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120"><path fill="%231f4d7a" fill-opacity="1" d="M0,96L1440,0L1440,120L0,120Z"></path></svg>') no-repeat;
       background-size: cover;
-      z-index: -1;
+      z-index: 0;
+      transform: translateY(1px);
     }
 
     header h1 {

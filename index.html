@@ -56,7 +56,11 @@
       position: absolute;
       bottom: 0; left: 0; right: 0;
       height: 120px;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120"><path fill="%231f4d7a" fill-opacity="1" d="M0,96L1440,0L1440,120L0,120Z"></path></svg>') no-repeat;
+      background: url('data:image/svg+xml;utf8,
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
+          <path fill="%231f4d7a" d="M0,120 L1440,0 L1440,120 Z"/>
+          <path fill="none" stroke="%234fa3d1" stroke-width="6" d="M0,120 L1440,0"/>
+        </svg>') no-repeat;
       background-size: cover;
     }
 

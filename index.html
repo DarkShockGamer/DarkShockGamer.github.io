@@ -39,6 +39,7 @@
       text-align: center;
       color: var(--white);
       overflow: hidden;
+      margin-bottom: 0;
     }
 
     header img {
@@ -54,7 +55,7 @@
     header::after {
       content: "";
       position: absolute;
-      bottom: 0; left: 0; right: 0;
+      bottom: -1px; left: 0; right: 0;
       height: 122px;
       background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120"><path fill="%231f4d7a" fill-opacity="1" d="M0,96L1440,0L1440,120L0,120Z"></path></svg>') no-repeat;
       background-size: cover;
@@ -91,6 +92,7 @@
       position: sticky;
       top: 0;
       z-index: 1000;
+      border: none;
       border-top: none;
       border-bottom: 3px solid var(--light-blue);
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);

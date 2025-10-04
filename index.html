@@ -27,16 +27,19 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--dark-blue)
-      background-image: url('data:image/svg+xml;utf8,\
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">\
-    <polygon points="10,0 20,5 20,15 10,20 0,15 0,5" fill="none" stroke="rgba(79,163,209,0.2)" stroke-width="1"/>\
-    </svg>');
-      background-repeat: repeat;
-      color: var(--dark-blue);
+      background: linear-gradient(-45deg, #0a1f44, #1f4d7a, #4fa3d1, #0a1f44);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      color: var(--white);
     }
     a { text-decoration: none; color: inherit; }
     img { display: block; max-width: 100%; height: auto; }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
     
     /* ====== Header ====== */
     header {

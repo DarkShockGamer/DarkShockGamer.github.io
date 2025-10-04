@@ -27,7 +27,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(-45deg, #0a1f44, #122d5c, #1f4d7a, #0a1f44);
+      background: linear-gradient(-45deg, #1f4d7a, #122d5c, #0a1f44, #0a1b3c);
       background-size: 400% 400%;
       animation: gradientShift 15s ease infinite;
       color: var(--white);
@@ -36,11 +36,21 @@
     img { display: block; max-width: 100%; height: auto; }
 
     @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      25% { background-position: 50% 50%; }
-      50% { background-position: 100% 50%; }
-      75% { background-position: 50% 50%; }
-      100% { background-position: 0% 50%; }
+      0% {
+        background: linear-gradient(-45deg, #1f4d7a, #122d5c, #0a1f44, #0a1b3c);
+      }
+      25% {
+        background: linear-gradient(-45deg, #1c4b78, #102a54, #081c3c, #0a1b3c);
+      }
+      50% {
+        background: linear-gradient(-45deg, #1f4d7a, #122d5c, #0a1f44, #0a1b3c);
+      }
+      75% {
+        background: linear-gradient(-45deg, #1c4b78, #102a54, #081c3c, #0a1b3c);
+      }
+      100% {
+        background: linear-gradient(-45deg, #1f4d7a, #122d5c, #0a1f44, #0a1b3c);
+      }
     }
     
     /* ====== Header ====== */

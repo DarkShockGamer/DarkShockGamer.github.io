@@ -16,6 +16,13 @@
       --accent: #ffd700;
     }
 
+    @font-face {
+      font-family: 'Ethnocentric';
+      src: url('/assets/fonts/Ethnocentric Rg.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    
     /* ====== Global Styles ====== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -65,9 +72,10 @@
     }
 
     header h1 {
+      font-family: 'TridentFont', sans-serif;
       font-size: 3.5rem;
       font-weight: 800;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
       margin-bottom: 0.8rem;
       text-shadow: 0 4px 12px rgba(0,0,0,0.6);
       animation: fadeInUp 1s ease forwards;

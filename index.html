@@ -231,66 +231,138 @@
       border-radius: 15px;
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
     }
-
-    .timeline { position: relative; margin: 2rem auto; padding-left: 2rem; border-left: 3px solid var(--light-blue); max-width: 700px; }
-    .timeline-item {
-      margin-bottom: 2rem;
+    
+    /* ====== Timeline ====== */
+    .timeline {
       position: relative;
-      cursor: pointer;
-      display: block;
-      width: fit-content;
+      max-width: 800px;
+      margin: 3rem auto;
+      padding: 0 1rem;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--light-blue), var(--medium-blue));
+      border-radius: 2px;
+      opacity: 0.6;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin: 2.5rem 0;
+      width: 50%;
+      padding: 1rem 2rem;
+      background: rgba(10, 31, 68, 0.85);
+      border: 2px solid var(--light-blue);
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .timeline-item:nth-child(odd) {
+      left: 0;
+      transform-origin: right center;
+    }
+
+    .timeline-item:nth-child(even) {
+      left: 50%;
+      transform-origin: left center;
+    }
+
+    .timeline-item:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.35);
     }
 
     .timeline-item::before {
       content: "";
       position: absolute;
-      left: -11px;
-      top: 5px;
+      top: 20px;
       width: 18px;
       height: 18px;
-      background: var(--accent);
+      border: 3px solid var(--accent);
+      background: var(--medium-blue);
       border-radius: 50%;
-      border: 3px solid var(--light-blue);
-      content: none;
+      box-shadow: 0 0 12px var(--accent);
+      z-index: 2;
     }
-    
-    .timeline-date { font-weight: bold; color: var(--accent); margin-bottom: 0.25rem; }
-    .timeline-text { font-size: 1.05rem; }
 
+    .timeline-item:nth-child(odd)::before {
+      right: -11px;
+    }
+
+    .timeline-item:nth-child(even)::before {
+      left: -11px;
+    }
+
+    .timeline-date {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 1.05rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .timeline-text {
+      color: var(--white);
+      font-size: 1.05rem;
+      opacity: 0.95;
+    }
+
+    /* Hover bubble for more info */
     .timeline-item .info-bubble {
+      display: none;
+    }
+
+    .timeline-item:hover::after {
+      content: attr(data-info);
       position: absolute;
-      top: 50%;
-      left: 100%;
-      transform: translateY(-50%);
+      top: 100%;
+      left: 50%;
+      transform: translate(-50%, 10px);
       background: var(--light-blue);
       color: var(--white);
-      padding: 0.8rem 1.2rem;
-      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      font-size: 0.95rem;
-      width: max-content;
-      min-width: 150px;
-      max-width: 350px;
-      white-space: normal;
-      opacity: 0;
-      transition: opacity 0.3s ease, left 0.3s ease;
-      z-index: 10;
+      font-size: 0.9rem;
+      width: 220px;
+      text-align: center;
+      animation: fadeIn 0.3s ease forwards;
+      z-index: 5;
     }
 
-    .timeline-item .info-bubble::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: -8px;
-      transform: translateY(-50%);
-      border-width: 5px;
-      border-style: solid;
-      border-color: transparent var(--light-blue) transparent transparent;
+    /* Fade animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, 20px); }
+      to { opacity: 1; transform: translate(-50%, 10px); }
     }
 
-    .timeline-item .info-bubble.show {
-      opacity: 1;
-      pointer-events: auto;
+    /* ====== Mobile Timeline ====== */
+    @media (max-width: 768px) {
+      .timeline::before {
+        left: 15px;
+      }
+
+      .timeline-item {
+        width: 100%;
+        left: 0 !important;
+        margin-left: 2rem;
+      }
+
+      .timeline-item::before {
+        left: -28px;
+      }
+
+      .timeline-item:hover::after {
+        left: 0;
+        transform: translate(0, 10px);
+      }
     }
     
     /* ====== Footer ===== */
@@ -499,12 +571,8 @@
         <p class="timeline-text">Subteam Stations</p>
       </div>
       <div class="timeline-item" data-info="Applications for the team became available to students.">
-        <p class="timeline-date">ℹ️ October 2, 2025</p>
+        <p class="timeline-date">ℹ️ October 7, 2025</p>
         <p class="timeline-text">Applications Available</p>
-      </div>
-      <div class="timeline-item" data-info="The parade is on Saturday, October 4 at 9am. Line-up begins at 8am at the Gurnee Police Department. The parade goes down O'Plaine road to Grand Ave, so it is not a long route.">
-        <p class="timeline-date">ℹ️ October 4, 2025</p>
-        <p class="timeline-text">2025 Rhythms of Rio Homecoming parade</p>
       </div>
       <div class="timeline-item" data-info="Kickoff day announces the new challenge and what our robot will need to acomplish.">
         <p class="timeline-date">🏆 November 2025</p>

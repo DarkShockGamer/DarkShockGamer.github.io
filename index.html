@@ -363,8 +363,19 @@
         left: 0;
         transform: translate(0, 10px);
       }
+
+      @media (max-width: 768px) {
+      .timeline-item:hover::after {
+        left: 50% !important;
+        transform: translateX(-50%) translateY(10px) !important;
+        width: 90vw;
+        max-width: 320px;
+        box-sizing: border-box;
+        z-index: 9999 !important;
+        white-space: normal;
+      }
     }
-    
+        
     /* ====== Footer ===== */
     footer {
       background: var(--medium-blue);

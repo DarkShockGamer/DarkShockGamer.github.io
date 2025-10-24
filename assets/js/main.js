@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // ======= Google Sign-In =======
-  const clientId = "635936985251-3p4cgja9c0k7fngn3pcblme307p0c8jm.apps.googleusercontent.com";
+  const clientId = "635936985251-tj5uq36b5altf4qmk7019r3u504mm1fs.apps.googleusercontent.com";
 
   if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
     google.accounts.id.initialize({
@@ -68,3 +68,4 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
 });
+

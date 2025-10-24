@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (googleBtn) {
     googleBtn.addEventListener('click', () => {
       google.accounts.id.initialize({
-        client_id: "YOUR_GOOGLE_CLIENT_ID", // replace with your client ID
+        client_id: "635936985251-3p4cgja9c0k7fngn3pcblme307p0c8jm.apps.googleusercontent.com", // replace with your client ID
         callback: (response) => {
           console.log("Encoded JWT ID token:", response.credential);
           // send to backend if needed
@@ -57,3 +57,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+

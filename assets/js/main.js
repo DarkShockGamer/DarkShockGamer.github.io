@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+
   // ======= Mobile Navigation Toggle =======
   const navToggle = document.querySelector('.nav-toggle');
   const navLinks = document.getElementById('navLinks');
@@ -22,39 +23,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const infoText = item.getAttribute('data-info');
     if (!infoText) return;
 
-    // Create info bubble
     const bubble = document.createElement('div');
     bubble.className = 'info-bubble';
     bubble.textContent = infoText;
     item.appendChild(bubble);
 
-    // Toggle bubble on click/tap only
     item.addEventListener('click', (e) => {
       e.stopPropagation();
-      // Close all other bubbles first
       document.querySelectorAll('.info-bubble.show').forEach(b => b.classList.remove('show'));
       bubble.classList.toggle('show');
     });
   });
 
-  // Hide bubbles when clicking outside
   document.addEventListener('click', () => {
     document.querySelectorAll('.info-bubble.show').forEach(bubble => bubble.classList.remove('show'));
   });
 
-  // ======= Google Login Button =======
+  // ======= Google Sign-In =======
+  const clientId = "635936985251-3p4cgja9c0k7fngn3pcblme307p0c8jm.apps.googleusercontent.com";
+
+  // Initialize Google Identity client once
+  google.accounts.id.initialize({
+    client_id: clientId,
+    callback: (response) => {
+      console.log("Encoded JWT ID token:", response.credential);
+      // You can send this token to your backend here
+    }
+  });
+
+  // Optional: automatically display One Tap prompt
+  // google.accounts.id.prompt(); 
+
+  // Trigger Google Sign-In on button click
   const googleBtn = document.getElementById('googleSignIn');
   if (googleBtn) {
     googleBtn.addEventListener('click', () => {
-      google.accounts.id.initialize({
-        client_id: "635936985251-3p4cgja9c0k7fngn3pcblme307p0c8jm.apps.googleusercontent.com", // replace with your client ID
-        callback: (response) => {
-          console.log("Encoded JWT ID token:", response.credential);
-          // send to backend if needed
-        }
-      });
-      google.accounts.id.prompt(); // optional: show One Tap
+      // Render popup-based sign-in
+      google.accounts.id.prompt(); // or renderButton if you prefer
     });
   }
-});
 
+});

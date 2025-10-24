@@ -50,7 +50,9 @@
   </main>
 
   <script>
-    const data = {
+    // --- Load data from localStorage or initialize defaults ---
+    const stored = localStorage.getItem("trident_taskboard");
+    const data = stored ? JSON.parse(stored) : {
       columns: {
         todo: { title: "To Do", tasks: [
           { id: "t1", title: "Design intake hatch", assignee: "Alex", due: "2025-11-05", tags: ["Mechanical"] },
@@ -65,6 +67,11 @@
     const board = document.getElementById("board");
     const filterInput = document.getElementById("filterInput");
     const addBtn = document.getElementById("addTaskBtn");
+
+    // Save state to localStorage
+    function save() {
+      localStorage.setItem("trident_taskboard", JSON.stringify(data));
+    }
 
     function renderBoard() {
       board.innerHTML = "";
@@ -96,6 +103,7 @@
 
         makeDroppable(list);
       });
+      save();
     }
 
     function createTaskEl(task, colId) {

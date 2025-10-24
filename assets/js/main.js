@@ -29,11 +29,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     item.addEventListener('click', (e) => {
       e.stopPropagation();
+      // Close other bubbles
       document.querySelectorAll('.info-bubble.show').forEach(b => b.classList.remove('show'));
       bubble.classList.toggle('show');
     });
   });
 
+  // Close bubbles when clicking outside
   document.addEventListener('click', () => {
     document.querySelectorAll('.info-bubble.show').forEach(bubble => bubble.classList.remove('show'));
   });
@@ -41,24 +43,28 @@ document.addEventListener('DOMContentLoaded', function() {
   // ======= Google Sign-In =======
   const clientId = "635936985251-3p4cgja9c0k7fngn3pcblme307p0c8jm.apps.googleusercontent.com";
 
-  google.accounts.id.initialize({
-    client_id: clientId,
-    callback: (response) => {
-      console.log("Encoded JWT ID token:", response.credential);
-      // send token to backend if needed
+  if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+    google.accounts.id.initialize({
+      client_id: clientId,
+      callback: (response) => {
+        console.log("JWT ID token:", response.credential);
+        // send token to backend if needed
+      }
+    });
+
+    const googleBtn = document.getElementById('googleSignIn');
+    if (googleBtn) {
+      // Google renders the official button inside this div
+      google.accounts.id.renderButton(
+        googleBtn,
+        { theme: "outline", size: "large", width: 250 }
+      );
+
+      // Optional: show One Tap automatically
+      google.accounts.id.prompt();
     }
-  });
-
-  const googleBtn = document.getElementById('googleSignIn');
-  if (googleBtn) {
-    google.accounts.id.renderButton(
-      googleBtn, 
-      { theme: "outline", size: "large", width: 250 }
-    );
-
-    // Optional: show One Tap automatically
-    google.accounts.id.prompt();
+  } else {
+    console.error("Google Sign-In script not loaded.");
   }
 
 });
-

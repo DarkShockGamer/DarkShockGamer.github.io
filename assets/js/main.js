@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // ======= Google Sign-In =======
-  const clientId = "YOUR_CLIENT_ID_HERE";
+  const clientId = "635936985251-3p4cgja9c0k7fngn3pcblme307p0c8jm.apps.googleusercontent.com";
 
   google.accounts.id.initialize({
     client_id: clientId,
@@ -61,3 +61,4 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
 });
+

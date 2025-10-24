@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ======= Timeline Info Bubbles =======
   const timelineItems = document.querySelectorAll('.timeline-item');
-
   timelineItems.forEach(item => {
     const infoText = item.getAttribute('data-info');
     if (!infoText) return;
@@ -40,27 +39,21 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // ======= Google Sign-In =======
-  const clientId = "635936985251-3p4cgja9c0k7fngn3pcblme307p0c8jm.apps.googleusercontent.com";
+  const clientId = "YOUR_CLIENT_ID_HERE";
 
   google.accounts.id.initialize({
     client_id: clientId,
     callback: (response) => {
       console.log("Encoded JWT ID token:", response.credential);
-      // send this token to your backend if needed
+      // send token to backend if needed
     }
   });
 
   const googleBtn = document.getElementById('googleSignIn');
   if (googleBtn) {
-    // Render Google button on our existing element
     google.accounts.id.renderButton(
-      googleBtn,
-      {
-        theme: "outline",
-        size: "medium",
-        width: 240,
-        type: "standard"
-      }
+      googleBtn, 
+      { theme: "outline", size: "large", width: 250 }
     );
 
     // Optional: show One Tap automatically

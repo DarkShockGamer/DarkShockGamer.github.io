@@ -97,38 +97,48 @@
       100% { opacity: 1; transform: translateY(0); }
     }
 
-    /* ====== Google Login Button Styles ====== */
-    #login {
-      text-align: center;
-      margin: 2rem 0;
+    /* ====== Google Login in Nav ===== */
+    .nav-login {
+      justify-self: end;
     }
 
-    .google-btn {
-      display: inline-flex;
+    .nav-login .google-btn {
+      display: flex;
       align-items: center;
-      justify-content: center;
       background: var(--medium-blue);
       color: var(--white);
+      border: 2px solid var(--accent);
+      padding: 0.4rem 0.8rem;
       border-radius: 8px;
-      padding: 0.6rem 1.2rem;
       font-weight: bold;
-      font-size: 1rem;
+      font-size: 0.9rem;
       cursor: pointer;
       transition: 0.3s;
-      border: 2px solid var(--accent);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
     }
 
-    .google-btn:hover {
+    .nav-login .google-btn:hover {
       background: var(--light-blue);
       color: var(--dark-blue);
       transform: translateY(-2px);
       box-shadow: 0 6px 15px rgba(0,0,0,0.4);
     }
 
-    .google-btn img {
-      height: 20px;
-      margin-right: 10px;
+    .nav-login .google-btn img {
+      height: 18px;
+      margin-right: 6px;
+    }
+
+    /* ====== Responsive adjustments ===== */
+    @media (max-width: 768px) {
+      .nav-login {
+        order: 2; /* move below nav links in mobile */
+        margin: 0.5rem 0;
+      }
+      .nav-login .google-btn {
+        width: 90%;
+        justify-content: center;
+      }
     }
     
     /* ====== Navigation ====== */
@@ -504,6 +514,13 @@
         <a href="#updates">Updates</a>
         <a href="#contact">Contact</a>
         <a href="sponsors.html">Sponsors</a>
+      </div>
+
+      <div class="nav-login">
+        <button id="googleSignIn" class="google-btn">
+          <img src="assets/google-logo.png" alt="Google Logo">
+          Sign in with Google
+        </button>
       </div>
 
       <button class="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">

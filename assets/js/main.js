@@ -42,25 +42,29 @@ document.addEventListener('DOMContentLoaded', function() {
   // ======= Google Sign-In =======
   const clientId = "635936985251-3p4cgja9c0k7fngn3pcblme307p0c8jm.apps.googleusercontent.com";
 
-  // Initialize Google Identity client once
   google.accounts.id.initialize({
     client_id: clientId,
     callback: (response) => {
       console.log("Encoded JWT ID token:", response.credential);
-      // You can send this token to your backend here
+      // send this token to your backend if needed
     }
   });
 
-  // Optional: automatically display One Tap prompt
-  // google.accounts.id.prompt(); 
-
-  // Trigger Google Sign-In on button click
   const googleBtn = document.getElementById('googleSignIn');
   if (googleBtn) {
-    googleBtn.addEventListener('click', () => {
-      // Render popup-based sign-in
-      google.accounts.id.prompt(); // or renderButton if you prefer
-    });
+    // Render Google button on our existing element
+    google.accounts.id.renderButton(
+      googleBtn,
+      {
+        theme: "outline",
+        size: "medium",
+        width: 240,
+        type: "standard"
+      }
+    );
+
+    // Optional: show One Tap automatically
+    google.accounts.id.prompt();
   }
 
 });

@@ -41,4 +41,19 @@ document.addEventListener('DOMContentLoaded', function() {
   document.addEventListener('click', () => {
     document.querySelectorAll('.info-bubble.show').forEach(bubble => bubble.classList.remove('show'));
   });
+
+  // ======= Google Login Button =======
+  const googleBtn = document.getElementById('googleSignIn');
+  if (googleBtn) {
+    googleBtn.addEventListener('click', () => {
+      google.accounts.id.initialize({
+        client_id: "YOUR_GOOGLE_CLIENT_ID", // replace with your client ID
+        callback: (response) => {
+          console.log("Encoded JWT ID token:", response.credential);
+          // send to backend if needed
+        }
+      });
+      google.accounts.id.prompt(); // optional: show One Tap
+    });
+  }
 });

@@ -47,7 +47,7 @@
 
 <!-- Include JWT decode library -->
 <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
-  
+
   <style>
     /* ====== Colors ====== */
     :root {
@@ -64,7 +64,7 @@
       font-weight: normal;
       font-style: normal;
     }
-    
+
     /* ====== Global Styles ====== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -74,170 +74,229 @@
     }
     a { text-decoration: none; color: inherit; }
     img { display: block; max-width: 100%; height: auto; }
-    
-    /* ====== Header ====== */
-    header {
-      position: relative;
-      height: 70vh;
-      min-height: 450px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      color: var(--white);
-      overflow: hidden;
-      border-bottom: 3px solid var(--light-blue);
-    }
-    header img {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      filter: brightness(0.55);
-      z-index: -1;
-    }
-    header::after {
-      content: "";
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      right: 0;
-      height: 122px;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120"><path fill="%231f4d7a" fill-opacity="1" d="M0,96L1440,0L1440,120L0,120Z"></path></svg>') no-repeat;
-      background-size: cover;
-      z-index: 0;
-      transform: translateY(1px);
-      display: none;
-    }
-    header h1 {
-      font-family: 'Ethnocentric', sans-serif;
-      font-size: 2.8rem;
-      font-weight: 800;
-      letter-spacing: 1px;
-      margin-bottom: 0.8rem;
-      text-shadow: 0 4px 12px rgba(0,0,0,0.6);
-      animation: fadeInUp 1s ease forwards;
-    }
-    header p {
-      font-size: 1.3rem;
-      font-weight: 400;
-      color: #e0f2ff;
-      opacity: 0.9;
-      animation: fadeInUp 1.4s ease forwards;
-    }
-    @keyframes fadeInUp {
-      0% { opacity: 0; transform: translateY(25px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
 
-    /* ====== Google Login in Nav ===== */
-    .nav-login { justify-self: end; }
-    .nav-login .google-btn {
-      display: flex;
-      align-items: center;
-      background: var(--medium-blue);
-      color: var(--white);
-      border: 2px solid var(--accent);
-      padding: 0.4rem 0.8rem;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-    }
-    .nav-login .google-btn:hover {
-      background: var(--light-blue);
-      color: var(--dark-blue);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-    }
-    .nav-login .google-btn img {
-      height: 18px;
-      margin-right: 6px;
-    }
+/* ====== Header ====== */
+header {
+  position: relative;
+  height: 70vh;
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: var(--white);
+  overflow: hidden;
+  border-bottom: 3px solid var(--light-blue);
+}
+header img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.55);
+  z-index: -1;
+}
+header::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 122px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120"><path fill="%231f4d7a" fill-opacity="1" d="M0,96L1440,0L1440,120L0,120Z"></path></svg>') no-repeat;
+  background-size: cover;
+  z-index: 0;
+  transform: translateY(1px);
+  display: none;
+}
+header h1 {
+  font-family: 'Ethnocentric', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 0.8rem;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  animation: fadeInUp 1s ease forwards;
+}
+header p {
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: #e0f2ff;
+  opacity: 0.9;
+  animation: fadeInUp 1.4s ease forwards;
+}
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(25px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
 
-    /* ====== Responsive adjustments ===== */
+/* ====== Google Login in Nav ===== */
+.nav-login { justify-self: end; }
+.nav-login .google-btn {
+  display: flex;
+  align-items: center;
+  background: var(--medium-blue);
+  color: var(--white);
+  border: 2px solid var(--accent);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
+.nav-login .google-btn:hover {
+  background: var(--light-blue);
+  color: var(--dark-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+}
+.nav-login .google-btn img {
+  height: 18px;
+  margin-right: 6px;
+}
+
+/* ====== Responsive adjustments ===== */
+@media (max-width: 768px) {
+  .nav-login {
+    order: 2;
+    margin: 0.5rem 0;
+  }
+  .nav-login .google-btn {
+    width: 90%;
+    justify-content: center;
+  }
+}
+
+/* ====== Navigation ===== */
+.site-nav {
+  background: var(--medium-blue);
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 3px solid var(--light-blue);
+  box-shadow: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 0.6rem 1rem;
+  width: 100%;
+}
+.nav-logo { justify-self: start; }
+.nav-logo img { height: 50px; width: auto; }
+.nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
+
+.nav-links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.nav-links a {
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+  border-bottom: 2px solid transparent;
+  transition: 0.25s;
+}
+.nav-links a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.nav-toggle {
+  justify-self: end;
+  display: none;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 1002;
+}
+.nav-toggle .hamburger,
+.nav-toggle .hamburger::before,
+.nav-toggle .hamburger::after {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--white);
+  border-radius: 2px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%);
+}
+.nav-toggle .hamburger::before { content: ""; top: -7px; }
+.nav-toggle .hamburger::after { content: ""; top: 7px; }
+
     @media (max-width: 768px) {
+      .nav-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+        position: relative;
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+      }
+
+      /* Google button stays between logo and hamburger */
       .nav-login {
+        order: 1;
+        flex-shrink: 0;
+      }
+
+      /* Hamburger on right */
+      .nav-toggle {
         order: 2;
-        margin: 0.5rem 0;
       }
-      .nav-login .google-btn {
-        width: 90%;
-        justify-content: center;
+
+      /* Dropdown nav links */
+      .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--medium-blue);
+        z-index: 1000;
       }
-    }
 
-    .navbar {
-      background: var(--nav-bg, #0a2540);
-      color: white;
-      padding: 0.75rem 1.5rem;
-      border-bottom: 3px solid var(--light-blue, #00b4d8);
-    }
-
-    .nav-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    /* Left: Logo */
-    .nav-left .nav-logo {
-      height: 50px;
-      width: auto;
-    }
-
-    /* Center: Links */
-    .nav-center {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 2rem;
-      list-style: none;
-    }
-
-    .nav-links a {
-      text-decoration: none;
-      color: white;
-      font-weight: 500;
-      transition: color 0.2s ease;
-    }
-
-    .nav-links a:hover {
-      color: var(--light-blue, #00b4d8);
-    }
-
-    /* Right: Google Sign-In */
-    .nav-right {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      min-width: 150px; /* Prevents shifting */
-    }
-
-    /* Responsive (Mobile) */
-    @media (max-width: 768px) {
-      .nav-container {
-        flex-direction: column;
+      /* Show dropdown when toggled */
+      .nav-links.show {
+        display: flex;
       }
-      .nav-center {
-        justify-content: center;
-        margin: 1rem 0;
+
+      /* Dropdown link styling */
+      .nav-links a {
+        width: 100%;
+        text-align: center;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
       }
     }
-    
+
     /* ====== Sections ====== */
     section { padding: 3rem 1.5rem; max-width: 1100px; margin: auto; }
     h2 {
@@ -260,7 +319,7 @@
       gap: 2rem;
       justify-items: center;
     }
-    
+
     .card {
       background: linear-gradient(135deg, #0a1f44, #1f4d7a, #4fa3d1);
       padding: 1.5rem;
@@ -273,7 +332,7 @@
       color: var(--white);
       position: relative;
     }
-    
+
     .card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.35); }
 
     .card-icon {
@@ -321,7 +380,7 @@
       margin: 0.25rem 0;
       font-weight: 400;
     }
-    
+
     /* ====== Timeline ====== */
     .timeline {
       position: relative;
@@ -467,7 +526,7 @@
         white-space: normal;
       }
     }
-    
+
     /* ====== Responsive ===== */
     @media (max-width: 768px) {
       .nav-toggle { display: flex; }
@@ -510,38 +569,38 @@
   </style>
 </head>
 <body>
-  
+
   <!-- ====== Header ====== -->
   <header>
     <img src="assets/group.png" alt="Team Group Photo">
     <h1>Trident Robotics 4296</h1>
     <p>Engineering Innovation | Driving the Future</p>
   </header>
-  
+
   <!-- ====== Navigation ====== -->
-  <nav class="navbar">
-    <div class="nav-container">
-      <div class="nav-left">
-        <img src="/assets/logo.png" alt="Trident Robotics Logo" class="nav-logo">
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="#">
+        <img src="assets/icon.png" alt="Trident Robotics Logo">
+      </a>
+
+      <div class="nav-links" id="navLinks">
+        <a href="#about">About</a>
+        <a href="#team">Team</a>
+        <a href="#updates">Updates</a>
+        <a href="#contact">Contact</a>
+        <a href="sponsors.html">Sponsors</a>
+        <!-- Tasks link will appear here dynamically -->
+        <a href="tasks.html" id="tasksLink" style="display:none;">Tasks</a>
       </div>
 
-      <div class="nav-center">
-        <ul class="nav-links" id="navLinks">
-          <li><a href="/">Home</a></li>
-          <li><a href="/about.html">About</a></li>
-          <li><a href="/team.html">Team</a></li>
-          <li id="tasksLink" style="display: none;"><a href="/tasks.html">Tasks</a></li>
-        </ul>
+      <div class="nav-login">
+        <div id="googleSignIn"></div>
       </div>
 
-      <div class="nav-right">
-        <div id="g_id_onload"
-          data-client_id="635936985251-tj5uq36b5altf4qmk7019r3u504mm1fs.apps.googleusercontent.com"
-          data-callback="handleCredentialResponse"
-          data-auto_prompt="false">
-        </div>
-        <div class="g_id_signin" data-type="standard"></div>
-      </div>
+      <button class="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="hamburger"></span>
+      </button>
     </div>
   </nav>
 

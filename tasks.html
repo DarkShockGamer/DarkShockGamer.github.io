@@ -215,7 +215,18 @@ function createTaskEl(task, colId) {
     </div>
   `;
 
-  div.querySelector(".del-btn").onclick = async () => { await deleteTaskFirestore(task.id); renderBoard(); };
+  div.querySelector(".del-btn").onclick = async () => {
+  if (!confirm(`Delete "${task.title}"?`)) return;
+
+  // animate before deletion
+  div.classList.add("transition", "duration-300", "opacity-0", "translate-x-4");
+
+  setTimeout(async () => {
+    await deleteTaskFirestore(task.id);
+    div.remove(); // remove visually before re-render
+    renderBoard(); // reload board data
+  }, 300);
+};
   div.querySelector(".edit-btn").onclick = () => openEditModal(task, colId);
 
   makeDraggable(div);

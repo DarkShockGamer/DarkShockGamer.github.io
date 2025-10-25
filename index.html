@@ -204,8 +204,11 @@ header p {
 .nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
 
 .nav-links {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
-  justify-content: center;
   gap: 1rem;
 }
 .nav-links a {
@@ -214,6 +217,7 @@ header p {
   padding: 0.25rem 0.5rem;
   border-bottom: 2px solid transparent;
   transition: 0.25s;
+  position: relative;
 }
 .nav-links a:hover {
   color: var(--accent);

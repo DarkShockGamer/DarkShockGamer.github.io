@@ -245,55 +245,31 @@ header p {
 .nav-toggle .hamburger::before { content: ""; top: -7px; }
 .nav-toggle .hamburger::after { content: ""; top: 7px; }
 
+    /* Hide mobile dropdown on desktop */
+    .nav-links-mobile {
+      display: none;
+      flex-direction: column;
+      background: var(--medium-blue);
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      border-top: 3px solid var(--light-blue);
+      z-index: 1001;
+    }
+
+    .nav-links-mobile a {
+      padding: 0.8rem 0;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
     @media (max-width: 768px) {
-      .nav-inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: nowrap;
-        gap: 0.5rem;
-        position: relative;
+      .nav-links-mobile {
+        display: none; /* hidden by default */
       }
-
-      .navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: relative;
-      }
-
-      /* Google button stays between logo and hamburger */
-      .nav-login {
-        order: 1;
-        flex-shrink: 0;
-      }
-
-      /* Hamburger on right */
-      .nav-toggle {
-        order: 2;
-      }
-
-      /* Dropdown nav links */
-      .nav-links {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
-        background-color: var(--medium-blue);
-        z-index: 1000;
-      }
-
-      /* Show dropdown when toggled */
-      .nav-links.show {
-        display: flex;
-      }
-
-      /* Dropdown link styling */
-      .nav-links a {
-        width: 100%;
-        text-align: center;
-        padding: 0.8rem 0;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
+      .nav-links-mobile.show {
+        display: flex; /* show when toggled */
       }
     }
 
@@ -592,6 +568,16 @@ header p {
         <a href="sponsors.html">Sponsors</a>
         <!-- Tasks link will appear here dynamically -->
         <a href="tasks.html" id="tasksLink" style="display:none;">Tasks</a>
+      </div>
+
+      <!-- Mobile-only nav links -->
+      <div class="nav-links-mobile" id="navLinksMobile">
+        <a href="#about">About</a>
+        <a href="#team">Team</a>
+        <a href="#updates">Updates</a>
+        <a href="#contact">Contact</a>
+        <a href="sponsors.html">Sponsors</a>
+        <a href="tasks.html" id="tasksLinkMobile" style="display:none;">Tasks</a>
       </div>
 
       <div class="nav-login">

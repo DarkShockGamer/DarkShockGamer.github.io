@@ -102,10 +102,12 @@ function renderTeam() {
 
     // single textarea for the whole string
     const textarea = document.createElement('textarea');
+    // use the correct field name: 'text'
     textarea.value = t.text || "";
     textarea.placeholder = "Team info";
     textarea.addEventListener('input', async (e) => {
-      await setDoc(doc(db, "team", t.id), { text: e.target.value });
+      const updatedText = e.target.value;
+      await setDoc(doc(db, "team", t.id), { text: updatedText });
     });
 
     const delBtn = document.createElement('button');

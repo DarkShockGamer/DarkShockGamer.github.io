@@ -11,21 +11,23 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <script>
-  // ======= Google Identity Service =======
   function handleCredentialResponse(response) {
-    const data = jwt_decode(response.credential); // decode JWT
-    const email = data.email; // user's email
-    const allowedDomains = ["wths.net"]; // allowed domain(s)
-    const allowedEmails = ["blackshocktrooper@gmail.com"]; // optional specific emails
+    const data = jwt_decode(response.credential);
+    const email = data.email;
+    const allowedDomains = ["wths.net"];
+    const allowedEmails = ["blackshocktrooper@gmail.com"];
+    const allowed = allowedDomains.some(domain => email.endsWith(`@${domain}`)) || allowedEmails.includes(email);
 
-    // Show tasks link if email matches domain or is whitelisted
-    if (
-      allowedDomains.some(domain => email.endsWith(`@${domain}`)) ||
-      allowedEmails.includes(email)
-    ) {
-      document.getElementById("tasksLink").style.display = "inline-block";
+    const tasksDesktop = document.getElementById("tasksLink");
+    const tasksMobile = document.getElementById("tasksLinkMobile");
+
+    if (allowed) {
+      // Show both desktop and mobile Tasks links
+      tasksDesktop.style.display = "inline-block";
+      tasksMobile.style.display = "block";
     } else {
-      document.getElementById("tasksLink").style.display = "none";
+      tasksDesktop.style.display = "none";
+      tasksMobile.style.display = "none";
       alert("Access to Tasks is restricted to specific emails.");
     }
   }
@@ -43,10 +45,10 @@
     );
     google.accounts.id.prompt(); // optional
   };
-</script>
+  </script>
 
-<!-- Include JWT decode library -->
-<script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
+  <!-- Include JWT decode library -->
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
 
   <style>
     /* ====== Colors ====== */

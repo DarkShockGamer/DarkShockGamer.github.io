@@ -26,14 +26,20 @@
     </div>
 
     <div class="mt-4 bg-white p-4 rounded-2xl shadow-sm border border-sky-100">
-      <div class="flex gap-3 flex-wrap">
+      <div class="flex gap-3 flex-wrap items-center">
         <input id="newTitle" class="flex-1 rounded-md border border-sky-200 px-3 py-2"
           placeholder="Task title (e.g. prototype the intake)" />
         <input id="newAssignee" class="w-40 rounded-md border border-sky-200 px-3 py-2"
           placeholder="Assignee" />
         <input id="newDue" type="date" class="w-40 rounded-md border border-sky-200 px-3 py-2" />
-        <input id="newTags" class="flex-1 rounded-md border border-sky-200 px-3 py-2"
-          placeholder="Tags (comma separated, e.g. build, code, urgent)" />
+        <select id="newTags" multiple class="w-40 rounded-md border border-sky-200 px-3 py-2 text-sm">
+          <option value="Design">Design</option>
+          <option value="Mechanical">Mechanical</option>
+          <option value="Programming">Programming</option>
+          <option value="Electrical">Electrical</option>
+          <option value="Business">Business</option>
+          <option value="Misc">Misc</option>
+        </select>
         <button id="addTaskBtn"
           class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold">
           Add Task

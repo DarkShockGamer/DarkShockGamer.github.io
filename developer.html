@@ -8,11 +8,11 @@
 body { font-family: sans-serif; background: #f0f2f5; padding: 2rem; }
 h1 { color: #0a1f44; }
 section { background: #fff; padding: 1rem 2rem; margin-bottom: 2rem; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-textarea { width: 100%; min-height: 60px; margin: 0.5rem 0; padding: 0.5rem; font-family: monospace; border-radius: 5px; border: 1px solid #ccc; }
-input[type="text"] { width: 100%; padding: 0.4rem; margin: 0.25rem 0; border-radius: 5px; border: 1px solid #ccc; }
-button { padding: 0.5rem 1rem; margin: 1rem 0 0; background: #1f4d7a; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+textarea, input[type="text"] { width: 100%; margin: 0.5rem 0; padding: 0.5rem; border-radius: 5px; border: 1px solid #ccc; font-family: monospace; }
+button { padding: 0.5rem 1rem; margin: 0.5rem 0; background: #1f4d7a; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
 button:hover { background: #4fa3d1; }
 h3 { margin-top: 1rem; color: #1f4d7a; }
+hr { border: none; border-top: 1px solid #eee; margin: 0.5rem 0; }
 </style>
 </head>
 <body>
@@ -37,31 +37,33 @@ h3 { margin-top: 1rem; color: #1f4d7a; }
   <button onclick="addTimelineEvent()">Add Event</button>
 </section>
 
-<button onclick="exportData()">Save & Export JSON</button>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
-<script>
-// ===== Sample Data =====
-let aboutContent = [
-  "We are Trident Robotics Team 4296, a student-led high school robotics team dedicated to designing, building, and competing with innovative robots. Our mission is to spark curiosity, foster collaboration, and push the boundaries of technology through hands-on engineering experiences.",
-  "Founded in 2012, our team has grown into a community where students gain real-world skills in design, mechanical engineering, electrical systems, and programming. We don’t just build robots—we build future engineers, problem-solvers, and leaders.",
-  "Every season, our team comes together with one goal: to turn imagination into innovation and prove that when teamwork meets technology, the possibilities are endless."
-];
+// ===== Firebase config =====
+const firebaseConfig = {
+  apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHFWZI",
+  authDomain: "tridenttaskboard.firebaseapp.com",
+  projectId: "tridenttaskboard",
+  storageBucket: "tridenttaskboard.firebasestorage.app",
+  messagingSenderId: "143400263387",
+  appId: "1:143400263387:web:66ed521ae75af588e836fe",
+  measurementId: "G-F12DDQCX87"
+};
 
-let teamData = [
-  { team: "Design Team", role: "Lead", members: ["Alice Smith", "Bob Johnson"] },
-  { team: "Mechanical Team", role: "Lead", members: ["Charlie Brown", "Dana White"] },
-  { team: "Electrical Team", role: "Lead", members: ["Evan Lee", "Fiona Green"] },
-  { team: "Programming Team", role: "Lead", members: ["George Hall", "Hannah King"] },
-  { team: "Drive Team", role: "Driver", members: ["Ian Scott", "Jane Adams"] }
-];
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-let timelineEvents = [
-  { date: "⚡ September 23, 2025", text: "First Robotics Meeting", info: "We had our first meeting to kickoff the season!" },
-  { date: "👤 September 25, 2025", text: "STEM Activity Day", info: "STEM activity where we try to build the tallest tower and old Team Leads talking about how subteams work." },
-  { date: "🔧 September 30, 2025", text: "Subteam Stations", info: "Teams will set up their stations for subteam activities where new people to robotics can more easily decide what subteam they wanted to join." },
-  { date: "ℹ️ October 7, 2025", text: "Applications Available", info: "Applications for the team became available to students." },
-  { date: "🏆 November 2025", text: "Kickoff day for new season", info: "Kickoff day announces the new challenge and what our robot will need to accomplish." }
-];
+// ===== Firestore collections =====
+const aboutCol = collection(db, "about");
+const teamCol = collection(db, "team");
+const timelineCol = collection(db, "timeline");
+
+// ===== Local state =====
+let aboutContent = [];
+let teamData = [];
+let timelineEvents = [];
 
 // ===== Render Functions =====
 function renderAbout() {
@@ -69,14 +71,17 @@ function renderAbout() {
   container.innerHTML = '';
   aboutContent.forEach((p, i) => {
     const textarea = document.createElement('textarea');
-    textarea.value = p;
-    textarea.oninput = e => aboutContent[i] = e.target.value;
+    textarea.value = p.text || "";
+    textarea.oninput = async e => {
+      aboutContent[i].text = e.target.value;
+      await setDoc(doc(db, "about", p.id), { text: e.target.value });
+    };
     container.appendChild(textarea);
+    const delBtn = document.createElement('button');
+    delBtn.textContent = "Delete Paragraph";
+    delBtn.onclick = async () => { await deleteDoc(doc(db,"about",p.id)); }
+    container.appendChild(delBtn);
   });
-}
-function addAboutParagraph() {
-  aboutContent.push("");
-  renderAbout();
 }
 
 function renderTeam() {
@@ -85,14 +90,13 @@ function renderTeam() {
   teamData.forEach((t, i) => {
     const div = document.createElement('div');
     div.innerHTML = `<h3>${t.team} (${t.role})</h3>` +
-      t.members.map((m,j) => `<input type="text" value="${m}" oninput="teamData[${i}].members[${j}]=this.value">`).join('') +
-      `<button onclick="teamData.splice(${i},1); renderTeam()">Delete Team</button>`;
+      t.members.map((m,j) => `<input type="text" value="${m}" placeholder="Member" oninput="updateTeamMember('${t.id}', ${j}, this.value)">`).join('');
+    const delBtn = document.createElement('button');
+    delBtn.textContent = "Delete Team";
+    delBtn.onclick = async () => { await deleteDoc(doc(db,"team",t.id)); }
+    div.appendChild(delBtn);
     container.appendChild(div);
   });
-}
-function addTeam() {
-  teamData.push({team:"New Team", role:"Lead", members:[""]});
-  renderTeam();
 }
 
 function renderTimeline() {
@@ -101,35 +105,56 @@ function renderTimeline() {
   timelineEvents.forEach((e, i) => {
     const div = document.createElement('div');
     div.innerHTML = `
-      <input type="text" value="${e.date}" placeholder="Date" oninput="timelineEvents[${i}].date=this.value"><br>
-      <input type="text" value="${e.text}" placeholder="Title" oninput="timelineEvents[${i}].text=this.value"><br>
-      <textarea placeholder="Info" oninput="timelineEvents[${i}].info=this.value">${e.info}</textarea>
-      <button onclick="timelineEvents.splice(${i},1); renderTimeline()">Delete Event</button>
-      <hr>
+      <input type="text" value="${e.date}" placeholder="Date" oninput="updateTimeline('${e.id}','date',this.value)">
+      <input type="text" value="${e.text}" placeholder="Title" oninput="updateTimeline('${e.id}','text',this.value)">
+      <textarea placeholder="Info" oninput="updateTimeline('${e.id}','info',this.value)">${e.info}</textarea>
     `;
+    const delBtn = document.createElement('button');
+    delBtn.textContent = "Delete Event";
+    delBtn.onclick = async () => { await deleteDoc(doc(db,"timeline",e.id)); }
+    div.appendChild(delBtn);
+    div.appendChild(document.createElement('hr'));
     container.appendChild(div);
   });
 }
-function addTimelineEvent() {
-  timelineEvents.push({date:"", text:"", info:""});
+
+// ===== Update Functions =====
+async function updateTeamMember(teamId, idx, value) {
+  const team = teamData.find(t => t.id === teamId);
+  team.members[idx] = value;
+  await setDoc(doc(db, "team", teamId), team);
+}
+
+async function updateTimeline(id, field, value) {
+  const event = timelineEvents.find(e => e.id === id);
+  event[field] = value;
+  await setDoc(doc(db, "timeline", id), event);
+}
+
+// ===== Add New =====
+async function addAboutParagraph() { await addDoc(aboutCol, { text: "" }); }
+async function addTeam() { await addDoc(teamCol, { team:"New Team", role:"Lead", members:[""] }); }
+async function addTimelineEvent() { await addDoc(timelineCol, { date:"", text:"", info:"" }); }
+
+// ===== Real-time listeners =====
+onSnapshot(aboutCol, snapshot => {
+  aboutContent = [];
+  snapshot.forEach(doc => aboutContent.push({id: doc.id, text: doc.data().text}));
+  renderAbout();
+});
+
+onSnapshot(teamCol, snapshot => {
+  teamData = [];
+  snapshot.forEach(doc => teamData.push({id: doc.id, ...doc.data()}));
+  renderTeam();
+});
+
+onSnapshot(timelineCol, snapshot => {
+  timelineEvents = [];
+  snapshot.forEach(doc => timelineEvents.push({id: doc.id, ...doc.data()}));
   renderTimeline();
-}
+});
 
-// ===== Export Data =====
-function exportData() {
-  const data = { aboutContent, teamData, timelineEvents };
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = "site-content.json";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-// ===== Initial Render =====
-renderAbout();
-renderTeam();
-renderTimeline();
 </script>
 </body>
 </html>

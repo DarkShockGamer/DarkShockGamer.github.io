@@ -291,6 +291,34 @@ function openEditModal(task, colId) {
   };
 }
 
+// ---------------- Draggable Task Cards ----------------
+function makeDraggable(taskEl) {
+  taskEl.addEventListener("dragstart", e => {
+    taskEl.classList.add("dragging");
+    e.dataTransfer.setData("text/plain", JSON.stringify({
+      id: taskEl.dataset.id,
+      from: taskEl.dataset.col
+    }));
+  });
+
+  taskEl.addEventListener("dragend", async () => {
+    taskEl.classList.remove("dragging");
+
+    // After drag ends, recalculate order in current column
+    const parentCol = taskEl.closest(".task-list");
+    if (!parentCol) return;
+
+    const siblings = [...parentCol.querySelectorAll("[data-id]")];
+    for (let i = 0; i < siblings.length; i++) {
+      const id = siblings[i].dataset.id;
+      await setDoc(doc(db, "tasks", id), {
+        order: i,
+        column: parentCol.dataset.col
+      }, { merge: true });
+    }
+  });
+}
+  
 // ---------------- Drag & Drop ----------------
 function makeDroppable(el) {
   el.addEventListener("dragover", e => {

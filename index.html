@@ -10,6 +10,49 @@
   <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
+  <!-- Firebase SDKs -->
+  <script type="module">
+    // Import the Firebase functions you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHFWZI",
+      authDomain: "tridenttaskboard.firebaseapp.com",
+      projectId: "tridenttaskboard",
+      storageBucket: "tridenttaskboard.firebasestorage.app",
+      messagingSenderId: "143400263387",
+      appId: "1:143400263387:web:66ed521ae75af588e836fe",
+      measurementId: "G-F12DDQCX87"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Example: Write data
+    function writeExampleData() {
+      set(ref(db, 'test/message'), {
+        text: "Hello from Trident Robotics!"
+      });
+    }
+
+    // Example: Read data
+    async function readExampleData() {
+      const snapshot = await get(child(ref(db), 'test/message'));
+      if (snapshot.exists()) {
+        console.log(snapshot.val());
+      } else {
+        console.log("No data available");
+      }
+    }
+
+    // Test it
+    writeExampleData();
+    readExampleData();
+  </script>
+  
   <script>
   function handleCredentialResponse(response) {
     const data = jwt_decode(response.credential);

@@ -32,6 +32,8 @@
         <input id="newAssignee" class="w-40 rounded-md border border-sky-200 px-3 py-2"
           placeholder="Assignee" />
         <input id="newDue" type="date" class="w-40 rounded-md border border-sky-200 px-3 py-2" />
+        <input id="newTags" class="flex-1 rounded-md border border-sky-200 px-3 py-2"
+          placeholder="Tags (comma separated, e.g. build, code, urgent)" />
         <button id="addTaskBtn"
           class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold">
           Add Task
@@ -82,7 +84,14 @@
     // Load all tasks from Firestore
     async function loadTasks() {
       const snapshot = await getDocs(collection(window.firestoreDB, "tasks"));
-      const data = { columns: { todo: { title: "To Do", tasks: [] }, inprogress: { title: "In Progress", tasks: [] }, done: { title: "Done", tasks: [] } }, order: ["todo","inprogress","done"] };
+      const data = {
+        columns: {
+          todo: { title: "To Do", tasks: [] },
+          inprogress: { title: "In Progress", tasks: [] },
+          done: { title: "Done", tasks: [] }
+        },
+        order: ["todo", "inprogress", "done"]
+      };
       snapshot.forEach(doc => {
         const t = doc.data();
         if (!data.columns[t.column]) data.columns[t.column] = { title: t.column, tasks: [] };
@@ -92,7 +101,7 @@
     }
 
     async function saveTask(task, col) {
-      await setDoc(doc(window.firestoreDB, "tasks", task.id), {...task, column: col});
+      await setDoc(doc(window.firestoreDB, "tasks", task.id), { ...task, column: col });
     }
 
     async function deleteTaskFirestore(taskId) {
@@ -119,7 +128,12 @@
         col.tasks
           .filter(t => {
             const f = filterInput.value.toLowerCase();
-            return !f || t.title.toLowerCase().includes(f) || t.assignee.toLowerCase().includes(f) || (t.tags || []).join(" ").toLowerCase().includes(f);
+            return (
+              !f ||
+              t.title.toLowerCase().includes(f) ||
+              t.assignee.toLowerCase().includes(f) ||
+              (t.tags || []).join(" ").toLowerCase().includes(f)
+            );
           })
           .forEach(task => list.appendChild(createTaskEl(task, colId)));
 
@@ -145,7 +159,9 @@
           </div>
         </div>
         <div class="mt-2 flex gap-2 flex-wrap">
-          ${(task.tags || []).map(t => `<span class="text-xs px-2 py-1 rounded-full bg-sky-100 text-sky-700">${t}</span>`).join("")}
+          ${(task.tags || [])
+            .map(t => `<span class="text-xs px-2 py-1 rounded-full bg-sky-100 text-sky-700">${t}</span>`)
+            .join("")}
         </div>
       `;
 
@@ -171,6 +187,7 @@
           <input id="editTitle" class="w-full rounded-md border border-sky-200 px-3 py-2" value="${task.title}" />
           <input id="editAssignee" class="w-full rounded-md border border-sky-200 px-3 py-2" value="${task.assignee}" />
           <input id="editDue" type="date" class="w-full rounded-md border border-sky-200 px-3 py-2" value="${task.due}" />
+          <input id="editTags" class="w-full rounded-md border border-sky-200 px-3 py-2" value="${(task.tags || []).join(', ')}" placeholder="Tags (comma separated)" />
           <div class="flex gap-2 pt-2">
             <button id="saveEdit" class="px-3 py-1 bg-sky-600 text-white rounded-md text-sm">Save</button>
             <button id="cancelEdit" class="px-3 py-1 border rounded-md text-sm">Cancel</button>
@@ -184,6 +201,8 @@
         task.title = modal.querySelector("#editTitle").value;
         task.assignee = modal.querySelector("#editAssignee").value;
         task.due = modal.querySelector("#editDue").value;
+        const tagsInput = modal.querySelector("#editTags").value.trim();
+        task.tags = tagsInput ? tagsInput.split(",").map(t => t.trim()).filter(Boolean) : [];
         await saveTask(task, colId);
         modal.remove();
         renderBoard();
@@ -191,26 +210,21 @@
     }
 
     function makeDroppable(el) {
-      el.addEventListener("dragover", e => { 
-        e.preventDefault(); 
-        el.classList.add("droppable-hover"); 
+      el.addEventListener("dragover", e => {
+        e.preventDefault();
+        el.classList.add("droppable-hover");
       });
-
       el.addEventListener("dragleave", () => el.classList.remove("droppable-hover"));
-
       el.addEventListener("drop", async e => {
         e.preventDefault();
         el.classList.remove("droppable-hover");
-
         const { id, from } = JSON.parse(e.dataTransfer.getData("text/plain"));
         if (!id) return;
         const to = el.dataset.col;
         if (from === to) return;
-
         const taskDocRef = doc(window.firestoreDB, "tasks", id);
         const taskSnap = await getDoc(taskDocRef);
         if (!taskSnap.exists()) return;
-
         await setDoc(taskDocRef, { ...taskSnap.data(), column: to }, { merge: true });
         await renderBoard();
       });
@@ -224,34 +238,26 @@
         }));
         el.classList.add("dragging");
       });
-
-      el.addEventListener("dragend", () => {
-        el.classList.remove("dragging");
-      });
+      el.addEventListener("dragend", () => el.classList.remove("dragging"));
     }
-    
+
     addBtn.onclick = async () => {
       const title = document.getElementById("newTitle").value.trim();
       if (!title) return;
-
       const assignee = document.getElementById("newAssignee").value || "Unassigned";
       const due = document.getElementById("newDue").value;
-
-      const task = { title, assignee, due, tags: [], column: "todo" };
-
-      // Add to Firestore
+      const tagsInput = document.getElementById("newTags").value.trim();
+      const tags = tagsInput ? tagsInput.split(",").map(t => t.trim()).filter(Boolean) : [];
+      const task = { title, assignee, due, tags, column: "todo" };
       const docRef = await addDoc(collection(window.firestoreDB, "tasks"), task);
       task.id = docRef.id;
-
-      // Clear inputs
       document.getElementById("newTitle").value = "";
       document.getElementById("newAssignee").value = "";
       document.getElementById("newDue").value = "";
-
-      // Re-render the board
-      await renderBoard();  // <--- await here
+      document.getElementById("newTags").value = "";
+      await renderBoard();
     };
-    
+
     filterInput.oninput = renderBoard;
     renderBoard();
   </script>

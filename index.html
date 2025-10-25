@@ -186,9 +186,10 @@ header p {
   box-shadow: none;
 }
 .nav-inner {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+  position: relative;
   padding: 0.6rem 1rem;
   width: 100%;
 }
@@ -200,6 +201,9 @@ header p {
   display: flex;
   justify-content: center;
   gap: 1rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 .nav-links a {
   font-weight: bold;

@@ -51,31 +51,56 @@
     </footer>
   </main>
 
-  <script>
-    // --- Load data from localStorage or initialize defaults ---
-    const stored = localStorage.getItem("trident_taskboard");
-    const data = stored ? JSON.parse(stored) : {
-      columns: {
-        todo: { title: "To Do", tasks: [
-          { id: "t1", title: "Design intake hatch", assignee: "Alex", due: "2025-11-05", tags: ["Mechanical"] },
-          { id: "t2", title: "Setup CI for codebase", assignee: "Jamie", due: "2025-11-01", tags: ["Software"] },
-        ]},
-        inprogress: { title: "In Progress", tasks: [] },
-        done: { title: "Done", tasks: [] },
-      },
-      order: ["todo", "inprogress", "done"],
+  <!-- ===== Firebase Integration ===== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHFWZI",
+      authDomain: "tridenttaskboard.firebaseapp.com",
+      projectId: "tridenttaskboard",
+      storageBucket: "tridenttaskboard.firebasestorage.app",
+      messagingSenderId: "143400263387",
+      appId: "1:143400263387:web:66ed521ae75af588e836fe",
+      measurementId: "G-F12DDQCX87"
     };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.firestoreDB = db;
+  </script>
+
+  <!-- ===== Task Board Script ===== -->
+  <script type="module">
+    import { collection, getDocs, addDoc, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
     const board = document.getElementById("board");
     const filterInput = document.getElementById("filterInput");
     const addBtn = document.getElementById("addTaskBtn");
 
-    // Save state to localStorage
-    function save() {
-      localStorage.setItem("trident_taskboard", JSON.stringify(data));
+    // Load all tasks from Firestore
+    async function loadTasks() {
+      const snapshot = await getDocs(collection(window.firestoreDB, "tasks"));
+      const data = { columns: { todo: { title: "To Do", tasks: [] }, inprogress: { title: "In Progress", tasks: [] }, done: { title: "Done", tasks: [] } }, order: ["todo","inprogress","done"] };
+      snapshot.forEach(doc => {
+        const t = doc.data();
+        if (!data.columns[t.column]) data.columns[t.column] = { title: t.column, tasks: [] };
+        data.columns[t.column].tasks.push({ id: doc.id, ...t });
+      });
+      return data;
     }
 
-    function renderBoard() {
+    async function saveTask(task, col) {
+      await setDoc(doc(window.firestoreDB, "tasks", task.id), {...task, column: col});
+    }
+
+    async function deleteTaskFirestore(taskId) {
+      await deleteDoc(doc(window.firestoreDB, "tasks", taskId));
+    }
+
+    async function renderBoard() {
+      const data = await loadTasks();
       board.innerHTML = "";
       data.order.forEach(colId => {
         const col = data.columns[colId];
@@ -94,18 +119,12 @@
         col.tasks
           .filter(t => {
             const f = filterInput.value.toLowerCase();
-            return (
-              !f ||
-              t.title.toLowerCase().includes(f) ||
-              t.assignee.toLowerCase().includes(f) ||
-              (t.tags || []).join(" ").toLowerCase().includes(f)
-            );
+            return !f || t.title.toLowerCase().includes(f) || t.assignee.toLowerCase().includes(f) || (t.tags || []).join(" ").toLowerCase().includes(f);
           })
           .forEach(task => list.appendChild(createTaskEl(task, colId)));
 
         makeDroppable(list);
       });
-      save();
     }
 
     function createTaskEl(task, colId) {
@@ -130,8 +149,8 @@
         </div>
       `;
 
-      div.querySelector(".del-btn").onclick = () => {
-        data.columns[colId].tasks = data.columns[colId].tasks.filter(t => t.id !== task.id);
+      div.querySelector(".del-btn").onclick = async () => {
+        await deleteTaskFirestore(task.id);
         renderBoard();
       };
 
@@ -161,10 +180,11 @@
       document.body.appendChild(modal);
 
       modal.querySelector("#cancelEdit").onclick = () => modal.remove();
-      modal.querySelector("#saveEdit").onclick = () => {
+      modal.querySelector("#saveEdit").onclick = async () => {
         task.title = modal.querySelector("#editTitle").value;
         task.assignee = modal.querySelector("#editAssignee").value;
         task.due = modal.querySelector("#editDue").value;
+        await saveTask(task, colId);
         modal.remove();
         renderBoard();
       };
@@ -179,12 +199,9 @@
     }
 
     function makeDroppable(el) {
-      el.addEventListener("dragover", e => {
-        e.preventDefault();
-        el.classList.add("droppable-hover");
-      });
+      el.addEventListener("dragover", e => { e.preventDefault(); el.classList.add("droppable-hover"); });
       el.addEventListener("dragleave", () => el.classList.remove("droppable-hover"));
-      el.addEventListener("drop", e => {
+      el.addEventListener("drop", async e => {
         e.preventDefault();
         el.classList.remove("droppable-hover");
         const { id, from } = JSON.parse(e.dataTransfer.getData("text/plain"));
@@ -192,20 +209,21 @@
         const to = el.dataset.col;
         if (from === to) return;
 
-        const task = data.columns[from].tasks.find(t => t.id === id);
-        data.columns[from].tasks = data.columns[from].tasks.filter(t => t.id !== id);
-        data.columns[to].tasks.unshift(task);
+        const taskDoc = doc(window.firestoreDB, "tasks", id);
+        await setDoc(taskDoc, { ...taskDoc.data(), column: to }, { merge: true });
         renderBoard();
       });
     }
 
-    addBtn.onclick = () => {
+    addBtn.onclick = async () => {
       const title = document.getElementById("newTitle").value.trim();
       if (!title) return;
       const assignee = document.getElementById("newAssignee").value || "Unassigned";
       const due = document.getElementById("newDue").value;
-      const task = { id: "t" + Date.now(), title, assignee, due, tags: [] };
-      data.columns.todo.tasks.unshift(task);
+      const task = { title, assignee, due, tags: [], column: "todo" };
+      const docRef = await addDoc(collection(window.firestoreDB, "tasks"), task);
+      task.id = docRef.id;
+
       document.getElementById("newTitle").value = "";
       document.getElementById("newAssignee").value = "";
       document.getElementById("newDue").value = "";

@@ -244,30 +244,53 @@ header p {
 .nav-toggle .hamburger::before { content: ""; top: -7px; }
 .nav-toggle .hamburger::after { content: ""; top: 7px; }
 
-    /* ===== Mobile adjustments for Google Sign-In and Hamburger ===== */
     @media (max-width: 768px) {
       .nav-inner {
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: center;
-        position: relative;
-      }
-
-      .nav-login {
-        order: 2;
-        width: 100%;
         display: flex;
-        justify-content: center;
-        margin: 0.5rem 0;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+        position: relative; /* keep dropdown absolute relative to this */
       }
 
+      /* Google button stays between logo and hamburger */
+      .nav-login {
+        order: 1;
+        flex-shrink: 0;
+      }
+
+      /* Hamburger on right */
       .nav-toggle {
-        order: 1; /* hamburger stays at the top right */
+        order: 2;
       }
 
+      /* Dropdown nav links */
       .nav-links {
-        order: 3; /* menu below Google button */
+        order: 3;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100vw;
+        flex-direction: column;
+        display: none;
+        background: var(--medium-blue);
+        border-top: 3px solid var(--light-blue);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+        z-index: 9999;
+      }
+
+      /* Show dropdown when toggled */
+      .nav-links.show {
+        display: flex;
+      }
+
+      /* Dropdown link styling */
+      .nav-links a {
         width: 100%;
+        text-align: center;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
       }
     }
     

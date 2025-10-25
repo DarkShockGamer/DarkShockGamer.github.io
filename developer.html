@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="/assets/logo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Trident Robotics — Content Manager</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, sans-serif; }
@@ -14,72 +14,55 @@
 <body class="min-h-screen p-6">
 
 <header class="max-w-6xl mx-auto mb-6">
-  <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-    <div>
-      <h1 class="text-3xl font-extrabold text-sky-800 leading-snug">Trident Robotics — Content Manager</h1>
-      <p class="text-sm text-sky-600">Business Team Editor for Live Website Text</p>
-    </div>
-    <input id="filterInput" placeholder="Search sections..."
-      class="border border-sky-200 px-3 py-2 rounded-lg shadow-sm text-sm w-full sm:w-72" />
-  </div>
-
-  <!-- Add new content entry -->
-  <div class="mt-4 bg-white p-4 rounded-2xl shadow-sm border border-sky-100 flex flex-col sm:flex-row gap-3">
-    <input id="newKey" placeholder="Section ID (e.g. home_hero_title)" class="border border-sky-200 px-3 py-2 rounded-md flex-1" />
-    <input id="newTitle" placeholder="Display Name (e.g. Home Hero Title)" class="border border-sky-200 px-3 py-2 rounded-md flex-1" />
-    <button id="addEntryBtn" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto">Add Field</button>
-  </div>
+  <h1 class="text-3xl font-extrabold text-sky-800 mb-1">Trident Robotics — Content Manager</h1>
+  <p class="text-sm text-sky-600 mb-3">Business Team Editor for Live Website Text</p>
+  <input id="filterInput" placeholder="Search sections..." class="border border-sky-200 px-3 py-2 rounded-lg shadow-sm text-sm w-full sm:w-72" />
 </header>
 
 <main class="max-w-6xl mx-auto">
   <div id="contentList" class="grid gap-4"></div>
-  <footer class="mt-12 text-center py-4 border-t border-sky-100 flex flex-col items-center gap-1">
-    <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-6 w-6" />
-    <span class="text-sky-600 text-sm">© 2025 Trident Robotics — Content Manager</span>
-    <span class="text-xs text-sky-400">Internal editing dashboard • Linked to Firestore</span>
-  </footer>
 </main>
+
+<footer class="mt-12 text-center py-4 border-t border-sky-100 flex flex-col items-center gap-1">
+  <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-6 w-6" />
+  <span class="text-sky-600 text-sm">© 2025 Trident Robotics — Content Manager</span>
+  <span class="text-xs text-sky-400">Internal editing dashboard • Linked to Firestore</span>
+</footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, setDoc, doc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
+// ====== Your Firebase Config ======
 const firebaseConfig = {
-  apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHFWZI",
-  authDomain: "tridenttaskboard.firebaseapp.com",
-  projectId: "tridenttaskboard",
-  storageBucket: "tridenttaskboard.firebasestorage.app",
-  messagingSenderId: "143400263387",
-  appId: "1:143400263387:web:66ed521ae75af588e836fe",
-  measurementId: "G-F12DDQCX87"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT",
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const list = document.getElementById("contentList");
-const addBtn = document.getElementById("addEntryBtn");
 const filterInput = document.getElementById("filterInput");
 
-// load Firestore content entries
+// ====== Load Firestore Content ======
 async function loadContent() {
   const snapshot = await getDocs(collection(db, "site_content"));
-  const entries = [];
-  snapshot.forEach(d => entries.push({ id: d.id, ...d.data() }));
-  return entries;
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-// save edited entry
+// ====== Save Entry ======
 async function saveEntry(entry) {
   await setDoc(doc(db, "site_content", entry.id), entry);
 }
 
-// delete entry
+// ====== Delete Entry ======
 async function deleteEntry(id) {
   await deleteDoc(doc(db, "site_content", id));
 }
 
-// render all entries
+// ====== Render List ======
 async function renderList() {
   const filter = filterInput.value.toLowerCase();
   const entries = (await loadContent()).filter(e =>
@@ -89,7 +72,7 @@ async function renderList() {
   entries.forEach(e => list.appendChild(createEntryEl(e)));
 }
 
-// create each editable content card
+// ====== Create Editable Card ======
 function createEntryEl(entry) {
   const card = document.createElement("div");
   card.className = "bg-white border border-sky-100 rounded-xl p-4 shadow-sm flex flex-col gap-2";
@@ -100,16 +83,14 @@ function createEntryEl(entry) {
         <p class="text-xs text-sky-500">${entry.id}</p>
       </div>
       <div class="flex gap-2">
-        <button class="px-2 py-1 text-xs border border-sky-200 rounded-md edit-btn">Edit</button>
-        <button class="px-2 py-1 text-xs border border-red-100 rounded-md text-red-600 del-btn">Delete</button>
+        <button class="px-2 py-1 text-xs border rounded-md edit-btn">Edit</button>
+        <button class="px-2 py-1 text-xs border border-red-200 text-red-600 del-btn">Delete</button>
       </div>
     </div>
     <p class="text-sm text-gray-700 whitespace-pre-line">${entry.content || "(empty)"}</p>
   `;
 
-  // edit modal
   card.querySelector(".edit-btn").onclick = () => openEditModal(entry);
-  // delete
   card.querySelector(".del-btn").onclick = async () => {
     if (!confirm(`Delete "${entry.title}"?`)) return;
     await deleteEntry(entry.id);
@@ -119,14 +100,13 @@ function createEntryEl(entry) {
   return card;
 }
 
-// open modal to edit text content
+// ====== Edit Modal ======
 function openEditModal(entry) {
   const modal = document.createElement("div");
   modal.className = "fixed inset-0 bg-black/30 flex items-center justify-center z-50";
   modal.innerHTML = `
     <div class="bg-white p-6 rounded-xl shadow-xl w-96 space-y-3">
-      <h3 class="text-lg font-semibold text-sky-700">Edit Content</h3>
-      <p class="text-sm text-sky-500">${entry.title}</p>
+      <h3 class="text-lg font-semibold text-sky-700">${entry.title}</h3>
       <textarea id="editContent" rows="6" class="w-full border border-sky-200 rounded-md px-3 py-2">${entry.content || ""}</textarea>
       <div class="flex justify-end gap-2">
         <button id="saveEdit" class="px-3 py-1 bg-sky-600 text-white rounded-md text-sm">Save</button>
@@ -144,17 +124,6 @@ function openEditModal(entry) {
     renderList();
   };
 }
-
-// add new content entry
-addBtn.onclick = async () => {
-  const key = document.getElementById("newKey").value.trim();
-  const title = document.getElementById("newTitle").value.trim();
-  if (!key || !title) return alert("Please fill out all fields.");
-  await setDoc(doc(db, "site_content", key), { id: key, title, content: "" });
-  document.getElementById("newKey").value = "";
-  document.getElementById("newTitle").value = "";
-  renderList();
-};
 
 filterInput.oninput = renderList;
 renderList();

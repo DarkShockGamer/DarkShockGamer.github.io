@@ -54,7 +54,7 @@
   <!-- ===== Firebase Integration ===== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, getDoc, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHFWZI",
@@ -252,13 +252,10 @@
       const assignee = document.getElementById("newAssignee").value || "Unassigned";
       const due = document.getElementById("newDue").value;
 
-      // Create a new task object
       const task = { title, assignee, due, tags: [], column: "todo" };
 
-      // Add it to Firestore
+      // Add to Firestore
       const docRef = await addDoc(collection(window.firestoreDB, "tasks"), task);
-
-      // Include the generated ID in the task (optional, used internally)
       task.id = docRef.id;
 
       // Clear inputs
@@ -267,9 +264,9 @@
       document.getElementById("newDue").value = "";
 
       // Re-render the board
-      renderBoard();
+      await renderBoard();  // <--- await here
     };
-
+    
     filterInput.oninput = renderBoard;
     renderBoard();
   </script>

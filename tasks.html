@@ -127,32 +127,6 @@
       });
     }
 
-    function makeDroppable(el) {
-      el.addEventListener("dragover", e => {
-        e.preventDefault();
-        el.classList.add("droppable-hover");
-      });
-
-      el.addEventListener("dragleave", () => el.classList.remove("droppable-hover"));
-
-      el.addEventListener("drop", async e => {
-        e.preventDefault();
-        el.classList.remove("droppable-hover");
-
-        const { id, from } = JSON.parse(e.dataTransfer.getData("text/plain"));
-        if (!id) return;
-        const to = el.dataset.col;
-        if (from === to) return;
-
-        // Update the task's column in Firestore
-        const taskRef = doc(window.firestoreDB, "tasks", id);
-        await setDoc(taskRef, { column: to }, { merge: true });
-
-        // Re-render the board
-        renderBoard();
-      });
-    }
-
     function createTaskEl(task, colId) {
       const div = document.createElement("div");
       div.className = "bg-white border border-sky-100 rounded-lg p-3 shadow-sm";

@@ -39,7 +39,9 @@ hr { border: none; border-top: 1px solid #eee; margin: 0.5rem 0; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+import { 
+  getFirestore, collection, doc, setDoc, addDoc, onSnapshot, deleteDoc 
+} from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
 // ===== Firebase config =====
 const firebaseConfig = {
@@ -69,31 +71,57 @@ let timelineEvents = [];
 function renderAbout() {
   const container = document.getElementById('about-list');
   container.innerHTML = '';
-  aboutContent.forEach((p, i) => {
+  aboutContent.forEach((p) => {
+    const wrapper = document.createElement('div');
+
     const textarea = document.createElement('textarea');
     textarea.value = p.text || "";
-    textarea.oninput = async e => {
-      aboutContent[i].text = e.target.value;
+    textarea.addEventListener('input', async (e) => {
+      aboutContent.find(x => x.id === p.id).text = e.target.value;
       await setDoc(doc(db, "about", p.id), { text: e.target.value });
-    };
-    container.appendChild(textarea);
+    });
+
     const delBtn = document.createElement('button');
     delBtn.textContent = "Delete Paragraph";
-    delBtn.onclick = async () => { await deleteDoc(doc(db,"about",p.id)); }
-    container.appendChild(delBtn);
+    delBtn.addEventListener('click', async () => {
+      await deleteDoc(doc(db, "about", p.id));
+    });
+
+    wrapper.appendChild(textarea);
+    wrapper.appendChild(delBtn);
+    container.appendChild(wrapper);
   });
 }
 
 function renderTeam() {
   const container = document.getElementById('team-list');
   container.innerHTML = '';
-  teamData.forEach((t, i) => {
+
+  teamData.forEach((t) => {
     const div = document.createElement('div');
-    div.innerHTML = `<h3>${t.team} (${t.role})</h3>` +
-      t.members.map((m,j) => `<input type="text" value="${m}" placeholder="Member" oninput="updateTeamMember('${t.id}', ${j}, this.value)">`).join('');
+    const title = document.createElement('h3');
+    title.textContent = `${t.team} (${t.role})`;
+    div.appendChild(title);
+
+    t.members.forEach((m, j) => {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = m;
+      input.placeholder = 'Member';
+      input.addEventListener('input', async (e) => {
+        const team = teamData.find(x => x.id === t.id);
+        team.members[j] = e.target.value;
+        await setDoc(doc(db, "team", t.id), team);
+      });
+      div.appendChild(input);
+    });
+
     const delBtn = document.createElement('button');
     delBtn.textContent = "Delete Team";
-    delBtn.onclick = async () => { await deleteDoc(doc(db,"team",t.id)); }
+    delBtn.addEventListener('click', async () => {
+      await deleteDoc(doc(db, "team", t.id));
+    });
+
     div.appendChild(delBtn);
     container.appendChild(div);
   });
@@ -102,58 +130,79 @@ function renderTeam() {
 function renderTimeline() {
   const container = document.getElementById('timeline-list');
   container.innerHTML = '';
-  timelineEvents.forEach((e, i) => {
+
+  timelineEvents.forEach((e) => {
     const div = document.createElement('div');
-    div.innerHTML = `
-      <input type="text" value="${e.date}" placeholder="Date" oninput="updateTimeline('${e.id}','date',this.value)">
-      <input type="text" value="${e.text}" placeholder="Title" oninput="updateTimeline('${e.id}','text',this.value)">
-      <textarea placeholder="Info" oninput="updateTimeline('${e.id}','info',this.value)">${e.info}</textarea>
-    `;
+
+    const dateInput = document.createElement('input');
+    dateInput.type = 'text';
+    dateInput.value = e.date;
+    dateInput.placeholder = 'Date';
+    dateInput.addEventListener('input', async (ev) => {
+      e.date = ev.target.value;
+      await setDoc(doc(db, "timeline", e.id), e);
+    });
+
+    const textInput = document.createElement('input');
+    textInput.type = 'text';
+    textInput.value = e.text;
+    textInput.placeholder = 'Title';
+    textInput.addEventListener('input', async (ev) => {
+      e.text = ev.target.value;
+      await setDoc(doc(db, "timeline", e.id), e);
+    });
+
+    const infoArea = document.createElement('textarea');
+    infoArea.value = e.info || "";
+    infoArea.placeholder = 'Info';
+    infoArea.addEventListener('input', async (ev) => {
+      e.info = ev.target.value;
+      await setDoc(doc(db, "timeline", e.id), e);
+    });
+
     const delBtn = document.createElement('button');
     delBtn.textContent = "Delete Event";
-    delBtn.onclick = async () => { await deleteDoc(doc(db,"timeline",e.id)); }
+    delBtn.addEventListener('click', async () => {
+      await deleteDoc(doc(db, "timeline", e.id));
+    });
+
+    div.appendChild(dateInput);
+    div.appendChild(textInput);
+    div.appendChild(infoArea);
     div.appendChild(delBtn);
     div.appendChild(document.createElement('hr'));
     container.appendChild(div);
   });
 }
 
-// ===== Update Functions =====
-async function updateTeamMember(teamId, idx, value) {
-  const team = teamData.find(t => t.id === teamId);
-  team.members[idx] = value;
-  await setDoc(doc(db, "team", teamId), team);
-}
-
-async function updateTimeline(id, field, value) {
-  const event = timelineEvents.find(e => e.id === id);
-  event[field] = value;
-  await setDoc(doc(db, "timeline", id), event);
-}
-
 // ===== Add New =====
 async function addAboutParagraph() { await addDoc(aboutCol, { text: "" }); }
-async function addTeam() { await addDoc(teamCol, { team:"New Team", role:"Lead", members:[""] }); }
-async function addTimelineEvent() { await addDoc(timelineCol, { date:"", text:"", info:"" }); }
+async function addTeam() { await addDoc(teamCol, { team: "New Team", role: "Lead", members: [""] }); }
+async function addTimelineEvent() { await addDoc(timelineCol, { date: "", text: "", info: "" }); }
 
 // ===== Real-time listeners =====
 onSnapshot(aboutCol, snapshot => {
   aboutContent = [];
-  snapshot.forEach(doc => aboutContent.push({id: doc.id, text: doc.data().text}));
+  snapshot.forEach(docSnap => aboutContent.push({ id: docSnap.id, ...docSnap.data() }));
   renderAbout();
 });
 
 onSnapshot(teamCol, snapshot => {
   teamData = [];
-  snapshot.forEach(doc => teamData.push({id: doc.id, ...doc.data()}));
+  snapshot.forEach(docSnap => teamData.push({ id: docSnap.id, ...docSnap.data() }));
   renderTeam();
 });
 
 onSnapshot(timelineCol, snapshot => {
   timelineEvents = [];
-  snapshot.forEach(doc => timelineEvents.push({id: doc.id, ...doc.data()}));
+  snapshot.forEach(docSnap => timelineEvents.push({ id: docSnap.id, ...docSnap.data() }));
   renderTimeline();
 });
+
+// ===== Attach top-level button listeners =====
+document.querySelector('#about-editor button').addEventListener('click', addAboutParagraph);
+document.querySelector('#team-editor button').addEventListener('click', addTeam);
+document.querySelector('#timeline-editor button').addEventListener('click', addTimelineEvent);
 
 </script>
 </body>

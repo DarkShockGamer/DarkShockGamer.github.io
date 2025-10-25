@@ -178,9 +178,14 @@ async function renderBoard() {
     col.tasks
       .filter(t => {
         const f = filterInput.value.toLowerCase();
-        return !f || t.title.toLowerCase().includes(f) || t.assignee.toLowerCase().includes(f) || (t.tags || []).join(" ").toLowerCase().includes(f);
+        return (
+          !f ||
+          t.title.toLowerCase().includes(f) ||
+          t.assignee.toLowerCase().includes(f) ||
+          (t.tags || []).join(" ").toLowerCase().includes(f)
+        );
       })
-      col.tasks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .forEach(task => list.appendChild(createTaskEl(task, colId)));
 
     makeDroppable(list);

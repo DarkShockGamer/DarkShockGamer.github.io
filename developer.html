@@ -170,7 +170,9 @@ function renderTimeline() {
 
 // ===== Add New =====
 async function addAboutParagraph() { await addDoc(aboutCol, { text: "" }); }
-async function addTeam() { await addDoc(teamCol, { team: "New Team", role: "Lead", members: [""] }); }
+async function addTeam() { 
+  await addDoc(teamCol, { text: "name: New Team Lead: [Name] Lead: [Name]" }); 
+}
 async function addTimelineEvent() { await addDoc(timelineCol, { date: "", text: "", info: "" }); }
 
 // ===== Real-time listeners =====
@@ -183,7 +185,7 @@ onSnapshot(aboutCol, snapshot => {
 onSnapshot(teamCol, snapshot => {
   teamData = [];
   snapshot.forEach(docSnap => teamData.push({ id: docSnap.id, ...docSnap.data() }));
-  ;
+  renderTeam(); // <-- this was missing
 });
 
 onSnapshot(timelineCol, snapshot => {

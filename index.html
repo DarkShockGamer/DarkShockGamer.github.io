@@ -75,188 +75,170 @@
     a { text-decoration: none; color: inherit; }
     img { display: block; max-width: 100%; height: auto; }
     
-    /* ====== Header ====== */
-    header {
-      position: relative;
-      height: 70vh;
-      min-height: 450px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      color: var(--white);
-      overflow: hidden;
-      border-bottom: 3px solid var(--light-blue);
-      padding: 3rem 1.5rem;
-    }
+/* ====== Header ====== */
+header {
+  position: relative;
+  height: 70vh;
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: var(--white);
+  overflow: hidden;
+  border-bottom: 3px solid var(--light-blue);
+}
+header img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.55);
+  z-index: -1;
+}
+header::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 122px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120"><path fill="%231f4d7a" fill-opacity="1" d="M0,96L1440,0L1440,120L0,120Z"></path></svg>') no-repeat;
+  background-size: cover;
+  z-index: 0;
+  transform: translateY(1px);
+  display: none;
+}
+header h1 {
+  font-family: 'Ethnocentric', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 0.8rem;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  animation: fadeInUp 1s ease forwards;
+}
+header p {
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: #e0f2ff;
+  opacity: 0.9;
+  animation: fadeInUp 1.4s ease forwards;
+}
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(25px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
 
-    header img {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      filter: brightness(0.55);
-      z-index: -1;
-    }
+/* ====== Google Login in Nav ===== */
+.nav-login { justify-self: end; }
+.nav-login .google-btn {
+  display: flex;
+  align-items: center;
+  background: var(--medium-blue);
+  color: var(--white);
+  border: 2px solid var(--accent);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
+.nav-login .google-btn:hover {
+  background: var(--light-blue);
+  color: var(--dark-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+}
+.nav-login .google-btn img {
+  height: 18px;
+  margin-right: 6px;
+}
 
-    header::after {
-      content: "";
-      position: absolute;
-      bottom: -1px; left: 0; right: 0;
-      height: 122px;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120"><path fill="%231f4d7a" fill-opacity="1" d="M0,96L1440,0L1440,120L0,120Z"></path></svg>') no-repeat;
-      background-size: cover;
-      z-index: 0;
-      transform: translateY(1px);
-      display: none;
-    }
+/* ====== Responsive adjustments ===== */
+@media (max-width: 768px) {
+  .nav-login {
+    order: 2;
+    margin: 0.5rem 0;
+  }
+  .nav-login .google-btn {
+    width: 90%;
+    justify-content: center;
+  }
+}
 
-    header h1 {
-      font-family: 'Ethnocentric', sans-serif;
-      font-size: 2.8rem;
-      font-weight: 800;
-      letter-spacing: 1px;
-      margin-bottom: 0.8rem;
-      text-shadow: 0 4px 12px rgba(0,0,0,0.6);
-      animation: fadeInUp 1s ease forwards;
-    }
+/* ====== Navigation ===== */
+.site-nav {
+  background: var(--medium-blue);
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 3px solid var(--light-blue);
+  box-shadow: none;
+}
+.nav-inner {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  width: 100%;
+}
+.nav-logo { justify-self: start; }
+.nav-logo img { height: 50px; width: auto; }
+.nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
 
-    header p {
-      font-size: 1.3rem;
-      font-weight: 400;
-      color: #e0f2ff;
-      opacity: 0.9;
-      animation: fadeInUp 1.4s ease forwards;
-    }
+.nav-links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+.nav-links a {
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+  border-bottom: 2px solid transparent;
+  transition: 0.25s;
+}
+.nav-links a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
 
-    @keyframes fadeInUp {
-      0% { opacity: 0; transform: translateY(25px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ====== Google Login in Nav ===== */
-    .nav-login {
-      justify-self: end;
-    }
-
-    .nav-login .google-btn {
-      display: flex;
-      align-items: center;
-      background: var(--medium-blue);
-      color: var(--white);
-      border: 2px solid var(--accent);
-      padding: 0.4rem 0.8rem;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-    }
-
-    .nav-login .google-btn:hover {
-      background: var(--light-blue);
-      color: var(--dark-blue);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-    }
-
-    .nav-login .google-btn img {
-      height: 18px;
-      margin-right: 6px;
-    }
-
-    /* ====== Responsive adjustments ===== */
-    @media (max-width: 768px) {
-      .nav-login {
-        order: 2; /* move below nav links in mobile */
-        margin: 0.5rem 0;
-      }
-      .nav-login .google-btn {
-        width: 90%;
-        justify-content: center;
-      }
-    }
-    
-    /* ====== Navigation ====== */
-    .site-nav {
-      background: var(--medium-blue);
-      display: flex;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      border-bottom: 3px solid var(--light-blue);
-      box-shadow: none;
-    }
-    .nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 1rem;
-    }
-    .nav-logo {
-      position: absolute;
-      left: 1rem;
-    }
-    .nav-logo img {
-      height: 50px;
-      width: auto;
-    }
-    .nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
-    .nav-links {
-      display: flex;
-      gap: 1rem;
-      margin: 0 auto;
-      position: static;
-      transform: none;
-    }
-    .nav-links a {
-      font-weight: bold;
-      text-transform: uppercase;
-      padding: 0.25rem 0.5rem;
-      border-bottom: 2px solid transparent;
-      transition: 0.25s;
-    }
-    .nav-links a:hover { color: var(--accent); border-bottom-color: var(--accent); }
-
-    .nav-toggle {
-      justify-self: end;
-      display: none;
-      width: 40px;         /* clickable area width */
-      height: 40px;        /* clickable area height */
-      background: none;
-      border: none;
-      cursor: pointer;
-      position: relative;
-      z-index: 1002;
-    }
-    .nav-toggle .hamburger,
-    .nav-toggle .hamburger::before,
-    .nav-toggle .hamburger::after {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background: var(--white);
-      border-radius: 2px;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translateX(-50%);
-    }
-    .nav-toggle .hamburger::before { 
-      content: "";
-      top: -7px;
-    }
-    .nav-toggle .hamburger::after  { 
-      content: "";
-      top: 7px;
-    }
+.nav-toggle {
+  justify-self: end;
+  display: none;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 1002;
+}
+.nav-toggle .hamburger,
+.nav-toggle .hamburger::before,
+.nav-toggle .hamburger::after {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--white);
+  border-radius: 2px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%);
+}
+.nav-toggle .hamburger::before { content: ""; top: -7px; }
+.nav-toggle .hamburger::after { content: ""; top: 7px; }
     
     /* ====== Sections ====== */
     section { padding: 3rem 1.5rem; max-width: 1100px; margin: auto; }

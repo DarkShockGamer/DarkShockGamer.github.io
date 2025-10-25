@@ -251,9 +251,16 @@ header p {
         justify-content: space-between;
         flex-wrap: nowrap;
         gap: 0.5rem;
-        position: relative; /* keep dropdown absolute relative to this */
+        position: relative;
       }
 
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+      }
+      
       /* Google button stays between logo and hamburger */
       .nav-login {
         order: 1;
@@ -267,16 +274,12 @@ header p {
 
       /* Dropdown nav links */
       .nav-links {
-        position: fixed;
-        top: 0;
+        position: absolute;
+        top: 100%;
         left: 0;
-        width: 100vw;
-        height: 100vh;
+        width: 100%;
         background-color: var(--medium-blue);
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        padding-top: 80px;
+        z-index: 1000;
       }
 
       /* Show dropdown when toggled */

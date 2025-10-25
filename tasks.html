@@ -324,19 +324,23 @@ function makeDroppable(el) {
   el.addEventListener("dragover", e => {
     e.preventDefault();
     const dragging = document.querySelector(".dragging");
+    if (!dragging) return;
+
     const afterElement = getDragAfterElement(el, e.clientY);
-    if (afterElement == null) {
-      el.appendChild(dragging);
-    } else {
+    if (afterElement && afterElement instanceof Node) {
       el.insertBefore(dragging, afterElement);
+    } else {
+      el.appendChild(dragging);
     }
   });
 
   el.addEventListener("drop", async e => {
     e.preventDefault();
-    const { id, from } = JSON.parse(e.dataTransfer.getData("text/plain"));
-    const to = el.dataset.col;
+    const data = e.dataTransfer.getData("text/plain");
+    if (!data) return;
 
+    const { id, from } = JSON.parse(data);
+    const to = el.dataset.col;
     const taskDocRef = doc(db, "tasks", id);
     const taskSnap = await getDoc(taskDocRef);
     if (!taskSnap.exists()) return;
@@ -344,10 +348,10 @@ function makeDroppable(el) {
     const taskData = taskSnap.data();
     const newColumn = to;
 
-    // Update Firestore column
+    // Move to new column
     await setDoc(taskDocRef, { ...taskData, column: newColumn }, { merge: true });
 
-    // Recalculate order values for this column
+    // Recalculate order
     const taskEls = [...el.querySelectorAll("[data-id]")];
     for (let i = 0; i < taskEls.length; i++) {
       const tId = taskEls[i].dataset.id;

@@ -1,133 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trident Robotics — Content Manager</title>
-  <link rel="icon" type="image/png" href="/assets/logo.png" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, sans-serif; }
-    .dragging { opacity: 0.5; transform: scale(1.05); }
-  </style>
+<meta charset="UTF-8">
+<title>Trident Robotics Admin Editor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { font-family: sans-serif; background: #f0f2f5; padding: 2rem; }
+h1 { color: #0a1f44; }
+section { background: #fff; padding: 1rem 2rem; margin-bottom: 2rem; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+textarea { width: 100%; min-height: 60px; margin: 0.5rem 0; padding: 0.5rem; font-family: monospace; border-radius: 5px; border: 1px solid #ccc; }
+input[type="text"] { width: 100%; padding: 0.4rem; margin: 0.25rem 0; border-radius: 5px; border: 1px solid #ccc; }
+button { padding: 0.5rem 1rem; margin: 1rem 0 0; background: #1f4d7a; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+button:hover { background: #4fa3d1; }
+h3 { margin-top: 1rem; color: #1f4d7a; }
+</style>
 </head>
-<body class="min-h-screen p-6">
+<body>
 
-<header class="max-w-6xl mx-auto mb-6">
-  <h1 class="text-3xl font-extrabold text-sky-800 mb-1">Trident Robotics — Content Manager</h1>
-  <p class="text-sm text-sky-600 mb-3">Business Team Editor for Live Website Text</p>
-  <input id="filterInput" placeholder="Search sections..." class="border border-sky-200 px-3 py-2 rounded-lg shadow-sm text-sm w-full sm:w-72" />
-</header>
+<h1>Trident Robotics Content Editor</h1>
 
-<main class="max-w-6xl mx-auto">
-  <div id="contentList" class="grid gap-4"></div>
-</main>
+<section id="about-editor">
+  <h2>About Us Section</h2>
+  <div id="about-list"></div>
+  <button onclick="addAboutParagraph()">Add Paragraph</button>
+</section>
 
-<footer class="mt-12 text-center py-4 border-t border-sky-100 flex flex-col items-center gap-1">
-  <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-6 w-6" />
-  <span class="text-sky-600 text-sm">© 2025 Trident Robotics — Content Manager</span>
-  <span class="text-xs text-sky-400">Internal editing dashboard • Linked to Firestore</span>
-</footer>
+<section id="team-editor">
+  <h2>Team Leads</h2>
+  <div id="team-list"></div>
+  <button onclick="addTeam()">Add Team</button>
+</section>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+<section id="timeline-editor">
+  <h2>Timeline Events</h2>
+  <div id="timeline-list"></div>
+  <button onclick="addTimelineEvent()">Add Event</button>
+</section>
 
-// ====== Your Firebase Config ======
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT",
-};
+<button onclick="exportData()">Save & Export JSON</button>
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+<script>
+// ===== Sample Data =====
+let aboutContent = [
+  "We are Trident Robotics Team 4296, a student-led high school robotics team dedicated to designing, building, and competing with innovative robots. Our mission is to spark curiosity, foster collaboration, and push the boundaries of technology through hands-on engineering experiences.",
+  "Founded in 2012, our team has grown into a community where students gain real-world skills in design, mechanical engineering, electrical systems, and programming. We don’t just build robots—we build future engineers, problem-solvers, and leaders.",
+  "Every season, our team comes together with one goal: to turn imagination into innovation and prove that when teamwork meets technology, the possibilities are endless."
+];
 
-const list = document.getElementById("contentList");
-const filterInput = document.getElementById("filterInput");
+let teamData = [
+  { team: "Design Team", role: "Lead", members: ["Alice Smith", "Bob Johnson"] },
+  { team: "Mechanical Team", role: "Lead", members: ["Charlie Brown", "Dana White"] },
+  { team: "Electrical Team", role: "Lead", members: ["Evan Lee", "Fiona Green"] },
+  { team: "Programming Team", role: "Lead", members: ["George Hall", "Hannah King"] },
+  { team: "Drive Team", role: "Driver", members: ["Ian Scott", "Jane Adams"] }
+];
 
-// ====== Load Firestore Content ======
-async function loadContent() {
-  const snapshot = await getDocs(collection(db, "site_content"));
-  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+let timelineEvents = [
+  { date: "⚡ September 23, 2025", text: "First Robotics Meeting", info: "We had our first meeting to kickoff the season!" },
+  { date: "👤 September 25, 2025", text: "STEM Activity Day", info: "STEM activity where we try to build the tallest tower and old Team Leads talking about how subteams work." },
+  { date: "🔧 September 30, 2025", text: "Subteam Stations", info: "Teams will set up their stations for subteam activities where new people to robotics can more easily decide what subteam they wanted to join." },
+  { date: "ℹ️ October 7, 2025", text: "Applications Available", info: "Applications for the team became available to students." },
+  { date: "🏆 November 2025", text: "Kickoff day for new season", info: "Kickoff day announces the new challenge and what our robot will need to accomplish." }
+];
+
+// ===== Render Functions =====
+function renderAbout() {
+  const container = document.getElementById('about-list');
+  container.innerHTML = '';
+  aboutContent.forEach((p, i) => {
+    const textarea = document.createElement('textarea');
+    textarea.value = p;
+    textarea.oninput = e => aboutContent[i] = e.target.value;
+    container.appendChild(textarea);
+  });
+}
+function addAboutParagraph() {
+  aboutContent.push("");
+  renderAbout();
 }
 
-// ====== Save Entry ======
-async function saveEntry(entry) {
-  await setDoc(doc(db, "site_content", entry.id), entry);
+function renderTeam() {
+  const container = document.getElementById('team-list');
+  container.innerHTML = '';
+  teamData.forEach((t, i) => {
+    const div = document.createElement('div');
+    div.innerHTML = `<h3>${t.team} (${t.role})</h3>` +
+      t.members.map((m,j) => `<input type="text" value="${m}" oninput="teamData[${i}].members[${j}]=this.value">`).join('') +
+      `<button onclick="teamData.splice(${i},1); renderTeam()">Delete Team</button>`;
+    container.appendChild(div);
+  });
+}
+function addTeam() {
+  teamData.push({team:"New Team", role:"Lead", members:[""]});
+  renderTeam();
 }
 
-// ====== Delete Entry ======
-async function deleteEntry(id) {
-  await deleteDoc(doc(db, "site_content", id));
+function renderTimeline() {
+  const container = document.getElementById('timeline-list');
+  container.innerHTML = '';
+  timelineEvents.forEach((e, i) => {
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <input type="text" value="${e.date}" placeholder="Date" oninput="timelineEvents[${i}].date=this.value"><br>
+      <input type="text" value="${e.text}" placeholder="Title" oninput="timelineEvents[${i}].text=this.value"><br>
+      <textarea placeholder="Info" oninput="timelineEvents[${i}].info=this.value">${e.info}</textarea>
+      <button onclick="timelineEvents.splice(${i},1); renderTimeline()">Delete Event</button>
+      <hr>
+    `;
+    container.appendChild(div);
+  });
+}
+function addTimelineEvent() {
+  timelineEvents.push({date:"", text:"", info:""});
+  renderTimeline();
 }
 
-// ====== Render List ======
-async function renderList() {
-  const filter = filterInput.value.toLowerCase();
-  const entries = (await loadContent()).filter(e =>
-    !filter || e.title.toLowerCase().includes(filter) || e.id.toLowerCase().includes(filter)
-  );
-  list.innerHTML = "";
-  entries.forEach(e => list.appendChild(createEntryEl(e)));
+// ===== Export Data =====
+function exportData() {
+  const data = { aboutContent, teamData, timelineEvents };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = "site-content.json";
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
-// ====== Create Editable Card ======
-function createEntryEl(entry) {
-  const card = document.createElement("div");
-  card.className = "bg-white border border-sky-100 rounded-xl p-4 shadow-sm flex flex-col gap-2";
-  card.innerHTML = `
-    <div class="flex justify-between items-start">
-      <div>
-        <h3 class="font-semibold text-sky-800">${entry.title}</h3>
-        <p class="text-xs text-sky-500">${entry.id}</p>
-      </div>
-      <div class="flex gap-2">
-        <button class="px-2 py-1 text-xs border rounded-md edit-btn">Edit</button>
-        <button class="px-2 py-1 text-xs border border-red-200 text-red-600 del-btn">Delete</button>
-      </div>
-    </div>
-    <p class="text-sm text-gray-700 whitespace-pre-line">${entry.content || "(empty)"}</p>
-  `;
-
-  card.querySelector(".edit-btn").onclick = () => openEditModal(entry);
-  card.querySelector(".del-btn").onclick = async () => {
-    if (!confirm(`Delete "${entry.title}"?`)) return;
-    await deleteEntry(entry.id);
-    renderList();
-  };
-
-  return card;
-}
-
-// ====== Edit Modal ======
-function openEditModal(entry) {
-  const modal = document.createElement("div");
-  modal.className = "fixed inset-0 bg-black/30 flex items-center justify-center z-50";
-  modal.innerHTML = `
-    <div class="bg-white p-6 rounded-xl shadow-xl w-96 space-y-3">
-      <h3 class="text-lg font-semibold text-sky-700">${entry.title}</h3>
-      <textarea id="editContent" rows="6" class="w-full border border-sky-200 rounded-md px-3 py-2">${entry.content || ""}</textarea>
-      <div class="flex justify-end gap-2">
-        <button id="saveEdit" class="px-3 py-1 bg-sky-600 text-white rounded-md text-sm">Save</button>
-        <button id="cancelEdit" class="px-3 py-1 border rounded-md text-sm">Cancel</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modal);
-
-  modal.querySelector("#cancelEdit").onclick = () => modal.remove();
-  modal.querySelector("#saveEdit").onclick = async () => {
-    entry.content = modal.querySelector("#editContent").value;
-    await saveEntry(entry);
-    modal.remove();
-    renderList();
-  };
-}
-
-filterInput.oninput = renderList;
-renderList();
+// ===== Initial Render =====
+renderAbout();
+renderTeam();
+renderTimeline();
 </script>
-
 </body>
 </html>

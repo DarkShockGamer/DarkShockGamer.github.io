@@ -243,6 +243,32 @@ header p {
 }
 .nav-toggle .hamburger::before { content: ""; top: -7px; }
 .nav-toggle .hamburger::after { content: ""; top: 7px; }
+
+    /* ===== Mobile adjustments for Google Sign-In and Hamburger ===== */
+    @media (max-width: 768px) {
+      .nav-inner {
+        flex-wrap: wrap; /* allow elements to stack */
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .nav-login {
+        order: 2;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin: 0.5rem 0;
+      }
+
+      .nav-toggle {
+        order: 1; /* hamburger stays at the top right */
+      }
+
+      .nav-links {
+        order: 3; /* menu below Google button */
+        width: 100%;
+      }
+    }
     
     /* ====== Sections ====== */
     section { padding: 3rem 1.5rem; max-width: 1100px; margin: auto; }

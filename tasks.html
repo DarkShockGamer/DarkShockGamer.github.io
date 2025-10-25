@@ -216,14 +216,6 @@
       };
     }
 
-    function makeDraggable(el) {
-      el.addEventListener("dragstart", e => {
-        e.dataTransfer.setData("text/plain", JSON.stringify({ id: el.dataset.id, from: el.dataset.col }));
-        setTimeout(() => el.classList.add("dragging"), 0);
-      });
-      el.addEventListener("dragend", () => el.classList.remove("dragging"));
-    }
-
     function makeDroppable(el) {
       el.addEventListener("dragover", e => { 
         e.preventDefault(); 

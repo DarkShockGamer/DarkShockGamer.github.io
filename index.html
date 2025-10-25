@@ -166,10 +166,16 @@ header p {
 
 /* ====== Responsive adjustments ===== */
 @media (max-width: 768px) {
+  /* Adjust layout order so sign-in appears left of hamburger */
   .nav-login {
-    order: 2;
-    margin: 0.5rem 0;
+    order: 1;
+    margin: 0.5rem 0.5rem 0.5rem auto;
   }
+
+  .nav-toggle {
+    order: 2;
+  }
+
   .nav-login .google-btn {
     width: 90%;
     justify-content: center;

@@ -230,13 +230,17 @@
       el.addEventListener("drop", async e => {
         e.preventDefault();
         el.classList.remove("droppable-hover");
+
         const { id, from } = JSON.parse(e.dataTransfer.getData("text/plain"));
         if (!id) return;
         const to = el.dataset.col;
         if (from === to) return;
 
-        const taskDoc = doc(window.firestoreDB, "tasks", id);
-        await setDoc(taskDoc, { ...taskDoc.data(), column: to }, { merge: true });
+        const taskDocRef = doc(window.firestoreDB, "tasks", id);
+        const taskSnap = await getDoc(taskDocRef);
+        if (!taskSnap.exists()) return;
+
+        await setDoc(taskDocRef, { ...taskSnap.data(), column: to }, { merge: true });
         renderBoard();
       });
     }

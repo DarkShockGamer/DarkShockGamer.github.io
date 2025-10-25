@@ -225,8 +225,13 @@
     }
 
     function makeDroppable(el) {
-      el.addEventListener("dragover", e => { e.preventDefault(); el.classList.add("droppable-hover"); });
+      el.addEventListener("dragover", e => { 
+        e.preventDefault(); 
+        el.classList.add("droppable-hover"); 
+      });
+
       el.addEventListener("dragleave", () => el.classList.remove("droppable-hover"));
+
       el.addEventListener("drop", async e => {
         e.preventDefault();
         el.classList.remove("droppable-hover");
@@ -241,7 +246,7 @@
         if (!taskSnap.exists()) return;
 
         await setDoc(taskDocRef, { ...taskSnap.data(), column: to }, { merge: true });
-        renderBoard();
+        await renderBoard();
       });
     }
 

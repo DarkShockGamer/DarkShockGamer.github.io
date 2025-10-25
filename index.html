@@ -790,5 +790,55 @@ header p {
     </p>
   </footer>
   <script src="assets/js/main.js"></script>
+  <script>
+  // ====== Dynamic About Section ======
+  const aboutContent = [
+    "We are Trident Robotics Team 4296, a student-led high school robotics team dedicated to designing, building, and competing with innovative robots. Our mission is to spark curiosity, foster collaboration, and push the boundaries of technology through hands-on engineering experiences.",
+    "Founded in 2012, our team has grown into a community where students gain real-world skills in design, mechanical engineering, electrical systems, and programming. We don’t just build robots—we build future engineers, problem-solvers, and leaders.",
+    "Every season, our team comes together with one goal: to turn imagination into innovation and prove that when teamwork meets technology, the possibilities are endless."
+  ];
+
+  const aboutSection = document.getElementById('about');
+  aboutSection.innerHTML = `<h2>About Us</h2>` + aboutContent.map(p => `<p>${p}</p>`).join('');
+
+  // ====== Dynamic Team Leads ======
+  const teamData = [
+    { team: "Design Team", role: "Lead", members: ["Alice Smith", "Bob Johnson"] },
+    { team: "Mechanical Team", role: "Lead", members: ["Charlie Brown", "Dana White"] },
+    { team: "Electrical Team", role: "Lead", members: ["Evan Lee", "Fiona Green"] },
+    { team: "Programming Team", role: "Lead", members: ["George Hall", "Hannah King"] },
+    { team: "Drive Team", role: "Driver", members: ["Ian Scott", "Jane Adams"] }
+  ];
+
+  const teamGrid = document.querySelector('.team-grid');
+  teamGrid.innerHTML = teamData.map(t => {
+    return `
+      <div class="card">
+        <div class="card-icon">
+          <!-- Add icons here if needed or keep as SVG placeholders -->
+        </div>
+        <h3>${t.team}</h3>
+        ${t.members.map(m => `<p><strong>${t.role}:</strong> ${m}</p>`).join('')}
+      </div>
+    `;
+  }).join('');
+
+  // ====== Dynamic Timeline ======
+  const timelineEvents = [
+    { date: "⚡ September 23, 2025", text: "First Robotics Meeting", info: "We had our first meeting to kickoff the season!" },
+    { date: "👤 September 25, 2025", text: "STEM Activity Day", info: "STEM activity where we try to build the tallest tower and old Team Leads talking about how subteams work." },
+    { date: "🔧 September 30, 2025", text: "Subteam Stations", info: "Teams will set up their stations for subteam activities where new people to robotics can more easily decide what subteam they wanted to join." },
+    { date: "ℹ️ October 7, 2025", text: "Applications Available", info: "Applications for the team became available to students." },
+    { date: "🏆 November 2025", text: "Kickoff day for new season", info: "Kickoff day announces the new challenge and what our robot will need to accomplish." }
+  ];
+
+  const timelineContainer = document.querySelector('.timeline');
+  timelineContainer.innerHTML = timelineEvents.map((event, idx) => `
+    <div class="timeline-item" data-info="${event.info}">
+      <p class="timeline-date">${event.date}</p>
+      <p class="timeline-text">${event.text}</p>
+    </div>
+  `).join('');
+</script>
 </body>
 </html>

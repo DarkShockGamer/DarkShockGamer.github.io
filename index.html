@@ -9,6 +9,44 @@
 
   <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <script>
+  // ======= Google Identity Service =======
+  function handleCredentialResponse(response) {
+    const data = jwt_decode(response.credential); // decode JWT
+    const email = data.email; // user's email
+    const allowedDomains = ["wths.net"]; // allowed domain(s)
+    const allowedEmails = ["you@example.com"]; // optional specific emails
+
+    // Show tasks link if email matches domain or is whitelisted
+    if (
+      allowedDomains.some(domain => email.endsWith(`@${domain}`)) ||
+      allowedEmails.includes(email)
+    ) {
+      document.getElementById("tasksLink").style.display = "inline-block";
+    } else {
+      document.getElementById("tasksLink").style.display = "none";
+      alert("Access to Tasks is restricted to specific emails.");
+    }
+  }
+
+  // Initialize Google Sign-In
+  window.onload = function() {
+    google.accounts.id.initialize({
+      client_id: "YOUR_GOOGLE_CLIENT_ID",
+      callback: handleCredentialResponse,
+      auto_select: false
+    });
+    google.accounts.id.renderButton(
+      document.getElementById("googleSignIn"),
+      { theme: "outline", size: "medium", text: "signin_with" }
+    );
+    google.accounts.id.prompt(); // optional
+  };
+</script>
+
+<!-- Include JWT decode library -->
+<script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
   
   <style>
     /* ====== Colors ====== */
@@ -507,6 +545,8 @@
         <a href="#updates">Updates</a>
         <a href="#contact">Contact</a>
         <a href="sponsors.html">Sponsors</a>
+        <!-- Tasks link will appear here dynamically -->
+        <a href="tasks.html" id="tasksLink" style="display:none;">Tasks</a>
       </div>
 
       <div class="nav-login">

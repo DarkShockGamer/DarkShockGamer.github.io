@@ -244,15 +244,25 @@
     addBtn.onclick = async () => {
       const title = document.getElementById("newTitle").value.trim();
       if (!title) return;
+
       const assignee = document.getElementById("newAssignee").value || "Unassigned";
       const due = document.getElementById("newDue").value;
+
+      // Create a new task object
       const task = { title, assignee, due, tags: [], column: "todo" };
+
+      // Add it to Firestore
       const docRef = await addDoc(collection(window.firestoreDB, "tasks"), task);
+
+      // Include the generated ID in the task (optional, used internally)
       task.id = docRef.id;
 
+      // Clear inputs
       document.getElementById("newTitle").value = "";
       document.getElementById("newAssignee").value = "";
       document.getElementById("newDue").value = "";
+
+      // Re-render the board
       renderBoard();
     };
 

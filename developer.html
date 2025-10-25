@@ -100,11 +100,14 @@ function renderTeam() {
   teamData.forEach((t) => {
     const div = document.createElement('div');
 
-    // single textarea for the whole string
+    // Show the ID or "title" of the team above the textarea
+    const title = document.createElement('h3');
+    title.textContent = t.id; // e.g., design, drive, electrical
+    div.appendChild(title);
+
     const textarea = document.createElement('textarea');
-    // use the correct field name: 'text'
     textarea.value = t.text || "";
-    textarea.placeholder = "Team info";
+    textarea.placeholder = "Full team info string";
     textarea.addEventListener('input', async (e) => {
       const updatedText = e.target.value;
       await setDoc(doc(db, "team", t.id), { text: updatedText });
@@ -172,8 +175,8 @@ function renderTimeline() {
 
 // ===== Add New =====
 async function addAboutParagraph() { await addDoc(aboutCol, { text: "" }); }
-async function addTeam() { 
-  await addDoc(teamCol, { text: "name: New Team Lead: [Name] Lead: [Name]" }); 
+async function addTeam(teamName = "New Team", text = "name: New Team Lead: [Name] Lead: [Name]") {
+  await addDoc(teamCol, { text });
 }
 async function addTimelineEvent() { await addDoc(timelineCol, { date: "", text: "", info: "" }); }
 
@@ -187,7 +190,7 @@ onSnapshot(aboutCol, snapshot => {
 onSnapshot(teamCol, snapshot => {
   teamData = [];
   snapshot.forEach(docSnap => teamData.push({ id: docSnap.id, ...docSnap.data() }));
-  renderTeam(); // <-- this was missing
+  renderTeam();
 });
 
 onSnapshot(timelineCol, snapshot => {

@@ -99,21 +99,13 @@ function renderTeam() {
 
   teamData.forEach((t) => {
     const div = document.createElement('div');
-    const title = document.createElement('h3');
-    title.textContent = `${t.team} (${t.role})`;
-    div.appendChild(title);
 
-    t.members.forEach((m, j) => {
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.value = m;
-      input.placeholder = 'Member';
-      input.addEventListener('input', async (e) => {
-        const team = teamData.find(x => x.id === t.id);
-        team.members[j] = e.target.value;
-        await setDoc(doc(db, "team", t.id), team);
-      });
-      div.appendChild(input);
+    // single textarea for the whole string
+    const textarea = document.createElement('textarea');
+    textarea.value = t.text || "";
+    textarea.placeholder = "Team info";
+    textarea.addEventListener('input', async (e) => {
+      await setDoc(doc(db, "team", t.id), { text: e.target.value });
     });
 
     const delBtn = document.createElement('button');
@@ -122,6 +114,7 @@ function renderTeam() {
       await deleteDoc(doc(db, "team", t.id));
     });
 
+    div.appendChild(textarea);
     div.appendChild(delBtn);
     container.appendChild(div);
   });
@@ -190,7 +183,7 @@ onSnapshot(aboutCol, snapshot => {
 onSnapshot(teamCol, snapshot => {
   teamData = [];
   snapshot.forEach(docSnap => teamData.push({ id: docSnap.id, ...docSnap.data() }));
-  renderTeam();
+  ;
 });
 
 onSnapshot(timelineCol, snapshot => {

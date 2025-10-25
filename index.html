@@ -187,23 +187,26 @@ header p {
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 .nav-inner {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  position: relative;
-  padding: 0.6rem 1rem;
   width: 100%;
+  padding: 0.6rem 1rem;
+  position: relative;
 }
-.nav-logo { justify-self: start; }
+.nav-logo {
+  justify-self: start;
+}
+.nav-login {
+  justify-self: end;
+}
 .nav-logo img { height: 50px; width: auto; }
 .nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
 
 .nav-links {
   display: flex;
+  justify-content: center;
   gap: 1rem;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
 }
 .nav-links a {
   font-weight: bold;

@@ -268,14 +268,15 @@ header p {
       /* Dropdown nav links */
       .nav-links {
         position: fixed;
-        top: 60px;
+        top: 0;
         left: 0;
-        width: 100%;
-        flex-direction: column;
-        display: none;
-        background: var(--medium-blue);
-        border-top: 3px solid var(--light-blue);
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--medium-blue);
         z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        padding-top: 80px;
       }
 
       /* Show dropdown when toggled */

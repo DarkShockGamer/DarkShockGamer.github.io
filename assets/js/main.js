@@ -7,8 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
   function updateNavVisibility() {
     if (window.innerWidth <= 768) {
       navLinks.style.display = 'none';
-      navLinksMobile.style.display = 'flex';
       navToggle.style.display = 'flex';
+      // Only show mobile menu if it has "show"
+      navLinksMobile.style.display = navLinksMobile.classList.contains('show') ? 'flex' : 'none';
     } else {
       navLinks.style.display = 'flex';
       navLinksMobile.style.display = 'none';
@@ -25,14 +26,15 @@ document.addEventListener('DOMContentLoaded', function() {
   if (navToggle) {
     navToggle.addEventListener('click', () => {
       navLinksMobile.classList.toggle('show');
+      navLinksMobile.style.display = navLinksMobile.classList.contains('show') ? 'flex' : 'none';
     });
   }
 
   // Close menus when a link is clicked
   document.querySelectorAll('.nav-links a, .nav-links-mobile a').forEach(link => {
     link.addEventListener('click', () => {
-      navLinks.classList.remove('show');
       navLinksMobile.classList.remove('show');
+      navLinksMobile.style.display = 'none';
     });
   });
 
@@ -49,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
           const allowed = allowedDomains.some(d => email.endsWith(`@${d}`)) || allowedEmails.includes(email);
 
           if (allowed) {
-            // Only create Tasks links if allowed
+            // Desktop Tasks link
             if (!document.getElementById('tasksLink')) {
               const desktopLink = document.createElement('a');
               desktopLink.href = 'tasks.html';
@@ -59,6 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
               navLinks.appendChild(desktopLink);
             }
 
+            // Mobile Tasks link
             if (!document.getElementById('tasksLinkMobile')) {
               const mobileLink = document.createElement('a');
               mobileLink.href = 'tasks.html';
@@ -67,11 +70,15 @@ document.addEventListener('DOMContentLoaded', function() {
               mobileLink.style.display = 'block'; // vertical menu
               navLinksMobile.appendChild(mobileLink);
 
-              // Add click handler to close mobile menu when clicked
               mobileLink.addEventListener('click', () => {
                 navLinksMobile.classList.remove('show');
+                navLinksMobile.style.display = 'none';
               });
             }
+
+            // Ensure nav visibility updates after adding links
+            updateNavVisibility();
+
           } else {
             alert("Access to Tasks is restricted to specific emails.");
           }
@@ -88,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
       { theme: "outline", size: "large", width: 250, text: "signin_with" }
     );
 
-    google.accounts.id.prompt(); // optional
+    google.accounts.id.prompt();
   } else {
     console.error("Google Sign-In script not loaded.");
   }

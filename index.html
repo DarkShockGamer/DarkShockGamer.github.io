@@ -191,11 +191,10 @@
       box-shadow: none;
     }
     .nav-inner {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
+      display: flex;
       align-items: center;
-      padding: 0.6rem 1rem;
-      width: 100%;
+      justify-content: space-between;
+      position: relative;
     }
     .nav-logo {
       justify-self: start;
@@ -206,8 +205,10 @@
     }
     .nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
     .nav-links {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
-      justify-content: center;
       gap: 1rem;
     }
     .nav-links a {

@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
 
   // ======= Mobile Navigation Toggle =======
   const navToggle = document.querySelector('.nav-toggle');
@@ -6,10 +6,11 @@ document.addEventListener('DOMContentLoaded', function() {
   const navLinksMobile = document.getElementById('navLinksMobile');
 
   if (navToggle && navLinks && navLinksMobile) {
-    navToggle.addEventListener('click', function() {
+    navToggle.addEventListener('click', () => {
       const expanded = navToggle.getAttribute('aria-expanded') === 'true';
       navToggle.setAttribute('aria-expanded', (!expanded).toString());
 
+      // Toggle both navs
       navLinks.classList.toggle('show');
       navLinksMobile.classList.toggle('show');
     });
@@ -19,13 +20,13 @@ document.addEventListener('DOMContentLoaded', function() {
       link.addEventListener('click', () => {
         navLinks.classList.remove('show');
         navLinksMobile.classList.remove('show');
+        navToggle.setAttribute('aria-expanded', 'false');
       });
     });
   }
 
   // ======= Timeline Info Bubbles =======
-  const timelineItems = document.querySelectorAll('.timeline-item');
-  timelineItems.forEach(item => {
+  document.querySelectorAll('.timeline-item').forEach(item => {
     const infoText = item.getAttribute('data-info');
     if (!infoText) return;
 
@@ -34,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
     bubble.textContent = infoText;
     item.appendChild(bubble);
 
-    item.addEventListener('click', (e) => {
+    item.addEventListener('click', e => {
       e.stopPropagation();
       // Close other bubbles
       document.querySelectorAll('.info-bubble.show').forEach(b => b.classList.remove('show'));
@@ -44,54 +45,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Close bubbles when clicking outside
   document.addEventListener('click', () => {
-    document.querySelectorAll('.info-bubble.show').forEach(bubble => bubble.classList.remove('show'));
+    document.querySelectorAll('.info-bubble.show').forEach(b => b.classList.remove('show'));
   });
 
-  // ======= Google Sign-In =======
+  // ======= Google Sign-In and Tasks Link =======
   const clientId = "635936985251-tj5uq36b5altf4qmk7019r3u504mm1fs.apps.googleusercontent.com";
+  const googleBtn = document.getElementById('googleSignIn');
+  const desktopTasks = document.getElementById('tasksLink');
+  const mobileTasks = document.getElementById('tasksLinkMobile');
 
-  if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+  if (typeof google !== 'undefined' && google.accounts && google.accounts.id && googleBtn) {
 
-    google.accounts.id.initialize({
-      client_id: clientId,
-      callback: (response) => {
-        try {
-          const data = jwt_decode(response.credential);
-          const email = data.email;
-          const allowedDomains = ["wths.net"];
-          const allowedEmails = ["blackshocktrooper@gmail.com"];
+    const handleCredential = response => {
+      try {
+        const data = jwt_decode(response.credential);
+        const email = data.email;
+        const allowedDomains = ["wths.net"];
+        const allowedEmails = ["blackshocktrooper@gmail.com"];
+        const canAccess = allowedDomains.some(d => email.endsWith(`@${d}`)) || allowedEmails.includes(email);
 
-          if (
-            allowedDomains.some(domain => email.endsWith(`@${domain}`)) ||
-            allowedEmails.includes(email)
-          ) {
-            document.getElementById("tasksLink").style.display = "inline-block";
-            document.getElementById("tasksLinkMobile").style.display = "inline-block";
-          } else {
-            document.getElementById("tasksLink").style.display = "none";
-            document.getElementById("tasksLinkMobile").style.display = "none";
-            alert("Access to Tasks is restricted to specific emails.");
-          }
-        } catch (err) {
-          console.error("Error decoding JWT:", err);
-        }
+        desktopTasks.style.display = canAccess ? "inline-block" : "none";
+        mobileTasks.style.display = canAccess ? "inline-block" : "none";
+
+        if (!canAccess) alert("Access to Tasks is restricted to specific emails.");
+      } catch (err) {
+        console.error("JWT decode error:", err);
       }
-    });
+    };
 
-    const googleBtn = document.getElementById('googleSignIn');
-    if (googleBtn) {
-      // Render Google Sign-In button
-      google.accounts.id.renderButton(
-        googleBtn,
-        { theme: "outline", size: "large", width: 250, text: "signin_with" }
-      );
-
-      // Optional: show One Tap automatically
-      google.accounts.id.prompt();
-    }
+    google.accounts.id.initialize({ client_id: clientId, callback: handleCredential });
+    google.accounts.id.renderButton(googleBtn, { theme: "outline", size: "large", width: 250, text: "signin_with" });
+    google.accounts.id.prompt(); // optional One Tap
 
   } else {
-    console.error("Google Sign-In script not loaded.");
+    console.error("Google Sign-In script not loaded or element missing.");
   }
 
 });

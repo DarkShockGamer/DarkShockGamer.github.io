@@ -216,6 +216,20 @@
       });
     }
 
+    function makeDraggable(el) {
+      el.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", JSON.stringify({
+          id: el.dataset.id,
+          from: el.dataset.col
+        }));
+        el.classList.add("dragging");
+      });
+
+      el.addEventListener("dragend", () => {
+        el.classList.remove("dragging");
+      });
+    }
+    
     addBtn.onclick = async () => {
       const title = document.getElementById("newTitle").value.trim();
       if (!title) return;

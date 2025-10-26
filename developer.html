@@ -192,7 +192,10 @@
     <!-- Media Manager -->
     <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
       <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Media Manager</h2>
-      <p class="muted mt-1">Upload images directly to this repo (via your PAT below) and set which images appear on the site.</p>
+      <p class="muted mt-1">
+        Upload images directly to this repo (via your PAT below) and set which images appear on the site.
+        <span class="ml-1 text-[0.8rem] text-amber-600 dark:text-amber-400">Note: Uploading commits the image file, but the site.json reference isn’t saved until you click “Push to GitHub”.</span>
+      </p>
 
       <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-2">
@@ -263,7 +266,13 @@
 
     <!-- GitHub Push -->
     <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
-      <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Optional: Push to GitHub</h3>
+      <div class="flex items-center gap-2">
+        <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Optional: Push to GitHub</h3>
+        <!-- Live save status badge -->
+        <span id="save-status" class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+          All changes saved
+        </span>
+      </div>
       <p class="muted mt-1">Provide owner/repo/branch/path and a PAT with repo permissions to push directly.
         The token is only used in your browser.</p>
 
@@ -314,8 +323,9 @@
   </main>
 
   <script>
-    // Minimal editor logic (base)
+    // ===== Base state and helpers =====
     function uid(){ return 'id_'+Math.random().toString(36).slice(2,9); }
+
     let siteData = {
       title: document.getElementById('site-title')?.value || 'Trident Robotics 4296',
       about: { heading: 'About Us', content: '<p>Edit...</p>' },
@@ -328,7 +338,6 @@
           { team: "Programming Team", role: "Lead", members: [] },
           { team: "Drive Team", role: "Driver", members: [] }
         ],
-        // leads supports objects: { name, team }
         leads: [],
         drivers: []
       },
@@ -340,12 +349,33 @@
       }
     };
 
+    let isDirty = false;
+    function updateSaveStatus() {
+      const el = document.getElementById('save-status');
+      if (!el) return;
+      if (isDirty) {
+        el.textContent = 'Unsaved changes';
+        el.className = 'ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
+      } else {
+        el.textContent = 'All changes saved';
+        el.className = 'ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300';
+      }
+    }
+    function setDirty(reason) {
+      isDirty = true;
+      updateSaveStatus();
+      if (reason) {
+        const res = document.getElementById('media-result');
+        if (res) res.textContent = reason + ' — Remember to click "Push to GitHub" to save site.json.';
+      }
+    }
+
     async function loadExisting() {
       try {
         const r = await fetch('/data/site.json?_=' + Date.now());
         if (r.ok) siteData = await r.json();
       } catch (e) { /* ignore */ }
-      // Backward-compat: normalize leads [string] -> [{name, team:""}]
+      // Normalize leads
       if (siteData && siteData.leadership) {
         const leads = siteData.leadership.leads || [];
         siteData.leadership.leads = leads.map(l => {
@@ -356,8 +386,12 @@
       }
       ensureMediaDefaults();
       renderEditor();
-      // Bind media UI after first render
       bindMediaManager();
+      // Loaded from disk -> clean state
+      isDirty = false;
+      updateSaveStatus();
+      const res = document.getElementById('media-result');
+      if (res) res.textContent = '';
     }
 
     function ensureMediaDefaults() {
@@ -420,12 +454,13 @@
         tl.appendChild(card);
 
         // actions
-        card.querySelector('.del').addEventListener('click',()=>{ siteData.timeline.splice(idx,1); renderEditor(); });
+        card.querySelector('.del').addEventListener('click',()=>{ siteData.timeline.splice(idx,1); setDirty('Timeline updated'); renderEditor(); });
         card.querySelector('.up').addEventListener('click',()=>{
           if(idx>0){
             const a=siteData.timeline[idx-1];
             siteData.timeline[idx-1]=siteData.timeline[idx];
             siteData.timeline[idx]=a;
+            setDirty('Timeline updated');
             renderEditor();
           }
         });
@@ -434,12 +469,13 @@
             const a=siteData.timeline[idx+1];
             siteData.timeline[idx+1]=siteData.timeline[idx];
             siteData.timeline[idx]=a;
+            setDirty('Timeline updated');
             renderEditor();
           }
         });
-        card.querySelector('.ev-date').addEventListener('input',(e)=> siteData.timeline[idx].date = e.target.value);
-        card.querySelector('.ev-title').addEventListener('input',(e)=> siteData.timeline[idx].title = e.target.value);
-        card.querySelector('.ev-desc').addEventListener('input',(e)=> siteData.timeline[idx].description = e.target.value);
+        card.querySelector('.ev-date').addEventListener('input',(e)=> { siteData.timeline[idx].date = e.target.value; setDirty('Timeline updated'); });
+        card.querySelector('.ev-title').addEventListener('input',(e)=> { siteData.timeline[idx].title = e.target.value; setDirty('Timeline updated'); });
+        card.querySelector('.ev-desc').addEventListener('input',(e)=> { siteData.timeline[idx].description = e.target.value; setDirty('Timeline updated'); });
       });
 
       // Leads with team selection
@@ -456,9 +492,11 @@
         leadsC.appendChild(span);
         span.querySelector('.lead-team').addEventListener('change',(e)=>{
           siteData.leadership.leads[i] = { name: item.name, team: e.target.value };
+          setDirty('Leadership updated');
         });
         span.querySelector('.remove').addEventListener('click',()=>{
           siteData.leadership.leads.splice(i,1);
+          setDirty('Leadership updated');
           renderEditor();
         });
       });
@@ -472,11 +510,11 @@
       (siteData.leadership.drivers || []).forEach((n,i)=> {
         const span = document.createElement('span'); span.className='pill';
         span.textContent=n;
-        const btn = document.createElement('button'); btn.textContent='×'; btn.addEventListener('click',()=>{ siteData.leadership.drivers.splice(i,1); renderEditor(); });
+        const btn = document.createElement('button'); btn.textContent='×'; btn.addEventListener('click',()=>{ siteData.leadership.drivers.splice(i,1); setDirty('Leadership updated'); renderEditor(); });
         span.appendChild(btn); driversC.appendChild(span);
       });
 
-      // Sync media fields if already bound
+      // Sync media previews
       const f1 = document.getElementById('media-indexHeader');
       const f2 = document.getElementById('media-indexPhoto');
       const f3 = document.getElementById('media-sponsorsHeader');
@@ -489,9 +527,10 @@
       renderCompetitionList();
     }
 
-    // Add handlers
+    // Add handlers (top-level add buttons)
     document.getElementById('add-timeline').addEventListener('click', ()=>{
       siteData.timeline.push({id:uid(), date:new Date().toLocaleDateString(), title:'New event', description:''});
+      setDirty('Timeline updated');
       renderEditor();
     });
 
@@ -502,6 +541,7 @@
         siteData.leadership.leads.push({ name, team });
         document.getElementById('new-lead').value = '';
         document.getElementById('new-lead-team').value = '';
+        setDirty('Leadership updated');
         renderEditor();
       }
     });
@@ -511,16 +551,17 @@
       if(v){
         siteData.leadership.drivers.push(v);
         document.getElementById('new-driver').value='';
+        setDirty('Leadership updated');
         renderEditor();
       }
     });
 
-    // Live updates
-    document.getElementById('site-title').addEventListener('input',(e)=> siteData.title = e.target.value);
-    document.getElementById('about-heading').addEventListener('input',(e)=> siteData.about.heading = e.target.value);
-    document.getElementById('about-content').addEventListener('input',(e)=> siteData.about.content = e.target.value);
+    // Live updates => mark dirty
+    document.getElementById('site-title').addEventListener('input',(e)=> { siteData.title = e.target.value; setDirty('Content changed'); });
+    document.getElementById('about-heading').addEventListener('input',(e)=> { siteData.about.heading = e.target.value; setDirty('Content changed'); });
+    document.getElementById('about-content').addEventListener('input',(e)=> { siteData.about.content = e.target.value; setDirty('Content changed'); });
 
-    // Download/preview
+    // ===== Download/preview =====
     document.getElementById('download-json').addEventListener('click', ()=>{
       const b = new Blob([JSON.stringify(siteData,null,2)], {type:'application/json'});
       const u = URL.createObjectURL(b);
@@ -528,7 +569,7 @@
     });
     document.getElementById('preview-json').addEventListener('click', ()=> alert(JSON.stringify(siteData,null,2)));
 
-    // GitHub push (optional)
+    // ===== GitHub push (text/json) =====
     async function getSha(owner, repo, path, branch, token){
       const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
       const r = await fetch(url, { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json' }});
@@ -584,12 +625,18 @@
 
         document.getElementById('gh-result').textContent = 'Pushing...';
         const res = await pushFile(owner, repo, path, branch, token, JSON.stringify(siteData,null,2), 'Update site data via developer.html');
-        if (res && res.commit && res.commit.sha) document.getElementById('gh-result').textContent = 'Success. Commit: ' + res.commit.sha;
-        else document.getElementById('gh-result').textContent = 'Response: ' + JSON.stringify(res);
+        if (res && res.commit && res.commit.sha) {
+          document.getElementById('gh-result').textContent = 'Success. Commit: ' + res.commit.sha;
+          isDirty = false; updateSaveStatus();
+          const msg = document.getElementById('media-result');
+          if (msg) msg.textContent = 'site.json saved. Your image references are now live.';
+        } else {
+          document.getElementById('gh-result').textContent = 'Response: ' + JSON.stringify(res);
+        }
       } catch (e) { document.getElementById('gh-result').textContent = 'Error: ' + e.message; }
     });
 
-    // ========= Media Manager helpers =========
+    // ===== Media Manager: upload binary files to repo =====
     function sanitizeFileName(name) {
       return name.replace(/[^a-zA-Z0-9._-]/g, '_');
     }
@@ -635,7 +682,7 @@
       const branch = (document.getElementById('gh-branch').value.trim() || 'main');
       const token = document.getElementById('gh-token').value.trim();
       const destDir = (document.getElementById('media-dest-dir').value.trim() || 'assets/uploads').replace(/\/+$/,'');
-      if (!owner || !repo || !token) throw new Error('owner/repo/token required (see "Optional: Push to GitHub" inputs).');
+      if (!owner || !repo || !token) throw new Error('owner/repo/token required (set in "Optional: Push to GitHub").');
 
       const safeName = `${Date.now()}-${sanitizeFileName(file.name)}`;
       const path = `${destDir}/${safeName}`.replace(/^\/+/,'');
@@ -643,6 +690,7 @@
       const res = await pushBinaryFile(owner, repo, path, branch, token, b64, `Upload image ${safeName} via developer.html`);
       return `/${res.content.path}`; // site-relative URL
     }
+
     function bindImageField(fieldId, fileInputId, buttonId, previewId, getter, setter) {
       const field = document.getElementById(fieldId);
       const fileInput = document.getElementById(fileInputId);
@@ -650,12 +698,14 @@
       const preview = document.getElementById(previewId);
       if (!field || !fileInput || !button || !preview) return;
 
+      // initialize
       field.value = getter() || '';
       preview.src = getter() || '';
 
       field.addEventListener('input', () => {
         setter(field.value.trim());
         preview.src = field.value.trim() || '';
+        setDirty('Media link changed');
       });
 
       button.addEventListener('click', () => fileInput.click());
@@ -668,7 +718,9 @@
           setter(url);
           field.value = url;
           preview.src = url;
-          document.getElementById('media-result').textContent = `Uploaded: ${url}`;
+          // Uploaded binary immediately, but site.json reference pending until push
+          setDirty('Image uploaded to repository ✓ (reference pending in site.json)');
+          document.getElementById('media-result').textContent = `Uploaded: ${url}\nImage file is committed. Reference will be saved to site.json when you click "Push to GitHub".`;
         } catch (err) {
           document.getElementById('media-result').textContent = 'Error: ' + err.message;
         } finally {
@@ -676,6 +728,7 @@
         }
       });
     }
+
     function renderCompetitionList() {
       const list = document.getElementById('media-competition-list');
       if (!list || !siteData.media) return;
@@ -699,6 +752,7 @@
             const a = siteData.media.competitionImages[idx-1];
             siteData.media.competitionImages[idx-1] = siteData.media.competitionImages[idx];
             siteData.media.competitionImages[idx] = a;
+            setDirty('Competition gallery updated');
             renderCompetitionList();
           }
         });
@@ -707,30 +761,36 @@
             const a = siteData.media.competitionImages[idx+1];
             siteData.media.competitionImages[idx+1] = siteData.media.competitionImages[idx];
             siteData.media.competitionImages[idx] = a;
+            setDirty('Competition gallery updated');
             renderCompetitionList();
           }
         });
         card.querySelector('[data-act="del"]').addEventListener('click', () => {
           siteData.media.competitionImages.splice(idx, 1);
+          setDirty('Competition gallery updated');
           renderCompetitionList();
         });
         list.appendChild(card);
       });
     }
+
     function bindCompetitionControls() {
       const addBtn = document.getElementById('add-competition-url');
       const urlInput = document.getElementById('new-competition-url');
       const btn = document.getElementById('btn-upload-competition');
       const fileInput = document.getElementById('file-competition');
+
       if (addBtn && urlInput) {
         addBtn.addEventListener('click', () => {
           const v = urlInput.value.trim();
           if (!v) return;
           siteData.media.competitionImages.push(v);
           urlInput.value = '';
+          setDirty('Competition gallery updated');
           renderCompetitionList();
         });
       }
+
       if (btn && fileInput) {
         btn.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', async (e) => {
@@ -742,7 +802,8 @@
               const url = await uploadOneImage(f);
               siteData.media.competitionImages.push(url);
             }
-            document.getElementById('media-result').textContent = 'Uploaded ' + files.length + ' file(s).';
+            setDirty('Image(s) uploaded to repository ✓ (references pending in site.json)');
+            document.getElementById('media-result').textContent = 'Uploaded ' + files.length + ' file(s).\nImages are committed. References will be saved when you click "Push to GitHub".';
             renderCompetitionList();
           } catch (err) {
             document.getElementById('media-result').textContent = 'Error: ' + err.message;
@@ -752,6 +813,7 @@
         });
       }
     }
+
     function bindMediaManager() {
       bindImageField(
         'media-indexHeader', 'file-indexHeader', 'btn-upload-indexHeader', 'preview-indexHeader',
@@ -772,7 +834,7 @@
       renderCompetitionList();
     }
 
-    // Load data and initialize
+    // Start
     loadExisting();
   </script>
 </body>

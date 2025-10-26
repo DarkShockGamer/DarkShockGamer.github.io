@@ -3,88 +3,203 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link rel="icon" type="image/png" href="/assets/logo.png">
   <title>Developer - Edit Site Content</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: system-ui, Arial, sans-serif; padding: 24px; max-width: 1100px; margin: auto; color: #111; background:#fafafa; }
-    label { display:block; margin-top:12px; font-weight:600; }
-    input[type="text"], textarea, select { width:100%; padding:8px; box-sizing:border-box; margin-top:6px; }
-    textarea { min-height:120px; font-family:inherit; }
-    .timeline-entry { border:1px solid #ddd; padding:12px; margin-bottom:8px; border-radius:6px; background:#fff; }
-    button { padding:8px 12px; margin-top:8px; }
-    .pill { display:inline-flex; align-items:center; gap:8px; background:#efefef; padding:6px 10px; border-radius:16px; margin:4px 4px 0 0; }
-    .controls { margin-top:16px; display:flex; gap:8px; flex-wrap:wrap; }
-    .muted { color:#666; font-size:0.9rem; }
-    .row { display:flex; gap:8px; align-items:flex-start; flex-wrap:wrap; }
-    .row > * { flex: 1 1 auto; min-width: 180px; }
-    .pill button { margin: 0 0 0 4px; padding: 2px 8px; line-height: 1; }
-    .pill select { margin: 0; padding: 2px 6px; }
+    /* Extra polish to complement Tailwind */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #e0f2fe;      /* sky-100 */
+      color: #0369a1;           /* sky-700 */
+      padding: 4px 10px;
+      border-radius: 9999px;
+      margin: 4px 6px 0 0;
+      border: 1px solid #bae6fd;/* sky-200 */
+      font-size: 0.85rem;
+      line-height: 1.2rem;
+      white-space: nowrap;
+    }
+    .pill button {
+      margin: 0 0 0 4px;
+      padding: 2px 8px;
+      line-height: 1;
+      border: 1px solid rgba(2,132,199,0.25);
+      border-radius: 9999px;
+      color: #0369a1;
+      background: white;
+    }
+    .pill select {
+      margin: 0;
+      padding: 2px 6px;
+      border: 1px solid #93c5fd; /* sky-300 */
+      border-radius: 8px;
+      background: white;
+      color: #0369a1;
+    }
+    .muted { color: #64748b; } /* slate-500 */
+    .timeline-entry {
+      background: white;
+      border: 1px solid #e2e8f0; /* slate-200 */
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      box-shadow: 0 1px 1px rgba(2, 6, 23, 0.04);
+    }
+    .timeline-entry:hover {
+      box-shadow: 0 6px 16px rgba(2,132,199,0.12);
+      border-color: #93c5fd; /* sky-300 */
+      transform: translateY(-1px);
+      transition: box-shadow 150ms, border-color 150ms, transform 150ms;
+    }
+    textarea { min-height: 120px; font-family: inherit; }
   </style>
 </head>
-<body>
-  <h1>Developer Editor</h1>
-  <p class="muted">Edit site content and download or push the data file. Pushing directly requires a GitHub Personal Access Token with repo write permissions.</p>
-
-  <label for="site-title">Site Title</label>
-  <input id="site-title" type="text" placeholder="Site title">
-
-  <label for="about-heading">About Heading</label>
-  <input id="about-heading" type="text" placeholder="About heading">
-
-  <label for="about-content">About Content (HTML allowed)</label>
-  <textarea id="about-content" placeholder="<p>About text...</p>"></textarea>
-
-  <h2 style="margin-top:18px">Timeline</h2>
-  <div id="timeline-list"></div>
-  <button id="add-timeline">+ Add Timeline Event</button>
-
-  <h2 style="margin-top:18px">Leadership</h2>
-  <div>
-    <label>Leads</label>
-    <div id="leads-list"></div>
-    <div class="row" style="margin-top:6px;">
-      <input id="new-lead" type="text" placeholder="Add lead name">
-      <select id="new-lead-team" aria-label="Lead team"></select>
-      <button id="add-lead">Add</button>
+<body class="min-h-screen bg-gradient-to-b from-sky-50 to-white font-sans text-slate-800">
+  <header class="max-w-6xl mx-auto px-4 pt-6 pb-4">
+    <div class="flex items-center gap-3">
+      <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-8 w-8"/>
+      <div>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug">Developer Editor</h1>
+        <p class="text-sm text-sky-600">Edit site content and download or push the data file</p>
+      </div>
     </div>
-  </div>
-  <div style="margin-top:12px;">
-    <label>Drivers</label>
-    <div id="drivers-list"></div>
-    <div class="row" style="margin-top:6px;">
-      <input id="new-driver" type="text" placeholder="Add driver name">
-      <button id="add-driver">Add</button>
-    </div>
-  </div>
+    <p class="muted mt-2">Pushing directly requires a GitHub Personal Access Token with repo write permissions. You can also download the file and commit via GitHub.</p>
+  </header>
 
-  <div class="controls">
-    <button id="download-json">Download data/site.json</button>
-    <button id="preview-json">Preview JSON</button>
-  </div>
+  <main class="max-w-6xl mx-auto px-4 pb-16 space-y-6">
+    <!-- Site Content -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100">
+      <h2 class="text-lg font-semibold text-slate-700 mb-3">Site Content</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="col-span-1">
+          <label for="site-title" class="block text-sm font-medium text-slate-700">Site Title</label>
+          <input id="site-title" type="text" placeholder="Site title"
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200"/>
+        </div>
+        <div class="col-span-1">
+          <label for="about-heading" class="block text-sm font-medium text-slate-700">About Heading</label>
+          <input id="about-heading" type="text" placeholder="About heading"
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200"/>
+        </div>
+      </div>
 
-  <h3 style="margin-top:20px">(Optional) Push to GitHub</h3>
-  <div class="muted">
-    Provide owner/repo/branch/path and a PAT with repo permissions to push directly. Token is only used in your browser; you can also download and commit via the GitHub web UI.
-  </div>
+      <div class="mt-4">
+        <label for="about-content" class="block text-sm font-medium text-slate-700">About Content (HTML allowed)</label>
+        <textarea id="about-content" placeholder="<p>About text...</p>"
+                  class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200"></textarea>
+      </div>
+    </section>
 
-  <label for="gh-owner">Owner</label>
-  <input id="gh-owner" type="text" placeholder="owner" value="DarkShockGamer">
-  <label for="gh-repo">Repo</label>
-  <input id="gh-repo" type="text" placeholder="repo" value="DarkShockGamer.github.io">
-  <label for="gh-branch">Branch</label>
-  <input id="gh-branch" type="text" placeholder="branch" value="main">
-  <label for="gh-path">File path</label>
-  <input id="gh-path" type="text" placeholder="path" value="data/site.json">
-  <label for="gh-token">Personal Access Token (PAT)</label>
-  <input id="gh-token" type="password" placeholder="ghp_xxx">
+    <!-- Timeline -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-slate-700">Timeline</h2>
+        <button id="add-timeline"
+                class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">+ Add Timeline Event</button>
+      </div>
+      <div id="timeline-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+    </section>
 
-  <div style="display:flex; gap:8px; margin-top:8px;">
-    <button id="dry-run">Dry run (get SHA)</button>
-    <button id="push-github">Push to GitHub</button>
-  </div>
-  <div id="gh-result" class="muted" style="margin-top:10px; white-space:pre-wrap;"></div>
+    <!-- Leadership -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100">
+      <h2 class="text-lg font-semibold text-slate-700">Leadership</h2>
+
+      <!-- Leads -->
+      <div class="mt-3">
+        <label class="block text-sm font-medium text-slate-700">Leads</label>
+        <div id="leads-list" class="mt-2"></div>
+        <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2">
+          <input id="new-lead" type="text" placeholder="Add lead name"
+                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200"/>
+          <select id="new-lead-team" aria-label="Lead team"
+                  class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200"></select>
+          <button id="add-lead"
+                  class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">Add</button>
+        </div>
+      </div>
+
+      <!-- Drivers -->
+      <div class="mt-6">
+        <label class="block text-sm font-medium text-slate-700">Drivers</label>
+        <div id="drivers-list" class="mt-2"></div>
+        <div class="mt-3 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-2">
+          <input id="new-driver" type="text" placeholder="Add driver name"
+                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200"/>
+          <button id="add-driver"
+                  class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">Add</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Actions -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100">
+      <h2 class="text-lg font-semibold text-slate-700 mb-2">Data Actions</h2>
+      <div class="flex flex-wrap gap-2">
+        <button id="download-json" class="border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-md font-semibold shadow-sm">
+          Download data/site.json
+        </button>
+        <button id="preview-json" class="border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-md font-semibold shadow-sm">
+          Preview JSON
+        </button>
+      </div>
+    </section>
+
+    <!-- GitHub Push -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100">
+      <h3 class="text-lg font-semibold text-slate-700">Optional: Push to GitHub</h3>
+      <p class="muted mt-1">Provide owner/repo/branch/path and a PAT with repo permissions to push directly.
+        The token is only used in your browser.</p>
+
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="gh-owner" class="block text-sm font-medium text-slate-700">Owner</label>
+          <input id="gh-owner" type="text" placeholder="owner" value="DarkShockGamer"
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200"/>
+        </div>
+        <div>
+          <label for="gh-repo" class="block text-sm font-medium text-slate-700">Repo</label>
+          <input id="gh-repo" type="text" placeholder="repo" value="DarkShockGamer.github.io"
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200"/>
+        </div>
+        <div>
+          <label for="gh-branch" class="block text-sm font-medium text-slate-700">Branch</label>
+          <input id="gh-branch" type="text" placeholder="branch" value="main"
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200"/>
+        </div>
+        <div>
+          <label for="gh-path" class="block text-sm font-medium text-slate-700">File path</label>
+          <input id="gh-path" type="text" placeholder="path" value="data/site.json"
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200"/>
+        </div>
+        <div class="md:col-span-2">
+          <label for="gh-token" class="block text-sm font-medium text-slate-700">Personal Access Token (PAT)</label>
+          <input id="gh-token" type="password" placeholder="ghp_xxx"
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200"/>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-2 mt-4">
+        <button id="dry-run" class="border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-md font-semibold shadow-sm">
+          Dry run (get SHA)
+        </button>
+        <button id="push-github" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">
+          Push to GitHub
+        </button>
+      </div>
+      <pre id="gh-result" class="muted mt-3 whitespace-pre-wrap text-sm"></pre>
+    </section>
+
+    <footer class="text-center py-4 border-t border-slate-100 flex flex-col items-center gap-1">
+      <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-6 w-6" />
+      <span class="text-sky-600 text-sm">© 2025 Trident Robotics — Developer Editor</span>
+      <span class="text-xs text-sky-400">Internal content management • Edits saved to data/site.json</span>
+    </footer>
+  </main>
 
   <script>
-    // Minimal editor logic
+    // Minimal editor logic (unchanged functionality)
     function uid(){ return 'id_'+Math.random().toString(36).slice(2,9); }
     let siteData = {
       title: document.getElementById('site-title')?.value || 'Trident Robotics 4296',
@@ -98,7 +213,7 @@
           { team: "Programming Team", role: "Lead", members: [] },
           { team: "Drive Team", role: "Driver", members: [] }
         ],
-        // leads now supports objects: { name, team }
+        // leads supports objects: { name, team }
         leads: [],
         drivers: []
       }
@@ -132,6 +247,7 @@
     }
 
     function renderEditor(){
+      // top-level fields
       document.getElementById('site-title').value = siteData.title || '';
       document.getElementById('about-heading').value = (siteData.about && siteData.about.heading) || '';
       document.getElementById('about-content').value = (siteData.about && siteData.about.content) || '';
@@ -139,38 +255,66 @@
       // Timeline
       const tl = document.getElementById('timeline-list'); tl.innerHTML = '';
       (siteData.timeline || []).forEach((ev, idx) => {
-        const div = document.createElement('div'); div.className='timeline-entry';
-        div.innerHTML = `
-          <label>When</label>
-          <input class="ev-date" value="${(ev.date||ev.year||'').replace(/"/g, '&quot;')}">
-          <label>Title</label>
-          <input class="ev-title" value="${(ev.title||'').replace(/"/g, '&quot;')}">
-          <label>Description (HTML)</label>
-          <textarea class="ev-desc">${ev.description||''}</textarea>
-          <div class="row" style="margin-top:8px;">
-            <button type="button" class="up">↑</button>
-            <button type="button" class="down">↓</button>
-            <button type="button" class="del" style="margin-left:auto;">Delete</button>
+        const card = document.createElement('div'); card.className='timeline-entry';
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <h3 class="text-base font-semibold text-slate-700">Event ${idx+1}</h3>
+            <div class="flex gap-2">
+              <button type="button" class="up border border-slate-300 rounded-md px-2 py-1 text-xs hover:bg-slate-50">↑</button>
+              <button type="button" class="down border border-slate-300 rounded-md px-2 py-1 text-xs hover:bg-slate-50">↓</button>
+              <button type="button" class="del border border-red-200 rounded-md px-2 py-1 text-xs text-red-600 hover:bg-red-50">Delete</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-2 mt-2">
+            <div>
+              <label class="block text-sm font-medium text-slate-700">When</label>
+              <input class="ev-date mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                     value="${(ev.date||ev.year||'').replace(/"/g, '&quot;')}">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Title</label>
+              <input class="ev-title mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                     value="${(ev.title||'').replace(/"/g, '&quot;')}">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700">Description (HTML)</label>
+              <textarea class="ev-desc mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200">${ev.description||''}</textarea>
+            </div>
           </div>
         `;
-        tl.appendChild(div);
-        div.querySelector('.del').addEventListener('click',()=>{ siteData.timeline.splice(idx,1); renderEditor(); });
-        div.querySelector('.up').addEventListener('click',()=>{ if(idx>0){ const a=siteData.timeline[idx-1]; siteData.timeline[idx-1]=siteData.timeline[idx]; siteData.timeline[idx]=a; renderEditor(); }});
-        div.querySelector('.down').addEventListener('click',()=>{ if(idx<siteData.timeline.length-1){ const a=siteData.timeline[idx+1]; siteData.timeline[idx+1]=siteData.timeline[idx]; siteData.timeline[idx]=a; renderEditor(); }});
-        div.querySelector('.ev-date').addEventListener('input',(e)=> siteData.timeline[idx].date = e.target.value);
-        div.querySelector('.ev-title').addEventListener('input',(e)=> siteData.timeline[idx].title = e.target.value);
-        div.querySelector('.ev-desc').addEventListener('input',(e)=> siteData.timeline[idx].description = e.target.value);
+        tl.appendChild(card);
+
+        // actions
+        card.querySelector('.del').addEventListener('click',()=>{ siteData.timeline.splice(idx,1); renderEditor(); });
+        card.querySelector('.up').addEventListener('click',()=>{
+          if(idx>0){
+            const a=siteData.timeline[idx-1];
+            siteData.timeline[idx-1]=siteData.timeline[idx];
+            siteData.timeline[idx]=a;
+            renderEditor();
+          }
+        });
+        card.querySelector('.down').addEventListener('click',()=>{
+          if(idx<siteData.timeline.length-1){
+            const a=siteData.timeline[idx+1];
+            siteData.timeline[idx+1]=siteData.timeline[idx];
+            siteData.timeline[idx]=a;
+            renderEditor();
+          }
+        });
+        card.querySelector('.ev-date').addEventListener('input',(e)=> siteData.timeline[idx].date = e.target.value);
+        card.querySelector('.ev-title').addEventListener('input',(e)=> siteData.timeline[idx].title = e.target.value);
+        card.querySelector('.ev-desc').addEventListener('input',(e)=> siteData.timeline[idx].description = e.target.value);
       });
 
-      // Leadership lists
-      // Render Leads with team selection
+      // Leads with team selection
       const leadsC = document.getElementById('leads-list'); leadsC.innerHTML = '';
       (siteData.leadership.leads || []).forEach((lead, i) => {
         const item = (typeof lead === 'string') ? { name: lead, team: '' } : (lead || { name: '', team: '' });
         const span = document.createElement('span'); span.className='pill';
         span.innerHTML = `
           <strong>${(item.name||'').replace(/</g,'&lt;')}</strong>
-          <span class="muted">—</span>
+          <span class="text-slate-400">—</span>
           <select class="lead-team" aria-label="Lead team">${teamOptionsHtml(item.team)}</select>
           <button type="button" class="remove" aria-label="Remove lead">×</button>
         `;
@@ -198,6 +342,7 @@
       });
     }
 
+    // Add handlers
     document.getElementById('add-timeline').addEventListener('click', ()=>{
       siteData.timeline.push({id:uid(), date:new Date().toLocaleDateString(), title:'New event', description:''});
       renderEditor();
@@ -223,16 +368,17 @@
       }
     });
 
+    // Live updates
     document.getElementById('site-title').addEventListener('input',(e)=> siteData.title = e.target.value);
     document.getElementById('about-heading').addEventListener('input',(e)=> siteData.about.heading = e.target.value);
     document.getElementById('about-content').addEventListener('input',(e)=> siteData.about.content = e.target.value);
 
+    // Download/preview
     document.getElementById('download-json').addEventListener('click', ()=>{
       const b = new Blob([JSON.stringify(siteData,null,2)], {type:'application/json'});
       const u = URL.createObjectURL(b);
       const a = document.createElement('a'); a.href = u; a.download = 'site.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(u);
     });
-
     document.getElementById('preview-json').addEventListener('click', ()=> alert(JSON.stringify(siteData,null,2)));
 
     // GitHub push (optional)
@@ -249,7 +395,11 @@
       const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
       const body = { message: message||'Update site content via developer.html', content: base64, branch };
       if (sha) body.sha = sha;
-      const r = await fetch(url, { method:'PUT', headers:{ Authorization: 'token ' + token, Accept:'application/vnd.github+json', 'Content-Type':'application/json' }, body: JSON.stringify(body) });
+      const r = await fetch(url, {
+        method:'PUT',
+        headers:{ Authorization: 'token ' + token, Accept:'application/vnd.github+json', 'Content-Type':'application/json' },
+        body: JSON.stringify(body)
+      });
       return await r.json();
     }
 

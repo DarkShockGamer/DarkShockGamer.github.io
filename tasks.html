@@ -12,7 +12,7 @@
     .droppable-hover { background-color: #e0f2fe !important; }
     .dropdown { position: relative; width: 10rem; }
     .dropdown-btn { width: 100%; border: 1px solid #cfe3f5; border-radius: 0.375rem; padding: 0.5rem; background: white; cursor: pointer; text-align: left; }
-    .dropdown-list { position: absolute; top: 100%; left: 0; right: 0; border: 1px solid #cfe3f5; border-radius: 0.375rem; background: white; max-height: 200px; overflow-y: auto; display: none; z-index: 10; }
+    .dropdown-list { position: absolute; top: 100%; left: 0; right: 0; border: 1px solid #cfe3f5; border-radius: 0.375rem; background: white; max-height: 200px; overflow-y: auto; display: none; z-[...]
     .dropdown-list label { display: flex; align-items: center; padding: 0.25rem 0.5rem; cursor: pointer; }
     .dropdown-list label:hover { background-color: #e0f2fe; }
     .tag-chip { display: inline-block; background: #bae6fd; color: #0369a1; padding: 0.125rem 0.5rem; border-radius: 9999px; margin-right: 0.25rem; margin-bottom: 0.25rem; font-size: 0.75rem; }
@@ -70,7 +70,7 @@
 
 <main class="max-w-6xl mx-auto">
   <div id="board" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-  <footer class="mt-12 text-center py-4 border-t border-sky-100 flex flex-col items-center gap-1">
+  <footer class="mt-12 text-center py-4 border-t border-sky-200 flex flex-col items-center gap-1">
     <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-6 w-6" />
     <span class="text-sky-600 text-sm">© 2025 Trident Robotics — Task Board</span>
     <span class="text-xs text-sky-400">Internal team dashboard • Customize as needed</span>
@@ -164,13 +164,13 @@ async function renderBoard() {
   data.order.forEach(colId => {
     const col = data.columns[colId];
     const colEl = document.createElement("section");
-    colEl.className = "bg-white rounded-2xl p-4 shadow-sm border border-sky-100 flex flex-col";
+    colEl.className = "bg-white rounded-2xl p-4 shadow-sm border border-sky-300 flex flex-col";
     colEl.innerHTML = `
-      <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center justify-between pb-2 border-b border-sky-300 mb-3">
         <h2 class="text-lg font-semibold text-sky-700">${col.title}</h2>
         <div class="text-sm text-sky-500">${col.tasks.length}</div>
       </div>
-      <div class="task-list min-h-[120px] space-y-3" data-col="${colId}"></div>
+      <div class="task-list min-h-[120px] space-y-3 divide-y divide-sky-300" data-col="${colId}"></div>
     `;
     board.appendChild(colEl);
 
@@ -195,7 +195,7 @@ async function renderBoard() {
 // ---------------- Create Task Element ----------------
 function createTaskEl(task, colId) {
   const div = document.createElement("div");
-  div.className = "bg-white border border-sky-100 rounded-lg p-3 shadow-sm";
+  div.className = "bg-white border border-sky-300 rounded-lg p-3 shadow-sm";
   div.draggable = true;
   div.dataset.id = task.id;
   div.dataset.col = colId;
@@ -219,7 +219,7 @@ function createTaskEl(task, colId) {
     <!-- Notes Section -->
     <div class="mt-3">
       <button class="text-xs text-sky-600 underline toggle-comments">Show Notes</button>
-      <div class="comments-section hidden mt-2 border-t border-sky-100 pt-2 space-y-2">
+      <div class="comments-section hidden mt-2 border-t border-sky-300 pt-2 space-y-2">
         <div class="comments-list text-sm text-sky-800">
           ${(task.comments || []).map(c => {
             const dateStr = c.timestamp

@@ -65,19 +65,19 @@
     const tasksDesktop = document.getElementById("tasksLink");
     const tasksMobile = document.getElementById("tasksLinkMobile");
     if (!email) {
-      tasksDesktop.style.display = "none";
-      tasksMobile.style.display = "none";
+      if (tasksDesktop) tasksDesktop.style.display = "none";
+      if (tasksMobile) tasksMobile.style.display = "none";
       return;
     }
     const allowedDomains = ["wths.net"];
     const allowedEmails = ["blackshocktrooper@gmail.com"];
     const allowed = allowedDomains.some(domain => email.endsWith(`@${domain}`)) || allowedEmails.includes(email);
     if (allowed) {
-      tasksDesktop.style.display = "inline-block";
-      tasksMobile.style.display = "block";
+      if (tasksDesktop) tasksDesktop.style.display = "inline-block";
+      if (tasksMobile) tasksMobile.style.display = "block";
     } else {
-      tasksDesktop.style.display = "none";
-      tasksMobile.style.display = "none";
+      if (tasksDesktop) tasksDesktop.style.display = "none";
+      if (tasksMobile) tasksMobile.style.display = "none";
     }
   }
 
@@ -92,8 +92,8 @@
     if (signInContainer) signInContainer.style.display = 'none';
     if (signedContainer) signedContainer.style.display = 'flex';
 
-    emailSpan.textContent = profile.email || profile.name || 'Signed in';
-    avatarImg.src = profile.picture || '/assets/icon.png';
+    if (emailSpan) emailSpan.textContent = profile.email || profile.name || 'Signed in';
+    if (avatarImg) avatarImg.src = profile.picture || '/assets/icon.png';
 
     // Update tasks visibility
     updateTasksVisibility(profile.email);
@@ -854,14 +854,11 @@
     function iconForTeam(teamName) {
       // minimal: provide inline SVGs per team key
       const map = {
-        'Design Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16V8a1 1 0 0 0-.55-.89l-8-4a1 1 0 0 0-.9 0l-8 4A1 1 0 0 0 3 8v8a1 1 0 0 0 .55.89l8 4a1 1 0 0 0 .9 0l8-4A1 1 0 0 0 21 16zM12 5.18 18.47 8.4 12 11.62 5.53 8.4 12 5.18zM5 10.82l6 3v4.99l-6-3V10.82zm8 7.99v-4.99l6-3v4.99l-6 3z"/></svg>`,
-        'Mechanical Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Zm8.94-2.56a7.97 7.97 0 0 0 0-1.88l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.23l-2.39.96a7.93 7.93 0 0 0-1.63-.94l-.36-2.55A.5.5 0 0 0 15.7 2h-3.4a.5.5 0 0 0-.5.42l-.36 2.55c-.58.22-1.13.52-1.64.9l-2.39-.96a.5.5 0 0 0-.6.23L3.3 8.06a.5.5 0 0 0 .12.64l2.03 1.58a8.2 8.2 0 0 0 0 1.88L3.42 13.7a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.43.34.7.23l2.39-.96c.51.38 1.06.68 1.64.9l.36 2.55a.5.5 0 0 0 .5.42h3.4a.5.5 0 0 0 .5-.42l.36-2.55c.57-.22 1.12-.52 1.63-.9l2.39.96c.27.11.56.01.7-.23l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58Z"/></svg>`,
-        'Electrical Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7v8l11-14h-8l0-8z"/></svg>`,
-        'Programming Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>`,
-        'Drive Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Drive Team Controller">
-          <title>Drive Team Controller</title>
-          <path fill="currentColor" d="M7,6H17A4,4 0 0,1 21,10V14A4,4 0 0,1 17,18H16A3,3 0 0,1 13,15H11A3,3 0 0,1 8,18H7A4,4 0 0,1 3,14V10A4,4 0 0,1 7,6M7,9V11H5V13H7V15H9V13H11V11H9V9H7M15.5,9A1.5,1.5 0 0,0 14,10.5A1.5,1.5 0 0,0 15.5,12A1.5,1.5 0 0,0 17,10.5A1.5,1.5 0 0,0 15.5,9M18.5,11A1.5,1.5 0 0,0 17,12.5A1.5,1.5 0 0,0 18.5,14A1.5,1.5 0 0,0 20,12.5A1.5,1.5 0 0,0 18.5,11Z"/>
-        </svg>`,
+        'Design Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16V8a1 1 0 0 0-.55-.89l-8-4a1 1 0 0 0-.9 0l-8 4A1 1 0 0 0 3 8v8a1 1 0 0 0 .55.89l8 4a1 1 0 0 0 .9 0l8-4A1 1 0 0 0 21 16z"/></svg>`,
+        'Mechanical Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Zm8.94-2.56a8 8 0 1 0-1.38 2.38l1.42 1.42a1 1 0 0 0 1.41-1.41l-1.45-1.45Z"/></svg>`,
+        'Electrical Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7v8l11-14h-8V2z"/></svg>`,
+        'Programming Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="m8.59 16.59 4.58-4.59-4.58-4.59L10 6l6 6-6 6-1.41-1.41z"/></svg>`,
+        'Drive Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Drive Team Controller"><path fill="currentColor" d="M7,6H17A4,4 0 0,1 21,10V14A4,4 0 0,1 17,18H16A3,3 0 0,1 13,15H11A3,3 0 0,1 8,18H7A4,4 0 0,1 3,14V10A4,4 0 0,1 7,6M7,9V11H5V13H7V15H9V13H11V11H9V9H7M15.5,9A1.5,1.5 0 1,0 17,10.5A1.5,1.5 0 0,0 15.5,9Z"/></svg>`,
       };
       return map[teamName] || map['Design Team'];
     }
@@ -909,9 +906,7 @@
       const tl = document.querySelector('#updates .timeline');
       if (!tl) return;
       const items = (site && Array.isArray(site.timeline) && site.timeline.length) ? site.timeline : null;
-      if (!items) {
-        return;
-      }
+      if (!items) { return; }
       tl.innerHTML = items.map(ev => {
         const date = escapeHtml(ev.date || ev.year || '');
         const title = escapeHtml(ev.title || '');
@@ -998,15 +993,29 @@
           const contentHtml = (site.about.content || '').trim();
           if (contentHtml) {
             aboutSection.innerHTML = `<h2>${heading}</h2>` + contentHtml;
-          } else {
-            aboutSection.querySelector('h2').textContent = site.about.heading || 'About Us';
           }
         }
-
+        // Team and timeline
         renderTeams(site);
         renderTimeline(site);
       }
     })();
+  </script>
+
+  <!-- Media overrides from site.json: header image and team photo -->
+  <script>
+  (async function(){
+    try {
+      const r = await fetch('/data/site.json?_=' + Date.now());
+      if (!r.ok) return;
+      const site = await r.json();
+      const media = site.media || {};
+      const headerImg = document.querySelector('header img');
+      if (headerImg && media.indexHeader) headerImg.src = media.indexHeader;
+      const teamPhoto = document.querySelector('#team-photo img');
+      if (teamPhoto && media.indexPhoto) teamPhoto.src = media.indexPhoto;
+    } catch(e) { /* ignore */ }
+  })();
   </script>
 </body>
 </html>

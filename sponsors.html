@@ -271,7 +271,8 @@
       will-change: transform, box-shadow;
       transition: transform 0.25s ease, box-shadow 0.25s ease;
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-      overflow: hidden; /* ensure nothing escapes the card */
+      /* do not hide overflow here; it can clip logos visually */
+      overflow: visible;
     }
 
     /* Only apply hover lift on devices that actually hover (not mobile) */
@@ -284,14 +285,16 @@
       }
     }
 
-    /* Responsive logo box that clips overflow */
+    /* Responsive logo box that does not crop contents */
     .sponsor-media {
       width: 100%;
       aspect-ratio: 11 / 6;      /* ~220x120 keeps proportional box across sizes */
-      display: grid;             /* centers both horizontally and vertically */
-      place-items: center;
+      display: flex;              /* centers both horizontally and vertically */
+      align-items: center;
+      justify-content: center;
       padding: 0.5rem;           /* breathing room around logos */
-      overflow: hidden;          /* prevents logos/filters spilling past the box */
+      /* no overflow hidden to avoid clipping rounded or wide logos */
+      overflow: visible;
       border-radius: 10px;
       background: rgba(255,255,255,0.03);
     }
@@ -300,13 +303,14 @@
       .sponsor-media { height: clamp(96px, 28vw, 140px); }
     }
 
-    /* Make image always fit fully inside the box */
+    /* Ensure full logos are always visible inside the box */
     .sponsor-logo {
-      width: 100%;
-      height: 100%;
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
+      width: auto;
+      height: auto;
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;  /* no cropping */
+      object-position: center;
       filter: grayscale(10%) drop-shadow(0 0 6px rgba(255,255,255,0.25));
       transition: filter .25s ease;
     }
@@ -388,8 +392,7 @@
       .nav-links-mobile { display: none; }
       .nav-links-mobile.show { display: flex; }
       .nav-login .google-btn { width: 90%; justify-content: center; }
-
-      /* No hover transforms on mobile; sizing handled by aspect-ratio */
+      /* aspect-ratio handles .sponsor-media sizing on mobile */
     }
   </style>
 </head>
@@ -654,7 +657,7 @@
           const url = (s && s.url) ? s.url : '';
           const mediaBlock = `
             <div class="sponsor-media">
-              <!-- No width/height attributes so CSS controls sizing -->
+              <!-- No fixed width/height attributes so CSS controls sizing -->
               <img class="sponsor-logo" src="${logo}" alt="${name}" loading="lazy" decoding="async">
             </div>
           `;

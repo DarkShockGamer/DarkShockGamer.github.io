@@ -39,13 +39,13 @@
   </div>
 
   <!-- Add Task section -->
-  <div class="mt-4 bg-white p-4 rounded-2xl shadow-sm border border-sky-100">
+  <div class="mt-4 bg-white p-4 rounded-2xl shadow-sm border border-sky-300">
     <div class="flex flex-col sm:flex-row gap-3 flex-wrap items-start sm:items-center">
-      <input id="newTitle" class="flex-1 rounded-md border border-sky-200 px-3 py-2 w-full sm:w-auto"
+      <input id="newTitle" class="flex-1 rounded-md border border-sky-300 px-3 py-2 w-full sm:w-auto"
         placeholder="Task title (e.g. prototype the intake)" />
-      <input id="newAssignee" class="w-full sm:w-40 rounded-md border border-sky-200 px-3 py-2"
+      <input id="newAssignee" class="w-full sm:w-40 rounded-md border border-sky-300 px-3 py-2"
         placeholder="Assignee" />
-      <input id="newDue" type="date" class="w-full sm:w-40 rounded-md border border-sky-200 px-3 py-2" />
+      <input id="newDue" type="date" class="w-full sm:w-40 rounded-md border border-sky-300 px-3 py-2" />
 
       <!-- Custom dropdown -->
       <div class="dropdown w-full sm:w-40" id="tagDropdown">
@@ -70,7 +70,7 @@
 
 <main class="max-w-6xl mx-auto">
   <div id="board" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-  <footer class="mt-12 text-center py-4 border-t border-sky-200 flex flex-col items-center gap-1">
+  <footer class="mt-12 text-center py-4 border-t border-sky-100 flex flex-col items-center gap-1">
     <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-6 w-6" />
     <span class="text-sky-600 text-sm">© 2025 Trident Robotics — Task Board</span>
     <span class="text-xs text-sky-400">Internal team dashboard • Customize as needed</span>
@@ -164,13 +164,13 @@ async function renderBoard() {
   data.order.forEach(colId => {
     const col = data.columns[colId];
     const colEl = document.createElement("section");
-    colEl.className = "bg-white rounded-2xl p-4 shadow-sm border border-sky-300 flex flex-col";
+    colEl.className = "bg-white rounded-2xl p-4 shadow-sm border border-sky-100 flex flex-col";
     colEl.innerHTML = `
-      <div class="flex items-center justify-between pb-2 border-b border-sky-300 mb-3">
+      <div class="flex items-center justify-between mb-3">
         <h2 class="text-lg font-semibold text-sky-700">${col.title}</h2>
         <div class="text-sm text-sky-500">${col.tasks.length}</div>
       </div>
-      <div class="task-list min-h-[120px] space-y-3 divide-y divide-sky-300" data-col="${colId}"></div>
+      <div class="task-list min-h-[120px] space-y-3" data-col="${colId}"></div>
     `;
     board.appendChild(colEl);
 
@@ -195,7 +195,7 @@ async function renderBoard() {
 // ---------------- Create Task Element ----------------
 function createTaskEl(task, colId) {
   const div = document.createElement("div");
-  div.className = "bg-white border border-sky-300 rounded-lg p-3 shadow-sm";
+  div.className = "bg-white border border-sky-100 rounded-lg p-3 shadow-sm";
   div.draggable = true;
   div.dataset.id = task.id;
   div.dataset.col = colId;
@@ -219,7 +219,7 @@ function createTaskEl(task, colId) {
     <!-- Notes Section -->
     <div class="mt-3">
       <button class="text-xs text-sky-600 underline toggle-comments">Show Notes</button>
-      <div class="comments-section hidden mt-2 border-t border-sky-300 pt-2 space-y-2">
+      <div class="comments-section hidden mt-2 border-t border-sky-100 pt-2 space-y-2">
         <div class="comments-list text-sm text-sky-800">
           ${(task.comments || []).map(c => {
             const dateStr = c.timestamp

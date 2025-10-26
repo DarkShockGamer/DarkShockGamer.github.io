@@ -108,7 +108,7 @@
     .dropdown-list label:hover { background-color: #e0f2fe; }
     .dropdown-list input[type="checkbox"] { margin: 0; }
 
-    /* Tag chips (used in task cards and inside the dropdown button) */
+    /* Tag chips */
     .tag-chip {
       display: inline-block;
       background: #e0f2fe;      /* sky-100 */
@@ -120,17 +120,16 @@
       font-size: 0.75rem;       /* text-xs */
       line-height: 1.25rem;
       white-space: nowrap;
-      border: 1px solid #bae6fd; /* sky-200 for definition edge */
+      border: 1px solid #bae6fd; /* sky-200 */
     }
-
     .dropdown-btn .placeholder { color: #94a3b8; } /* slate-400 */
 
-    /* Column section styling */
+    /* Column styling */
     .column-section {
       background: white;
       border: 1px solid #e2e8f0;              /* slate-200 */
       border-radius: 1rem;
-      box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05); /* subtle shadow */
+      box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05);
       padding: 1rem;
     }
     .column-header {
@@ -153,7 +152,7 @@
       line-height: 1.25rem;
     }
 
-    /* Task card styling */
+    /* Task card */
     .task-card {
       background: white;
       border: 1px solid #e2e8f0;              /* slate-200 */
@@ -168,7 +167,7 @@
       transform: translateY(-1px);
     }
 
-    /* Dark mode (system preference) */
+    /* Dark mode */
     @media (prefers-color-scheme: dark) {
       html, body { color-scheme: dark; }
       body {
@@ -227,7 +226,7 @@
         background-color: rgba(14, 165, 233, 0.08) !important;
       }
 
-      /* Inputs and textareas */
+      /* Inputs */
       input[type="text"],
       input[type="date"],
       input[type="file"],
@@ -274,9 +273,9 @@
 
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
       <input id="userNameInput" placeholder="Your name..."
-        class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:ring-sky-800" />
+        class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
       <input id="filterInput" placeholder="Search or filter by assignee..."
-        class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:ring-sky-800" />
+        class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
       <button id="menuBtn"
         class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">
         Menu
@@ -287,11 +286,11 @@
   <!-- Add Task section -->
   <div class="mt-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
     <div class="flex flex-col sm:flex-row gap-3 flex-wrap items-start sm:items-center">
-      <input id="newTitle" class="flex-1 rounded-md border border-slate-300 px-3 py-2 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:ring-sky-800"
+      <input id="newTitle" class="flex-1 rounded-md border border-slate-300 px-3 py-2 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
         placeholder="Task title (e.g. prototype the intake)" />
-      <input id="newAssignee" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:ring-sky-800"
+      <input id="newAssignee" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
         placeholder="Assignee" />
-      <input id="newDue" type="date" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-sky-800" />
+      <input id="newDue" type="date" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
 
       <!-- Custom dropdown -->
       <div class="dropdown w-full sm:w-48" id="tagDropdown">
@@ -420,50 +419,77 @@ function getCurrentUserName() {
 // Helper to format due date with coloring
 function formatDueDate(dueStr) {
   if (!dueStr) return '<span class="text-xs text-slate-500 dark:text-slate-400">no due</span>';
-  
+
   const dueDate = new Date(dueStr + "T23:59:59");
   const now = new Date();
   const diffMs = dueDate - now;
   const diffHours = diffMs / (1000 * 60 * 60);
-  
+
   let className = "text-xs text-slate-500 dark:text-slate-400";
   if (diffMs < 0) {
     className = "text-xs due-overdue";
   } else if (diffHours <= 24) {
     className = "text-xs due-soon";
   }
-  
+
   return `<span class="${className}">${dueStr}</span>`;
+}
+
+// Attachment validation (basic)
+function isBlockedFile(file) {
+  const blocked = [
+    "application/x-msdownload",
+    "application/x-msdos-program",
+    "application/x-executable",
+    "application/octet-stream"
+  ];
+  const nameBlocked = /\.(exe|bat|cmd|sh|msi|apk|com|scr)$/i.test(file.name);
+  return nameBlocked || blocked.includes(file.type);
+}
+function isAllowedSize(file) {
+  // Images <= 10MB, PDFs <= 20MB, others <= 15MB
+  if (file.type.startsWith("image/")) return file.size <= 10 * 1024 * 1024;
+  if (file.type === "application/pdf") return file.size <= 20 * 1024 * 1024;
+  return file.size <= 15 * 1024 * 1024;
 }
 
 // Helper to upload files to Firebase Storage
 async function uploadFiles(files, taskId) {
   const attachments = [];
   const userName = getCurrentUserName();
-  
+
   for (const file of files) {
-    const fileName = `${Date.now()}_${file.name}`;
+    if (isBlockedFile(file)) {
+      alert(`Blocked file type: ${file.name}`);
+      continue;
+    }
+    if (!isAllowedSize(file)) {
+      alert(`File too large: ${file.name}`);
+      continue;
+    }
+    const safeName = file.name.replace(/[^\w.\- ]+/g, "_");
+    const fileName = `${Date.now()}_${safeName}`;
     const storageRef = ref(storage, `task_attachments/${taskId}/${fileName}`);
     await uploadBytes(storageRef, file);
     const url = await getDownloadURL(storageRef);
-    
+
     attachments.push({
       url,
       name: file.name,
-      contentType: file.type,
-      size: file.size,
+      contentType: file.type || "application/octet-stream",
+      size: file.size || 0,
       uploadedAt: Date.now(),
       uploadedBy: userName
     });
   }
-  
+
   return attachments;
 }
 
 // Helper to render attachments
 function renderAttachments(attachments) {
   if (!attachments || attachments.length === 0) return "";
-  
+
   return attachments.map(att => {
     const isImage = att.contentType && att.contentType.startsWith("image/");
     if (isImage) {
@@ -521,24 +547,24 @@ async function loadTasks() {
     },
     order: ["backlog", "todo", "inprogress", "done"]
   };
-  
+
   snapshot.forEach(docSnap => {
     const t = docSnap.data();
     const taskWithId = { id: docSnap.id, ...t };
-    
+
     // Filter out deleted and archived tasks from main board
     if (t.deleted || t.archived) return;
-    
+
     const col = t.column || "backlog";
     if (!data.columns[col]) {
       data.columns[col] = { title: col, tasks: [] };
     }
     data.columns[col].tasks.push(taskWithId);
   });
-  
+
   // Auto-archive check
   await checkAutoArchive(data);
-  
+
   return data;
 }
 
@@ -547,7 +573,7 @@ async function checkAutoArchive(data) {
   const sevenDays = 7 * 24 * 60 * 60 * 1000;
   const batch = writeBatch(db);
   let needsUpdate = false;
-  
+
   if (data.columns.done) {
     for (const task of data.columns.done.tasks) {
       if (task.completedAt && (now - task.completedAt) > sevenDays && !task.archived) {
@@ -559,14 +585,29 @@ async function checkAutoArchive(data) {
       }
     }
   }
-  
+
   if (needsUpdate) {
     await batch.commit();
   }
 }
 
 async function saveTask(task, col) {
-  await setDoc(doc(db, "tasks", task.id), {...task, column: col});
+  // Avoid undefined fields; build a clean payload
+  const payload = {
+    id: task.id,
+    title: task.title || "",
+    assignee: task.assignee || "Unassigned",
+    due: task.due || "",
+    tags: Array.isArray(task.tags) ? task.tags : [],
+    comments: Array.isArray(task.comments) ? task.comments : undefined,
+    attachments: Array.isArray(task.attachments) ? task.attachments : undefined,
+    order: typeof task.order === "number" ? task.order : 0,
+    column: col
+  };
+  if (!payload.comments) delete payload.comments;
+  if (!payload.attachments) delete payload.attachments;
+
+  await setDoc(doc(db, "tasks", task.id), payload, { merge: true });
 }
 
 async function deleteTaskFirestore(taskId) {
@@ -593,11 +634,11 @@ async function renderBoard() {
     const list = colEl.querySelector(".task-list");
     col.tasks
       .filter(t => {
-        const f = filterInput.value.toLowerCase();
+        const f = (filterInput.value || "").toLowerCase();
         return (
           !f ||
-          t.title.toLowerCase().includes(f) ||
-          t.assignee.toLowerCase().includes(f) ||
+          (t.title || "").toLowerCase().includes(f) ||
+          (t.assignee || "").toLowerCase().includes(f) ||
           (t.tags || []).join(" ").toLowerCase().includes(f)
         );
       })
@@ -616,11 +657,13 @@ function createTaskEl(task, colId) {
   div.dataset.id = task.id;
   div.dataset.col = colId;
 
+  const assignee = task.assignee || "Unassigned";
+
   div.innerHTML = `
     <div class="flex items-start justify-between gap-2">
       <div>
         <h3 class="font-medium text-slate-800 dark:text-slate-200">${task.title}</h3>
-        <div class="text-xs text-slate-500 dark:text-slate-400">${task.assignee} • ${formatDueDate(task.due)}</div>
+        <div class="text-xs text-slate-500 dark:text-slate-400">${assignee} • ${formatDueDate(task.due || "")}</div>
       </div>
       <div class="flex gap-2 shrink-0">
         <button class="text-xs px-2 py-1 border border-slate-300 rounded-md hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 edit-btn">Edit</button>
@@ -653,14 +696,15 @@ function createTaskEl(task, colId) {
                 })
               : "";
             const authorStr = c.author || "Anonymous";
+            const textHtml = c.text ? `<span class="block">${c.text}</span>` : "";
+            const attHtml = (c.attachments && c.attachments.length > 0) ? `
+              <div class="mt-1 flex gap-2 flex-wrap">
+                ${renderAttachments(c.attachments)}
+              </div>` : "";
             return `
               <div class="border border-slate-100 dark:border-slate-800 rounded-md p-2 bg-slate-50 dark:bg-slate-900">
-                ${c.text ? `<span class="block">${c.text}</span>` : ''}
-                ${c.attachments && c.attachments.length > 0 ? `
-                  <div class="mt-1 flex gap-2 flex-wrap">
-                    ${renderAttachments(c.attachments)}
-                  </div>
-                ` : ''}
+                ${textHtml}
+                ${attHtml}
                 <span class="text-xs text-slate-400">${authorStr} • ${dateStr}</span>
               </div>
             `;
@@ -668,7 +712,7 @@ function createTaskEl(task, colId) {
         </div>
         <div class="flex flex-col gap-2 mt-2">
           <input type="text" placeholder="Add note..."
-            class="comment-input flex-1 border border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-800" />
+            class="comment-input flex-1 border border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200" />
           <input type="file" multiple class="comment-file text-xs" />
           <button class="add-comment px-2 py-1 bg-sky-600 text-white rounded-md text-xs hover:bg-sky-700">Add</button>
         </div>
@@ -707,33 +751,42 @@ function createTaskEl(task, colId) {
     const fileInput = div.querySelector(".comment-file");
     const text = input.value.trim();
     const files = fileInput.files;
-    
+
     if (!text && files.length === 0) return;
 
     const button = div.querySelector(".add-comment");
     button.disabled = true;
+    const originalLabel = button.textContent;
     button.textContent = "Adding...";
 
-    let attachments = [];
-    if (files.length > 0) {
-      attachments = await uploadFiles(Array.from(files), task.id);
+    try {
+      let attachments = [];
+      if (files.length > 0) {
+        attachments = await uploadFiles(Array.from(files), task.id);
+      }
+
+      // Build the comment without undefined fields
+      const newComment = {
+        timestamp: Date.now(),
+        author: getCurrentUserName(),
+      };
+      if (text) newComment.text = text;
+      if (attachments.length > 0) newComment.attachments = attachments;
+
+      const updatedComments = [...(task.comments || []), newComment];
+      await setDoc(doc(db, "tasks", task.id), { comments: updatedComments }, { merge: true });
+
+      task.comments = updatedComments;
+      input.value = "";
+      fileInput.value = "";
+      renderBoard();
+    } catch (err) {
+      console.error("Failed to add comment:", err);
+      alert(`Failed to add comment: ${err.message || err}`);
+    } finally {
+      button.disabled = false;
+      button.textContent = originalLabel || "Add";
     }
-
-    const newComment = {
-      text: text || undefined,
-      timestamp: Date.now(),
-      author: getCurrentUserName(),
-      attachments: attachments.length > 0 ? attachments : undefined
-    };
-    const updatedComments = [...(task.comments || []), newComment];
-    await setDoc(doc(db, "tasks", task.id), { comments: updatedComments }, { merge: true });
-
-    task.comments = updatedComments;
-    input.value = "";
-    fileInput.value = "";
-    button.disabled = false;
-    button.textContent = "Add";
-    renderBoard();
   };
 
   makeDraggable(div);
@@ -747,9 +800,9 @@ function openEditModal(task, colId) {
   modal.innerHTML = `
     <div class="bg-white p-6 rounded-xl shadow-xl w-80 space-y-3 border border-slate-200 ring-1 ring-slate-100 modal-panel dark:bg-slate-900 dark:border-slate-800">
       <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">Edit Task</h3>
-      <input id="editTitle" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-sky-800" value="${task.title}" />
-      <input id="editAssignee" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-sky-800" value="${task.assignee}" />
-      <input id="editDue" type="date" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-sky-800" value="${task.due || ""}" />
+      <input id="editTitle" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" value="${task.title || ""}" />
+      <input id="editAssignee" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" value="${task.assignee || ""}" />
+      <input id="editDue" type="date" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" value="${task.due || ""}" />
 
       <div class="dropdown mt-2" id="editTagDropdown">
         <div class="dropdown-btn" id="editDropdownBtn"><span class="placeholder">Select tags...</span></div>
@@ -771,7 +824,7 @@ function openEditModal(task, colId) {
   `;
   document.body.appendChild(modal);
 
-  let editSelectedTags = (task.tags || []).slice();
+  let editSelectedTags = Array.isArray(task.tags) ? task.tags.slice() : [];
   const editDropdownBtn = modal.querySelector("#editDropdownBtn");
   const editDropdownList = modal.querySelector("#editDropdownList");
 
@@ -803,9 +856,9 @@ function openEditModal(task, colId) {
 
   modal.querySelector("#cancelEdit").onclick = () => modal.remove();
   modal.querySelector("#saveEdit").onclick = async () => {
-    task.title = modal.querySelector("#editTitle").value;
-    task.assignee = modal.querySelector("#editAssignee").value;
-    task.due = modal.querySelector("#editDue").value;
+    task.title = (modal.querySelector("#editTitle").value || "").trim();
+    task.assignee = (modal.querySelector("#editAssignee").value || "").trim() || "Unassigned";
+    task.due = modal.querySelector("#editDue").value || "";
     task.tags = editSelectedTags.slice();
     await saveTask(task, colId);
     modal.remove();
@@ -831,7 +884,7 @@ function makeDraggable(taskEl) {
 
     const siblings = [...parentCol.querySelectorAll("[data-id]")];
     const batch = writeBatch(db);
-    
+
     for (let i = 0; i < siblings.length; i++) {
       const id = siblings[i].dataset.id;
       batch.update(doc(db, "tasks", id), {
@@ -839,11 +892,11 @@ function makeDraggable(taskEl) {
         column: parentCol.dataset.col
       });
     }
-    
+
     await batch.commit();
   });
 }
-  
+
 // ---------------- Drag & Drop ----------------
 function makeDroppable(el) {
   el.addEventListener("dragover", e => {
@@ -916,56 +969,64 @@ function getDragAfterElement(container, y) {
 
 // ---------------- Add Task ----------------
 addBtn.onclick = async () => {
-  const title = document.getElementById("newTitle").value.trim();
+  const title = (document.getElementById("newTitle").value || "").trim();
   if (!title) return;
 
   const assignee = document.getElementById("newAssignee").value || "Unassigned";
-  const due = document.getElementById("newDue").value;
+  const due = document.getElementById("newDue").value || "";
   const fileInput = document.getElementById("newAttachments");
   const files = fileInput.files;
 
   addBtn.disabled = true;
+  const originalAddLabel = addBtn.textContent;
   addBtn.textContent = "Adding...";
 
-  const snapshot = await getDocs(collection(db, "tasks"));
-  const count = snapshot.size; // for order tracking
-  const task = { 
-    title, 
-    assignee, 
-    due, 
-    tags: selectedTags.slice(), 
-    column: "backlog",  // Default to backlog
-    order: count
-  };
-  
-  const docRef = await addDoc(collection(db, "tasks"), task);
-  task.id = docRef.id;
+  try {
+    const snapshot = await getDocs(collection(db, "tasks"));
+    const count = snapshot.size; // for order tracking
+    const task = {
+      title,
+      assignee,
+      due,
+      tags: selectedTags.slice(),
+      column: "backlog",
+      order: count
+    };
 
-  // Upload attachments if any
-  if (files.length > 0) {
-    const attachments = await uploadFiles(Array.from(files), docRef.id);
-    await setDoc(doc(db, "tasks", docRef.id), { attachments }, { merge: true });
+    const docRef = await addDoc(collection(db, "tasks"), task);
+
+    // Upload attachments if any
+    if (files.length > 0) {
+      const attachments = await uploadFiles(Array.from(files), docRef.id);
+      if (attachments.length > 0) {
+        await setDoc(doc(db, "tasks", docRef.id), { attachments }, { merge: true });
+      }
+    }
+
+    document.getElementById("newTitle").value = "";
+    document.getElementById("newAssignee").value = "";
+    document.getElementById("newDue").value = "";
+    fileInput.value = "";
+    selectedTags = [];
+    dropdownList.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
+    updateDropdownBtn();
+
+    await renderBoard();
+  } catch (err) {
+    console.error("Failed to add task:", err);
+    alert(`Failed to add task: ${err.message || err}`);
+  } finally {
+    addBtn.disabled = false;
+    addBtn.textContent = originalAddLabel || "Add Task";
   }
-
-  document.getElementById("newTitle").value = "";
-  document.getElementById("newAssignee").value = "";
-  document.getElementById("newDue").value = "";
-  fileInput.value = "";
-  selectedTags = [];
-  dropdownList.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
-  updateDropdownBtn();
-
-  addBtn.disabled = false;
-  addBtn.textContent = "Add Task";
-  await renderBoard();
 };
 
-// ---------------- Render Drawer ----------------
+// ---------------- Drawer helpers ----------------
 async function renderDrawer() {
   const snapshot = await getDocs(collection(db, "tasks"));
   const trashTasks = [];
   const archiveTasks = [];
-  
+
   snapshot.forEach(docSnap => {
     const t = { id: docSnap.id, ...docSnap.data() };
     if (t.deleted) trashTasks.push(t);
@@ -979,11 +1040,11 @@ async function renderDrawer() {
     .map(t => `
       <div class="p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900">
         <div class="font-medium text-slate-800 dark:text-slate-200">${t.title}</div>
-        <div class="text-xs text-slate-500 dark:text-slate-400">${t.assignee} • ${formatDueDate(t.due)}</div>
+        <div class="text-xs text-slate-500 dark:text-slate-400">${t.assignee || "Unassigned"} • ${formatDueDate(t.due || "")}</div>
         <div class="text-xs text-slate-400 mt-1">Deleted by ${t.deletedBy || "Unknown"}</div>
         <div class="flex gap-2 mt-2">
-          <button onclick="restoreTask('${t.id}')" class="text-xs px-2 py-1 bg-sky-600 text-white rounded-md hover:bg-sky-700">Restore</button>
-          <button onclick="permanentlyDeleteTask('${t.id}')" class="text-xs px-2 py-1 bg-red-600 text-white rounded-md hover:bg-red-700">Permanently Delete</button>
+          <button data-id="${t.id}" class="restore-btn text-xs px-2 py-1 bg-sky-600 text-white rounded-md hover:bg-sky-700">Restore</button>
+          <button data-id="${t.id}" class="permadelete-btn text-xs px-2 py-1 bg-red-600 text-white rounded-md hover:bg-red-700">Permanently Delete</button>
         </div>
       </div>
     `).join("") || '<div class="text-sm text-slate-500 dark:text-slate-400">No items in trash</div>';
@@ -995,45 +1056,58 @@ async function renderDrawer() {
     .map(t => `
       <div class="p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900">
         <div class="font-medium text-slate-800 dark:text-slate-200">${t.title}</div>
-        <div class="text-xs text-slate-500 dark:text-slate-400">${t.assignee}</div>
+        <div class="text-xs text-slate-500 dark:text-slate-400">${t.assignee || "Unassigned"}</div>
         <div class="text-xs text-slate-400 mt-1">Completed: ${t.completedAt ? new Date(t.completedAt).toLocaleDateString() : "N/A"}</div>
+        <div class="text-xs text-slate-400">Archived: ${t.archivedAt ? new Date(t.archivedAt).toLocaleDateString() : "N/A"}</div>
         <div class="flex gap-2 mt-2">
-          <button onclick="unarchiveTask('${t.id}')" class="text-xs px-2 py-1 bg-sky-600 text-white rounded-md hover:bg-sky-700">Unarchive</button>
-          <button onclick="permanentlyDeleteTask('${t.id}')" class="text-xs px-2 py-1 bg-red-600 text-white rounded-md hover:bg-red-700">Permanently Delete</button>
+          <button data-id="${t.id}" class="unarchive-btn text-xs px-2 py-1 bg-sky-600 text-white rounded-md hover:bg-sky-700">Unarchive</button>
+          <button data-id="${t.id}" class="permadelete-btn text-xs px-2 py-1 bg-red-600 text-white rounded-md hover:bg-red-700">Permanently Delete</button>
         </div>
       </div>
     `).join("") || '<div class="text-sm text-slate-500 dark:text-slate-400">No items in archive</div>';
+
+  // Wire up actions (delegate)
+  trashList.querySelectorAll(".restore-btn").forEach(btn => {
+    btn.onclick = async () => {
+      const id = btn.getAttribute("data-id");
+      await setDoc(doc(db, "tasks", id), {
+        deleted: false,
+        deletedAt: null,
+        deletedBy: null
+      }, { merge: true });
+      await renderBoard();
+      await renderDrawer();
+    };
+  });
+  [...trashList.querySelectorAll(".permadelete-btn"), ...archiveList.querySelectorAll(".permadelete-btn")].forEach(btn => {
+    btn.onclick = async () => {
+      const id = btn.getAttribute("data-id");
+      if (!confirm("Permanently delete this task? This cannot be undone.")) return;
+      await deleteTaskFirestore(id);
+      await renderDrawer();
+    };
+  });
+  archiveList.querySelectorAll(".unarchive-btn").forEach(btn => {
+    btn.onclick = async () => {
+      const id = btn.getAttribute("data-id");
+      await setDoc(doc(db, "tasks", id), {
+        archived: false,
+        archivedAt: null,
+        column: "backlog"
+      }, { merge: true });
+      await renderBoard();
+      await renderDrawer();
+    };
+  });
 }
 
-// Global functions for drawer actions
-window.restoreTask = async (taskId) => {
-  await setDoc(doc(db, "tasks", taskId), {
-    deleted: false,
-    deletedAt: null,
-    deletedBy: null
-  }, { merge: true });
-  renderDrawer();
+// Events
+filterInput.oninput = () => {
+  // Debounce could be added; this is fine for now
   renderBoard();
 };
 
-window.unarchiveTask = async (taskId) => {
-  await setDoc(doc(db, "tasks", taskId), {
-    archived: false,
-    archivedAt: null,
-    column: "backlog"
-  }, { merge: true });
-  renderDrawer();
-  renderBoard();
-};
-
-window.permanentlyDeleteTask = async (taskId) => {
-  if (!confirm("Permanently delete this task? This cannot be undone.")) return;
-  await deleteDoc(doc(db, "tasks", taskId));
-  renderDrawer();
-  renderBoard();
-};
-
-filterInput.oninput = renderBoard;
+// Initial render
 renderBoard();
 </script>
 

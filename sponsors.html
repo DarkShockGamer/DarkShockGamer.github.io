@@ -333,13 +333,13 @@
       z-index: -1;
     }
 
-    /* CRITICAL FIX: Fill frame and let object-fit center the image perfectly */
+    /* CRITICAL: Fill frame and center the artwork; trimming removes internal padding */
     .sponsor-logo {
       width: 100%;
       height: 100%;
       max-width: 100%;
       max-height: 100%;
-      object-fit: contain;              /* preserves aspect ratio and centers inside the box */
+      object-fit: contain;
       object-position: center center;
       filter: grayscale(8%) drop-shadow(0 0 6px rgba(255,255,255,0.22));
       transition: filter .25s ease, transform .25s ease;
@@ -680,9 +680,93 @@
     };
   </script>
 
-  <!-- Load media and sponsors from site.json -->
+  <!-- Load media and sponsors from site.json + auto-trim logos -->
   <script>
   (async function(){
+    // Utility: trim transparent borders from an <img> and return dataURL
+    function trimTransparentBorders(img, alphaThreshold = 1) {
+      const w = img.naturalWidth || 0;
+      const h = img.naturalHeight || 0;
+      if (!w || !h) return null;
+
+      // Draw source into a canvas
+      const srcCanvas = document.createElement('canvas');
+      srcCanvas.width = w; srcCanvas.height = h;
+      const sctx = srcCanvas.getContext('2d');
+      sctx.drawImage(img, 0, 0);
+
+      let imageData;
+      try {
+        imageData = sctx.getImageData(0, 0, w, h);
+      } catch (e) {
+        // Cross-origin protection or other issue
+        return null;
+      }
+      const data = imageData.data;
+
+      let top = h, left = w, right = -1, bottom = -1;
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const idx = (y * w + x) * 4;
+          const a = data[idx + 3];
+          if (a >= alphaThreshold) {
+            if (x < left) left = x;
+            if (x > right) right = x;
+            if (y < top) top = y;
+            if (y > bottom) bottom = y;
+          }
+        }
+      }
+
+      if (right < left || bottom < top) {
+        // Entire image is transparent or failed to detect
+        return null;
+      }
+
+      const cw = right - left + 1;
+      const ch = bottom - top + 1;
+
+      // Create output canvas and copy trimmed region
+      const outCanvas = document.createElement('canvas');
+      outCanvas.width = cw; outCanvas.height = ch;
+      const octx = outCanvas.getContext('2d');
+      octx.drawImage(srcCanvas, left, top, cw, ch, 0, 0, cw, ch);
+      return outCanvas.toDataURL('image/png');
+    }
+
+    async function ensureLoaded(img) {
+      if (img.complete && img.naturalWidth) {
+        try { await img.decode(); } catch(e) {}
+        return;
+      }
+      return new Promise(resolve => {
+        const done = () => resolve();
+        img.addEventListener('load', done, { once: true });
+        img.addEventListener('error', done, { once: true });
+      });
+    }
+
+    async function autoTrimAll(root = document) {
+      const logos = Array.from(root.querySelectorAll('.sponsor-logo'));
+      // Wait for all to load/decode
+      await Promise.all(logos.map(ensureLoaded));
+
+      for (const img of logos) {
+        if (img.dataset.skipTrim === 'true') continue;
+        // Avoid reprocessing
+        if (img.dataset.trimmed === 'true') continue;
+        try {
+          const trimmed = trimTransparentBorders(img, 1);
+          if (trimmed) {
+            img.src = trimmed;
+            img.dataset.trimmed = 'true';
+          }
+        } catch(e) {
+          // ignore and keep original
+        }
+      }
+    }
+
     try {
       const r = await fetch('/data/site.json?_=' + Date.now());
       if (!r.ok) return;
@@ -733,6 +817,9 @@
             `;
           }
         }).join('');
+
+        // Auto-trim logos after they are injected and loaded
+        autoTrimAll(grid);
       }
 
       // Competition gallery (masonry via CSS columns)

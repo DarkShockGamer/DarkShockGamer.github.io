@@ -253,20 +253,30 @@
       gap: 2rem;
       justify-items: center;
       align-items: stretch;
+      overflow: visible; /* ensure raised cards aren't clipped */
     }
     .sponsor-card {
       background: linear-gradient(135deg, #0a1f44, #1f4d7a, #4fa3d1);
       padding: 1.25rem 1rem;
       border-radius: 15px;
       text-align: center;
-      transition: transform 0.3s, box-shadow 0.3s, filter .3s;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
       width: 100%;
       max-width: 320px;
       color: var(--white);
       display: flex;
       flex-direction: column;
       align-items: center;
+
+      /* animation restored */
+      position: relative;
+      will-change: transform, box-shadow;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    }
+    .sponsor-card:hover,
+    .sponsor-card:focus-within {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.35);
     }
 
     /* Center logos perfectly inside a consistent box */
@@ -284,9 +294,10 @@
       height: auto;
       object-fit: contain;        /* respect aspect ratio inside the box */
       filter: grayscale(10%) drop-shadow(0 0 6px rgba(255,255,255,0.25));
-      transition: filter .3s, transform .3s;
+      transition: filter .25s ease, transform .25s ease;
     }
-    .sponsor-card:hover .sponsor-logo {
+    .sponsor-card:hover .sponsor-logo,
+    .sponsor-card:focus-within .sponsor-logo {
       filter: grayscale(0%) drop-shadow(0 0 10px rgba(255,255,255,0.35));
       transform: scale(1.03);
     }
@@ -400,35 +411,35 @@
   <section class="sponsors-section" aria-labelledby="sponsorHeading">
     <h2 id="sponsorHeading">Current Sponsors</h2>
     <div class="sponsor-grid">
-      <article class="sponsor-card">
+      <article class="sponsor-card" tabindex="0">
         <div class="sponsor-media">
           <img class="sponsor-logo" src="assets/Baxter-Logo.png" alt="Baxter" loading="lazy" width="220" height="120">
         </div>
         <div class="sponsor-name">Baxter</div>
       </article>
 
-      <article class="sponsor-card">
+      <article class="sponsor-card" tabindex="0">
         <div class="sponsor-media">
           <img class="sponsor-logo" src="assets/NASA-Logo.png" alt="NASA" loading="lazy" width="220" height="120">
         </div>
         <div class="sponsor-name">NASA</div>
       </article>
 
-      <article class="sponsor-card">
+      <article class="sponsor-card" tabindex="0">
         <div class="sponsor-media">
           <img class="sponsor-logo" src="assets/Kubota-Logo.png" alt="Kubota" loading="lazy" width="220" height="120">
         </div>
         <div class="sponsor-name">Kubota</div>
       </article>
 
-      <article class="sponsor-card">
+      <article class="sponsor-card" tabindex="0">
         <div class="sponsor-media">
           <img class="sponsor-logo" src="assets/WWDisplays.png" alt="WW Displays Inc" loading="lazy" width="220" height="120">
         </div>
         <div class="sponsor-name">WW Displays Inc</div>
       </article>
 
-      <article class="sponsor-card">
+      <article class="sponsor-card" tabindex="0">
         <div class="sponsor-media">
           <img class="sponsor-logo" src="assets/PatelFamily.png" alt="Patel Family" loading="lazy" width="220" height="120">
         </div>

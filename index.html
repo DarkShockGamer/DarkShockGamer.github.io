@@ -10,7 +10,7 @@
   <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <!-- Include JWT decode library -->
+  <!-- Include JWT decode library (moved up so code that uses it can rely on it) -->
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
 
   <!-- Firebase SDKs -->
@@ -55,7 +55,7 @@
     writeExampleData();
     readExampleData();
   </script>
-  
+
   <script>
   // Helper: storage key for the credential
   const G_CRED_KEY = 'g_credential_v1';
@@ -78,22 +78,26 @@
     } else {
       tasksDesktop.style.display = "none";
       tasksMobile.style.display = "none";
+      // You can optionally notify user here if desired
     }
   }
 
   // Set UI for signed-in user
   function setSignedInUI(profile, rawCredential) {
+    // profile: decoded JWT (contains email, name, picture, etc.)
     const signInContainer = document.getElementById('googleSignIn');
     const signedContainer = document.getElementById('googleSignedIn');
     const emailSpan = document.getElementById('googleEmail');
     const avatarImg = document.getElementById('googleAvatar');
 
+    // Hide sign-in button and show signed-in UI
     if (signInContainer) signInContainer.style.display = 'none';
     if (signedContainer) signedContainer.style.display = 'flex';
 
     emailSpan.textContent = profile.email || profile.name || 'Signed in';
     avatarImg.src = profile.picture || '/assets/icon.png';
 
+    // Update tasks visibility
     updateTasksVisibility(profile.email);
   }
 
@@ -105,6 +109,7 @@
     if (signInContainer) signInContainer.style.display = 'block';
     if (signedContainer) signedContainer.style.display = 'none';
 
+    // Hide tasks link if needed
     updateTasksVisibility(null);
   }
 
@@ -112,7 +117,10 @@
   function handleCredentialResponse(response) {
     try {
       const data = jwt_decode(response.credential);
+      const email = data.email;
+      // Save credential to localStorage for persistence
       localStorage.setItem(G_CRED_KEY, response.credential);
+      // Update UI
       setSignedInUI(data, response.credential);
     } catch (err) {
       console.error('Error decoding credential:', err);
@@ -120,66 +128,81 @@
     }
   }
 
-  // Sign out user
+  // Sign out user: remove local storage, optionally revoke and disable auto select
   function signOut() {
     const raw = localStorage.getItem(G_CRED_KEY);
     if (raw) {
       try {
         const decoded = jwt_decode(raw);
         const email = decoded.email;
+        // Ask Google to revoke the credential (best-effort)
         if (google && google.accounts && google.accounts.id && email) {
           try {
+            // revoke accepts the user's email or sub; callback optional
             google.accounts.id.revoke(email, (done) => {
+              // revoked (or not) - clear local state afterwards
               console.log('revoke callback:', done);
             });
           } catch (e) {
             console.warn('revoke call failed', e);
           }
         }
-      } catch (e) { /* ignore */ }
+      } catch (e) {
+        // ignore decode errors
+      }
     }
 
+    // Clear stored credential and update UI
     localStorage.removeItem(G_CRED_KEY);
     if (google && google.accounts && google.accounts.id) {
+      // Prevent automatic selection on next page load
       try { google.accounts.id.disableAutoSelect(); } catch(e){/* ignore */ }
     }
     setSignedOutUI();
   }
 
-  // Initialize Google Sign-In
+  // Initialize Google Sign-In, render button if not already signed in
   window.onload = function() {
+    // Initialize the client (always do this so revoke/disableAutoSelect are available)
     google.accounts.id.initialize({
       client_id: "635936985251-tj5uq36b5altf4qmk7019r3u504mm1fs.apps.googleusercontent.com",
       callback: handleCredentialResponse,
       auto_select: false
     });
 
+    // Wire up sign out button (exists in DOM)
     document.addEventListener('click', (e) => {
       if (e.target && e.target.id === 'googleSignOut') {
         signOut();
       }
     });
 
+    // If credential saved in localStorage, restore UI
     const saved = localStorage.getItem(G_CRED_KEY);
     if (saved) {
       try {
         const data = jwt_decode(saved);
+        // Optionally: validate token expiration (data.exp) here
         setSignedInUI(data, saved);
+        // also optionally disable auto_select so that sign-in button isn't shown
         try { google.accounts.id.disableAutoSelect(); } catch(e){/* ignore */ }
       } catch (err) {
         console.warn('Stored credential invalid, clearing', err);
         localStorage.removeItem(G_CRED_KEY);
+        // render sign-in button below
         google.accounts.id.renderButton(
           document.getElementById("googleSignIn"),
           { theme: "outline", size: "medium", text: "signin_with" }
         );
       }
     } else {
+      // Not signed in: render the button
       google.accounts.id.renderButton(
         document.getElementById("googleSignIn"),
         { theme: "outline", size: "medium", text: "signin_with" }
       );
-      // google.accounts.id.prompt(); // optional
+      // optional: prompt can be used to show One Tap - leaving commented out if undesired
+      // google.accounts.id.prompt();
     }
   };
   </script>
@@ -211,384 +234,490 @@
     a { text-decoration: none; color: inherit; }
     img { display: block; max-width: 100%; height: auto; }
 
-    /* ====== Header ====== */
-    header {
-      position: relative;
-      height: 70vh;
-      min-height: 450px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      color: var(--white);
-      overflow: hidden;
-      border-bottom: 3px solid var(--light-blue);
-    }
-    header img {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      width: 100%; height: 100%;
-      object-fit: cover;
-      filter: brightness(0.55);
-      z-index: -1;
-    }
-    header h1 {
-      font-family: 'Ethnocentric', sans-serif;
-      font-size: 2.8rem;
-      font-weight: 800;
-      letter-spacing: 1px;
-      margin-bottom: 0.8rem;
-      text-shadow: 0 4px 12px rgba(0,0,0,0.6);
-      animation: fadeInUp 1s ease forwards;
-    }
-    header p {
-      font-size: 1.3rem;
-      font-weight: 400;
-      color: #e0f2ff;
-      opacity: 0.9;
-      animation: fadeInUp 1.4s ease forwards;
-    }
-    @keyframes fadeInUp {
-      0% { opacity: 0; transform: translateY(25px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
+ /* ====== Header ====== */
+ header {
+   position: relative;
+   height: 70vh;
+   min-height: 450px;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+   text-align: center;
+   color: var(--white);
+   overflow: hidden;
+   border-bottom: 3px solid var(--light-blue);
+ }
+ header img {
+   position: absolute;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+   filter: brightness(0.55);
+   z-index: -1;
+ }
+ header::after {
+   content: "";
+   position: absolute;
+   bottom: -1px;
+   left: 0;
+   right: 0;
+   height: 122px;
+   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120"><path fill="%231f4d7a" fill-opacity="1" d="M0,96L1440,0L1440,120L0,120Z"></path></svg>') [...]
+   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120"><path fill="%231f4d7a" fill-opacity="1" d="M0,96L1440,0L1440,120L0,120Z"></path></svg>') no-repeat bottom center;
+   background-size: cover;
+   z-index: 0;
+   transform: translateY(1px);
+   display: none;
+ }
+ header h1 {
+   font-family: 'Ethnocentric', sans-serif;
+   font-size: 2.8rem;
+   font-weight: 800;
+   letter-spacing: 1px;
+   margin-bottom: 0.8rem;
+   text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+   animation: fadeInUp 1s ease forwards;
+ }
+ header p {
+   font-size: 1.3rem;
+   font-weight: 400;
+   color: #e0f2ff;
+   opacity: 0.9;
+   animation: fadeInUp 1.4s ease forwards;
+ }
+ @keyframes fadeInUp {
+   0% { opacity: 0; transform: translateY(25px); }
+   100% { opacity: 1; transform: translateY(0); }
+ }
 
-    /* ====== Google Login in Nav ===== */
-    .nav-login { justify-self: end; display: flex; align-items: center; gap: .5rem; }
-    .nav-login .google-btn {
-      display: flex;
-      align-items: center;
-      background: var(--medium-blue);
-      color: var(--white);
-      border: 2px solid var(--accent);
-      padding: 0.4rem 0.8rem;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-    }
-    .nav-login .google-btn:hover {
-      background: var(--light-blue);
-      color: var(--dark-blue);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-    }
-    .nav-login .google-btn img {
-      height: 18px;
-      margin-right: 6px;
-    }
+ /* ====== Google Login in Nav ===== */
+ .nav-login { justify-self: end; display: flex; align-items: center; gap: .5rem; }
+ .nav-login .google-btn {
+   display: flex;
+   align-items: center;
+   background: var(--medium-blue);
+   color: var(--white);
+   border: 2px solid var(--accent);
+   padding: 0.4rem 0.8rem;
+   border-radius: 8px;
+   font-weight: bold;
+   font-size: 0.9rem;
+   cursor: pointer;
+   transition: 0.3s;
+   box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+ }
+ .nav-login .google-btn:hover {
+   background: var(--light-blue);
+   color: var(--dark-blue);
+   transform: translateY(-2px);
+   box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+ }
+ .nav-login .google-btn img {
+   height: 18px;
+   margin-right: 6px;
+ }
 
-    /* small inline signed-in UI */
-    #googleSignedIn {
-      display: none;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    #googleSignedIn img { height: 28px; width: 28px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.08); }
-    #googleEmail { font-weight: 600; font-size: 0.95rem; color: var(--white); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+ /* small inline signed-in UI */
+ #googleSignedIn {
+   display: none;
+   align-items: center;
+   gap: 0.5rem;
+ }
+ #googleSignedIn img { height: 28px; width: 28px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.08); }
+ #googleEmail { font-weight: 600; font-size: 0.95rem; color: var(--white); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* ====== Responsive adjustments ===== */
-    @media (max-width: 768px) {
-      .nav-login {
-        order: 1;
-        margin: 0.5rem 0.5rem 0.5rem auto;
-      }
-      .nav-toggle { order: 2; }
-      .nav-login .google-btn { width: 90%; justify-content: center; }
-    }
+ /* ====== Responsive adjustments ===== */
+ @media (max-width: 768px) {
+   /* Adjust layout order so sign-in appears left of hamburger */
+   .nav-login {
+     order: 1;
+     margin: 0.5rem 0.5rem 0.5rem auto;
+   }
 
-    /* ====== Navigation ===== */
-    .site-nav {
-      background: var(--medium-blue);
-      display: flex;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      border-bottom: 3px solid var(--light-blue);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    .nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      padding: 0.6rem 1rem;
-      width: 100%;
-    }
-    .nav-logo { justify-self: start; }
-    .nav-logo img { height: 50px; width: auto; }
-    .nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
+   .nav-toggle {
+     order: 2;
+   }
 
-    .nav-links {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-    .nav-links a {
-      font-weight: bold;
-      text-transform: uppercase;
-      padding: 0.25rem 0.5rem;
-      border-bottom: 2px solid transparent;
-      transition: 0.25s;
-    }
-    .nav-links a:hover {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-    }
+   .nav-login .google-btn {
+     width: 90%;
+     justify-content: center;
+   }
+ }
 
-    .nav-toggle {
-      justify-self: end;
-      display: none;
-      width: 40px;
-      height: 40px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      position: relative;
-      z-index: 1002;
-    }
-    .nav-toggle .hamburger,
-    .nav-toggle .hamburger::before,
-    .nav-toggle .hamburger::after {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background: var(--white);
-      border-radius: 2px;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translateX(-50%);
-      content: "";
-    }
-    .nav-toggle .hamburger::before { top: -7px; }
-    .nav-toggle .hamburger::after  { top: 7px; }
+ /* ====== Navigation ===== */
+ .site-nav {
+   background: var(--medium-blue);
+   display: flex;
+   align-items: center;
+   position: sticky;
+   top: 0;
+   z-index: 1000;
+   border-bottom: 3px solid var(--light-blue);
+   box-shadow: none;
+   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+ }
+ .nav-inner {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   position: relative;
+   padding: 0.6rem 1rem;
+   width: 100%;
+ }
+ .nav-logo { justify-self: start; }
+ .nav-logo img { height: 50px; width: auto; }
+ .nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
 
-    /* Mobile dropdown */
-    .nav-links-mobile {
-      display: none;
-      flex-direction: column;
-      background: var(--medium-blue);
-      position: absolute;
-      top: 100%;
-      left: 0;
-      width: 100%;
-      border-top: 3px solid var(--light-blue);
-      z-index: 1001;
-    }
-    .nav-links-mobile a {
-      padding: 0.8rem 0;
-      text-align: center;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    @media (max-width: 768px) {
-      .nav-links-mobile { display: none; }
-      .nav-links-mobile.show { display: flex; }
-    }
+ .nav-links {
+   display: flex;
+   justify-content: center;
+   gap: 1rem;
+   position: absolute;
+   left: 50%;
+   transform: translateX(-50%);
+ }
+ .nav-links a {
+   font-weight: bold;
+   text-transform: uppercase;
+   padding: 0.25rem 0.5rem;
+   border-bottom: 2px solid transparent;
+   transition: 0.25s;
+ }
+ .nav-links a:hover {
+   color: var(--accent);
+   border-bottom-color: var(--accent);
+ }
 
-    /* ====== Sections ====== */
-    section { padding: 3rem 1.5rem; max-width: 1100px; margin: auto; }
-    h2 {
-      color: var(--light-blue);
-      font-size: 2rem;
-      border-bottom: 3px solid var(--light-blue);
-      display: inline-block;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.25rem;
-    }
-    p, li { font-size: 1.1rem; margin-bottom: 1rem; }
-    ul { list-style: none; padding-left: 0; }
+ .nav-toggle {
+   justify-self: end;
+   display: none;
+   width: 40px;
+   height: 40px;
+   background: none;
+   border: none;
+   cursor: pointer;
+   position: relative;
+   z-index: 1002;
+ }
+ .nav-toggle .hamburger,
+ .nav-toggle .hamburger::before,
+ .nav-toggle .hamburger::after {
+   display: block;
+   width: 22px;
+   height: 2px;
+   background: var(--white);
+   border-radius: 2px;
+   position: absolute;
+   left: 50%;
+   top: 50%;
+   transform: translateX(-50%);
+ }
+ .nav-toggle .hamburger::before { content: ""; top: -7px; }
+ .nav-toggle .hamburger::after { content: ""; top: 7px; }
 
-    /* ====== Team Grid ====== */
-    .team-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      max-width: 1000px;
-      margin: 0 auto;
-      gap: 2rem;
-      justify-items: center;
-    }
-    .card {
-      background: linear-gradient(135deg, #0a1f44, #1f4d7a, #4fa3d1);
-      padding: 1.5rem;
-      border-radius: 15px;
-      text-align: center;
-      transition: transform 0.3s, box-shadow 0.3s;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-      width: 100%;
-      max-width: 280px;
-      color: var(--white);
-      position: relative;
-    }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.35); }
-    .card-icon {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      color: var(--light-blue);
-      width: 28px;
-      height: 28px;
-      transition: color 0.3s, transform 0.3s;
-    }
-    .card-icon:hover { color: var(--accent); transform: scale(1.15); }
-    .card-icon svg { width: 100%; height: 100%; }
+     /* Hide mobile dropdown on desktop */
+     .nav-links-mobile {
+       display: none;
+       flex-direction: column;
+       background: var(--medium-blue);
+       position: absolute;
+       top: 100%;
+       left: 0;
+       width: 100%;
+       border-top: 3px solid var(--light-blue);
+       z-index: 1001;
+     }
 
-    #team-photo img {
-      max-width: 900px;
-      width: 100%;
-      margin: 2rem auto 0;
-      border-radius: 15px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-    }
+     .nav-links-mobile a {
+       padding: 0.8rem 0;
+       text-align: center;
+       border-bottom: 1px solid rgba(255,255,255,0.1);
+     }
 
-    /* ====== Footer ===== */
-    footer {
-      background: var(--medium-blue);
-      color: #dcdcdc;
-      text-align: center;
-      padding: 1rem 1.5rem;
-      font-size: 0.8rem !important;
-      line-height: 1.4;
-      border-top: 3px solid var(--light-blue);
-      margin: 0 auto;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
-    }
-    footer p { margin: 0.25rem 0; font-weight: 400; }
+     @media (max-width: 768px) {
+       .nav-links-mobile {
+         display: none; /* hidden by default */
+       }
+       .nav-links-mobile.show {
+         display: flex; /* show when toggled */
+       }
+     }
 
-    /* ====== Timeline ====== */
-    .timeline {
-      position: relative;
-      max-width: 800px;
-      margin: 3rem auto;
-      padding: 0 1rem;
-      z-index: 1;
-    }
-    .timeline::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 100%;
-      background: linear-gradient(to bottom, var(--light-blue), var(--medium-blue));
-      border-radius: 2px;
-      opacity: 0.6;
-    }
-    .timeline-item {
-      position: relative;
-      margin: 2.5rem 0;
-      width: 50%;
-      padding: 1rem 2rem;
-      background: rgba(10, 31, 68, 0.85);
-      border: 2px solid var(--light-blue);
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      z-index: 2;
-      outline: none;
-    }
-    .timeline-item:nth-child(odd) {
-      left: 0;
-      transform-origin: right center;
-    }
-    .timeline-item:nth-child(even) {
-      left: 50%;
-      transform-origin: left center;
-    }
-    .timeline-item:hover {
-      transform: scale(1.03);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.35);
-    }
-    .timeline-item::before {
-      content: "";
-      position: absolute;
-      top: 20px;
-      width: 18px;
-      height: 18px;
-      border: 3px solid var(--accent);
-      background: var(--medium-blue);
-      border-radius: 50%;
-      box-shadow: 0 0 12px var(--accent);
-      z-index: 2;
-    }
-    .timeline-item:nth-child(odd)::before { right: -11px; }
-    .timeline-item:nth-child(even)::before { left: -11px; }
+     /* ====== Sections ====== */
+     section { padding: 3rem 1.5rem; max-width: 1100px; margin: auto; }
+     h2 {
+       color: var(--light-blue);
+       font-size: 2rem;
+       border-bottom: 3px solid var(--light-blue);
+       display: inline-block;
+       margin-bottom: 1.5rem;
+       padding-bottom: 0.25rem;
+     }
+     p, li { font-size: 1.1rem; margin-bottom: 1rem; }
+     ul { list-style: none; padding-left: 0; }
 
-    .timeline-date {
-      font-weight: 700;
-      color: var(--accent);
-      font-size: 1.05rem;
-      margin-bottom: 0.4rem;
-    }
-    .timeline-text {
-      color: var(--white);
-      font-size: 1.05rem;
-      opacity: 0.95;
-    }
+     /* ====== Team Grid ====== */
+     .team-grid {
+       display: grid;
+       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+       max-width: 1000px;
+       margin: 0 auto;
+       gap: 2rem;
+       justify-items: center;
+     }
 
-    /* Tooltip: show on hover, focus, or when .open (tap) */
-    .timeline-item:hover,
-    .timeline-item.open,
-    .timeline-item:focus-within {
-      z-index: 10000;
-    }
-    .timeline-item:hover::after,
-    .timeline-item.open::after,
-    .timeline-item:focus-within::after {
-      content: attr(data-info);
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translate(-50%, 10px);
-      background: var(--light-blue);
-      color: var(--white);
-      padding: 0.8rem 1rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      font-size: 0.9rem;
-      width: 220px;
-      text-align: center;
-      animation: fadeIn 0.3s ease forwards;
-      z-index: 9999 !important; /* fixed invalid declaration */
-      white-space: normal;
-    }
+     .card {
+       background: linear-gradient(135deg, #0a1f44, #1f4d7a, #4fa3d1);
+       padding: 1.5rem;
+       border-radius: 15px;
+       text-align: center;
+       transition: transform 0.3s, box-shadow 0.3s;
+       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+       width: 100%;
+       max-width: 280px;
+       color: var(--white);
+       position: relative;
+     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translate(-50%, 20px); }
-      to   { opacity: 1; transform: translate(-50%, 10px); }
-    }
+     .card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.35); }
 
-    /* ====== Mobile Timeline ====== */
-    @media (max-width: 768px) {
-      .timeline::before { left: 15px; }
-      .timeline-item {
-        width: 100%;
-        left: 0 !important;
-        margin-left: 2rem;
-      }
-      .timeline-item::before { left: -28px; }
+     .card-icon {
+       position: absolute;
+       top: 10px;
+       left: 10px;
+       color: var(--light-blue);
+       width: 28px;
+       height: 28px;
+       transition: color 0.3s, transform 0.3s;
+     }
 
-      /* Center and widen tooltip on small screens */
-      .timeline-item:hover::after,
-      .timeline-item.open::after,
-      .timeline-item:focus-within::after {
-        left: 50% !important;
-        transform: translateX(-50%) translateY(10px) !important;
-        width: 90vw;
-        max-width: 320px;
-        box-sizing: border-box;
-        z-index: 9999 !important;
-      }
-    }
-  </style>
+     .card-icon:hover {
+       color: var(--accent);
+       transform: scale(1.15);
+     }
+
+     .card-icon svg {
+       width: 100%;
+       height: 100%;
+     }
+
+     #team-photo img {
+       max-width: 900px;
+       width: 100%;
+       margin: 2rem auto 0;
+       border-radius: 15px;
+       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+     }
+
+     /* ====== Footer ===== */
+     footer {
+       background: var(--medium-blue);
+       color: #dcdcdc;
+       text-align: center;
+       padding: 1rem 1.5rem;
+       font-size: 0.8rem !important;
+       line-height: 1.4;
+       border-top: 3px solid var(--light-blue);
+       margin: 0 auto;
+       box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+     }
+
+     footer p {
+       margin: 0.25rem 0;
+       font-weight: 400;
+     }
+
+     /* ====== Timeline ====== */
+     .timeline {
+       position: relative;
+       max-width: 800px;
+       margin: 3rem auto;
+       padding: 0 1rem;
+       z-index: 1;
+     }
+
+     .timeline::before {
+       content: "";
+       position: absolute;
+       top: 0;
+       left: 50%;
+       transform: translateX(-50%);
+       width: 4px;
+       height: 100%;
+       background: linear-gradient(to bottom, var(--light-blue), var(--medium-blue));
+       border-radius: 2px;
+       opacity: 0.6;
+     }
+
+     .timeline-item {
+       position: relative;
+       margin: 2.5rem 0;
+       width: 50%;
+       padding: 1rem 2rem;
+       background: rgba(10, 31, 68, 0.85);
+       border: 2px solid var(--light-blue);
+       border-radius: 12px;
+       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+       transition: transform 0.3s ease, box-shadow 0.3s ease;
+       z-index: 2;
+     }
+
+     .timeline-item:nth-child(odd) {
+       left: 0;
+       transform-origin: right center;
+     }
+
+     .timeline-item:nth-child(even) {
+       left: 50%;
+       transform-origin: left center;
+     }
+
+     .timeline-item:hover {
+       transform: scale(1.03);
+       box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+     }
+
+     .timeline-item::before {
+       content: "";
+       position: absolute;
+       top: 20px;
+       width: 18px;
+       height: 18px;
+       border: 3px solid var(--accent);
+       background: var(--medium-blue);
+       border-radius: 50%;
+       box-shadow: 0 0 12px var(--accent);
+       z-index: 2;
+     }
+
+     .timeline-item:nth-child(odd)::before {
+       right: -11px;
+     }
+
+     .timeline-item:nth-child(even)::before {
+       left: -11px;
+     }
+
+     .timeline-date {
+       font-weight: 700;
+       color: var(--accent);
+       font-size: 1.05rem;
+       margin-bottom: 0.4rem;
+     }
+
+     .timeline-text {
+       color: var(--white);
+       font-size: 1.05rem;
+       opacity: 0.95;
+     }
+
+     /* Hover bubble for more info */
+     .timeline-item .info-bubble {
+       display: none;
+     }
+
+     .timeline-item:hover::after {
+       content: attr(data-info);
+       position: absolute;
+       top: 100%;
+       left: 50%;
+       transform: translate(-50%, 10px);
+       background: var(--light-blue);
+       color: var(--white);
+       padding: 0.8rem 1rem;
+       border-radius: 10px;
+       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+       font-size: 0.9rem;
+       width: 220px;
+       text-align: center;
+       animation: fadeIn 0.3s ease forwards;
+       z-index: 9999; !important
+     }
+
+     /* Fade animation */
+     @keyframes fadeIn {
+       from { opacity: 0; transform: translate(-50%, 20px); }
+       to { opacity: 1; transform: translate(-50%, 10px); }
+     }
+
+     /* ====== Mobile Timeline ====== */
+     @media (max-width: 768px) {
+       .timeline::before {
+         left: 15px;
+       }
+
+       .timeline-item {
+         width: 100%;
+         left: 0 !important;
+         margin-left: 2rem;
+       }
+
+       .timeline-item::before {
+         left: -28px;
+       }
+
+       .timeline-item:hover::after {
+         left: 0;
+         transform: translate(0, 10px);
+       }
+
+       @media (max-width: 768px) {
+       .timeline-item:hover::after {
+         left: 50% !important;
+         transform: translateX(-50%) translateY(10px) !important;
+         width: 90vw;
+         max-width: 320px;
+         box-sizing: border-box;
+         z-index: 9999 !important;
+         white-space: normal;
+       }
+     }
+
+     /* ====== Responsive ===== */
+     @media (max-width: 768px) {
+       .nav-toggle { display: flex; }
+
+       .nav-links {
+         position: absolute;
+         top: 100%;
+         left: 0;
+         right: 0;
+         flex-direction: column;
+         display: none;
+         background: var(--medium-blue);
+         border-top: 3px solid var(--light-blue);
+         box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+         z-index: 1001;
+       }
+       .nav-links.show { display: flex; }
+       .nav-links a { width: 100%; text-align: center; padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+
+       /* ====== Mobile Timeline Adjustments ===== */
+       .timeline-item {
+         width: 100%;
+       }
+
+       .timeline-item .info-bubble {
+         left: auto;
+         right: 0;
+         top: calc(100% + 0.5rem);
+         transform: none;
+       }
+
+       .timeline-item .info-bubble::after {
+         left: auto;
+         right: 10px;
+         top: -5px;
+         border-color: var(--light-blue) transparent transparent transparent;
+         border-width: 5px 5px 0 5px;
+       }
+     }
+   </style>
 </head>
 <body>
 
@@ -612,6 +741,7 @@
         <a href="#updates">Updates</a>
         <a href="#contact">Contact</a>
         <a href="sponsors.html">Sponsors</a>
+        <!-- Tasks link will appear here dynamically -->
         <a href="tasks.html" id="tasksLink" style="display:none;">Tasks</a>
       </div>
 
@@ -626,7 +756,10 @@
       </div>
 
       <div class="nav-login">
+        <!-- Container where Google renders Sign-in button -->
         <div id="googleSignIn"></div>
+
+        <!-- Signed-in UI (hidden by default; shown when signed in) -->
         <div id="googleSignedIn" aria-live="polite">
           <img id="googleAvatar" src="" alt="Avatar">
           <span id="googleEmail">Not signed in</span>
@@ -663,6 +796,70 @@
   <section id="team">
     <h2>Meet the Team</h2>
     <div class="team-grid">
+      <div class="card">
+        <div class="card-icon">
+          <!-- Cube Icon (Design) -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21 16V8a1 1 0 0 0-.55-.89l-8-4a1 1 0 0 0-.9 0l-8 4A1 1 0 0 0 3 8v8a1 1 0 0 0 .55.89l8 4a1 1 0 0 0 .9 0l8-4A1 1 0 0 0 21 16zm-9-11.18L17.47 8 12 10.92 6.53 8 12 4.82zM5 9.74l[...]
+          </svg>
+        </div>
+        <h3>Design Team</h3>
+        <p><strong>Lead:</strong> [Name]</p>
+        <p><strong>Lead:</strong> [Name]</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <!-- Sleek Gear Icon (Mechanical) -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.028 7.028 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 14.38 [...]
+          </svg>
+        </div>
+        <h3>Mechanical Team</h3>
+        <p><strong>Lead:</strong> [Name]</p>
+        <p><strong>Lead:</strong> [Name]</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <!-- Battery Icon (Electrical) -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16 4h-1V2h-6v2H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H8V6h8v14z"/>
+          </svg>
+        </div>
+        <h3>Electrical Team</h3>
+        <p><strong>Lead:</strong> [Name]</p>
+        <p><strong>Lead:</strong> [Name]</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <!-- Code Brackets Icon (Programming) -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+          </svg>
+        </div>
+        <h3>Programming Team</h3>
+        <p><strong>Lead:</strong> [Name]</p>
+        <p><strong>Lead:</strong> [Name]</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <!-- Game Controller Icon (Drive) -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <!-- Controller body (outline only) -->
+            <path d="M6.5 7C4.57 7 3 8.57 3 10.5v3.93c0 1.15.45 2.27 1.27 3.1l.7.7a2.5 2.5 0 0 0 3.54 0L10.5 15h3l2 3.23a2.5 2.5 0 0 0 3.54 0l.7-.7c.82-.83 1.27-1.95 1.27-3.1V10.5C21 8.57 19.43 7[...]
+                  stroke="currentColor" stroke-width="1.5" fill="none"/>
+
+            <!-- Left D-pad (cross) -->
+            <rect x="6.5" y="10" width="3" height="1" fill="currentColor"/>
+            <rect x="7.5" y="9" width="1" height="3" fill="currentColor"/>
+
+            <!-- Right joystick -->
+            <circle cx="16.5" cy="11" r="1.2" fill="currentColor"/>
+          </svg>
+        </div>
+        <h3>Drive Team</h3>
+        <p><strong>Driver:</strong> [Name]</p>
+        <p><strong>Driver:</strong> [Name]</p>
+      </div>
       <!-- populated dynamically from data/site.json -->
     </div>
   </section>
@@ -676,6 +873,26 @@
   <section id="updates">
     <h2>Team Updates</h2>
     <div class="timeline">
+      <div class="timeline-item" data-info="We had our first meeting to kickoff the season!">
+        <p class="timeline-date">⚡ September 23, 2025</p>
+        <p class="timeline-text">First Robotics Meeting</p>
+      </div>
+      <div class="timeline-item" data-info="STEM activity where we try to build the tallest tower and old Team Leads talking about how subteams work.">
+        <p class="timeline-date">👤 September 25, 2025</p>
+        <p class="timeline-text">STEM Activity Day</p>
+      </div>
+      <div class="timeline-item" data-info="Teams will set up their stations for subteam activities where new people to robotics can more easily decide what subteam they wanted to join.">
+        <p class="timeline-date">🔧 September 30, 2025</p>
+        <p class="timeline-text">Subteam Stations</p>
+      </div>
+      <div class="timeline-item" data-info="Applications for the team became available to students.">
+        <p class="timeline-date">ℹ️ October 7, 2025</p>
+        <p class="timeline-text">Applications Available</p>
+      </div>
+      <div class="timeline-item" data-info="Kickoff day announces the new challenge and what our robot will need to acomplish.">
+        <p class="timeline-date">🏆 November 2025</p>
+        <p class="timeline-text">Kickoff day for new season</p>
+      </div>
       <!-- populated dynamically from data/site.json -->
     </div>
   </section>
@@ -685,18 +902,32 @@
     <h2>Contact Us</h2>
     <div class="contact-links">
       <a href="mailto:sveselack@wths.net" target="_blank" class="contact-icon" aria-label="Email">
+        <!-- Mail Icon -->
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 
+            0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 
+            0 0 0-2-2m0 4-8 5-8-5V6l8 5 8-5z"/>
           <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2m0 4-8 5-8-5V6l8 5 8-5z"/>
         </svg>
       </a>
       <a href="https://www.youtube.com/c/WarrenRobotics" target="_blank" class="contact-icon" aria-label="YouTube">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M10 15V9l5 3m9-3c0-2.21-1.79-4-4-4H5c-2.21 0-4 1.79-4 4v6c0 2.21 1.79 4 4 4h15c2.21 0 4-1.79 4-4V9z"/></svg>
+        <!-- YouTube Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M10 15V9l5 3m9-3c0-2.21-1.79-4-4-4H5c-2.21 
+        0-4 1.79-4 4v6c0 2.21 1.79 4 4 4h15c2.21 0 4-1.79 4-4V9z"/></svg>
       </a>
       <a href="https://www.instagram.com/trident_robotics" target="_blank" class="contact-icon" aria-label="Instagram">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm10 2a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h10zm-5 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm4.5-2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
+        <!-- Instagram Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 
+        2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm10 2a3 3 0 0 1 3 3v10a3 3 
+        0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h10zm-5 3a5 5 0 1 0 0 
+        10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm4.5-2a1.5 
+        1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
       </a>
       <a href="https://www.facebook.com/Team4296/" target="_blank" class="contact-icon" aria-label="Facebook">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2v-2.3c0-2 1.2-3.1 3-3.1.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2V12h2.3l-.4 3h-1.9v7A10 10 0 0 0 22 12"/></svg>
+        <!-- Facebook Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2v-2.3c0-2 
+        1.2-3.1 3-3.1.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 
+        1.2V12h2.3l-.4 3h-1.9v7A10 10 0 0 0 22 12"/></svg>
       </a>
     </div>
   </section>
@@ -739,6 +970,25 @@
 
   <script src="assets/js/main.js"></script>
   <script>
+  // ====== Dynamic About Section ======
+  const aboutContent = [
+    "We are Trident Robotics Team 4296, a student-led high school robotics team dedicated to designing, building, and competing with innovative robots. Our mission is to spark curiosity, foster c[...]",
+    "Founded in 2012, our team has grown into a community where students gain real-world skills in design, mechanical engineering, electrical systems, and programming. We don’t just build robot[...]",
+    "Every season, our team comes together with one goal: to turn imagination into innovation and prove that when teamwork meets technology, the possibilities are endless."
+  ];
+
+  const aboutSection = document.getElementById('about');
+  aboutSection.innerHTML = `<h2>About Us</h2>` + aboutContent.map(p => `<p>${p}</p>`).join('');
+
+  // Render team grid from site JSON (falls back to embedded data if fetch fails)
+  (async function renderTeamGrid(){
+    const fallbackTeamData = [
+      { team: "Design Team", role: "Lead", members: ["Alice Smith", "Bob Johnson"] },
+      { team: "Mechanical Team", role: "Lead", members: ["Charlie Brown", "Dana White"] },
+      { team: "Electrical Team", role: "Lead", members: ["Evan Lee", "Fiona Green"] },
+      { team: "Programming Team", role: "Lead", members: ["George Hall", "Hannah King"] },
+      { team: "Drive Team", role: "Driver", members: ["Ian Scott", "Jane Adams"] }
+    ];
     // ====== Dynamic Content from /data/site.json ======
 
     function escapeHtml(s) {
@@ -756,6 +1006,44 @@
       }
     }
 
+    const site = await getSiteData();
+    // prefer site.leadership.teams if available otherwise fallback to inline team data
+    const teams = (site && site.leadership && Array.isArray(site.leadership.teams) && site.leadership.teams.length)
+      ? site.leadership.teams
+      : fallbackTeamData;
+
+    const teamGrid = document.querySelector('.team-grid');
+    teamGrid.innerHTML = teams.map(t => {
+      // ensure t.members exists and is an array
+      const mems = Array.isArray(t.members) ? t.members : [];
+      return `
+        <div class="card">
+          <div class="card-icon"></div>
+          <h3>${t.team}</h3>
+          ${mems.map(m => `<p><strong>${t.role}:</strong> ${m}</p>`).join('')}
+        </div>
+      `;
+    }).join('');
+  })();
+
+  // ====== Dynamic Timeline ======
+  const timelineEvents = [
+    { date: "⚡ September 23, 2025", text: "First Robotics Meeting", info: "We had our first meeting to kickoff the season!" },
+    { date: "👤 September 25, 2025", text: "STEM Activity Day", info: "STEM activity where we try to build the tallest tower and old Team Leads talking about how subteams work." },
+    { date: "🔧 September 30, 2025", text: "Subteam Stations", info: "Teams will set up their stations for subteam activities where new people to robotics can more easily decide what subteam th[...]"},
+    { date: "ℹ️ October 7, 2025", text: "Applications Available", info: "Applications for the team became available to students." },
+    { date: "🏆 November 2025", text: "Kickoff day for new season", info: "Kickoff day announces the new challenge and what our robot will need to accomplish." }
+  ];
+
+  const timelineContainer = document.querySelector('.timeline');
+  timelineContainer.innerHTML = timelineEvents.map((event, idx) => `
+    <div class="timeline-item" data-info="${event.info}">
+      <p class="timeline-date">${event.date}</p>
+      <p class="timeline-text">${event.text}</p>
+    </div>
+  `).join('');
+</script>
+<script src="assets/js/site-data-injector.js"></script>
     function mergeLeadsIntoTeams(site) {
       if (!site || !site.leadership) return;
       const teams = site.leadership.teams || [];
@@ -771,13 +1059,27 @@
       });
     }
 
+    function renderAbout(site) {
+      const aboutSection = document.getElementById('about');
+      if (!site || !site.about) return;
+      const heading = escapeHtml(site.about.heading || 'About Us');
+      // site.about.content is allowed HTML from your repo data
+      const contentHtml = (site.about.content || '').trim();
+      if (contentHtml) {
+        aboutSection.innerHTML = `<h2>${heading}</h2>` + contentHtml;
+      } else {
+        aboutSection.querySelector('h2').textContent = site.about.heading || 'About Us';
+      }
+    }
+
     function iconForTeam(teamName) {
+      // minimal: reuse existing inline SVGs per team key
       const map = {
-        'Design Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16V8a1 1 0 0 0-.55-.89l-8-4a1 1 0 0 0-.9 0l-8 4A1 1 0 0 0 3 8v8a1 1 0 0 0 .55.89l8 4a1 1 0 0 0 .9 0l8-4A1 1 0 0 0 21 16zM12 5.18 18.47 8.4 12 11.62 5.53 8.4 12 5.18zM5 10.82l6 3v4.99l-6-3V10.82zm8 7.99v-4.99l6-3v4.99l-6 3z"/></svg>`,
-        'Mechanical Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Zm8.94-2.56a7.97 7.97 0 0 0 0-1.88l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.23l-2.39.96a7.93 7.93 0 0 0-1.63-.94l-.36-2.55A.5.5 0 0 0 15.7 2h-3.4a.5.5 0 0 0-.5.42l-.36 2.55c-.58.22-1.13.52-1.64.9l-2.39-.96a.5.5 0 0 0-.6.23L3.3 8.06a.5.5 0 0 0 .12.64l2.03 1.58a8.2 8.2 0 0 0 0 1.88L3.42 13.7a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.43.34.7.23l2.39-.96c.51.38 1.06.68 1.64.9l.36 2.55a.5.5 0 0 0 .5.42h3.4a.5.5 0 0 0 .5-.42l.36-2.55c.57-.22 1.12-.52 1.63-.9l2.39.96c.27.11.56.01.7-.23l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58Z"/></svg>`,
-        'Electrical Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7v8l11-14h-8l0-8z"/></svg>`,
+        'Design Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16V8a1 1 0 0 0-.55-.89l-8-4a1 1 0 0 0-.9 0l-8 4A1 1 0 0 0 3 8v8a1 1 0 0 0 .55.89l8 4a1 1 0 0 0 .9 0l8-4A1 1 0 0 0 21 16zm-9-11.18L17.47 8 12 10.92 6.53 8 12 4.82zM5 9.74l7 3.73 7-3.73V16l-7 3.73L5 16V9.74z"/></svg>`,
+        'Mechanical Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.028 7.028 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 14.38 1h-4.76a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.61.22L1.21 7.02a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L1.33 12.7a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.61.22l2.39-.96c.51.4 1.06.72 1.63.94l.36 2.54c.05.25.26.42.5.42h4.76c.24 0 .45-.17.5-.42l.36-2.54c.58-.23 1.12-.54 1.63-.94l2.39.96c.22.09.48 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>`,
+        'Electrical Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 4h-1V2h-6v2H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H8V6h8v14z"/></svg>`,
         'Programming Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>`,
-        'Drive Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M7 13a2 2 0 1 1 0 4 2 2 0 0 1 0-4m10 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4M5 6h14l3 5v7a2 2 0 0 1-2 2h-1a3 3 0 0 0-6 0H11a3 3 0 0 0-6 0H4a2 2 0 0 1-2-2v-7l3-5Z"/></svg>`
+        'Drive Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.5 7C4.57 7 3 8.57 3 10.5v3.93c0 1.15.45 2.27 1.27 3.1l.7.7a2.5 2.5 0 0 0 3.54 0L10.5 15h3l2 3.23a2.5 2.5 0 0 0 3.54 0l.7-.7c.82-.83 1.27-1.95 1.27-3.1V10.5C21 8.57 19.43 7 17.5 7h-11z" stroke="currentColor" stroke-width="1.5" fill="none"/><rect x="6.5" y="10" width="3" height="1" fill="currentColor"/><rect x="7.5" y="9" width="1" height="3" fill="currentColor"/><circle cx="16.5" cy="11" r="1.2" fill="currentColor"/></svg>`
       };
       return map[teamName] || map['Design Team'];
     }
@@ -795,6 +1097,7 @@
         ? JSON.parse(JSON.stringify(site.leadership.teams))
         : fallbackTeamData;
 
+      // Merge leads into teams so developer.html -> leads shows up here
       if (site && site.leadership) {
         const temp = { leadership: { teams, leads: site.leadership.leads || [] } };
         mergeLeadsIntoTeams(temp);
@@ -824,90 +1127,25 @@
       const tl = document.querySelector('#updates .timeline');
       if (!tl) return;
       const items = (site && Array.isArray(site.timeline) && site.timeline.length) ? site.timeline : null;
-      if (!items) return;
-
+      if (!items) {
+        // leave empty or keep whatever is there
+        return;
+      }
       tl.innerHTML = items.map(ev => {
         const date = escapeHtml(ev.date || ev.year || '');
         const title = escapeHtml(ev.title || '');
         const desc = (ev.description || '').replace(/"/g, '&quot;');
-        return `<div class="timeline-item" tabindex="0" role="button" aria-expanded="false" data-info="${desc}">
-                  <p class="timeline-date">${date}</p>
-                  <p class="timeline-text">${title}</p>
-                </div>`;
+        return `<div class="timeline-item" data-info="${desc}"><p class="timeline-date">${date}</p><p class="timeline-text">${title}</p></div>`;
       }).join('');
-
-      enhanceTimelineInteractivity();
-    }
-
-    // Mobile-friendly timeline interactivity
-    function enhanceTimelineInteractivity() {
-      const tl = document.querySelector('#updates .timeline');
-      if (!tl) return;
-
-      // Ensure focusable
-      tl.querySelectorAll('.timeline-item').forEach(item => {
-        if (!item.hasAttribute('tabindex')) item.setAttribute('tabindex', '0');
-      });
-
-      // Toggle open on click/tap; one open at a time
-      document.addEventListener('click', (e) => {
-        const item = e.target.closest('.timeline-item');
-        const timelineRoot = e.target.closest('.timeline');
-
-        if (!timelineRoot) {
-          document.querySelectorAll('.timeline-item.open').forEach(i => {
-            i.classList.remove('open');
-            i.setAttribute('aria-expanded', 'false');
-          });
-          return;
-        }
-
-        if (item) {
-          const already = item.classList.contains('open');
-          timelineRoot.querySelectorAll('.timeline-item.open').forEach(i => {
-            i.classList.remove('open');
-            i.setAttribute('aria-expanded', 'false');
-          });
-          if (!already) {
-            item.classList.add('open');
-            item.setAttribute('aria-expanded', 'true');
-          }
-        }
-      }, { passive: true });
-
-      // Close on Escape
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          document.querySelectorAll('.timeline-item.open').forEach(i => {
-            i.classList.remove('open');
-            i.setAttribute('aria-expanded', 'false');
-          });
-        }
-        // Open on Enter/Space when focused
-        if ((e.key === 'Enter' || e.key === ' ') && document.activeElement?.classList?.contains('timeline-item')) {
-          e.preventDefault();
-          const item = document.activeElement;
-          const tlRoot = item.closest('.timeline');
-          const already = item.classList.contains('open');
-          tlRoot.querySelectorAll('.timeline-item.open').forEach(i => {
-            i.classList.remove('open');
-            i.setAttribute('aria-expanded', 'false');
-          });
-          if (!already) {
-            item.classList.add('open');
-            item.setAttribute('aria-expanded', 'true');
-          }
-        }
-      });
     }
 
     (async function initDynamicContent(){
       const site = await getSiteData();
       if (site) {
         renderAbout(site);
-        renderTeams(site);
-        renderTimeline(site);
       }
+      renderTeams(site);
+      renderTimeline(site);
     })();
   </script>
 </body>

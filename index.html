@@ -10,6 +10,9 @@
   <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
+  <!-- Include JWT decode library (moved up so code that uses it can rely on it) -->
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
+
   <!-- Firebase SDKs -->
   <script type="module">
     // Import the Firebase functions you need
@@ -54,44 +57,155 @@
   </script>
   
   <script>
-  function handleCredentialResponse(response) {
-    const data = jwt_decode(response.credential);
-    const email = data.email;
+  // Helper: storage key for the credential
+  const G_CRED_KEY = 'g_credential_v1';
+
+  // Toggle tasks visibility based on email allowed list/domains
+  function updateTasksVisibility(email) {
+    const tasksDesktop = document.getElementById("tasksLink");
+    const tasksMobile = document.getElementById("tasksLinkMobile");
+    if (!email) {
+      tasksDesktop.style.display = "none";
+      tasksMobile.style.display = "none";
+      return;
+    }
     const allowedDomains = ["wths.net"];
     const allowedEmails = ["blackshocktrooper@gmail.com"];
     const allowed = allowedDomains.some(domain => email.endsWith(`@${domain}`)) || allowedEmails.includes(email);
-
-    const tasksDesktop = document.getElementById("tasksLink");
-    const tasksMobile = document.getElementById("tasksLinkMobile");
-
     if (allowed) {
-      // Show both desktop and mobile Tasks links
       tasksDesktop.style.display = "inline-block";
       tasksMobile.style.display = "block";
     } else {
       tasksDesktop.style.display = "none";
       tasksMobile.style.display = "none";
-      alert("Access to Tasks is restricted to specific emails.");
+      // You can optionally notify user here if desired
     }
   }
 
-  // Initialize Google Sign-In
+  // Set UI for signed-in user
+  function setSignedInUI(profile, rawCredential) {
+    // profile: decoded JWT (contains email, name, picture, etc.)
+    const signInContainer = document.getElementById('googleSignIn');
+    const signedContainer = document.getElementById('googleSignedIn');
+    const emailSpan = document.getElementById('googleEmail');
+    const avatarImg = document.getElementById('googleAvatar');
+
+    // Hide sign-in button and show signed-in UI
+    if (signInContainer) signInContainer.style.display = 'none';
+    if (signedContainer) signedContainer.style.display = 'flex';
+
+    emailSpan.textContent = profile.email || profile.name || 'Signed in';
+    avatarImg.src = profile.picture || '/assets/icon.png';
+
+    // Update tasks visibility
+    updateTasksVisibility(profile.email);
+  }
+
+  // Set UI for signed-out state
+  function setSignedOutUI() {
+    const signInContainer = document.getElementById('googleSignIn');
+    const signedContainer = document.getElementById('googleSignedIn');
+
+    if (signInContainer) signInContainer.style.display = 'block';
+    if (signedContainer) signedContainer.style.display = 'none';
+
+    // Hide tasks link if needed
+    updateTasksVisibility(null);
+  }
+
+  // Handle the credential response when user signs in
+  function handleCredentialResponse(response) {
+    try {
+      const data = jwt_decode(response.credential);
+      const email = data.email;
+      // Save credential to localStorage for persistence
+      localStorage.setItem(G_CRED_KEY, response.credential);
+      // Update UI
+      setSignedInUI(data, response.credential);
+    } catch (err) {
+      console.error('Error decoding credential:', err);
+      alert('Sign-in failed (invalid token).');
+    }
+  }
+
+  // Sign out user: remove local storage, optionally revoke and disable auto select
+  function signOut() {
+    const raw = localStorage.getItem(G_CRED_KEY);
+    if (raw) {
+      try {
+        const decoded = jwt_decode(raw);
+        const email = decoded.email;
+        // Ask Google to revoke the credential (best-effort)
+        if (google && google.accounts && google.accounts.id && email) {
+          try {
+            // revoke accepts the user's email or sub; callback optional
+            google.accounts.id.revoke(email, (done) => {
+              // revoked (or not) - clear local state afterwards
+              console.log('revoke callback:', done);
+            });
+          } catch (e) {
+            console.warn('revoke call failed', e);
+          }
+        }
+      } catch (e) {
+        // ignore decode errors
+      }
+    }
+
+    // Clear stored credential and update UI
+    localStorage.removeItem(G_CRED_KEY);
+    if (google && google.accounts && google.accounts.id) {
+      // Prevent automatic selection on next page load
+      try { google.accounts.id.disableAutoSelect(); } catch(e){/* ignore */ }
+    }
+    setSignedOutUI();
+  }
+
+  // Initialize Google Sign-In, render button if not already signed in
   window.onload = function() {
+    // Initialize the client (always do this so revoke/disableAutoSelect are available)
     google.accounts.id.initialize({
       client_id: "635936985251-tj5uq36b5altf4qmk7019r3u504mm1fs.apps.googleusercontent.com",
       callback: handleCredentialResponse,
       auto_select: false
     });
-    google.accounts.id.renderButton(
-      document.getElementById("googleSignIn"),
-      { theme: "outline", size: "medium", text: "signin_with" }
-    );
-    google.accounts.id.prompt(); // optional
+
+    // Wire up sign out button (exists in DOM)
+    document.addEventListener('click', (e) => {
+      if (e.target && e.target.id === 'googleSignOut') {
+        signOut();
+      }
+    });
+
+    // If credential saved in localStorage, restore UI
+    const saved = localStorage.getItem(G_CRED_KEY);
+    if (saved) {
+      try {
+        const data = jwt_decode(saved);
+        // Optionally: validate token expiration (data.exp) here
+        setSignedInUI(data, saved);
+        // also optionally disable auto_select so that sign-in button isn't shown
+        try { google.accounts.id.disableAutoSelect(); } catch(e){/* ignore */ }
+      } catch (err) {
+        console.warn('Stored credential invalid, clearing', err);
+        localStorage.removeItem(G_CRED_KEY);
+        // render sign-in button below
+        google.accounts.id.renderButton(
+          document.getElementById("googleSignIn"),
+          { theme: "outline", size: "medium", text: "signin_with" }
+        );
+      }
+    } else {
+      // Not signed in: render the button
+      google.accounts.id.renderButton(
+        document.getElementById("googleSignIn"),
+        { theme: "outline", size: "medium", text: "signin_with" }
+      );
+      // optional: prompt can be used to show One Tap - leaving commented out if undesired
+      // google.accounts.id.prompt();
+    }
   };
   </script>
-
-  <!-- Include JWT decode library -->
-  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
 
   <style>
     /* ====== Colors ====== */
@@ -120,480 +234,489 @@
     a { text-decoration: none; color: inherit; }
     img { display: block; max-width: 100%; height: auto; }
 
-/* ====== Header ====== */
-header {
-  position: relative;
-  height: 70vh;
-  min-height: 450px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  color: var(--white);
-  overflow: hidden;
-  border-bottom: 3px solid var(--light-blue);
-}
-header img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.55);
-  z-index: -1;
-}
-header::after {
-  content: "";
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 122px;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120"><path fill="%231f4d7a" fill-opacity="1" d="M0,96L1440,0L1440,120L0,120Z"></path></svg>') no-repeat;
-  background-size: cover;
-  z-index: 0;
-  transform: translateY(1px);
-  display: none;
-}
-header h1 {
-  font-family: 'Ethnocentric', sans-serif;
-  font-size: 2.8rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  margin-bottom: 0.8rem;
-  text-shadow: 0 4px 12px rgba(0,0,0,0.6);
-  animation: fadeInUp 1s ease forwards;
-}
-header p {
-  font-size: 1.3rem;
-  font-weight: 400;
-  color: #e0f2ff;
-  opacity: 0.9;
-  animation: fadeInUp 1.4s ease forwards;
-}
-@keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(25px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
+ /* ====== Header ====== */
+ header {
+   position: relative;
+   height: 70vh;
+   min-height: 450px;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+   text-align: center;
+   color: var(--white);
+   overflow: hidden;
+   border-bottom: 3px solid var(--light-blue);
+ }
+ header img {
+   position: absolute;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+   filter: brightness(0.55);
+   z-index: -1;
+ }
+ header::after {
+   content: "";
+   position: absolute;
+   bottom: -1px;
+   left: 0;
+   right: 0;
+   height: 122px;
+   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120"><path fill="%231f4d7a" fill-opacity="1" d="M0,96L1440,0L1440,120L0,120Z"></path></svg>') [...]
+   background-size: cover;
+   z-index: 0;
+   transform: translateY(1px);
+   display: none;
+ }
+ header h1 {
+   font-family: 'Ethnocentric', sans-serif;
+   font-size: 2.8rem;
+   font-weight: 800;
+   letter-spacing: 1px;
+   margin-bottom: 0.8rem;
+   text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+   animation: fadeInUp 1s ease forwards;
+ }
+ header p {
+   font-size: 1.3rem;
+   font-weight: 400;
+   color: #e0f2ff;
+   opacity: 0.9;
+   animation: fadeInUp 1.4s ease forwards;
+ }
+ @keyframes fadeInUp {
+   0% { opacity: 0; transform: translateY(25px); }
+   100% { opacity: 1; transform: translateY(0); }
+ }
 
-/* ====== Google Login in Nav ===== */
-.nav-login { justify-self: end; }
-.nav-login .google-btn {
-  display: flex;
-  align-items: center;
-  background: var(--medium-blue);
-  color: var(--white);
-  border: 2px solid var(--accent);
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: 0.3s;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-}
-.nav-login .google-btn:hover {
-  background: var(--light-blue);
-  color: var(--dark-blue);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-}
-.nav-login .google-btn img {
-  height: 18px;
-  margin-right: 6px;
-}
+ /* ====== Google Login in Nav ===== */
+ .nav-login { justify-self: end; display: flex; align-items: center; gap: .5rem; }
+ .nav-login .google-btn {
+   display: flex;
+   align-items: center;
+   background: var(--medium-blue);
+   color: var(--white);
+   border: 2px solid var(--accent);
+   padding: 0.4rem 0.8rem;
+   border-radius: 8px;
+   font-weight: bold;
+   font-size: 0.9rem;
+   cursor: pointer;
+   transition: 0.3s;
+   box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+ }
+ .nav-login .google-btn:hover {
+   background: var(--light-blue);
+   color: var(--dark-blue);
+   transform: translateY(-2px);
+   box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+ }
+ .nav-login .google-btn img {
+   height: 18px;
+   margin-right: 6px;
+ }
 
-/* ====== Responsive adjustments ===== */
-@media (max-width: 768px) {
-  /* Adjust layout order so sign-in appears left of hamburger */
-  .nav-login {
-    order: 1;
-    margin: 0.5rem 0.5rem 0.5rem auto;
-  }
+ /* small inline signed-in UI */
+ #googleSignedIn {
+   display: none;
+   align-items: center;
+   gap: 0.5rem;
+ }
+ #googleSignedIn img { height: 28px; width: 28px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.08); }
+ #googleEmail { font-weight: 600; font-size: 0.95rem; color: var(--white); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  .nav-toggle {
-    order: 2;
-  }
+ /* ====== Responsive adjustments ===== */
+ @media (max-width: 768px) {
+   /* Adjust layout order so sign-in appears left of hamburger */
+   .nav-login {
+     order: 1;
+     margin: 0.5rem 0.5rem 0.5rem auto;
+   }
 
-  .nav-login .google-btn {
-    width: 90%;
-    justify-content: center;
-  }
-}
+   .nav-toggle {
+     order: 2;
+   }
 
-/* ====== Navigation ===== */
-.site-nav {
-  background: var(--medium-blue);
-  display: flex;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  border-bottom: 3px solid var(--light-blue);
-  box-shadow: none;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-.nav-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  padding: 0.6rem 1rem;
-  width: 100%;
-}
-.nav-logo { justify-self: start; }
-.nav-logo img { height: 50px; width: auto; }
-.nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
+   .nav-login .google-btn {
+     width: 90%;
+     justify-content: center;
+   }
+ }
 
-.nav-links {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.nav-links a {
-  font-weight: bold;
-  text-transform: uppercase;
-  padding: 0.25rem 0.5rem;
-  border-bottom: 2px solid transparent;
-  transition: 0.25s;
-}
-.nav-links a:hover {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-}
+ /* ====== Navigation ===== */
+ .site-nav {
+   background: var(--medium-blue);
+   display: flex;
+   align-items: center;
+   position: sticky;
+   top: 0;
+   z-index: 1000;
+   border-bottom: 3px solid var(--light-blue);
+   box-shadow: none;
+   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+ }
+ .nav-inner {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   position: relative;
+   padding: 0.6rem 1rem;
+   width: 100%;
+ }
+ .nav-logo { justify-self: start; }
+ .nav-logo img { height: 50px; width: auto; }
+ .nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
 
-.nav-toggle {
-  justify-self: end;
-  display: none;
-  width: 40px;
-  height: 40px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  position: relative;
-  z-index: 1002;
-}
-.nav-toggle .hamburger,
-.nav-toggle .hamburger::before,
-.nav-toggle .hamburger::after {
-  display: block;
-  width: 22px;
-  height: 2px;
-  background: var(--white);
-  border-radius: 2px;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translateX(-50%);
-}
-.nav-toggle .hamburger::before { content: ""; top: -7px; }
-.nav-toggle .hamburger::after { content: ""; top: 7px; }
+ .nav-links {
+   display: flex;
+   justify-content: center;
+   gap: 1rem;
+   position: absolute;
+   left: 50%;
+   transform: translateX(-50%);
+ }
+ .nav-links a {
+   font-weight: bold;
+   text-transform: uppercase;
+   padding: 0.25rem 0.5rem;
+   border-bottom: 2px solid transparent;
+   transition: 0.25s;
+ }
+ .nav-links a:hover {
+   color: var(--accent);
+   border-bottom-color: var(--accent);
+ }
 
-    /* Hide mobile dropdown on desktop */
-    .nav-links-mobile {
-      display: none;
-      flex-direction: column;
-      background: var(--medium-blue);
-      position: absolute;
-      top: 100%;
-      left: 0;
-      width: 100%;
-      border-top: 3px solid var(--light-blue);
-      z-index: 1001;
-    }
+ .nav-toggle {
+   justify-self: end;
+   display: none;
+   width: 40px;
+   height: 40px;
+   background: none;
+   border: none;
+   cursor: pointer;
+   position: relative;
+   z-index: 1002;
+ }
+ .nav-toggle .hamburger,
+ .nav-toggle .hamburger::before,
+ .nav-toggle .hamburger::after {
+   display: block;
+   width: 22px;
+   height: 2px;
+   background: var(--white);
+   border-radius: 2px;
+   position: absolute;
+   left: 50%;
+   top: 50%;
+   transform: translateX(-50%);
+ }
+ .nav-toggle .hamburger::before { content: ""; top: -7px; }
+ .nav-toggle .hamburger::after { content: ""; top: 7px; }
 
-    .nav-links-mobile a {
-      padding: 0.8rem 0;
-      text-align: center;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
+     /* Hide mobile dropdown on desktop */
+     .nav-links-mobile {
+       display: none;
+       flex-direction: column;
+       background: var(--medium-blue);
+       position: absolute;
+       top: 100%;
+       left: 0;
+       width: 100%;
+       border-top: 3px solid var(--light-blue);
+       z-index: 1001;
+     }
 
-    @media (max-width: 768px) {
-      .nav-links-mobile {
-        display: none; /* hidden by default */
-      }
-      .nav-links-mobile.show {
-        display: flex; /* show when toggled */
-      }
-    }
+     .nav-links-mobile a {
+       padding: 0.8rem 0;
+       text-align: center;
+       border-bottom: 1px solid rgba(255,255,255,0.1);
+     }
 
-    /* ====== Sections ====== */
-    section { padding: 3rem 1.5rem; max-width: 1100px; margin: auto; }
-    h2 {
-      color: var(--light-blue);
-      font-size: 2rem;
-      border-bottom: 3px solid var(--light-blue);
-      display: inline-block;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.25rem;
-    }
-    p, li { font-size: 1.1rem; margin-bottom: 1rem; }
-    ul { list-style: none; padding-left: 0; }
+     @media (max-width: 768px) {
+       .nav-links-mobile {
+         display: none; /* hidden by default */
+       }
+       .nav-links-mobile.show {
+         display: flex; /* show when toggled */
+       }
+     }
 
-    /* ====== Team Grid ====== */
-    .team-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      max-width: 1000px;
-      margin: 0 auto;
-      gap: 2rem;
-      justify-items: center;
-    }
+     /* ====== Sections ====== */
+     section { padding: 3rem 1.5rem; max-width: 1100px; margin: auto; }
+     h2 {
+       color: var(--light-blue);
+       font-size: 2rem;
+       border-bottom: 3px solid var(--light-blue);
+       display: inline-block;
+       margin-bottom: 1.5rem;
+       padding-bottom: 0.25rem;
+     }
+     p, li { font-size: 1.1rem; margin-bottom: 1rem; }
+     ul { list-style: none; padding-left: 0; }
 
-    .card {
-      background: linear-gradient(135deg, #0a1f44, #1f4d7a, #4fa3d1);
-      padding: 1.5rem;
-      border-radius: 15px;
-      text-align: center;
-      transition: transform 0.3s, box-shadow 0.3s;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-      width: 100%;
-      max-width: 280px;
-      color: var(--white);
-      position: relative;
-    }
+     /* ====== Team Grid ====== */
+     .team-grid {
+       display: grid;
+       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+       max-width: 1000px;
+       margin: 0 auto;
+       gap: 2rem;
+       justify-items: center;
+     }
 
-    .card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.35); }
+     .card {
+       background: linear-gradient(135deg, #0a1f44, #1f4d7a, #4fa3d1);
+       padding: 1.5rem;
+       border-radius: 15px;
+       text-align: center;
+       transition: transform 0.3s, box-shadow 0.3s;
+       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+       width: 100%;
+       max-width: 280px;
+       color: var(--white);
+       position: relative;
+     }
 
-    .card-icon {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      color: var(--light-blue);
-      width: 28px;
-      height: 28px;
-      transition: color 0.3s, transform 0.3s;
-    }
+     .card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.35); }
 
-    .card-icon:hover {
-      color: var(--accent);
-      transform: scale(1.15);
-    }
+     .card-icon {
+       position: absolute;
+       top: 10px;
+       left: 10px;
+       color: var(--light-blue);
+       width: 28px;
+       height: 28px;
+       transition: color 0.3s, transform 0.3s;
+     }
 
-    .card-icon svg {
-      width: 100%;
-      height: 100%;
-    }
+     .card-icon:hover {
+       color: var(--accent);
+       transform: scale(1.15);
+     }
 
-    #team-photo img {
-      max-width: 900px;
-      width: 100%;
-      margin: 2rem auto 0;
-      border-radius: 15px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-    }
+     .card-icon svg {
+       width: 100%;
+       height: 100%;
+     }
 
-    /* ====== Footer ===== */
-    footer {
-      background: var(--medium-blue);
-      color: #dcdcdc;
-      text-align: center;
-      padding: 1rem 1.5rem;
-      font-size: 0.8rem !important;
-      line-height: 1.4;
-      border-top: 3px solid var(--light-blue);
-      margin: 0 auto;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
-    }
+     #team-photo img {
+       max-width: 900px;
+       width: 100%;
+       margin: 2rem auto 0;
+       border-radius: 15px;
+       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+     }
 
-    footer p {
-      margin: 0.25rem 0;
-      font-weight: 400;
-    }
+     /* ====== Footer ===== */
+     footer {
+       background: var(--medium-blue);
+       color: #dcdcdc;
+       text-align: center;
+       padding: 1rem 1.5rem;
+       font-size: 0.8rem !important;
+       line-height: 1.4;
+       border-top: 3px solid var(--light-blue);
+       margin: 0 auto;
+       box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+     }
 
-    /* ====== Timeline ====== */
-    .timeline {
-      position: relative;
-      max-width: 800px;
-      margin: 3rem auto;
-      padding: 0 1rem;
-      z-index: 1;
-    }
+     footer p {
+       margin: 0.25rem 0;
+       font-weight: 400;
+     }
 
-    .timeline::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 100%;
-      background: linear-gradient(to bottom, var(--light-blue), var(--medium-blue));
-      border-radius: 2px;
-      opacity: 0.6;
-    }
+     /* ====== Timeline ====== */
+     .timeline {
+       position: relative;
+       max-width: 800px;
+       margin: 3rem auto;
+       padding: 0 1rem;
+       z-index: 1;
+     }
 
-    .timeline-item {
-      position: relative;
-      margin: 2.5rem 0;
-      width: 50%;
-      padding: 1rem 2rem;
-      background: rgba(10, 31, 68, 0.85);
-      border: 2px solid var(--light-blue);
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      z-index: 2;
-    }
+     .timeline::before {
+       content: "";
+       position: absolute;
+       top: 0;
+       left: 50%;
+       transform: translateX(-50%);
+       width: 4px;
+       height: 100%;
+       background: linear-gradient(to bottom, var(--light-blue), var(--medium-blue));
+       border-radius: 2px;
+       opacity: 0.6;
+     }
 
-    .timeline-item:nth-child(odd) {
-      left: 0;
-      transform-origin: right center;
-    }
+     .timeline-item {
+       position: relative;
+       margin: 2.5rem 0;
+       width: 50%;
+       padding: 1rem 2rem;
+       background: rgba(10, 31, 68, 0.85);
+       border: 2px solid var(--light-blue);
+       border-radius: 12px;
+       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+       transition: transform 0.3s ease, box-shadow 0.3s ease;
+       z-index: 2;
+     }
 
-    .timeline-item:nth-child(even) {
-      left: 50%;
-      transform-origin: left center;
-    }
+     .timeline-item:nth-child(odd) {
+       left: 0;
+       transform-origin: right center;
+     }
 
-    .timeline-item:hover {
-      transform: scale(1.03);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.35);
-    }
+     .timeline-item:nth-child(even) {
+       left: 50%;
+       transform-origin: left center;
+     }
 
-    .timeline-item::before {
-      content: "";
-      position: absolute;
-      top: 20px;
-      width: 18px;
-      height: 18px;
-      border: 3px solid var(--accent);
-      background: var(--medium-blue);
-      border-radius: 50%;
-      box-shadow: 0 0 12px var(--accent);
-      z-index: 2;
-    }
+     .timeline-item:hover {
+       transform: scale(1.03);
+       box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+     }
 
-    .timeline-item:nth-child(odd)::before {
-      right: -11px;
-    }
+     .timeline-item::before {
+       content: "";
+       position: absolute;
+       top: 20px;
+       width: 18px;
+       height: 18px;
+       border: 3px solid var(--accent);
+       background: var(--medium-blue);
+       border-radius: 50%;
+       box-shadow: 0 0 12px var(--accent);
+       z-index: 2;
+     }
 
-    .timeline-item:nth-child(even)::before {
-      left: -11px;
-    }
+     .timeline-item:nth-child(odd)::before {
+       right: -11px;
+     }
 
-    .timeline-date {
-      font-weight: 700;
-      color: var(--accent);
-      font-size: 1.05rem;
-      margin-bottom: 0.4rem;
-    }
+     .timeline-item:nth-child(even)::before {
+       left: -11px;
+     }
 
-    .timeline-text {
-      color: var(--white);
-      font-size: 1.05rem;
-      opacity: 0.95;
-    }
+     .timeline-date {
+       font-weight: 700;
+       color: var(--accent);
+       font-size: 1.05rem;
+       margin-bottom: 0.4rem;
+     }
 
-    /* Hover bubble for more info */
-    .timeline-item .info-bubble {
-      display: none;
-    }
+     .timeline-text {
+       color: var(--white);
+       font-size: 1.05rem;
+       opacity: 0.95;
+     }
 
-    .timeline-item:hover::after {
-      content: attr(data-info);
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translate(-50%, 10px);
-      background: var(--light-blue);
-      color: var(--white);
-      padding: 0.8rem 1rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      font-size: 0.9rem;
-      width: 220px;
-      text-align: center;
-      animation: fadeIn 0.3s ease forwards;
-      z-index: 9999; !important
-    }
+     /* Hover bubble for more info */
+     .timeline-item .info-bubble {
+       display: none;
+     }
 
-    /* Fade animation */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translate(-50%, 20px); }
-      to { opacity: 1; transform: translate(-50%, 10px); }
-    }
+     .timeline-item:hover::after {
+       content: attr(data-info);
+       position: absolute;
+       top: 100%;
+       left: 50%;
+       transform: translate(-50%, 10px);
+       background: var(--light-blue);
+       color: var(--white);
+       padding: 0.8rem 1rem;
+       border-radius: 10px;
+       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+       font-size: 0.9rem;
+       width: 220px;
+       text-align: center;
+       animation: fadeIn 0.3s ease forwards;
+       z-index: 9999; !important
+     }
 
-    /* ====== Mobile Timeline ====== */
-    @media (max-width: 768px) {
-      .timeline::before {
-        left: 15px;
-      }
+     /* Fade animation */
+     @keyframes fadeIn {
+       from { opacity: 0; transform: translate(-50%, 20px); }
+       to { opacity: 1; transform: translate(-50%, 10px); }
+     }
 
-      .timeline-item {
-        width: 100%;
-        left: 0 !important;
-        margin-left: 2rem;
-      }
+     /* ====== Mobile Timeline ====== */
+     @media (max-width: 768px) {
+       .timeline::before {
+         left: 15px;
+       }
 
-      .timeline-item::before {
-        left: -28px;
-      }
+       .timeline-item {
+         width: 100%;
+         left: 0 !important;
+         margin-left: 2rem;
+       }
 
-      .timeline-item:hover::after {
-        left: 0;
-        transform: translate(0, 10px);
-      }
+       .timeline-item::before {
+         left: -28px;
+       }
 
-      @media (max-width: 768px) {
-      .timeline-item:hover::after {
-        left: 50% !important;
-        transform: translateX(-50%) translateY(10px) !important;
-        width: 90vw;
-        max-width: 320px;
-        box-sizing: border-box;
-        z-index: 9999 !important;
-        white-space: normal;
-      }
-    }
+       .timeline-item:hover::after {
+         left: 0;
+         transform: translate(0, 10px);
+       }
 
-    /* ====== Responsive ===== */
-    @media (max-width: 768px) {
-      .nav-toggle { display: flex; }
+       @media (max-width: 768px) {
+       .timeline-item:hover::after {
+         left: 50% !important;
+         transform: translateX(-50%) translateY(10px) !important;
+         width: 90vw;
+         max-width: 320px;
+         box-sizing: border-box;
+         z-index: 9999 !important;
+         white-space: normal;
+       }
+     }
 
-      .nav-links {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        flex-direction: column;
-        display: none;
-        background: var(--medium-blue);
-        border-top: 3px solid var(--light-blue);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-        z-index: 1001;
-      }
-      .nav-links.show { display: flex; }
-      .nav-links a { width: 100%; text-align: center; padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+     /* ====== Responsive ===== */
+     @media (max-width: 768px) {
+       .nav-toggle { display: flex; }
 
-      /* ====== Mobile Timeline Adjustments ===== */
-      .timeline-item {
-        width: 100%;
-      }
+       .nav-links {
+         position: absolute;
+         top: 100%;
+         left: 0;
+         right: 0;
+         flex-direction: column;
+         display: none;
+         background: var(--medium-blue);
+         border-top: 3px solid var(--light-blue);
+         box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+         z-index: 1001;
+       }
+       .nav-links.show { display: flex; }
+       .nav-links a { width: 100%; text-align: center; padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
 
-      .timeline-item .info-bubble {
-        left: auto;
-        right: 0;
-        top: calc(100% + 0.5rem);
-        transform: none;
-      }
+       /* ====== Mobile Timeline Adjustments ===== */
+       .timeline-item {
+         width: 100%;
+       }
 
-      .timeline-item .info-bubble::after {
-        left: auto;
-        right: 10px;
-        top: -5px;
-        border-color: var(--light-blue) transparent transparent transparent;
-        border-width: 5px 5px 0 5px;
-      }
-    }
-  </style>
+       .timeline-item .info-bubble {
+         left: auto;
+         right: 0;
+         top: calc(100% + 0.5rem);
+         transform: none;
+       }
+
+       .timeline-item .info-bubble::after {
+         left: auto;
+         right: 10px;
+         top: -5px;
+         border-color: var(--light-blue) transparent transparent transparent;
+         border-width: 5px 5px 0 5px;
+       }
+     }
+   </style>
 </head>
 <body>
 
@@ -632,7 +755,15 @@ header p {
       </div>
 
       <div class="nav-login">
+        <!-- Container where Google renders Sign-in button -->
         <div id="googleSignIn"></div>
+
+        <!-- Signed-in UI (hidden by default; shown when signed in) -->
+        <div id="googleSignedIn" aria-live="polite">
+          <img id="googleAvatar" src="" alt="Avatar">
+          <span id="googleEmail">Not signed in</span>
+          <button id="googleSignOut" class="google-btn" title="Sign out">Sign out</button>
+        </div>
       </div>
 
       <button class="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">
@@ -668,7 +799,7 @@ header p {
         <div class="card-icon">
           <!-- Cube Icon (Design) -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M21 16V8a1 1 0 0 0-.55-.89l-8-4a1 1 0 0 0-.9 0l-8 4A1 1 0 0 0 3 8v8a1 1 0 0 0 .55.89l8 4a1 1 0 0 0 .9 0l8-4A1 1 0 0 0 21 16zm-9-11.18L17.47 8 12 10.92 6.53 8 12 4.82zM5 9.74l6 3v6.52l-6-3V9.74zm8 9.52v-6.52l6-3v6.52l-6 3z"/>
+            <path d="M21 16V8a1 1 0 0 0-.55-.89l-8-4a1 1 0 0 0-.9 0l-8 4A1 1 0 0 0 3 8v8a1 1 0 0 0 .55.89l8 4a1 1 0 0 0 .9 0l8-4A1 1 0 0 0 21 16zm-9-11.18L17.47 8 12 10.92 6.53 8 12 4.82zM5 9.74l[...]
           </svg>
         </div>
         <h3>Design Team</h3>
@@ -679,7 +810,7 @@ header p {
         <div class="card-icon">
           <!-- Sleek Gear Icon (Mechanical) -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.028 7.028 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 14.38 2h-4.76a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.14.55-1.63.94l-2.39-.96a.5.5 0 0 0-.61.22L2.21 8.4a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.33 14.1a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.43.34.7.22l2.39-.96c.49.39 1.04.7 1.63.94l.36 2.54c.04.26.25.42.5.42h4.76c.25 0 .46-.16.5-.42l.36-2.54c.59-.24 1.14-.55 1.63-.94l2.39.96c.27.11.56.02.7-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/>
+            <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.028 7.028 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 14.38 [...]
           </svg>
         </div>
         <h3>Mechanical Team</h3>
@@ -713,7 +844,7 @@ header p {
           <!-- Game Controller Icon (Drive) -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <!-- Controller body (outline only) -->
-            <path d="M6.5 7C4.57 7 3 8.57 3 10.5v3.93c0 1.15.45 2.27 1.27 3.1l.7.7a2.5 2.5 0 0 0 3.54 0L10.5 15h3l2 3.23a2.5 2.5 0 0 0 3.54 0l.7-.7c.82-.83 1.27-1.95 1.27-3.1V10.5C21 8.57 19.43 7 17.5 7h-11z"
+            <path d="M6.5 7C4.57 7 3 8.57 3 10.5v3.93c0 1.15.45 2.27 1.27 3.1l.7.7a2.5 2.5 0 0 0 3.54 0L10.5 15h3l2 3.23a2.5 2.5 0 0 0 3.54 0l.7-.7c.82-.83 1.27-1.95 1.27-3.1V10.5C21 8.57 19.43 7[...]
                   stroke="currentColor" stroke-width="1.5" fill="none"/>
 
             <!-- Left D-pad (cross) -->
@@ -836,8 +967,8 @@ header p {
   <script>
   // ====== Dynamic About Section ======
   const aboutContent = [
-    "We are Trident Robotics Team 4296, a student-led high school robotics team dedicated to designing, building, and competing with innovative robots. Our mission is to spark curiosity, foster collaboration, and push the boundaries of technology through hands-on engineering experiences.",
-    "Founded in 2012, our team has grown into a community where students gain real-world skills in design, mechanical engineering, electrical systems, and programming. We don’t just build robots—we build future engineers, problem-solvers, and leaders.",
+    "We are Trident Robotics Team 4296, a student-led high school robotics team dedicated to designing, building, and competing with innovative robots. Our mission is to spark curiosity, foster c[...]",
+    "Founded in 2012, our team has grown into a community where students gain real-world skills in design, mechanical engineering, electrical systems, and programming. We don’t just build robot[...]",
     "Every season, our team comes together with one goal: to turn imagination into innovation and prove that when teamwork meets technology, the possibilities are endless."
   ];
 
@@ -870,7 +1001,7 @@ header p {
   const timelineEvents = [
     { date: "⚡ September 23, 2025", text: "First Robotics Meeting", info: "We had our first meeting to kickoff the season!" },
     { date: "👤 September 25, 2025", text: "STEM Activity Day", info: "STEM activity where we try to build the tallest tower and old Team Leads talking about how subteams work." },
-    { date: "🔧 September 30, 2025", text: "Subteam Stations", info: "Teams will set up their stations for subteam activities where new people to robotics can more easily decide what subteam they wanted to join." },
+    { date: "🔧 September 30, 2025", text: "Subteam Stations", info: "Teams will set up their stations for subteam activities where new people to robotics can more easily decide what subteam th[...]"},
     { date: "ℹ️ October 7, 2025", text: "Applications Available", info: "Applications for the team became available to students." },
     { date: "🏆 November 2025", text: "Kickoff day for new season", info: "Kickoff day announces the new challenge and what our robot will need to accomplish." }
   ];

@@ -38,9 +38,11 @@
       line-height: 1.6;
     }
     a { text-decoration: none; color: inherit; }
+
+    /* Global image reset (content images) */
     img { display: block; max-width: 100%; height: auto; }
 
-    /* IMPORTANT: Do not let the global img rule distort the Google Sign-In button */
+    /* Keep the Google sign-in button intact */
     #googleSignIn img, #googleSignIn svg {
       display: inline-block !important;
       max-width: none !important;
@@ -118,7 +120,7 @@
       box-shadow: 0 6px 15px rgba(0,0,0,0.4);
     }
 
-    /* ====== Navigation (copied from index) ====== */
+    /* ====== Navigation (copied from index and placed below header) ====== */
     .site-nav {
       background: var(--medium-blue);
       display: flex;
@@ -262,16 +264,25 @@
       width: 100%;
       max-width: 320px;
       color: var(--white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    .sponsor-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 25px rgba(0,0,0,0.35);
+
+    /* Center logos perfectly inside a consistent box */
+    .sponsor-media {
+      width: 100%;
+      height: 140px;              /* consistent visual box for every logo */
+      display: grid;              /* centers both horizontally and vertically */
+      place-items: center;
+      padding: 0.25rem;           /* small breathing room */
     }
     .sponsor-logo {
-      width: 85%;
-      max-width: 220px;
-      margin: 0 auto 0.75rem;
-      object-fit: contain;
+      max-width: 85%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;        /* respect aspect ratio inside the box */
       filter: grayscale(10%) drop-shadow(0 0 6px rgba(255,255,255,0.25));
       transition: filter .3s, transform .3s;
     }
@@ -282,6 +293,7 @@
     .sponsor-name {
       font-weight: 700;
       letter-spacing: .3px;
+      margin-top: 0.6rem;
     }
 
     /* ====== Competition Image Band ====== */
@@ -321,6 +333,8 @@
       .nav-links-mobile { display: none; }
       .nav-links-mobile.show { display: flex; }
       .nav-login .google-btn { width: 90%; justify-content: center; }
+
+      .sponsor-media { height: 120px; } /* slightly smaller box on mobile */
     }
   </style>
 </head>
@@ -337,7 +351,7 @@
     <button class="sponsor-button" onclick="window.location.href='mailto:sveselack@wths.net'">Sponsor Us</button>
   </header>
 
-  <!-- ====== Navigation (copied from index and placed below header) ====== -->
+  <!-- ====== Navigation (from index.html, below header) ====== -->
   <nav class="site-nav">
     <div class="nav-inner">
       <a class="nav-logo" href="index.html" aria-label="Trident Robotics Home">
@@ -387,27 +401,37 @@
     <h2 id="sponsorHeading">Current Sponsors</h2>
     <div class="sponsor-grid">
       <article class="sponsor-card">
-        <img class="sponsor-logo" src="assets/Baxter-Logo.png" alt="Baxter" loading="lazy" width="220" height="120">
+        <div class="sponsor-media">
+          <img class="sponsor-logo" src="assets/Baxter-Logo.png" alt="Baxter" loading="lazy" width="220" height="120">
+        </div>
         <div class="sponsor-name">Baxter</div>
       </article>
 
       <article class="sponsor-card">
-        <img class="sponsor-logo" src="assets/NASA-Logo.png" alt="NASA" loading="lazy" width="220" height="120">
+        <div class="sponsor-media">
+          <img class="sponsor-logo" src="assets/NASA-Logo.png" alt="NASA" loading="lazy" width="220" height="120">
+        </div>
         <div class="sponsor-name">NASA</div>
       </article>
 
       <article class="sponsor-card">
-        <img class="sponsor-logo" src="assets/Kubota-Logo.png" alt="Kubota" loading="lazy" width="220" height="120">
+        <div class="sponsor-media">
+          <img class="sponsor-logo" src="assets/Kubota-Logo.png" alt="Kubota" loading="lazy" width="220" height="120">
+        </div>
         <div class="sponsor-name">Kubota</div>
       </article>
 
       <article class="sponsor-card">
-        <img class="sponsor-logo" src="assets/WWDisplays.png" alt="WW Displays Inc" loading="lazy" width="220" height="120">
+        <div class="sponsor-media">
+          <img class="sponsor-logo" src="assets/WWDisplays.png" alt="WW Displays Inc" loading="lazy" width="220" height="120">
+        </div>
         <div class="sponsor-name">WW Displays Inc</div>
       </article>
 
       <article class="sponsor-card">
-        <img class="sponsor-logo" src="assets/PatelFamily.png" alt="Patel Family" loading="lazy" width="220" height="120">
+        <div class="sponsor-media">
+          <img class="sponsor-logo" src="assets/PatelFamily.png" alt="Patel Family" loading="lazy" width="220" height="120">
+        </div>
         <div class="sponsor-name">Patel Family</div>
       </article>
     </div>

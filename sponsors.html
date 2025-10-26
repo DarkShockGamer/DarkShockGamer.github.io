@@ -271,7 +271,6 @@
       will-change: transform, box-shadow;
       transition: transform 0.25s ease, box-shadow 0.25s ease;
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-      /* do not hide overflow here; it can clip logos visually */
       overflow: visible;
     }
 
@@ -281,35 +280,29 @@
       .sponsor-card:focus-within {
         transform: translateY(-6px);
         box-shadow: 0 14px 28px rgba(0,0,0,0.35);
-        z-index: 2; /* raise above neighbors to avoid visual overlap */
+        z-index: 2;
       }
     }
 
-    /* Responsive logo box that does not crop contents */
+    /* Desktop/tablet: let the logo box hug content to avoid large empty gaps */
     .sponsor-media {
       width: 100%;
-      aspect-ratio: 11 / 6;      /* ~220x120 keeps proportional box across sizes */
-      display: flex;              /* centers both horizontally and vertically */
+      display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0.5rem;           /* breathing room around logos */
-      /* no overflow hidden to avoid clipping rounded or wide logos */
+      padding: 0.5rem;
       overflow: visible;
       border-radius: 10px;
       background: rgba(255,255,255,0.03);
     }
-    @supports not (aspect-ratio: 1) {
-      /* Fallback for older browsers without aspect-ratio support */
-      .sponsor-media { height: clamp(96px, 28vw, 140px); }
-    }
 
-    /* Ensure full logos are always visible inside the box */
+    /* Make logos as large as possible without cropping; minimize empty space */
     .sponsor-logo {
       width: auto;
       height: auto;
-      max-width: 90%;
-      max-height: 90%;
-      object-fit: contain;  /* no cropping */
+      max-width: 95%;
+      max-height: 140px; /* desktop cap */
+      object-fit: contain;
       object-position: center;
       filter: grayscale(10%) drop-shadow(0 0 6px rgba(255,255,255,0.25));
       transition: filter .25s ease;
@@ -326,6 +319,20 @@
       font-weight: 700;
       letter-spacing: .3px;
       margin-top: 0.6rem;
+    }
+
+    /* Mobile: keep consistent box height with aspect-ratio for neat rows */
+    @media (max-width: 768px) {
+      .sponsor-media {
+        aspect-ratio: 11 / 6;      /* ~220x120 look on mobile */
+        padding: 0.4rem;
+      }
+      .sponsor-logo {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+      }
     }
 
     /* ====== Competition Image Band (Masonry columns) ====== */
@@ -383,7 +390,7 @@
     }
     footer p { margin: 0.25rem 0; font-weight: 400; font-size: 0.8rem; }
 
-    /* ====== Responsive ====== */
+    /* ====== Responsive nav tweaks ====== */
     @media (max-width: 768px) {
       header { min-height: 320px; }
       .nav-login #googleSignIn { width: auto; }
@@ -392,7 +399,6 @@
       .nav-links-mobile { display: none; }
       .nav-links-mobile.show { display: flex; }
       .nav-login .google-btn { width: 90%; justify-content: center; }
-      /* aspect-ratio handles .sponsor-media sizing on mobile */
     }
   </style>
 </head>

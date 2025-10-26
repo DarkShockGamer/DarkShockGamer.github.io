@@ -1,0 +1,55 @@
+{
+  "title": "Trident Robotics 4296",
+  "about": {
+    "heading": "About Us",
+    "content": "<p>We are <strong>Trident Robotics Team 4296</strong>, a student-led high school robotics team dedicated to designing, building, and competing with innovative robots. Our mission is to spark curiosity, foster collaboration, and push the boundaries of technology through hands-on engineering experiences.</p><p>Founded in 2012, our team has grown into a community where students gain real-world skills in <em>design, mechanical engineering, electrical systems, and programming</em>. We don’t just build robots—we build future engineers, problem-solvers, and leaders.</p><p>Every season, our team comes together with one goal: to turn imagination into innovation and prove that when teamwork meets technology, the possibilities are endless.</p>"
+  },
+  "timeline": [
+    {
+      "id": "t1",
+      "date": "⚡ September 23, 2025",
+      "title": "First Robotics Meeting",
+      "description": "We had our first meeting to kickoff the season!"
+    },
+    {
+      "id": "t2",
+      "date": "👤 September 25, 2025",
+      "title": "STEM Activity Day",
+      "description": "STEM activity where we try to build the tallest tower and old Team Leads talking about how subteams work."
+    },
+    {
+      "id": "t3",
+      "date": "🔧 September 30, 2025",
+      "title": "Subteam Stations",
+      "description": "Teams will set up their stations for subteam activities where new people to robotics can more easily decide what subteam they wanted to join."
+    },
+    {
+      "id": "t4",
+      "date": "ℹ️ October 7, 2025",
+      "title": "Applications Available",
+      "description": "Applications for the team became available to students."
+    },
+    {
+      "id": "t5",
+      "date": "🏆 November 2025",
+      "title": "Kickoff Day",
+      "description": "Kickoff day announces the new challenge and what our robot will need to accomplish."
+    }
+  ],
+  "leadership": {
+    "leads": [
+      "Alice Smith",
+      "Bob Johnson",
+      "Charlie Brown",
+      "Dana White",
+      "Evan Lee",
+      "Fiona Green",
+      "George Hall",
+      "Hannah King"
+    ],
+    "drivers": [
+      "Ian Scott",
+      "Jane Adams"
+    ]
+  }
+}

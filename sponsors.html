@@ -318,8 +318,23 @@
       overflow: hidden;
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
       border: 2px solid rgba(79,163,209,0.35);
+      padding: 1rem;
+      background: rgba(0,0,0,0.1);
     }
-    .competition-frame img { width: 100%; height: auto; display: block; }
+    /* New grid for multiple images */
+    .competition-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    .competition-item {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+      border: 2px solid rgba(79,163,209,0.35);
+      background: rgba(10,31,68,0.85);
+    }
+    .competition-item img { width: 100%; height: auto; display: block; }
 
     /* ====== Footer ===== */
     footer {
@@ -448,11 +463,11 @@
     </div>
   </section>
 
-  <!-- ====== Competition Image ====== -->
+  <!-- ====== Competition Images (dynamic gallery) ====== -->
   <section class="competition-band" aria-labelledby="competitionHeading">
     <h2 id="competitionHeading">Competition Moments</h2>
     <div class="competition-frame">
-      <img src="assets/Compitition-Photo1.png" alt="Trident Robotics at competition" loading="lazy">
+      <div id="competitionGallery" class="competition-grid"></div>
     </div>
   </section>
 
@@ -520,8 +535,8 @@
       if (signInContainer) signInContainer.style.display = 'none';
       if (signedContainer) signedContainer.style.display = 'flex';
 
-      emailSpan.textContent = profile.email || profile.name || 'Signed in';
-      avatarImg.src = profile.picture || '/assets/icon.png';
+      if (emailSpan) emailSpan.textContent = profile.email || profile.name || 'Signed in';
+      if (avatarImg) avatarImg.src = profile.picture || '/assets/icon.png';
 
       updateTasksVisibility(profile.email);
     }
@@ -612,6 +627,35 @@
         );
       }
     };
+  </script>
+
+  <!-- Load media from site.json (hero header + gallery) -->
+  <script>
+  (async function(){
+    try {
+      const r = await fetch('/data/site.json?_=' + Date.now());
+      if (!r.ok) return;
+      const site = await r.json();
+      const media = site.media || {};
+
+      // Header hero
+      const hero = document.querySelector('header img.hero-bg');
+      if (hero && media.sponsorsHeader) hero.src = media.sponsorsHeader;
+
+      // Competition gallery
+      const gallery = document.getElementById('competitionGallery');
+      if (!gallery) return;
+      let images = Array.isArray(media.competitionImages) ? media.competitionImages : [];
+      if (!images.length && media.competitionImage) images = [media.competitionImage];
+      if (!images.length) images = ['assets/Compitition-Photo1.png'];
+
+      gallery.innerHTML = images.map(url => `
+        <div class="competition-item">
+          <img src="${url}" alt="Competition moment">
+        </div>
+      `).join('');
+    } catch(e) { /* ignore */ }
+  })();
   </script>
 </body>
 </html>

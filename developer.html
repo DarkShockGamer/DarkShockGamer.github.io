@@ -296,7 +296,7 @@
       const teams = (siteData.leadership && siteData.leadership.teams) ? siteData.leadership.teams : [];
       const options = [''].concat(teams.map(t => t.team));
       return options.map(t => {
-        const sel = (t === (selectedTeam || '')) ? ' selected';
+        const sel = (t === (selectedTeam || '')) ? ' selected' : '';
         const label = t || '— Select team —';
         return `<option value="${t.replace(/"/g, '&quot;')}"${sel}>${label}</option>`;
       }).join('');

@@ -79,7 +79,22 @@
   <script>
     // Minimal editor logic
     function uid(){ return 'id_'+Math.random().toString(36).slice(2,9); }
-    let siteData = { title: document.getElementById('site-title').value || 'Trident Robotics 4296', about:{heading:'About Us', content:'<p>Edit...</p>'}, timeline:[], leadership:{leads:[], drivers:[]} };
+    let siteData = {
+      title: document.getElementById('site-title')?.value || 'Trident Robotics 4296',
+      about: { heading: 'About Us', content: '<p>Edit...</p>' },
+      timeline: [],
+      leadership: {
+        teams: [
+          { team: "Design Team", role: "Lead", members: [] },
+          { team: "Mechanical Team", role: "Lead", members: [] },
+          { team: "Electrical Team", role: "Lead", members: [] },
+          { team: "Programming Team", role: "Lead", members: [] },
+          { team: "Drive Team", role: "Driver", members: [] }
+        ],
+        leads: [],
+        drivers: []
+      }
+    };
 
     async function loadExisting() {
       try {

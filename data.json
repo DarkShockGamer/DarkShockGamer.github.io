@@ -1,0 +1,25 @@
+{
+  "title": "Your Project Title",
+  "about": {
+    "heading": "About Us",
+    "content": "<p>Welcome! Edit this 'About' text from developer.html.</p>"
+  },
+  "timeline": [
+    {
+      "id": "e1",
+      "year": "2023",
+      "title": "Project Started",
+      "description": "Initial project creation and planning."
+    }
+  ],
+  "leadership": {
+    "leads": [
+      "Lead One",
+      "Lead Two"
+    ],
+    "drivers": [
+      "Driver 1",
+      "Driver 2"
+    ]
+  }
+}

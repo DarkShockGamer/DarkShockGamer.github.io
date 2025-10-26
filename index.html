@@ -10,14 +10,16 @@
   <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <!-- Include JWT decode library (so code below can rely on it) -->
+  <!-- Include JWT decode library -->
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
 
   <!-- Firebase SDKs -->
   <script type="module">
+    // Import the Firebase functions you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
+    // Your Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHFWZI",
       authDomain: "tridenttaskboard.firebaseapp.com",
@@ -28,27 +30,37 @@
       measurementId: "G-F12DDQCX87"
     };
 
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    // Example: Write data
     function writeExampleData() {
-      set(ref(db, 'test/message'), { text: "Hello from Trident Robotics!" });
-    }
-    async function readExampleData() {
-      const snapshot = await get(child(ref(db), 'test/message'));
-      if (snapshot.exists()) console.log(snapshot.val());
-      else console.log("No data available");
+      set(ref(db, 'test/message'), {
+        text: "Hello from Trident Robotics!"
+      });
     }
 
-    // Test the connection (non-critical)
+    // Example: Read data
+    async function readExampleData() {
+      const snapshot = await get(child(ref(db), 'test/message'));
+      if (snapshot.exists()) {
+        console.log(snapshot.val());
+      } else {
+        console.log("No data available");
+      }
+    }
+
+    // Test it
     writeExampleData();
     readExampleData();
   </script>
   
   <script>
-  // ===== Google Sign-in helpers =====
+  // Helper: storage key for the credential
   const G_CRED_KEY = 'g_credential_v1';
 
+  // Toggle tasks visibility based on email allowed list/domains
   function updateTasksVisibility(email) {
     const tasksDesktop = document.getElementById("tasksLink");
     const tasksMobile = document.getElementById("tasksLinkMobile");
@@ -60,25 +72,34 @@
     const allowedDomains = ["wths.net"];
     const allowedEmails = ["blackshocktrooper@gmail.com"];
     const allowed = allowedDomains.some(domain => email.endsWith(`@${domain}`)) || allowedEmails.includes(email);
-    tasksDesktop.style.display = allowed ? "inline-block" : "none";
-    tasksMobile.style.display = allowed ? "block" : "none";
+    if (allowed) {
+      tasksDesktop.style.display = "inline-block";
+      tasksMobile.style.display = "block";
+    } else {
+      tasksDesktop.style.display = "none";
+      tasksMobile.style.display = "none";
+    }
   }
 
-  function setSignedInUI(profile) {
+  // Set UI for signed-in user
+  function setSignedInUI(profile, rawCredential) {
     const signInContainer = document.getElementById('googleSignIn');
     const signedContainer = document.getElementById('googleSignedIn');
     const emailSpan = document.getElementById('googleEmail');
     const avatarImg = document.getElementById('googleAvatar');
 
+    // Hide sign-in button and show signed-in UI
     if (signInContainer) signInContainer.style.display = 'none';
     if (signedContainer) signedContainer.style.display = 'flex';
 
     emailSpan.textContent = profile.email || profile.name || 'Signed in';
     avatarImg.src = profile.picture || '/assets/icon.png';
 
+    // Update tasks visibility
     updateTasksVisibility(profile.email);
   }
 
+  // Set UI for signed-out state
   function setSignedOutUI() {
     const signInContainer = document.getElementById('googleSignIn');
     const signedContainer = document.getElementById('googleSignedIn');
@@ -86,63 +107,83 @@
     if (signInContainer) signInContainer.style.display = 'block';
     if (signedContainer) signedContainer.style.display = 'none';
 
+    // Hide tasks link if needed
     updateTasksVisibility(null);
   }
 
+  // Handle the credential response when user signs in
   function handleCredentialResponse(response) {
     try {
       const data = jwt_decode(response.credential);
+      const email = data.email;
+      // Save credential to localStorage for persistence
       localStorage.setItem(G_CRED_KEY, response.credential);
-      setSignedInUI(data);
+      // Update UI
+      setSignedInUI(data, response.credential);
     } catch (err) {
       console.error('Error decoding credential:', err);
       alert('Sign-in failed (invalid token).');
     }
   }
 
+  // Sign out user: remove local storage, optionally revoke and disable auto select
   function signOut() {
     const raw = localStorage.getItem(G_CRED_KEY);
     if (raw) {
       try {
         const decoded = jwt_decode(raw);
         const email = decoded.email;
+        // Ask Google to revoke the credential (best-effort)
         if (google && google.accounts && google.accounts.id && email) {
           try {
-            google.accounts.id.revoke(email, () => {});
-          } catch (e) { console.warn('revoke call failed', e); }
+            google.accounts.id.revoke(email, (done) => {
+              console.log('revoke callback:', done);
+            });
+          } catch (e) {
+            console.warn('revoke call failed', e);
+          }
         }
-      } catch (e) { /* ignore */ }
+      } catch (e) {
+        // ignore decode errors
+      }
     }
+
+    // Clear stored credential and update UI
     localStorage.removeItem(G_CRED_KEY);
     if (google && google.accounts && google.accounts.id) {
-      try { google.accounts.id.disableAutoSelect(); } catch(e){}
+      // Prevent automatic selection on next page load
+      try { google.accounts.id.disableAutoSelect(); } catch(e){/* ignore */ }
     }
     setSignedOutUI();
   }
 
+  // Initialize Google Sign-In, render button if not already signed in
   window.onload = function() {
-    // Initialize Google Identity
+    // Initialize the client (always do this so revoke/disableAutoSelect are available)
     google.accounts.id.initialize({
       client_id: "635936985251-tj5uq36b5altf4qmk7019r3u504mm1fs.apps.googleusercontent.com",
       callback: handleCredentialResponse,
       auto_select: false
     });
 
-    // Sign-out button
+    // Wire up sign out button (exists in DOM)
     document.addEventListener('click', (e) => {
-      if (e.target && e.target.id === 'googleSignOut') signOut();
+      if (e.target && e.target.id === 'googleSignOut') {
+        signOut();
+      }
     });
 
-    // Restore session if credential in localStorage
+    // If credential saved in localStorage, restore UI
     const saved = localStorage.getItem(G_CRED_KEY);
     if (saved) {
       try {
         const data = jwt_decode(saved);
-        setSignedInUI(data);
-        try { google.accounts.id.disableAutoSelect(); } catch(e){}
+        setSignedInUI(data, saved);
+        try { google.accounts.id.disableAutoSelect(); } catch(e){/* ignore */ }
       } catch (err) {
         console.warn('Stored credential invalid, clearing', err);
         localStorage.removeItem(G_CRED_KEY);
+        // render sign-in button below
         google.accounts.id.renderButton(
           document.getElementById("googleSignIn"),
           { theme: "outline", size: "medium", text: "signin_with" }
@@ -154,7 +195,8 @@
         document.getElementById("googleSignIn"),
         { theme: "outline", size: "medium", text: "signin_with" }
       );
-      // google.accounts.id.prompt(); // optional One Tap
+      // optional: prompt can be used to show One Tap - leaving commented out if undesired
+      // google.accounts.id.prompt();
     }
   };
   </script>
@@ -184,7 +226,25 @@
       color: var(--white);
     }
     a { text-decoration: none; color: inherit; }
+
+    /* Global image reset (content images) */
     img { display: block; max-width: 100%; height: auto; }
+
+    /* IMPORTANT: Do not let the global img rule distort the Google Sign-In button */
+    #googleSignIn img, #googleSignIn svg {
+      display: inline-block !important;
+      max-width: none !important;
+      width: auto !important;
+      height: auto !important;
+      vertical-align: middle !important;
+    }
+    /* Keep the Google sign-in container compact */
+    #googleSignIn { display: inline-block; }
+
+    @media (max-width: 768px) {
+      /* Avoid stretching the Google sign-in button on mobile */
+      .nav-login #googleSignIn { width: auto; }
+    }
 
     /* ====== Header ====== */
     header {
@@ -202,9 +262,8 @@
     }
     header img {
       position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100%; height: 100%;
       object-fit: cover;
       filter: brightness(0.55);
       z-index: -1;
@@ -230,6 +289,58 @@
       100% { opacity: 1; transform: translateY(0); }
     }
 
+    /* ====== Google Login in Nav ===== */
+    .nav-login { justify-self: end; display: flex; align-items: center; gap: .5rem; }
+    .nav-login .google-btn {
+      display: flex;
+      align-items: center;
+      background: var(--medium-blue);
+      color: var(--white);
+      border: 2px solid var(--accent);
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    }
+    .nav-login .google-btn:hover {
+      background: var(--light-blue);
+      color: var(--dark-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    }
+    .nav-login .google-btn img {
+      height: 18px;
+      margin-right: 6px;
+    }
+
+    /* small inline signed-in UI */
+    #googleSignedIn {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #googleSignedIn img { height: 28px; width: 28px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.08); }
+    #googleEmail { font-weight: 600; font-size: 0.95rem; color: var(--white); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ====== Responsive adjustments ===== */
+    @media (max-width: 768px) {
+      /* Adjust layout order so sign-in appears left of hamburger */
+      .nav-login {
+        order: 1;
+        margin: 0.5rem 0.5rem 0.5rem auto;
+      }
+
+      .nav-toggle { order: 2; }
+
+      .nav-login .google-btn {
+        width: 90%;
+        justify-content: center;
+      }
+    }
+
     /* ====== Navigation ===== */
     .site-nav {
       background: var(--medium-blue);
@@ -239,6 +350,7 @@
       top: 0;
       z-index: 1000;
       border-bottom: 3px solid var(--light-blue);
+      box-shadow: none;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     .nav-inner {
@@ -249,6 +361,7 @@
       padding: 0.6rem 1rem;
       width: 100%;
     }
+    .nav-logo { justify-self: start; }
     .nav-logo img { height: 50px; width: auto; }
     .nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
 
@@ -298,9 +411,9 @@
       content: "";
     }
     .nav-toggle .hamburger::before { top: -7px; }
-    .nav-toggle .hamburger::after  { top: 7px; }
+    .nav-toggle .hamburger::after { top: 7px; }
 
-    /* Mobile-only dropdown */
+    /* Hide mobile dropdown on desktop */
     .nav-links-mobile {
       display: none;
       flex-direction: column;
@@ -317,32 +430,10 @@
       text-align: center;
       border-bottom: 1px solid rgba(255,255,255,0.1);
     }
+
     @media (max-width: 768px) {
-      .nav-login { order: 1; margin: 0.5rem 0.5rem 0.5rem auto; }
-      .nav-toggle { order: 2; display: flex; }
-      .nav-login .google-btn { width: 90%; justify-content: center; }
-
-      .nav-links-mobile { display: none; }
-      .nav-links-mobile.show { display: flex; }
-
-      .nav-links {
-        position: absolute;
-        top: 100%;
-        left: 0; right: 0;
-        flex-direction: column;
-        display: none;
-        background: var(--medium-blue);
-        border-top: 3px solid var(--light-blue);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-        z-index: 1001;
-      }
-      .nav-links.show { display: flex; }
-      .nav-links a {
-        width: 100%;
-        text-align: center;
-        padding: 0.8rem 0;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-      }
+      .nav-links-mobile { display: none; /* hidden by default */ }
+      .nav-links-mobile.show { display: flex; /* show when toggled */ }
     }
 
     /* ====== Sections ====== */
@@ -367,6 +458,7 @@
       gap: 2rem;
       justify-items: center;
     }
+
     .card {
       background: linear-gradient(135deg, #0a1f44, #1f4d7a, #4fa3d1);
       padding: 1.5rem;
@@ -379,7 +471,9 @@
       color: var(--white);
       position: relative;
     }
+
     .card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.35); }
+
     .card-icon {
       position: absolute;
       top: 10px;
@@ -389,7 +483,9 @@
       height: 28px;
       transition: color 0.3s, transform 0.3s;
     }
+
     .card-icon:hover { color: var(--accent); transform: scale(1.15); }
+
     .card-icon svg { width: 100%; height: 100%; }
 
     #team-photo img {
@@ -412,10 +508,8 @@
       margin: 0 auto;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
     }
-    footer p {
-      margin: 0.25rem 0;
-      font-weight: 400;
-    }
+
+    footer p { margin: 0.25rem 0; font-weight: 400; }
 
     /* ====== Timeline ====== */
     .timeline {
@@ -425,6 +519,7 @@
       padding: 0 1rem;
       z-index: 1;
     }
+
     .timeline::before {
       content: "";
       position: absolute;
@@ -451,18 +546,22 @@
       z-index: 2;
       outline: none;
     }
+
     .timeline-item:nth-child(odd) {
       left: 0;
       transform-origin: right center;
     }
+
     .timeline-item:nth-child(even) {
       left: 50%;
       transform-origin: left center;
     }
+
     .timeline-item:hover {
       transform: scale(1.03);
       box-shadow: 0 6px 20px rgba(0,0,0,0.35);
     }
+
     .timeline-item::before {
       content: "";
       position: absolute;
@@ -475,7 +574,9 @@
       box-shadow: 0 0 12px var(--accent);
       z-index: 2;
     }
+
     .timeline-item:nth-child(odd)::before { right: -11px; }
+
     .timeline-item:nth-child(even)::before { left: -11px; }
 
     .timeline-date {
@@ -484,19 +585,20 @@
       font-size: 1.05rem;
       margin-bottom: 0.4rem;
     }
+
     .timeline-text {
       color: var(--white);
       font-size: 1.05rem;
       opacity: 0.95;
     }
 
-    /* Hover bubble (desktop) + Tap bubble (mobile) */
-    /* Fix invalid z-index declaration from before and ensure the active item stacks above siblings */
+    /* Hover bubble for more info (and tap on mobile) */
     .timeline-item:hover,
     .timeline-item.open,
     .timeline-item:focus-within {
       z-index: 10000;
     }
+
     .timeline-item:hover::after,
     .timeline-item.open::after,
     .timeline-item:focus-within::after {
@@ -514,7 +616,7 @@
       width: 220px;
       text-align: center;
       animation: fadeIn 0.3s ease forwards;
-      z-index: 9999 !important; /* fixed placement of !important */
+      z-index: 9999 !important; /* fixed invalid !important placement */
       white-space: normal;
     }
 
@@ -525,16 +627,20 @@
 
     /* ====== Mobile Timeline ====== */
     @media (max-width: 768px) {
-      .timeline::before { left: 15px; }
+      .timeline::before {
+        left: 15px;
+      }
 
       .timeline-item {
         width: 100%;
         left: 0 !important;
         margin-left: 2rem;
       }
-      .timeline-item::before { left: -28px; }
 
-      /* Center tooltip and widen for small screens; also apply to .open/.focus-within */
+      .timeline-item::before {
+        left: -28px;
+      }
+
       .timeline-item:hover::after,
       .timeline-item.open::after,
       .timeline-item:focus-within::after {
@@ -546,6 +652,7 @@
         z-index: 9999 !important;
       }
     }
+
   </style>
 </head>
 <body>
@@ -570,7 +677,7 @@
         <a href="#updates">Updates</a>
         <a href="#contact">Contact</a>
         <a href="sponsors.html">Sponsors</a>
-        <!-- Tasks link toggled by auth -->
+        <!-- Tasks link will appear here dynamically -->
         <a href="tasks.html" id="tasksLink" style="display:none;">Tasks</a>
       </div>
 
@@ -585,10 +692,10 @@
       </div>
 
       <div class="nav-login">
-        <!-- Google renders the sign-in button here -->
+        <!-- Container where Google renders Sign-in button -->
         <div id="googleSignIn"></div>
 
-        <!-- Signed-in UI -->
+        <!-- Signed-in UI (hidden by default; shown when signed in) -->
         <div id="googleSignedIn" aria-live="polite">
           <img id="googleAvatar" src="" alt="Avatar">
           <span id="googleEmail">Not signed in</span>
@@ -710,7 +817,6 @@
     </p>
   </footer>
 
-  <!-- Site scripts -->
   <script src="assets/js/main.js"></script>
   <script>
     // ====== Dynamic Content from /data/site.json ======
@@ -746,6 +852,7 @@
     }
 
     function iconForTeam(teamName) {
+      // minimal: provide inline SVGs per team key
       const map = {
         'Design Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16V8a1 1 0 0 0-.55-.89l-8-4a1 1 0 0 0-.9 0l-8 4A1 1 0 0 0 3 8v8a1 1 0 0 0 .55.89l8 4a1 1 0 0 0 .9 0l8-4A1 1 0 0 0 21 16zM12 5.18 18.47 8.4 12 11.62 5.53 8.4 12 5.18zM5 10.82l6 3v4.99l-6-3V10.82zm8 7.99v-4.99l6-3v4.99l-6 3z"/></svg>`,
         'Mechanical Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Zm8.94-2.56a7.97 7.97 0 0 0 0-1.88l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.23l-2.39.96a7.93 7.93 0 0 0-1.63-.94l-.36-2.55A.5.5 0 0 0 15.7 2h-3.4a.5.5 0 0 0-.5.42l-.36 2.55c-.58.22-1.13.52-1.64.9l-2.39-.96a.5.5 0 0 0-.6.23L3.3 8.06a.5.5 0 0 0 .12.64l2.03 1.58a8.2 8.2 0 0 0 0 1.88L3.42 13.7a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.43.34.7.23l2.39-.96c.51.38 1.06.68 1.64.9l.36 2.55a.5.5 0 0 0 .5.42h3.4a.5.5 0 0 0 .5-.42l.36-2.55c.57-.22 1.12-.52 1.63-.9l2.39.96c.27.11.56.01.7-.23l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58Z"/></svg>`,
@@ -769,6 +876,7 @@
         ? JSON.parse(JSON.stringify(site.leadership.teams))
         : fallbackTeamData;
 
+      // Merge leads into teams so developer.html -> leads shows up here
       if (site && site.leadership) {
         const temp = { leadership: { teams, leads: site.leadership.leads || [] } };
         mergeLeadsIntoTeams(temp);
@@ -797,18 +905,14 @@
     function renderTimeline(site) {
       const tl = document.querySelector('#updates .timeline');
       if (!tl) return;
-
-      const items = (site && Array.isArray(site.timeline) && site.timeline.length)
-        ? site.timeline
-        : [
-            { date: '2025', title: 'Welcome to Trident Robotics!', description: 'Timeline data not found (using fallback).' },
-            { date: '2024', title: 'Season Highlights', description: 'Add your real timeline items in data/site.json.' }
-          ];
-
+      const items = (site && Array.isArray(site.timeline) && site.timeline.length) ? site.timeline : null;
+      if (!items) {
+        return;
+      }
       tl.innerHTML = items.map(ev => {
         const date = escapeHtml(ev.date || ev.year || '');
         const title = escapeHtml(ev.title || '');
-        const desc = String(ev.description || '').replace(/"/g, '&quot;');
+        const desc = (ev.description || '').replace(/"/g, '&quot;');
         return `<div class="timeline-item" tabindex="0" role="button" aria-expanded="false" data-info="${desc}">
                   <p class="timeline-date">${date}</p>
                   <p class="timeline-text">${title}</p>
@@ -818,20 +922,22 @@
       enhanceTimelineInteractivity();
     }
 
-    // Make tooltip work on mobile (tap to open) and ensure stacking
+    // Mobile-friendly timeline interactivity
     function enhanceTimelineInteractivity() {
       const tl = document.querySelector('#updates .timeline');
       if (!tl) return;
 
+      // Make items focusable (for :focus-within and keyboard users)
       tl.querySelectorAll('.timeline-item').forEach(item => {
         if (!item.hasAttribute('tabindex')) item.setAttribute('tabindex', '0');
       });
 
-      // Toggle open on click/tap; close others
+      // Toggle open on click/tap; ensure only one is open
       document.addEventListener('click', (e) => {
         const item = e.target.closest('.timeline-item');
         const timelineRoot = e.target.closest('.timeline');
 
+        // Click outside any timeline item: close all
         if (!timelineRoot) {
           document.querySelectorAll('.timeline-item.open').forEach(i => {
             i.classList.remove('open');
@@ -840,20 +946,21 @@
           return;
         }
 
+        // Inside timeline: toggle the clicked one, close others
         if (item) {
-          const already = item.classList.contains('open');
+          const alreadyOpen = item.classList.contains('open');
           timelineRoot.querySelectorAll('.timeline-item.open').forEach(i => {
             i.classList.remove('open');
             i.setAttribute('aria-expanded', 'false');
           });
-          if (!already) {
+          if (!alreadyOpen) {
             item.classList.add('open');
             item.setAttribute('aria-expanded', 'true');
           }
         }
       }, { passive: true });
 
-      // Keyboard support and Escape to close
+      // Close popups on Escape + keyboard toggle
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           document.querySelectorAll('.timeline-item.open').forEach(i => {
@@ -880,20 +987,21 @@
 
     (async function initDynamicContent(){
       const site = await getSiteData();
-      renderTeams(site);
-      renderTimeline(site);
-
-      // Render About if provided in site.json (allowed HTML)
-      if (site && site.about) {
-        const aboutSection = document.getElementById('about');
-        const heading = escapeHtml(site.about.heading || 'About Us');
-        const contentHtml = (site.about.content || '').trim();
-        if (contentHtml) {
-          aboutSection.innerHTML = `<h2>${heading}</h2>` + contentHtml;
-        } else {
-          const h2 = aboutSection.querySelector('h2');
-          if (h2) h2.textContent = heading;
+      if (site) {
+        // About content (allowed HTML from site.json)
+        if (site.about) {
+          const aboutSection = document.getElementById('about');
+          const heading = escapeHtml(site.about.heading || 'About Us');
+          const contentHtml = (site.about.content || '').trim();
+          if (contentHtml) {
+            aboutSection.innerHTML = `<h2>${heading}</h2>` + contentHtml;
+          } else {
+            aboutSection.querySelector('h2').textContent = site.about.heading || 'About Us';
+          }
         }
+
+        renderTeams(site);
+        renderTimeline(site);
       }
     })();
   </script>

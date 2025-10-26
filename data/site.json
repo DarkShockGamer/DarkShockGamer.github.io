@@ -37,19 +37,14 @@
     }
   ],
   "leadership": {
-    "leads": [
-      "Alice Smith",
-      "Bob Johnson",
-      "Charlie Brown",
-      "Dana White",
-      "Evan Lee",
-      "Fiona Green",
-      "George Hall",
-      "Hannah King"
+    "teams": [
+      { "team": "Design Team", "role": "Lead", "members": [] },
+      { "team": "Mechanical Team", "role": "Lead", "members": [] },
+      { "team": "Electrical Team", "role": "Lead", "members": [] },
+      { "team": "Programming Team", "role": "Lead", "members": [] },
+      { "team": "Drive Team", "role": "Driver", "members": [] }
     ],
-    "drivers": [
-      "Ian Scott",
-      "Jane Adams"
-    ]
+    "leads": [],
+    "drivers": []
   }
 }

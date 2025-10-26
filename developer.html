@@ -1,209 +1,366 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Trident Robotics Admin Editor</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body { font-family: sans-serif; background: #f0f2f5; padding: 2rem; }
-h1 { color: #0a1f44; }
-section { background: #fff; padding: 1rem 2rem; margin-bottom: 2rem; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-textarea, input[type="text"] { width: 100%; margin: 0.5rem 0; padding: 0.5rem; border-radius: 5px; border: 1px solid #ccc; font-family: monospace; }
-button { padding: 0.5rem 1rem; margin: 0.5rem 0; background: #1f4d7a; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
-button:hover { background: #4fa3d1; }
-h3 { margin-top: 1rem; color: #1f4d7a; }
-hr { border: none; border-top: 1px solid #eee; margin: 0.5rem 0; }
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Developer - Edit Site Content</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; padding: 24px; max-width: 1100px; margin: auto; }
+    label { display:block; margin-top:12px; font-weight:600; }
+    input[type="text"], textarea, select { width:100%; padding:8px; box-sizing:border-box; margin-top:6px; }
+    textarea { min-height:100px; font-family:inherit; }
+    .row { display:flex; gap:12px; }
+    .col { flex:1; }
+    .timeline-list { margin-top:12px; }
+    .timeline-entry { border:1px solid #ddd; padding:12px; margin-bottom:8px; border-radius:6px; background:#f9f9f9; }
+    button { padding:8px 12px; margin-top:8px; }
+    .danger { background:#ffecec; border:1px solid #f5c2c2; }
+    .flex-row { display:flex; gap:8px; align-items:center; }
+    .small { font-size:0.9rem; color:#555; }
+    .pill { display:inline-block; background:#efefef; padding:6px 10px; border-radius:16px; margin:4px 4px 0 0; }
+    .controls { margin-top:16px; display:flex; gap:8px; flex-wrap:wrap; }
+    .help { font-size:0.9rem; color:#333; margin-top:8px; }
+    .muted { color:#666; font-size:0.9rem; }
+  </style>
 </head>
 <body>
+  <h1>Developer Page — Edit site content</h1>
+  <p class="muted">Edit the site content below. You can download the updated data/site.json or push it directly to GitHub (requires a Personal Access Token with repo access).</p>
 
-<h1>Trident Robotics Content Editor</h1>
+  <section>
+    <label for="site-title">Site Title</label>
+    <input id="site-title" type="text" placeholder="Site title">
+    <label for="about-heading">About Heading</label>
+    <input id="about-heading" type="text" placeholder="About heading">
+    <label for="about-content">About Content (HTML allowed)</label>
+    <textarea id="about-content" placeholder="<p>About text...</p>"></textarea>
+  </section>
 
-<section id="about-editor">
-  <h2>About Us Section</h2>
-  <div id="about-list"></div>
-  <button onclick="addAboutParagraph()">Add Paragraph</button>
-</section>
+  <section>
+    <h2 style="margin-top:20px">Timeline</h2>
+    <div class="help">Add, remove or edit timeline events. Description can include simple HTML. Events are ordered in JSON order.</div>
+    <div id="timeline-list" class="timeline-list"></div>
+    <button id="add-timeline">+ Add Timeline Event</button>
+  </section>
 
-<section id="team-editor">
-  <h2>Team Leads</h2>
-  <div id="team-list"></div>
-  <button onclick="addTeam()">Add Team</button>
-</section>
+  <section>
+    <h2 style="margin-top:20px">Leadership</h2>
+    <div class="row">
+      <div class="col">
+        <label>Leads</label>
+        <div id="leads-list"></div>
+        <div class="flex-row">
+          <input id="new-lead" type="text" placeholder="Add lead name">
+          <button id="add-lead">Add</button>
+        </div>
+      </div>
+      <div class="col">
+        <label>Drivers</label>
+        <div id="drivers-list"></div>
+        <div class="flex-row">
+          <input id="new-driver" type="text" placeholder="Add driver name">
+          <button id="add-driver">Add</button>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<section id="timeline-editor">
-  <h2>Timeline Events</h2>
-  <div id="timeline-list"></div>
-  <button onclick="addTimelineEvent()">Add Event</button>
-</section>
+  <section>
+    <h2 style="margin-top:20px">Save / Publish</h2>
+    <div class="controls">
+      <button id="download-json">Download data/site.json</button>
+      <button id="preview-json">Preview JSON</button>
+    </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { 
-  getFirestore, collection, doc, setDoc, addDoc, onSnapshot, deleteDoc 
-} from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+    <div style="margin-top:14px;">
+      <h3>Push to GitHub (optional)</h3>
+      <div class="help">To push directly to your repository, provide a Personal Access Token (repo contents write). The token is only used in your browser and not sent elsewhere. Enter repo details and click "Push to GitHub".</div>
 
-// ===== Firebase config =====
-const firebaseConfig = {
-  apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHFWZI",
-  authDomain: "tridenttaskboard.firebaseapp.com",
-  projectId: "tridenttaskboard",
-  storageBucket: "tridenttaskboard.firebasestorage.app",
-  messagingSenderId: "143400263387",
-  appId: "1:143400263387:web:66ed521ae75af588e836fe",
-  measurementId: "G-F12DDQCX87"
-};
+      <label for="gh-owner">Owner</label>
+      <input id="gh-owner" type="text" placeholder="owner (e.g. DarkShockGamer or org)" value="DarkShockGamer">
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+      <label for="gh-repo">Repository</label>
+      <input id="gh-repo" type="text" placeholder="repo (e.g. DarkShockGamer.github.io)" value="DarkShockGamer.github.io">
 
-// ===== Firestore collections =====
-const aboutCol = collection(db, "about");
-const teamCol = collection(db, "team");
-const timelineCol = collection(db, "timeline");
+      <label for="gh-branch">Branch</label>
+      <input id="gh-branch" type="text" placeholder="branch (e.g. main)" value="main">
 
-// ===== Local state =====
-let aboutContent = [];
-let teamData = [];
-let timelineEvents = [];
+      <label for="gh-path">File path to update</label>
+      <input id="gh-path" type="text" placeholder="path (e.g. data/site.json)" value="data/site.json">
 
-// ===== Render Functions =====
-function renderAbout() {
-  const container = document.getElementById('about-list');
-  container.innerHTML = '';
-  aboutContent.forEach((p) => {
-    const wrapper = document.createElement('div');
+      <label for="gh-token">Personal Access Token (PAT)</label>
+      <input id="gh-token" type="password" placeholder="ghp_xxx (only used locally)">
 
-    const textarea = document.createElement('textarea');
-    textarea.value = p.text || "";
-    textarea.addEventListener('input', async (e) => {
-      aboutContent.find(x => x.id === p.id).text = e.target.value;
-      await setDoc(doc(db, "about", p.id), { text: e.target.value });
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button id="push-github">Push to GitHub</button>
+        <button id="dry-run" title="Do a dry-run check (fetch file SHA)">Dry run (get SHA)</button>
+      </div>
+      <div id="gh-result" class="muted" style="margin-top:8px; white-space:pre-wrap;"></div>
+    </div>
+  </section>
+
+  <hr style="margin:24px 0;">
+
+  <div>
+    <strong>Notes</strong>
+    <ul class="muted">
+      <li>data/site.json is the single source-of-truth for index.html rendering.</li>
+      <li>About content accepts HTML. Keep it simple (paragraphs, links).</li>
+      <li>Timeline events are rendered in the order they appear in the array.</li>
+      <li>If you don't want to use a token, click "Download data/site.json" and commit it manually.</li>
+    </ul>
+  </div>
+
+  <script>
+    // Utility
+    function uid() { return 'id_' + Math.random().toString(36).slice(2,9); }
+
+    // Default path
+    const DATA_PATH = '/data/site.json';
+
+    // State
+    let siteData = null;
+
+    // Load existing data/site.json
+    async function load() {
+      try {
+        const res = await fetch(DATA_PATH + '?_=' + Date.now());
+        if (!res.ok) {
+          // If missing, initialize with defaults
+          siteData = {
+            title: document.getElementById('site-title').value || 'New Site',
+            about: { heading: 'About', content: '<p>Edit me</p>' },
+            timeline: [],
+            leadership: { leads: [], drivers: [] }
+          };
+        } else {
+          siteData = await res.json();
+        }
+      } catch (err) {
+        console.error(err);
+        siteData = {
+          title: document.getElementById('site-title').value || 'New Site',
+          about: { heading: 'About', content: '<p>Edit me</p>' },
+          timeline: [],
+          leadership: { leads: [], drivers: [] }
+        };
+      }
+      renderEditor();
+    }
+
+    // Render editor fields from siteData
+    function renderEditor() {
+      document.getElementById('site-title').value = siteData.title || '';
+      document.getElementById('about-heading').value = (siteData.about && siteData.about.heading) || '';
+      document.getElementById('about-content').value = (siteData.about && siteData.about.content) || '';
+
+      // timeline
+      const tl = document.getElementById('timeline-list');
+      tl.innerHTML = '';
+      (siteData.timeline || []).forEach((ev, idx) => {
+        const entry = document.createElement('div');
+        entry.className = 'timeline-entry';
+        entry.dataset.index = idx;
+        entry.innerHTML = `
+          <div class="row">
+            <div class="col"><label>Year</label><input type="text" class="tl-year" value="${escapeHtmlAttr(ev.year||'')}"></div>
+            <div class="col"><label>Title</label><input type="text" class="tl-title" value="${escapeHtmlAttr(ev.title||'')}"></div>
+          </div>
+          <label>Description (HTML allowed)</label>
+          <textarea class="tl-desc">${(ev.description||'')}</textarea>
+          <div style="margin-top:8px;">
+            <button class="tl-up">Move up</button>
+            <button class="tl-down">Move down</button>
+            <button class="tl-delete danger">Delete</button>
+          </div>
+        `;
+        tl.appendChild(entry);
+
+        // Wire buttons
+        entry.querySelector('.tl-delete').addEventListener('click', () => {
+          siteData.timeline.splice(idx,1);
+          renderEditor();
+        });
+        entry.querySelector('.tl-up').addEventListener('click', () => {
+          if (idx <= 0) return;
+          const a = siteData.timeline[idx-1];
+          siteData.timeline[idx-1] = siteData.timeline[idx];
+          siteData.timeline[idx] = a;
+          renderEditor();
+        });
+        entry.querySelector('.tl-down').addEventListener('click', () => {
+          if (idx >= siteData.timeline.length-1) return;
+          const a = siteData.timeline[idx+1];
+          siteData.timeline[idx+1] = siteData.timeline[idx];
+          siteData.timeline[idx] = a;
+          renderEditor();
+        });
+
+        // Update on change
+        const yearInput = entry.querySelector('.tl-year');
+        const titleInput = entry.querySelector('.tl-title');
+        const descInput = entry.querySelector('.tl-desc');
+        yearInput.addEventListener('input', () => siteData.timeline[idx].year = yearInput.value);
+        titleInput.addEventListener('input', () => siteData.timeline[idx].title = titleInput.value);
+        descInput.addEventListener('input', () => siteData.timeline[idx].description = descInput.value);
+      });
+
+      // leadership
+      renderListUI('leads-list', siteData.leadership && siteData.leadership.leads || [], (i) => {
+        siteData.leadership.leads.splice(i,1);
+        renderEditor();
+      });
+      renderListUI('drivers-list', siteData.leadership && siteData.leadership.drivers || [], (i) => {
+        siteData.leadership.drivers.splice(i,1);
+        renderEditor();
+      });
+    }
+
+    function renderListUI(containerId, arr, onRemove) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      (arr || []).forEach((name, i) => {
+        const span = document.createElement('span');
+        span.className = 'pill';
+        span.textContent = name + ' ';
+        const btn = document.createElement('button');
+        btn.textContent = '×';
+        btn.style.marginLeft = '8px';
+        btn.addEventListener('click', () => onRemove(i));
+        span.appendChild(btn);
+        container.appendChild(span);
+      });
+    }
+
+    // Add timeline event
+    document.getElementById('add-timeline').addEventListener('click', () => {
+      siteData.timeline.push({ id: uid(), year: new Date().getFullYear().toString(), title: 'New event', description: '<p>Description</p>' });
+      renderEditor();
+      // scroll to bottom
+      document.getElementById('timeline-list').lastElementChild.scrollIntoView({behavior:'smooth'});
     });
 
-    const delBtn = document.createElement('button');
-    delBtn.textContent = "Delete Paragraph";
-    delBtn.addEventListener('click', async () => {
-      await deleteDoc(doc(db, "about", p.id));
+    // Add lead
+    document.getElementById('add-lead').addEventListener('click', () => {
+      const val = document.getElementById('new-lead').value.trim();
+      if (!val) return;
+      siteData.leadership.leads.push(val);
+      document.getElementById('new-lead').value = '';
+      renderEditor();
     });
 
-    wrapper.appendChild(textarea);
-    wrapper.appendChild(delBtn);
-    container.appendChild(wrapper);
-  });
-}
-
-function renderTeam() {
-  const container = document.getElementById('team-list');
-  container.innerHTML = '';
-
-  teamData.forEach((t) => {
-    const div = document.createElement('div');
-
-    // Show the ID or "title" of the team above the textarea
-    const title = document.createElement('h3');
-    title.textContent = t.id; // e.g., design, drive, electrical
-    div.appendChild(title);
-
-    const textarea = document.createElement('textarea');
-    textarea.value = t.text || "";
-    textarea.placeholder = "Full team info string";
-    textarea.addEventListener('input', async (e) => {
-      const updatedText = e.target.value;
-      await setDoc(doc(db, "team", t.id), { text: updatedText });
+    // Add driver
+    document.getElementById('add-driver').addEventListener('click', () => {
+      const val = document.getElementById('new-driver').value.trim();
+      if (!val) return;
+      siteData.leadership.drivers.push(val);
+      document.getElementById('new-driver').value = '';
+      renderEditor();
     });
 
-    const delBtn = document.createElement('button');
-    delBtn.textContent = "Delete Team";
-    delBtn.addEventListener('click', async () => {
-      await deleteDoc(doc(db, "team", t.id));
+    // Keep title and about fields synced into siteData
+    document.getElementById('site-title').addEventListener('input', (e) => siteData.title = e.target.value);
+    document.getElementById('about-heading').addEventListener('input', (e) => siteData.about.heading = e.target.value);
+    document.getElementById('about-content').addEventListener('input', (e) => siteData.about.content = e.target.value);
+
+    // Download JSON
+    document.getElementById('download-json').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(siteData, null, 2)], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'site.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
     });
 
-    div.appendChild(textarea);
-    div.appendChild(delBtn);
-    container.appendChild(div);
-  });
-}
-
-function renderTimeline() {
-  const container = document.getElementById('timeline-list');
-  container.innerHTML = '';
-
-  timelineEvents.forEach((e) => {
-    const div = document.createElement('div');
-
-    const dateInput = document.createElement('input');
-    dateInput.type = 'text';
-    dateInput.value = e.date;
-    dateInput.placeholder = 'Date';
-    dateInput.addEventListener('input', async (ev) => {
-      e.date = ev.target.value;
-      await setDoc(doc(db, "timeline", e.id), e);
+    // Preview JSON
+    document.getElementById('preview-json').addEventListener('click', () => {
+      alert(JSON.stringify(siteData, null, 2));
     });
 
-    const textInput = document.createElement('input');
-    textInput.type = 'text';
-    textInput.value = e.text;
-    textInput.placeholder = 'Title';
-    textInput.addEventListener('input', async (ev) => {
-      e.text = ev.target.value;
-      await setDoc(doc(db, "timeline", e.id), e);
+    // GitHub push helpers
+    async function getFileSha(owner, repo, path, branch, token) {
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
+      const res = await fetch(url, { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json' }});
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error('Failed to get file info: ' + await res.text());
+      const j = await res.json();
+      return j.sha;
+    }
+
+    async function pushFileToGitHub(owner, repo, path, branch, token, contentStr, message) {
+      const base64 = btoa(unescape(encodeURIComponent(contentStr)));
+      const sha = await getFileSha(owner, repo, path, branch, token);
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
+      const body = {
+        message: message || 'Update site content via developer.html',
+        content: base64,
+        branch: branch
+      };
+      if (sha) body.sha = sha;
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          Authorization: 'token ' + token,
+          Accept: 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+      const j = await res.json();
+      if (!res.ok) throw new Error(JSON.stringify(j, null, 2));
+      return j;
+    }
+
+    document.getElementById('dry-run').addEventListener('click', async () => {
+      const owner = document.getElementById('gh-owner').value.trim();
+      const repo = document.getElementById('gh-repo').value.trim();
+      const branch = document.getElementById('gh-branch').value.trim() || 'main';
+      const path = document.getElementById('gh-path').value.trim() || 'data/site.json';
+      const token = document.getElementById('gh-token').value.trim();
+      if (!owner || !repo || !token) { document.getElementById('gh-result').textContent = 'owner/repo/token required for dry run'; return; }
+      try {
+        document.getElementById('gh-result').textContent = 'Fetching file info...';
+        const sha = await getFileSha(owner, repo, path, branch, token);
+        document.getElementById('gh-result').textContent = sha ? 'File exists, sha: ' + sha : 'File does not exist (will be created)';
+      } catch (err) {
+        document.getElementById('gh-result').textContent = 'Error: ' + err.message;
+      }
     });
 
-    const infoArea = document.createElement('textarea');
-    infoArea.value = e.info || "";
-    infoArea.placeholder = 'Info';
-    infoArea.addEventListener('input', async (ev) => {
-      e.info = ev.target.value;
-      await setDoc(doc(db, "timeline", e.id), e);
+    document.getElementById('push-github').addEventListener('click', async () => {
+      const owner = document.getElementById('gh-owner').value.trim();
+      const repo = document.getElementById('gh-repo').value.trim();
+      const branch = document.getElementById('gh-branch').value.trim() || 'main';
+      const path = document.getElementById('gh-path').value.trim() || 'data/site.json';
+      const token = document.getElementById('gh-token').value.trim();
+      if (!owner || !repo || !token) { document.getElementById('gh-result').textContent = 'owner/repo/token required'; return; }
+      try {
+        document.getElementById('gh-result').textContent = 'Pushing...';
+        // Ensure latest form edits are captured
+        siteData.title = document.getElementById('site-title').value;
+        siteData.about.heading = document.getElementById('about-heading').value;
+        siteData.about.content = document.getElementById('about-content').value;
+
+        const contentStr = JSON.stringify(siteData, null, 2);
+        const res = await pushFileToGitHub(owner, repo, path, branch, token, contentStr, 'Update site data via developer.html');
+        document.getElementById('gh-result').textContent = 'Success. Commit: ' + (res.commit && res.commit.sha ? res.commit.sha : JSON.stringify(res));
+      } catch (err) {
+        document.getElementById('gh-result').textContent = 'Error: ' + err.message;
+      }
     });
 
-    const delBtn = document.createElement('button');
-    delBtn.textContent = "Delete Event";
-    delBtn.addEventListener('click', async () => {
-      await deleteDoc(doc(db, "timeline", e.id));
-    });
+    // simple escape for attributes
+    function escapeHtmlAttr(s) {
+      if (s === undefined || s === null) return '';
+      return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
 
-    div.appendChild(dateInput);
-    div.appendChild(textInput);
-    div.appendChild(infoArea);
-    div.appendChild(delBtn);
-    div.appendChild(document.createElement('hr'));
-    container.appendChild(div);
-  });
-}
-
-// ===== Add New =====
-async function addAboutParagraph() { await addDoc(aboutCol, { text: "" }); }
-async function addTeam(teamName = "New Team", text = "name: New Team Lead: [Name] Lead: [Name]") {
-  await addDoc(teamCol, { text });
-}
-async function addTimelineEvent() { await addDoc(timelineCol, { date: "", text: "", info: "" }); }
-
-// ===== Real-time listeners =====
-onSnapshot(aboutCol, snapshot => {
-  aboutContent = [];
-  snapshot.forEach(docSnap => aboutContent.push({ id: docSnap.id, ...docSnap.data() }));
-  renderAbout();
-});
-
-onSnapshot(teamCol, snapshot => {
-  teamData = [];
-  snapshot.forEach(docSnap => teamData.push({ id: docSnap.id, ...docSnap.data() }));
-  renderTeam();
-});
-
-onSnapshot(timelineCol, snapshot => {
-  timelineEvents = [];
-  snapshot.forEach(docSnap => timelineEvents.push({ id: docSnap.id, ...docSnap.data() }));
-  renderTimeline();
-});
-
-// ===== Attach top-level button listeners =====
-document.querySelector('#about-editor button').addEventListener('click', addAboutParagraph);
-document.querySelector('#team-editor button').addEventListener('click', addTeam);
-document.querySelector('#timeline-editor button').addEventListener('click', addTimelineEvent);
-
-</script>
+    // Initialize
+    load();
+  </script>
 </body>
 </html>

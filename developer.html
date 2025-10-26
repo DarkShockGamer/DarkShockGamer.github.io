@@ -281,7 +281,8 @@
             <button id="btn-upload-sponsor-logo" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload Logo</button>
             <input id="file-sponsor-logo" type="file" accept="image/*" class="hidden">
           </div>
-          <img id="preview-sponsor-logo" alt="Logo preview" class="mt-2 max-h-24 rounded-md border border-slate-200 dark:border-slate-700">
+          <!-- Hide preview until a valid src is set -->
+          <img id="preview-sponsor-logo" alt="Logo preview" class="mt-2 max-h-24 rounded-md border border-slate-200 dark:border-slate-700 hidden">
         </div>
 
         <div class="flex items-end">
@@ -765,6 +766,21 @@
       return `/${res.content.path}`; // site-relative URL
     }
 
+    // Generic helper to safely show/hide preview <img> when URL is valid/invalid
+    function setPreview(imgEl, url) {
+      if (!imgEl) return;
+      if (url) {
+        imgEl.classList.remove('hidden');
+        // set handlers before src so they apply to this load
+        imgEl.onload = () => { imgEl.classList.remove('hidden'); };
+        imgEl.onerror = () => { imgEl.classList.add('hidden'); };
+        imgEl.src = url;
+      } else {
+        imgEl.classList.add('hidden');
+        imgEl.removeAttribute('src');
+      }
+    }
+
     function bindImageField(fieldId, fileInputId, buttonId, previewId, getter, setter) {
       const field = document.getElementById(fieldId);
       const fileInput = document.getElementById(fileInputId);
@@ -915,6 +931,9 @@
       const logoPreview = document.getElementById('preview-sponsor-logo');
       const addBtn = document.getElementById('add-sponsor');
 
+      // Initialize preview hidden until a valid URL is present
+      setPreview(logoPreview, (logoUrlField?.value || '').trim());
+
       if (logoBtn && logoInput && logoUrlField && logoPreview) {
         logoBtn.addEventListener('click', () => logoInput.click());
         logoInput.addEventListener('change', async (e) => {
@@ -924,7 +943,7 @@
             document.getElementById('media-result').textContent = 'Uploading logo...';
             const url = await uploadOneImage(f);
             logoUrlField.value = url;
-            logoPreview.src = url;
+            setPreview(logoPreview, url); // show only when valid
             setDirty('Sponsor logo uploaded ✓ (reference pending in site.json)');
             document.getElementById('media-result').textContent = `Uploaded logo: ${url}\nLogo file is committed. Add sponsor and push to save changes.`;
           } catch (err) {
@@ -934,7 +953,7 @@
           }
         });
         logoUrlField.addEventListener('input', () => {
-          logoPreview.src = logoUrlField.value.trim() || '';
+          setPreview(logoPreview, logoUrlField.value.trim());
         });
       }
 
@@ -952,7 +971,7 @@
           document.getElementById('new-sponsor-name').value = '';
           document.getElementById('new-sponsor-logo').value = '';
           document.getElementById('new-sponsor-link').value = '';
-          const prev = document.getElementById('preview-sponsor-logo'); if (prev) prev.src = '';
+          setPreview(logoPreview, ''); // hide preview again
           setDirty('Sponsors list updated');
           renderSponsorsList();
         });
@@ -967,24 +986,28 @@
         const card = document.createElement('div');
         card.className = 'rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm';
 
+        const safeName = (s.name||'').replace(/"/g,'&quot;');
+        const safeLogo = (s.logo||'').replace(/"/g,'&quot;');
+        const safeUrl = (s.url||'').replace(/"/g,'&quot;');
+
         card.innerHTML = `
           <div class="p-3 flex items-start gap-3">
-            <img src="${(s.logo||'').replace(/"/g,'&quot;')}" alt="${(s.name||'').replace(/"/g,'&quot;')}" class="h-16 w-24 object-contain rounded border border-slate-200 dark:border-slate-700 bg-white">
+            <img src="${safeLogo}" alt="${safeName}" class="h-16 w-24 object-contain rounded border border-slate-200 dark:border-slate-700 bg-white" onerror="this.style.visibility='hidden'">
             <div class="flex-1 grid grid-cols-1 gap-2">
               <div>
                 <label class="block text-xs text-slate-500">Name</label>
                 <input data-k="name" class="w-full rounded-md border border-slate-300 px-2 py-1.5 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
-                       value="${(s.name||'').replace(/"/g,'&quot;')}">
+                       value="${safeName}">
               </div>
               <div>
                 <label class="block text-xs text-slate-500">Link (optional)</label>
                 <input data-k="url" class="w-full rounded-md border border-slate-300 px-2 py-1.5 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
-                       value="${(s.url||'').replace(/"/g,'&quot;')}" placeholder="https://example.com">
+                       value="${safeUrl}" placeholder="https://example.com">
               </div>
               <div>
                 <label class="block text-xs text-slate-500">Logo URL</label>
                 <input data-k="logo" class="w-full rounded-md border border-slate-300 px-2 py-1.5 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
-                       value="${(s.logo||'').replace(/"/g,'&quot;')}">
+                       value="${safeLogo}">
               </div>
             </div>
           </div>
@@ -1003,7 +1026,11 @@
             siteData.sponsors[idx][key] = val;
             if (key === 'logo') {
               const img = card.querySelector('img');
-              if (img) img.src = val;
+              if (img) {
+                img.style.visibility = 'visible';
+                img.onerror = () => { img.style.visibility = 'hidden'; };
+                img.src = val;
+              }
             }
             setDirty('Sponsors list updated');
           });

@@ -975,27 +975,46 @@
   const aboutSection = document.getElementById('about');
   aboutSection.innerHTML = `<h2>About Us</h2>` + aboutContent.map(p => `<p>${p}</p>`).join('');
 
-  // ====== Dynamic Team Leads ======
-  const teamData = [
-    { team: "Design Team", role: "Lead", members: ["Alice Smith", "Bob Johnson"] },
-    { team: "Mechanical Team", role: "Lead", members: ["Charlie Brown", "Dana White"] },
-    { team: "Electrical Team", role: "Lead", members: ["Evan Lee", "Fiona Green"] },
-    { team: "Programming Team", role: "Lead", members: ["George Hall", "Hannah King"] },
-    { team: "Drive Team", role: "Driver", members: ["Ian Scott", "Jane Adams"] }
-  ];
+  // Render team grid from site JSON (falls back to embedded data if fetch fails)
+  (async function renderTeamGrid(){
+    const fallbackTeamData = [
+      { team: "Design Team", role: "Lead", members: ["Alice Smith", "Bob Johnson"] },
+      { team: "Mechanical Team", role: "Lead", members: ["Charlie Brown", "Dana White"] },
+      { team: "Electrical Team", role: "Lead", members: ["Evan Lee", "Fiona Green"] },
+      { team: "Programming Team", role: "Lead", members: ["George Hall", "Hannah King"] },
+      { team: "Drive Team", role: "Driver", members: ["Ian Scott", "Jane Adams"] }
+    ];
 
-  const teamGrid = document.querySelector('.team-grid');
-  teamGrid.innerHTML = teamData.map(t => {
-    return `
-      <div class="card">
-        <div class="card-icon">
-          <!-- Add icons here if needed or keep as SVG placeholders -->
+    async function getSiteData() {
+      try {
+        const r = await fetch('/data/site.json?_=' + Date.now());
+        if (!r.ok) throw new Error('Fetch failed: ' + r.status);
+        return await r.json();
+      } catch (e) {
+        console.warn('Could not load /data/site.json, using fallback:', e);
+        return null;
+      }
+    }
+
+    const site = await getSiteData();
+    // prefer site.leadership.teams if available otherwise fallback to inline team data
+    const teams = (site && site.leadership && Array.isArray(site.leadership.teams) && site.leadership.teams.length)
+      ? site.leadership.teams
+      : fallbackTeamData;
+
+    const teamGrid = document.querySelector('.team-grid');
+    teamGrid.innerHTML = teams.map(t => {
+      // ensure t.members exists and is an array
+      const mems = Array.isArray(t.members) ? t.members : [];
+      return `
+        <div class="card">
+          <div class="card-icon"></div>
+          <h3>${t.team}</h3>
+          ${mems.map(m => `<p><strong>${t.role}:</strong> ${m}</p>`).join('')}
         </div>
-        <h3>${t.team}</h3>
-        ${t.members.map(m => `<p><strong>${t.role}:</strong> ${m}</p>`).join('')}
-      </div>
-    `;
-  }).join('');
+      `;
+    }).join('');
+  })();
 
   // ====== Dynamic Timeline ======
   const timelineEvents = [

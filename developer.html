@@ -5,333 +5,162 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Developer - Edit Site Content</title>
   <style>
-    body { font-family: system-ui, Arial, sans-serif; padding: 24px; max-width: 1100px; margin: auto; }
+    body { font-family: system-ui, Arial, sans-serif; padding: 24px; max-width: 1100px; margin: auto; color: #111; background:#fafafa; }
     label { display:block; margin-top:12px; font-weight:600; }
-    input[type="text"], textarea, select { width:100%; padding:8px; box-sizing:border-box; margin-top:6px; }
-    textarea { min-height:100px; font-family:inherit; }
-    .row { display:flex; gap:12px; }
-    .col { flex:1; }
-    .timeline-list { margin-top:12px; }
-    .timeline-entry { border:1px solid #ddd; padding:12px; margin-bottom:8px; border-radius:6px; background:#f9f9f9; }
+    input[type="text"], textarea { width:100%; padding:8px; box-sizing:border-box; margin-top:6px; }
+    textarea { min-height:120px; font-family:inherit; }
+    .timeline-entry { border:1px solid #ddd; padding:12px; margin-bottom:8px; border-radius:6px; background:#fff; }
     button { padding:8px 12px; margin-top:8px; }
-    .danger { background:#ffecec; border:1px solid #f5c2c2; }
-    .flex-row { display:flex; gap:8px; align-items:center; }
-    .small { font-size:0.9rem; color:#555; }
     .pill { display:inline-block; background:#efefef; padding:6px 10px; border-radius:16px; margin:4px 4px 0 0; }
     .controls { margin-top:16px; display:flex; gap:8px; flex-wrap:wrap; }
-    .help { font-size:0.9rem; color:#333; margin-top:8px; }
     .muted { color:#666; font-size:0.9rem; }
   </style>
 </head>
 <body>
-  <h1>Developer Page — Edit site content</h1>
-  <p class="muted">Edit the site content below. You can download the updated data/site.json or push it directly to GitHub (requires a Personal Access Token with repo access).</p>
+  <h1>Developer Editor</h1>
+  <p class="muted">Edit site content and download or push the data file. Pushing directly requires a GitHub Personal Access Token with repo write permissions.</p>
 
-  <section>
-    <label for="site-title">Site Title</label>
-    <input id="site-title" type="text" placeholder="Site title">
-    <label for="about-heading">About Heading</label>
-    <input id="about-heading" type="text" placeholder="About heading">
-    <label for="about-content">About Content (HTML allowed)</label>
-    <textarea id="about-content" placeholder="<p>About text...</p>"></textarea>
-  </section>
+  <label for="site-title">Site Title</label>
+  <input id="site-title" type="text" placeholder="Site title">
 
-  <section>
-    <h2 style="margin-top:20px">Timeline</h2>
-    <div class="help">Add, remove or edit timeline events. Description can include simple HTML. Events are ordered in JSON order.</div>
-    <div id="timeline-list" class="timeline-list"></div>
-    <button id="add-timeline">+ Add Timeline Event</button>
-  </section>
+  <label for="about-heading">About Heading</label>
+  <input id="about-heading" type="text" placeholder="About heading">
 
-  <section>
-    <h2 style="margin-top:20px">Leadership</h2>
-    <div class="row">
-      <div class="col">
-        <label>Leads</label>
-        <div id="leads-list"></div>
-        <div class="flex-row">
-          <input id="new-lead" type="text" placeholder="Add lead name">
-          <button id="add-lead">Add</button>
-        </div>
-      </div>
-      <div class="col">
-        <label>Drivers</label>
-        <div id="drivers-list"></div>
-        <div class="flex-row">
-          <input id="new-driver" type="text" placeholder="Add driver name">
-          <button id="add-driver">Add</button>
-        </div>
-      </div>
-    </div>
-  </section>
+  <label for="about-content">About Content (HTML allowed)</label>
+  <textarea id="about-content" placeholder="<p>About text...</p>"></textarea>
 
-  <section>
-    <h2 style="margin-top:20px">Save / Publish</h2>
-    <div class="controls">
-      <button id="download-json">Download data/site.json</button>
-      <button id="preview-json">Preview JSON</button>
-    </div>
+  <h2 style="margin-top:18px">Timeline</h2>
+  <div id="timeline-list"></div>
+  <button id="add-timeline">+ Add Timeline Event</button>
 
-    <div style="margin-top:14px;">
-      <h3>Push to GitHub (optional)</h3>
-      <div class="help">To push directly to your repository, provide a Personal Access Token (repo contents write). The token is only used in your browser and not sent elsewhere. Enter repo details and click "Push to GitHub".</div>
-
-      <label for="gh-owner">Owner</label>
-      <input id="gh-owner" type="text" placeholder="owner (e.g. DarkShockGamer or org)" value="DarkShockGamer">
-
-      <label for="gh-repo">Repository</label>
-      <input id="gh-repo" type="text" placeholder="repo (e.g. DarkShockGamer.github.io)" value="DarkShockGamer.github.io">
-
-      <label for="gh-branch">Branch</label>
-      <input id="gh-branch" type="text" placeholder="branch (e.g. main)" value="main">
-
-      <label for="gh-path">File path to update</label>
-      <input id="gh-path" type="text" placeholder="path (e.g. data/site.json)" value="data/site.json">
-
-      <label for="gh-token">Personal Access Token (PAT)</label>
-      <input id="gh-token" type="password" placeholder="ghp_xxx (only used locally)">
-
-      <div style="display:flex; gap:8px; margin-top:8px;">
-        <button id="push-github">Push to GitHub</button>
-        <button id="dry-run" title="Do a dry-run check (fetch file SHA)">Dry run (get SHA)</button>
-      </div>
-      <div id="gh-result" class="muted" style="margin-top:8px; white-space:pre-wrap;"></div>
-    </div>
-  </section>
-
-  <hr style="margin:24px 0;">
-
+  <h2 style="margin-top:18px">Leadership</h2>
   <div>
-    <strong>Notes</strong>
-    <ul class="muted">
-      <li>data/site.json is the single source-of-truth for index.html rendering.</li>
-      <li>About content accepts HTML. Keep it simple (paragraphs, links).</li>
-      <li>Timeline events are rendered in the order they appear in the array.</li>
-      <li>If you don't want to use a token, click "Download data/site.json" and commit it manually.</li>
-    </ul>
+    <label>Leads</label>
+    <div id="leads-list"></div>
+    <div style="display:flex; gap:8px; margin-top:6px;">
+      <input id="new-lead" type="text" placeholder="Add lead name">
+      <button id="add-lead">Add</button>
+    </div>
+  </div>
+  <div style="margin-top:12px;">
+    <label>Drivers</label>
+    <div id="drivers-list"></div>
+    <div style="display:flex; gap:8px; margin-top:6px;">
+      <input id="new-driver" type="text" placeholder="Add driver name">
+      <button id="add-driver">Add</button>
+    </div>
   </div>
 
+  <div class="controls">
+    <button id="download-json">Download data/site.json</button>
+    <button id="preview-json">Preview JSON</button>
+  </div>
+
+  <h3 style="margin-top:20px">(Optional) Push to GitHub</h3>
+  <div class="muted">Provide owner/repo/branch/path and a PAT with repo permissions to push directly. Token is only used in your browser; you can also download and commit via the GitHub web UI.</div>
+
+  <label for="gh-owner">Owner</label>
+  <input id="gh-owner" type="text" placeholder="owner" value="DarkShockGamer">
+  <label for="gh-repo">Repo</label>
+  <input id="gh-repo" type="text" placeholder="repo" value="DarkShockGamer.github.io">
+  <label for="gh-branch">Branch</label>
+  <input id="gh-branch" type="text" placeholder="branch" value="main">
+  <label for="gh-path">File path</label>
+  <input id="gh-path" type="text" placeholder="path" value="data/site.json">
+  <label for="gh-token">Personal Access Token (PAT)</label>
+  <input id="gh-token" type="password" placeholder="ghp_xxx">
+
+  <div style="display:flex; gap:8px; margin-top:8px;">
+    <button id="dry-run">Dry run (get SHA)</button>
+    <button id="push-github">Push to GitHub</button>
+  </div>
+  <div id="gh-result" class="muted" style="margin-top:10px; white-space:pre-wrap;"></div>
+
   <script>
-    // Utility
-    function uid() { return 'id_' + Math.random().toString(36).slice(2,9); }
+    // Minimal editor logic
+    function uid(){ return 'id_'+Math.random().toString(36).slice(2,9); }
+    let siteData = { title: document.getElementById('site-title').value || 'Trident Robotics 4296', about:{heading:'About Us', content:'<p>Edit...</p>'}, timeline:[], leadership:{leads:[], drivers:[]} };
 
-    // Default path
-    const DATA_PATH = '/data/site.json';
-
-    // State
-    let siteData = null;
-
-    // Load existing data/site.json
-    async function load() {
+    async function loadExisting() {
       try {
-        const res = await fetch(DATA_PATH + '?_=' + Date.now());
-        if (!res.ok) {
-          // If missing, initialize with defaults
-          siteData = {
-            title: document.getElementById('site-title').value || 'New Site',
-            about: { heading: 'About', content: '<p>Edit me</p>' },
-            timeline: [],
-            leadership: { leads: [], drivers: [] }
-          };
-        } else {
-          siteData = await res.json();
-        }
-      } catch (err) {
-        console.error(err);
-        siteData = {
-          title: document.getElementById('site-title').value || 'New Site',
-          about: { heading: 'About', content: '<p>Edit me</p>' },
-          timeline: [],
-          leadership: { leads: [], drivers: [] }
-        };
-      }
+        const r = await fetch('/data/site.json?_=' + Date.now());
+        if (r.ok) siteData = await r.json();
+      } catch (e) { /* ignore */ }
       renderEditor();
     }
-
-    // Render editor fields from siteData
-    function renderEditor() {
+    function renderEditor(){
       document.getElementById('site-title').value = siteData.title || '';
       document.getElementById('about-heading').value = (siteData.about && siteData.about.heading) || '';
       document.getElementById('about-content').value = (siteData.about && siteData.about.content) || '';
-
-      // timeline
-      const tl = document.getElementById('timeline-list');
-      tl.innerHTML = '';
+      const tl = document.getElementById('timeline-list'); tl.innerHTML = '';
       (siteData.timeline || []).forEach((ev, idx) => {
-        const entry = document.createElement('div');
-        entry.className = 'timeline-entry';
-        entry.dataset.index = idx;
-        entry.innerHTML = `
-          <div class="row">
-            <div class="col"><label>Year</label><input type="text" class="tl-year" value="${escapeHtmlAttr(ev.year||'')}"></div>
-            <div class="col"><label>Title</label><input type="text" class="tl-title" value="${escapeHtmlAttr(ev.title||'')}"></div>
-          </div>
-          <label>Description (HTML allowed)</label>
-          <textarea class="tl-desc">${(ev.description||'')}</textarea>
-          <div style="margin-top:8px;">
-            <button class="tl-up">Move up</button>
-            <button class="tl-down">Move down</button>
-            <button class="tl-delete danger">Delete</button>
-          </div>
-        `;
-        tl.appendChild(entry);
+        const div = document.createElement('div'); div.className='timeline-entry';
+        div.innerHTML = `<label>When</label><input class="ev-date" value="${ev.date||ev.year||''}"><label>Title</label><input class="ev-title" value="${ev.title||''}"><label>Description (HTML)</label><textarea class="ev-desc">${ev.description||''}</textarea><div style="margin-top:6px;"><button class="up">Up</button><button class="down">Down</button><button class="del">Delete</button></div>`;
+        tl.appendChild(div);
+        div.querySelector('.del').addEventListener('click',()=>{ siteData.timeline.splice(idx,1); renderEditor(); });
+        div.querySelector('.up').addEventListener('click',()=>{ if(idx>0){ const a=siteData.timeline[idx-1]; siteData.timeline[idx-1]=siteData.timeline[idx]; siteData.timeline[idx]=a; renderEditor(); }});
+        div.querySelector('.down').addEventListener('click',()=>{ if(idx<siteData.timeline.length-1){ const a=siteData.timeline[idx+1]; siteData.timeline[idx+1]=siteData.timeline[idx]; siteData.timeline[idx]=a; renderEditor(); }});
+        div.querySelector('.ev-date').addEventListener('input',(e)=> siteData.timeline[idx].date = e.target.value);
+        div.querySelector('.ev-title').addEventListener('input',(e)=> siteData.timeline[idx].title = e.target.value);
+        div.querySelector('.ev-desc').addEventListener('input',(e)=> siteData.timeline[idx].description = e.target.value);
+      });
 
-        // Wire buttons
-        entry.querySelector('.tl-delete').addEventListener('click', () => {
-          siteData.timeline.splice(idx,1);
-          renderEditor();
+      // leadership lists
+      const renderList = (id, arr) => {
+        const c = document.getElementById(id); c.innerHTML = '';
+        (arr || []).forEach((n,i)=> {
+          const span = document.createElement('span'); span.className='pill'; span.textContent=n;
+          const btn = document.createElement('button'); btn.textContent='×'; btn.addEventListener('click',()=>{ arr.splice(i,1); renderEditor(); });
+          span.appendChild(btn); c.appendChild(span);
         });
-        entry.querySelector('.tl-up').addEventListener('click', () => {
-          if (idx <= 0) return;
-          const a = siteData.timeline[idx-1];
-          siteData.timeline[idx-1] = siteData.timeline[idx];
-          siteData.timeline[idx] = a;
-          renderEditor();
-        });
-        entry.querySelector('.tl-down').addEventListener('click', () => {
-          if (idx >= siteData.timeline.length-1) return;
-          const a = siteData.timeline[idx+1];
-          siteData.timeline[idx+1] = siteData.timeline[idx];
-          siteData.timeline[idx] = a;
-          renderEditor();
-        });
-
-        // Update on change
-        const yearInput = entry.querySelector('.tl-year');
-        const titleInput = entry.querySelector('.tl-title');
-        const descInput = entry.querySelector('.tl-desc');
-        yearInput.addEventListener('input', () => siteData.timeline[idx].year = yearInput.value);
-        titleInput.addEventListener('input', () => siteData.timeline[idx].title = titleInput.value);
-        descInput.addEventListener('input', () => siteData.timeline[idx].description = descInput.value);
-      });
-
-      // leadership
-      renderListUI('leads-list', siteData.leadership && siteData.leadership.leads || [], (i) => {
-        siteData.leadership.leads.splice(i,1);
-        renderEditor();
-      });
-      renderListUI('drivers-list', siteData.leadership && siteData.leadership.drivers || [], (i) => {
-        siteData.leadership.drivers.splice(i,1);
-        renderEditor();
-      });
-    }
-
-    function renderListUI(containerId, arr, onRemove) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
-      (arr || []).forEach((name, i) => {
-        const span = document.createElement('span');
-        span.className = 'pill';
-        span.textContent = name + ' ';
-        const btn = document.createElement('button');
-        btn.textContent = '×';
-        btn.style.marginLeft = '8px';
-        btn.addEventListener('click', () => onRemove(i));
-        span.appendChild(btn);
-        container.appendChild(span);
-      });
-    }
-
-    // Add timeline event
-    document.getElementById('add-timeline').addEventListener('click', () => {
-      siteData.timeline.push({ id: uid(), year: new Date().getFullYear().toString(), title: 'New event', description: '<p>Description</p>' });
-      renderEditor();
-      // scroll to bottom
-      document.getElementById('timeline-list').lastElementChild.scrollIntoView({behavior:'smooth'});
-    });
-
-    // Add lead
-    document.getElementById('add-lead').addEventListener('click', () => {
-      const val = document.getElementById('new-lead').value.trim();
-      if (!val) return;
-      siteData.leadership.leads.push(val);
-      document.getElementById('new-lead').value = '';
-      renderEditor();
-    });
-
-    // Add driver
-    document.getElementById('add-driver').addEventListener('click', () => {
-      const val = document.getElementById('new-driver').value.trim();
-      if (!val) return;
-      siteData.leadership.drivers.push(val);
-      document.getElementById('new-driver').value = '';
-      renderEditor();
-    });
-
-    // Keep title and about fields synced into siteData
-    document.getElementById('site-title').addEventListener('input', (e) => siteData.title = e.target.value);
-    document.getElementById('about-heading').addEventListener('input', (e) => siteData.about.heading = e.target.value);
-    document.getElementById('about-content').addEventListener('input', (e) => siteData.about.content = e.target.value);
-
-    // Download JSON
-    document.getElementById('download-json').addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(siteData, null, 2)], {type: 'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'site.json';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    });
-
-    // Preview JSON
-    document.getElementById('preview-json').addEventListener('click', () => {
-      alert(JSON.stringify(siteData, null, 2));
-    });
-
-    // GitHub push helpers
-    async function getFileSha(owner, repo, path, branch, token) {
-      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
-      const res = await fetch(url, { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json' }});
-      if (res.status === 404) return null;
-      if (!res.ok) throw new Error('Failed to get file info: ' + await res.text());
-      const j = await res.json();
-      return j.sha;
-    }
-
-    async function pushFileToGitHub(owner, repo, path, branch, token, contentStr, message) {
-      const base64 = btoa(unescape(encodeURIComponent(contentStr)));
-      const sha = await getFileSha(owner, repo, path, branch, token);
-      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
-      const body = {
-        message: message || 'Update site content via developer.html',
-        content: base64,
-        branch: branch
       };
-      if (sha) body.sha = sha;
-      const res = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          Authorization: 'token ' + token,
-          Accept: 'application/vnd.github+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-      });
-      const j = await res.json();
-      if (!res.ok) throw new Error(JSON.stringify(j, null, 2));
-      return j;
+      renderList('leads-list', siteData.leadership.leads || []);
+      renderList('drivers-list', siteData.leadership.drivers || []);
     }
 
-    document.getElementById('dry-run').addEventListener('click', async () => {
+    document.getElementById('add-timeline').addEventListener('click', ()=>{ siteData.timeline.push({id:uid(), date:new Date().toLocaleDateString(), title:'New event', description:''}); renderEditor(); });
+    document.getElementById('add-lead').addEventListener('click', ()=>{ const v=document.getElementById('new-lead').value.trim(); if(v){ siteData.leadership.leads.push(v); document.getElementById('new-lead').value=''; renderEditor(); }});
+    document.getElementById('add-driver').addEventListener('click', ()=>{ const v=document.getElementById('new-driver').value.trim(); if(v){ siteData.leadership.drivers.push(v); document.getElementById('new-driver').value=''; renderEditor(); }});
+
+    document.getElementById('site-title').addEventListener('input',(e)=> siteData.title = e.target.value);
+    document.getElementById('about-heading').addEventListener('input',(e)=> siteData.about.heading = e.target.value);
+    document.getElementById('about-content').addEventListener('input',(e)=> siteData.about.content = e.target.value);
+
+    document.getElementById('download-json').addEventListener('click', ()=> {
+      const b = new Blob([JSON.stringify(siteData,null,2)], {type:'application/json'}); const u = URL.createObjectURL(b);
+      const a = document.createElement('a'); a.href = u; a.download = 'site.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(u);
+    });
+    document.getElementById('preview-json').addEventListener('click', ()=> alert(JSON.stringify(siteData,null,2)));
+
+    // GitHub push (optional)
+    async function getSha(owner, repo, path, branch, token){
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
+      const r = await fetch(url, { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json' }});
+      if (r.status === 404) return null;
+      if (!r.ok) throw new Error(await r.text());
+      const j = await r.json(); return j.sha;
+    }
+    async function pushFile(owner, repo, path, branch, token, content, message){
+      const base64 = btoa(unescape(encodeURIComponent(content)));
+      const sha = await getSha(owner, repo, path, branch, token);
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
+      const body = { message: message||'Update site content via developer.html', content: base64, branch };
+      if (sha) body.sha = sha;
+      const r = await fetch(url, { method:'PUT', headers:{ Authorization: 'token ' + token, Accept:'application/vnd.github+json', 'Content-Type':'application/json' }, body: JSON.stringify(body) });
+      return await r.json();
+    }
+
+    document.getElementById('dry-run').addEventListener('click', async ()=>{
       const owner = document.getElementById('gh-owner').value.trim();
       const repo = document.getElementById('gh-repo').value.trim();
       const branch = document.getElementById('gh-branch').value.trim() || 'main';
       const path = document.getElementById('gh-path').value.trim() || 'data/site.json';
       const token = document.getElementById('gh-token').value.trim();
-      if (!owner || !repo || !token) { document.getElementById('gh-result').textContent = 'owner/repo/token required for dry run'; return; }
-      try {
-        document.getElementById('gh-result').textContent = 'Fetching file info...';
-        const sha = await getFileSha(owner, repo, path, branch, token);
-        document.getElementById('gh-result').textContent = sha ? 'File exists, sha: ' + sha : 'File does not exist (will be created)';
-      } catch (err) {
-        document.getElementById('gh-result').textContent = 'Error: ' + err.message;
-      }
+      if (!owner || !repo || !token) { document.getElementById('gh-result').textContent = 'owner/repo/token required'; return; }
+      try { document.getElementById('gh-result').textContent = 'Checking...'; const sha = await getSha(owner, repo, path, branch, token); document.getElementById('gh-result').textContent = sha ? ('File exists, sha: '+sha) : 'File does not exist (will be created)'; } catch(e){ document.getElementById('gh-result').textContent = 'Error: '+e.message; }
     });
 
-    document.getElementById('push-github').addEventListener('click', async () => {
+    document.getElementById('push-github').addEventListener('click', async ()=>{
       const owner = document.getElementById('gh-owner').value.trim();
       const repo = document.getElementById('gh-repo').value.trim();
       const branch = document.getElementById('gh-branch').value.trim() || 'main';
@@ -339,28 +168,18 @@
       const token = document.getElementById('gh-token').value.trim();
       if (!owner || !repo || !token) { document.getElementById('gh-result').textContent = 'owner/repo/token required'; return; }
       try {
-        document.getElementById('gh-result').textContent = 'Pushing...';
-        // Ensure latest form edits are captured
+        // Ensure latest edits captured
         siteData.title = document.getElementById('site-title').value;
         siteData.about.heading = document.getElementById('about-heading').value;
         siteData.about.content = document.getElementById('about-content').value;
-
-        const contentStr = JSON.stringify(siteData, null, 2);
-        const res = await pushFileToGitHub(owner, repo, path, branch, token, contentStr, 'Update site data via developer.html');
-        document.getElementById('gh-result').textContent = 'Success. Commit: ' + (res.commit && res.commit.sha ? res.commit.sha : JSON.stringify(res));
-      } catch (err) {
-        document.getElementById('gh-result').textContent = 'Error: ' + err.message;
-      }
+        document.getElementById('gh-result').textContent = 'Pushing...';
+        const res = await pushFile(owner, repo, path, branch, token, JSON.stringify(siteData,null,2), 'Update site data via developer.html');
+        if (res && res.commit && res.commit.sha) document.getElementById('gh-result').textContent = 'Success. Commit: ' + res.commit.sha;
+        else document.getElementById('gh-result').textContent = 'Response: ' + JSON.stringify(res);
+      } catch (e) { document.getElementById('gh-result').textContent = 'Error: ' + e.message; }
     });
 
-    // simple escape for attributes
-    function escapeHtmlAttr(s) {
-      if (s === undefined || s === null) return '';
-      return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    }
-
-    // Initialize
-    load();
+    loadExisting();
   </script>
 </body>
 </html>

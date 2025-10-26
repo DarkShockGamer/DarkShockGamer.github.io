@@ -333,7 +333,7 @@
       z-index: -1;
     }
 
-    /* CRITICAL: Fill frame and center the artwork; trimming removes internal padding */
+    /* Fill frame and center the artwork */
     .sponsor-logo {
       width: 100%;
       height: 100%;
@@ -342,7 +342,7 @@
       object-fit: contain;
       object-position: center center;
       filter: grayscale(8%) drop-shadow(0 0 6px rgba(255,255,255,0.22));
-      transition: filter .25s ease, transform .25s ease;
+      transition: filter .25s ease;
       will-change: transform;
     }
 
@@ -350,7 +350,7 @@
       .sponsor-card:hover .sponsor-logo,
       .sponsor-card:focus-within .sponsor-logo {
         filter: grayscale(0%) drop-shadow(0 0 10px rgba(255,255,255,0.35));
-        transform: translateZ(0) scale(1.02);
+        /* removed scale to avoid clipping edges */
       }
     }
 
@@ -680,7 +680,7 @@
     };
   </script>
 
-  <!-- Load media and sponsors from site.json + auto-trim logos -->
+  <!-- Load media and sponsors from site.json + auto-trim logos with safe padding -->
   <script>
   (async function(){
     // Utility: trim transparent borders from an <img> and return dataURL
@@ -723,14 +723,28 @@
         return null;
       }
 
-      const cw = right - left + 1;
-      const ch = bottom - top + 1;
+      let cw = right - left + 1;
+      let ch = bottom - top + 1;
+
+      // Skip trimming if it barely changes size (<4% in both dimensions)
+      const shrinkX = (w - cw) / w;
+      const shrinkY = (h - ch) / h;
+      if (shrinkX < 0.04 && shrinkY < 0.04) {
+        return null;
+      }
+
+      // Add safe padding around the content to avoid cutting edges
+      const pad = Math.max(2, Math.min(12, Math.round(Math.max(w, h) * 0.015))); // ~1.5%, min 2px, max 12px
+      const nx = Math.max(0, left - pad);
+      const ny = Math.max(0, top - pad);
+      const nw = Math.min(w - nx, cw + pad * 2);
+      const nh = Math.min(h - ny, ch + pad * 2);
 
       // Create output canvas and copy trimmed region
       const outCanvas = document.createElement('canvas');
-      outCanvas.width = cw; outCanvas.height = ch;
+      outCanvas.width = nw; outCanvas.height = nh;
       const octx = outCanvas.getContext('2d');
-      octx.drawImage(srcCanvas, left, top, cw, ch, 0, 0, cw, ch);
+      octx.drawImage(srcCanvas, nx, ny, nw, nh, 0, 0, nw, nh);
       return outCanvas.toDataURL('image/png');
     }
 
@@ -753,7 +767,6 @@
 
       for (const img of logos) {
         if (img.dataset.skipTrim === 'true') continue;
-        // Avoid reprocessing
         if (img.dataset.trimmed === 'true') continue;
         try {
           const trimmed = trimTransparentBorders(img, 1);

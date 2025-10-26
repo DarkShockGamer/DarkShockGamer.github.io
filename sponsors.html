@@ -20,6 +20,11 @@
       --light-blue: #4fa3d1;
       --white: #f4f8fb;
       --accent: #ffd700;
+
+      /* Logo frame styling */
+      --logo-frame-bg: rgba(255,255,255,0.04);
+      --logo-frame-border: rgba(79,163,209,0.35);
+      --logo-frame-shadow: 0 6px 16px rgba(0,0,0,0.35);
     }
 
     @font-face {
@@ -249,89 +254,130 @@
     .sponsors-section { padding-top: 3rem; }
     .sponsor-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 2rem;
-      justify-items: center;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: clamp(1rem, 2vw, 2rem);
+      justify-items: stretch;
       align-items: stretch;
       overflow: visible;
     }
+
     .sponsor-card {
-      background: linear-gradient(135deg, #0a1f44, #1f4d7a, #4fa3d1);
-      padding: 1.25rem 1rem;
-      border-radius: 15px;
-      text-align: center;
-      width: 100%;
-      max-width: 320px;
+      background: linear-gradient(135deg, #0a1f44, #183f6c 40%, #2c74a0);
+      padding: 0.9rem 0.9rem 1rem;
+      border-radius: 16px;
       color: var(--white);
       display: flex;
       flex-direction: column;
-      align-items: center;
-
+      align-items: stretch;
+      justify-content: space-between;
       position: relative;
       will-change: transform, box-shadow;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color .25s ease;
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.06);
       overflow: visible;
+      height: 100%;
     }
 
-    /* Only apply hover lift on devices that actually hover (not mobile) */
+    /* Card interactive states (only on hover-capable devices) */
     @media (hover: hover) and (pointer: fine) {
       .sponsor-card:hover,
       .sponsor-card:focus-within {
         transform: translateY(-6px);
         box-shadow: 0 14px 28px rgba(0,0,0,0.35);
         z-index: 2;
+        border-color: rgba(79,163,209,0.55);
       }
     }
 
-    /* Desktop/tablet: let the logo box hug content to avoid large empty gaps */
-    .sponsor-media {
-      width: 100%;
+    /* Make entire card clickable when link is present */
+    .sponsor-card > a {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.5rem;
-      overflow: visible;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.03);
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: space-between;
+      height: 100%;
+      width: 100%;
+      border-radius: 14px;
+      outline: none;
+    }
+    .sponsor-card > a:focus-visible {
+      box-shadow: 0 0 0 3px rgba(79,163,209,0.6), 0 0 0 6px rgba(10,31,68,0.6);
     }
 
-    /* Make logos as large as possible without cropping; minimize empty space */
+    /* Uniform logo frame for consistent sizing */
+    .sponsor-media {
+      width: 100%;
+      aspect-ratio: 16 / 9;            /* consistent across all screens */
+      display: grid;
+      place-items: center;
+      padding: clamp(0.5rem, 1.2vw, 0.9rem);
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)) padding-box,
+        linear-gradient(135deg, rgba(79,163,209,0.6), rgba(79,163,209,0.15)) border-box;
+      border: 1.5px solid var(--logo-frame-border);
+      box-shadow: var(--logo-frame-shadow);
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    /* Subtle glossy highlight */
+    .sponsor-media::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(120% 60% at -10% -20%, rgba(255,255,255,0.18), transparent 60%),
+                  radial-gradient(120% 60% at 110% 120%, rgba(255,255,255,0.08), transparent 60%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Logo sizing: fill the frame without cropping, avoid tiny render */
     .sponsor-logo {
       width: auto;
       height: auto;
-      max-width: 95%;
-      max-height: 140px; /* desktop cap */
+      max-width: min(92%, 520px);
+      max-height: 76%;                 /* leave breathing room in the frame */
       object-fit: contain;
       object-position: center;
-      filter: grayscale(10%) drop-shadow(0 0 6px rgba(255,255,255,0.25));
-      transition: filter .25s ease;
+      filter: grayscale(8%) drop-shadow(0 0 6px rgba(255,255,255,0.22));
+      transition: filter .25s ease, transform .25s ease;
+      will-change: transform;
     }
 
     @media (hover: hover) and (pointer: fine) {
       .sponsor-card:hover .sponsor-logo,
       .sponsor-card:focus-within .sponsor-logo {
         filter: grayscale(0%) drop-shadow(0 0 10px rgba(255,255,255,0.35));
+        transform: translateZ(0) scale(1.02);
       }
     }
 
     .sponsor-name {
       font-weight: 700;
       letter-spacing: .3px;
-      margin-top: 0.6rem;
+      text-align: center;
+      margin-top: 0.7rem;
+      padding: 0 0.25rem;
+      font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+      color: #e7f5ff;
+      text-shadow: 0 1px 0 rgba(0,0,0,0.3);
     }
 
-    /* Mobile: keep consistent box height with aspect-ratio for neat rows */
+    /* Tighten grid and frame on small screens */
     @media (max-width: 768px) {
-      .sponsor-media {
-        aspect-ratio: 11 / 6;      /* ~220x120 look on mobile */
-        padding: 0.4rem;
+      .sponsor-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1rem;
       }
-      .sponsor-logo {
-        width: 100%;
-        height: 100%;
-        max-width: 100%;
-        max-height: 100%;
+      .sponsor-media {
+        aspect-ratio: 15 / 9;
+        padding: 0.5rem;
+      }
+      .sponsor-name {
+        margin-top: 0.55rem;
+        font-size: 0.95rem;
       }
     }
 
@@ -657,19 +703,35 @@
           { name: "WW Displays Inc", logo: "assets/WWDisplays.png", url: "" },
           { name: "Patel Family", logo: "assets/PatelFamily.png", url: "" }
         ];
+
         grid.innerHTML = sponsors.map(s => {
           const name = (s && s.name) ? s.name : '';
           const logo = (s && s.logo) ? s.logo : '';
           const url = (s && s.url) ? s.url : '';
+          const safeAlt = name ? `${name} logo` : 'Sponsor logo';
+
           const mediaBlock = `
-            <div class="sponsor-media">
-              <!-- No fixed width/height attributes so CSS controls sizing -->
-              <img class="sponsor-logo" src="${logo}" alt="${name}" loading="lazy" decoding="async">
+            <div class="sponsor-media" aria-hidden="true">
+              <img class="sponsor-logo" src="${logo}" alt="${safeAlt}" loading="lazy" decoding="async">
             </div>
           `;
           const nameBlock = `<div class="sponsor-name">${name}</div>`;
-          const inner = url ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${mediaBlock}${nameBlock}</a>` : `${mediaBlock}${nameBlock}`;
-          return `<article class="sponsor-card" tabindex="0">${inner}</article>`;
+
+          if (url) {
+            return `
+              <article class="sponsor-card">
+                <a href="${url}" target="_blank" rel="noopener noreferrer" title="${name}" aria-label="${name} (opens in new tab)">
+                  ${mediaBlock}${nameBlock}
+                </a>
+              </article>
+            `;
+          } else {
+            return `
+              <article class="sponsor-card" tabindex="0" aria-label="${name}">
+                ${mediaBlock}${nameBlock}
+              </article>
+            `;
+          }
         }).join('');
       }
 

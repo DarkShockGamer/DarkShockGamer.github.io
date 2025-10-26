@@ -12,51 +12,14 @@
     .droppable-hover { outline: 2px dashed rgba(2,132,199,0.35); outline-offset: 4px; background-color: rgba(2,132,199,0.06) !important; }
 
     /* Drawer styles */
-    .drawer {
-      position: fixed;
-      top: 0;
-      right: -100%;
-      width: 100%;
-      max-width: 480px;
-      height: 100vh;
-      background: white;
-      box-shadow: -4px 0 24px rgba(0,0,0,0.15);
-      transition: right 0.3s ease-in-out;
-      z-index: 1000;
-      overflow-y: auto;
-    }
+    .drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 480px; height: 100vh; background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.15); transition: right 0.3s ease-in-out; z-index: 1000; overflow-y: auto; }
     .drawer.open { right: 0; }
-    .drawer-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 999;
-      display: none;
-    }
+    .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
     .drawer-overlay.active { display: block; }
 
     /* Attachment styles */
-    .attachment-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      background: #f1f5f9;
-      color: #334155;
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.375rem;
-      font-size: 0.75rem;
-      border: 1px solid #cbd5e1;
-    }
-    .attachment-thumbnail {
-      max-height: 60px;
-      max-width: 100px;
-      object-fit: cover;
-      border-radius: 0.375rem;
-      border: 1px solid #e2e8f0;
-    }
+    .attachment-chip { display: inline-flex; align-items: center; gap: 0.25rem; background: #f1f5f9; color: #334155; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; border: 1px solid #cbd5e1; }
+    .attachment-thumbnail { max-height: 60px; max-width: 100px; object-fit: cover; border-radius: 0.375rem; border: 1px solid #e2e8f0; }
 
     /* Due date colors */
     .due-overdue { color: #dc2626 !important; } /* red-600 */
@@ -64,199 +27,48 @@
 
     /* Dropdown layout */
     .dropdown { position: relative; width: 12rem; }
-    .dropdown-btn {
-      width: 100%;
-      border: 1px solid #d1d5db;              /* slate-300 */
-      border-radius: 0.5rem;
-      padding: 0.5rem;
-      background: white;
-      cursor: pointer;
-      text-align: left;
-
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      flex-wrap: wrap;
-      min-height: 2.25rem;
-    }
-    .dropdown-btn:hover { border-color: #93c5fd; } /* sky-300 */
-    .dropdown-list {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      border: 1px solid #d1d5db;              /* slate-300 */
-      border-radius: 0.5rem;
-      background: white;
-      max-height: 220px;
-      overflow-y: auto;
-      display: none;
-      z-index: 1000;
-      box-shadow: 0 8px 24px rgba(2, 132, 199, 0.15);
-      margin-top: 0.25rem;
-    }
-    .dropdown-list label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0.625rem;
-      cursor: pointer;
-      width: 100%;
-      user-select: none;
-      line-height: 1.1;
-    }
+    .dropdown-btn { width: 100%; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.5rem; background: white; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; min-height: 2.25rem; }
+    .dropdown-btn:hover { border-color: #93c5fd; }
+    .dropdown-list { position: absolute; top: 100%; left: 0; right: 0; border: 1px solid #d1d5db; border-radius: 0.5rem; background: white; max-height: 220px; overflow-y: auto; display: none; z-index: 1000; box-shadow: 0 8px 24px rgba(2, 132, 199, 0.15); margin-top: 0.25rem; }
+    .dropdown-list label { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.625rem; cursor: pointer; width: 100%; user-select: none; line-height: 1.1; }
     .dropdown-list label:hover { background-color: #e0f2fe; }
     .dropdown-list input[type="checkbox"] { margin: 0; }
 
     /* Tag chips */
-    .tag-chip {
-      display: inline-block;
-      background: #e0f2fe;      /* sky-100 */
-      color: #0369a1;           /* sky-700 */
-      padding: 0.125rem 0.5rem;
-      border-radius: 9999px;
-      margin-right: 0.25rem;
-      margin-bottom: 0.25rem;
-      font-size: 0.75rem;       /* text-xs */
-      line-height: 1.25rem;
-      white-space: nowrap;
-      border: 1px solid #bae6fd; /* sky-200 */
-    }
-    .dropdown-btn .placeholder { color: #94a3b8; } /* slate-400 */
+    .tag-chip { display: inline-block; background: #e0f2fe; color: #0369a1; padding: 0.125rem 0.5rem; border-radius: 9999px; margin-right: 0.25rem; margin-bottom: 0.25rem; font-size: 0.75rem; line-height: 1.25rem; white-space: nowrap; border: 1px solid #bae6fd; }
+    .dropdown-btn .placeholder { color: #94a3b8; }
 
     /* Column styling */
-    .column-section {
-      background: white;
-      border: 1px solid #e2e8f0;              /* slate-200 */
-      border-radius: 1rem;
-      box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05);
-      padding: 1rem;
-    }
-    .column-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.75rem;
-      background: rgba(241,245,249,0.6);      /* slate-100/60 */
-      border: 1px solid #e2e8f0;              /* slate-200 */
-      border-radius: 0.75rem;
-      padding: 0.5rem 0.75rem;
-    }
-    .column-count {
-      color: #0369a1;
-      background: #e0f2fe;
-      border: 1px solid #bae6fd;
-      border-radius: 9999px;
-      padding: 0 0.5rem;
-      font-size: 0.75rem;
-      line-height: 1.25rem;
-    }
+    .column-section { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05); padding: 1rem; }
+    .column-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; background: rgba(241,245,249,0.6); border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.5rem 0.75rem; }
+    .column-count { color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 9999px; padding: 0 0.5rem; font-size: 0.75rem; line-height: 1.25rem; }
 
     /* Task card */
-    .task-card {
-      background: white;
-      border: 1px solid #e2e8f0;              /* slate-200 */
-      border-radius: 0.75rem;
-      padding: 0.75rem;
-      box-shadow: 0 1px 1px rgba(2, 6, 23, 0.04);
-      transition: box-shadow 150ms, border-color 150ms, transform 150ms;
-    }
-    .task-card:hover {
-      box-shadow: 0 6px 16px rgba(2,132,199,0.12);
-      border-color: #93c5fd;                  /* sky-300 */
-      transform: translateY(-1px);
-    }
+    .task-card { background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; box-shadow: 0 1px 1px rgba(2, 6, 23, 0.04); transition: box-shadow 150ms, border-color 150ms, transform 150ms; }
+    .task-card:hover { box-shadow: 0 6px 16px rgba(2,132,199,0.12); border-color: #93c5fd; transform: translateY(-1px); }
 
     /* Dark mode */
     @media (prefers-color-scheme: dark) {
       html, body { color-scheme: dark; }
-      body {
-        background: linear-gradient(to bottom, #0b1220, #0a0f1a);
-        color: #e5e7eb; /* slate-200 */
-      }
-
-      .dropdown-btn {
-        background: #0b1220 !important;       /* near slate-950 */
-        border-color: #334155 !important;     /* slate-600 */
-        color: #e5e7eb !important;
-      }
-      .dropdown-btn:hover { border-color: #0ea5e9 !important; } /* sky-500 */
-      .dropdown-list {
-        background: #0b1220 !important;
-        border-color: #334155 !important;
-        box-shadow: 0 8px 24px rgba(14, 165, 233, 0.12);
-      }
+      body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; }
+      .dropdown-btn { background: #0b1220 !important; border-color: #334155 !important; color: #e5e7eb !important; }
+      .dropdown-btn:hover { border-color: #0ea5e9 !important; }
+      .dropdown-list { background: #0b1220 !important; border-color: #334155 !important; box-shadow: 0 8px 24px rgba(14,165,233,0.12); }
       .dropdown-list label:hover { background-color: rgba(14,165,233,0.1) !important; }
       .dropdown-list input[type="checkbox"] { accent-color: #0ea5e9; }
-      .dropdown-btn .placeholder { color: #94a3b8 !important; } /* slate-400 */
-
-      .tag-chip {
-        background: #0c4a6e !important; /* sky-900-ish */
-        color: #e0f2fe !important;      /* sky-100 */
-        border-color: #075985 !important; /* sky-700 */
-      }
-
-      .column-section {
-        background: #0f172a !important; /* slate-900 */
-        border-color: #1f2937 !important; /* slate-800 */
-        box-shadow: 0 1px 2px rgba(2, 6, 23, 0.3);
-      }
-      .column-header {
-        background: rgba(15,23,42,0.6) !important; /* slate-900/60 */
-        border-color: #1f2937 !important;
-      }
-      .column-count {
-        color: #7dd3fc !important;       /* sky-300 */
-        background: #083344 !important;  /* sky-950 */
-        border-color: #075985 !important;/* sky-700 */
-      }
-
-      .task-card {
-        background: #0b1220 !important;
-        border-color: #1f2937 !important;
-        box-shadow: 0 1px 1px rgba(2, 6, 23, 0.6);
-      }
-      .task-card:hover {
-        border-color: #0ea5e9 !important; /* sky-500 */
-        box-shadow: 0 6px 16px rgba(14,165,233,0.18);
-      }
-
-      .droppable-hover {
-        outline-color: rgba(125, 211, 252, 0.35) !important; /* sky-300 */
-        background-color: rgba(14, 165, 233, 0.08) !important;
-      }
-
-      /* Inputs */
-      input[type="text"],
-      input[type="date"],
-      input[type="file"],
-      input:not([type]),
-      .comment-input,
-      textarea {
-        background: #0b1220 !important;
-        color: #e5e7eb !important;
-        border-color: #334155 !important; /* slate-600 */
-      }
+      .dropdown-btn .placeholder { color: #94a3b8 !important; }
+      .tag-chip { background: #0c4a6e !important; color: #e0f2fe !important; border-color: #075985 !important; }
+      .column-section { background: #0f172a !important; border-color: #1f2937 !important; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.3); }
+      .column-header { background: rgba(15,23,42,0.6) !important; border-color: #1f2937 !important; }
+      .column-count { color: #7dd3fc !important; background: #083344 !important; border-color: #075985 !important; }
+      .task-card { background: #0b1220 !important; border-color: #1f2937 !important; box-shadow: 0 1px 1px rgba(2, 6, 23, 0.6); }
+      .task-card:hover { border-color: #0ea5e9 !important; box-shadow: 0 6px 16px rgba(14,165,233,0.18); }
+      .droppable-hover { outline-color: rgba(125, 211, 252, 0.35) !important; background-color: rgba(14, 165, 233, 0.08) !important; }
+      input[type="text"], input[type="date"], input[type="file"], input:not([type]), .comment-input, textarea { background: #0b1220 !important; color: #e5e7eb !important; border-color: #334155 !important; }
       input::placeholder { color: #94a3b8 !important; }
-
-      /* Modal */
-      .modal-panel {
-        background: #0f172a !important;
-        border-color: #1f2937 !important;
-      }
-
-      /* Drawer dark mode */
-      .drawer {
-        background: #0f172a !important;
-        border-left: 1px solid #1f2937 !important;
-      }
-
-      /* Attachment chip dark mode */
-      .attachment-chip {
-        background: #1e293b !important;
-        color: #cbd5e1 !important;
-        border-color: #334155 !important;
-      }
+      .modal-panel { background: #0f172a !important; border-color: #1f2937 !important; }
+      .drawer { background: #0f172a !important; border-left: 1px solid #1f2937 !important; }
+      .attachment-chip { background: #1e293b !important; color: #cbd5e1 !important; border-color: #334155 !important; }
     }
   </style>
 </head>
@@ -265,34 +77,26 @@
 <header class="max-w-6xl mx-auto mb-6 px-2">
   <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
     <div class="flex flex-col gap-1 w-full md:w-auto">
-      <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">
-        Trident Robotics — Task Board
-      </h1>
+      <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">Trident Robotics — Task Board</h1>
       <p class="text-sm text-sky-600 dark:text-sky-400">A page made to track team tasks</p>
     </div>
 
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-      <input id="userNameInput" placeholder="Your name..."
-        class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
-      <input id="filterInput" placeholder="Search or filter by assignee..."
-        class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
-      <button id="menuBtn"
-        class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">
-        Menu
-      </button>
+      <input id="userNameInput" placeholder="Your name..." class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
+      <input id="filterInput" placeholder="Search or filter by assignee..." class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
+      <!-- GitHub upload controls -->
+      <input id="ghTokenInput" type="password" placeholder="GitHub token (repo contents write)" class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
+      <input id="ghBranchInput" placeholder="Branch (default: main)" class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-36 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
+      <button id="menuBtn" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Menu</button>
     </div>
   </div>
 
   <!-- Add Task section -->
   <div class="mt-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
     <div class="flex flex-col sm:flex-row gap-3 flex-wrap items-start sm:items-center">
-      <input id="newTitle" class="flex-1 rounded-md border border-slate-300 px-3 py-2 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
-        placeholder="Task title (e.g. prototype the intake)" />
-      <input id="newAssignee" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
-        placeholder="Assignee" />
+      <input id="newTitle" class="flex-1 rounded-md border border-slate-300 px-3 py-2 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Task title (e.g. prototype the intake)" />
+      <input id="newAssignee" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee" />
       <input id="newDue" type="date" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
-
-      <!-- Custom dropdown -->
       <div class="dropdown w-full sm:w-48" id="tagDropdown">
         <div class="dropdown-btn" id="dropdownBtn"><span class="placeholder">Select tags...</span></div>
         <div class="dropdown-list" id="dropdownList">
@@ -304,13 +108,8 @@
           <label><input type="checkbox" value="Misc" /> <span>Misc</span></label>
         </div>
       </div>
-
       <input id="newAttachments" type="file" multiple class="w-full sm:w-auto text-sm" />
-
-      <button id="addTaskBtn"
-        class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">
-        Add Task
-      </button>
+      <button id="addTaskBtn" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Add Task</button>
     </div>
   </div>
 </header>
@@ -331,19 +130,13 @@
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200">Menu</h2>
       <button id="closeDrawerBtn" class="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
       </button>
     </div>
-
-    <!-- Trash Section -->
     <div class="mb-6">
       <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-3">Trash</h3>
       <div id="trashList" class="space-y-2"></div>
     </div>
-
-    <!-- Archive Section -->
     <div>
       <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-3">Archive</h3>
       <div id="archiveList" class="space-y-2"></div>
@@ -353,10 +146,9 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
 import { getFirestore, collection, getDocs, addDoc, setDoc, doc, deleteDoc, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
 
+/* Firebase config for Firestore task data */
 const firebaseConfig = {
   apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHFWZI",
   authDomain: "tridenttaskboard.firebaseapp.com",
@@ -366,26 +158,15 @@ const firebaseConfig = {
   appId: "1:143400263387:web:66ed521ae75af588e836fe",
   measurementId: "G-F12DDQCX87"
 };
-
 const app = initializeApp(firebaseConfig);
-
-// Sign in anonymously so Storage rules see request.auth != null
-const auth = getAuth(app);
-let authReady = false;
-signInAnonymously(auth).catch(err => {
-  console.error("Anonymous auth failed:", err);
-});
-onAuthStateChanged(auth, (user) => {
-  authReady = !!user;
-  if (!authReady) {
-    console.warn("Not authenticated; uploads may fail due to Storage rules.");
-  }
-});
-
 const db = getFirestore(app);
-const storage = getStorage(app);
 window.firestoreDB = db;
 
+/* GitHub repo constants */
+const GH_OWNER = "DarkShockGamer";
+const GH_REPO = "DarkShockGamer.github.io";
+
+/* DOM refs */
 const board = document.getElementById("board");
 const filterInput = document.getElementById("filterInput");
 const addBtn = document.getElementById("addTaskBtn");
@@ -394,156 +175,136 @@ const menuBtn = document.getElementById("menuBtn");
 const drawer = document.getElementById("drawer");
 const drawerOverlay = document.getElementById("drawerOverlay");
 const closeDrawerBtn = document.getElementById("closeDrawerBtn");
+const ghTokenInput = document.getElementById("ghTokenInput");
+const ghBranchInput = document.getElementById("ghBranchInput");
 
-// Load and save user name from localStorage
+/* Persist simple fields */
 userNameInput.value = localStorage.getItem("userName") || "";
-userNameInput.oninput = () => {
-  localStorage.setItem("userName", userNameInput.value);
-};
+userNameInput.oninput = () => { localStorage.setItem("userName", userNameInput.value); };
+ghBranchInput.value = localStorage.getItem("ghBranch") || "main";
+ghBranchInput.oninput = () => { localStorage.setItem("ghBranch", ghBranchInput.value.trim() || "main"); };
 
-// Drawer toggle
-menuBtn.onclick = () => {
-  drawer.classList.add("open");
-  drawerOverlay.classList.add("active");
-  renderDrawer();
-};
-closeDrawerBtn.onclick = () => {
-  drawer.classList.remove("open");
-  drawerOverlay.classList.remove("active");
-};
-drawerOverlay.onclick = () => {
-  drawer.classList.remove("open");
-  drawerOverlay.classList.remove("active");
-};
+/* Token in sessionStorage by default (cleared on tab close) */
+ghTokenInput.value = sessionStorage.getItem("ghToken") || "";
+ghTokenInput.oninput = () => { sessionStorage.setItem("ghToken", ghTokenInput.value); };
 
-// Dropdown
+/* Drawer toggle */
+menuBtn.onclick = () => { drawer.classList.add("open"); drawerOverlay.classList.add("active"); renderDrawer(); };
+closeDrawerBtn.onclick = () => { drawer.classList.remove("open"); drawerOverlay.classList.remove("active"); };
+drawerOverlay.onclick = () => { drawer.classList.remove("open"); drawerOverlay.classList.remove("active"); };
+
+/* Tag dropdown */
 const dropdownBtn = document.getElementById("dropdownBtn");
 const dropdownList = document.getElementById("dropdownList");
 let selectedTags = [];
+function chipsHTML(tags) { return (tags || []).map(t => `<span class="tag-chip">${t}</span>`).join(""); }
+function getCurrentUserName() { return userNameInput.value.trim() || "Anonymous"; }
 
-// Helper to render chips
-function chipsHTML(tags) {
-  return (tags || []).map(t => `<span class="tag-chip">${t}</span>`).join("");
-}
-
-// Helper to get current user name
-function getCurrentUserName() {
-  return userNameInput.value.trim() || "Anonymous";
-}
-
-// Helper to format due date with coloring
 function formatDueDate(dueStr) {
   if (!dueStr) return '<span class="text-xs text-slate-500 dark:text-slate-400">no due</span>';
-
   const dueDate = new Date(dueStr + "T23:59:59");
   const now = new Date();
   const diffMs = dueDate - now;
-  const diffHours = diffMs / (1000 * 60 * 60);
+  const diffHours = diffMs / 36e5;
+  let cls = "text-xs text-slate-500 dark:text-slate-400";
+  if (diffMs < 0) cls = "text-xs due-overdue";
+  else if (diffHours <= 24) cls = "text-xs due-soon";
+  return `<span class="${cls}">${dueStr}</span>`;
+}
 
-  let className = "text-xs text-slate-500 dark:text-slate-400";
-  if (diffMs < 0) {
-    className = "text-xs due-overdue";
-  } else if (diffHours <= 24) {
-    className = "text-xs due-soon";
+/* Attachments via GitHub Contents API */
+function base64FromFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Read failed"));
+    reader.onload = () => {
+      const result = reader.result;
+      // result is data:*/*;base64,xxxxx
+      const base64 = String(result).split(",")[1] || "";
+      resolve(base64);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function safeFileName(name) { return name.replace(/[^\w.\- ]+/g, "_"); }
+function getGhToken() { return ghTokenInput.value.trim(); }
+function getGhBranch() { return (ghBranchInput.value || "main").trim(); }
+function rawUrlForPath(branch, path) {
+  // path should be URL-encoded when used in a URL
+  const enc = path.split("/").map(encodeURIComponent).join("/");
+  return `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${encodeURIComponent(branch)}/${enc}`;
+}
+async function uploadFilesToGitHub(files, taskId) {
+  const token = getGhToken();
+  const branch = getGhBranch();
+  if (!token) {
+    alert("GitHub token missing. Provide a fine-grained token with Contents: Read & write for this repo.");
+    return [];
   }
-
-  return `<span class="${className}">${dueStr}</span>`;
-}
-
-// Attachment validation (basic)
-function isBlockedFile(file) {
-  const blocked = [
-    "application/x-msdownload",
-    "application/x-msdos-program",
-    "application/x-executable",
-    "application/octet-stream"
-  ];
-  const nameBlocked = /\.(exe|bat|cmd|sh|msi|apk|com|scr)$/i.test(file.name);
-  return nameBlocked || blocked.includes(file.type);
-}
-function isAllowedSize(file) {
-  // Images <= 10MB, PDFs <= 20MB, others <= 15MB
-  if (file.type.startsWith("image/")) return file.size <= 10 * 1024 * 1024;
-  if (file.type === "application/pdf") return file.size <= 20 * 1024 * 1024;
-  return file.size <= 15 * 1024 * 1024;
-}
-
-// Helper to upload files to Firebase Storage
-async function uploadFiles(files, taskId) {
-  const attachments = [];
-  const userName = getCurrentUserName();
-
+  const out = [];
   for (const file of files) {
-    if (isBlockedFile(file)) {
-      alert(`Blocked file type: ${file.name}`);
-      continue;
+    try {
+      const contentB64 = await base64FromFile(file);
+      const timestamp = Date.now();
+      const path = `attachments/task_attachments/${taskId}/${timestamp}_${safeFileName(file.name)}`;
+      const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path.split("/").map(encodeURIComponent).join("/")}`;
+      const resp = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/vnd.github+json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: `Add attachment ${file.name} for task ${taskId}`,
+          content: contentB64,
+          branch
+        })
+      });
+      if (!resp.ok) {
+        const text = await resp.text().catch(() => "");
+        console.error("GitHub upload failed", resp.status, text);
+        alert(`GitHub upload failed for ${file.name}: ${resp.status}`);
+        continue;
+      }
+      // Use raw link to render images/files directly
+      const raw = rawUrlForPath(branch, path);
+      out.push({
+        url: raw,
+        name: file.name,
+        contentType: file.type || "application/octet-stream",
+        size: file.size || 0,
+        uploadedAt: Date.now(),
+        uploadedBy: getCurrentUserName()
+      });
+    } catch (e) {
+      console.error("Upload error:", e);
+      alert(`Upload error for ${file.name}`);
     }
-    if (!isAllowedSize(file)) {
-      alert(`File too large: ${file.name}`);
-      continue;
-    }
-    const safeName = file.name.replace(/[^\w.\- ]+/g, "_");
-    const fileName = `${Date.now()}_${safeName}`;
-    const storageRef = ref(storage, `task_attachments/${taskId}/${fileName}`);
-    // Include contentType metadata so downloads render correctly
-    await uploadBytes(storageRef, file, { contentType: file.type || "application/octet-stream" });
-    const url = await getDownloadURL(storageRef);
-
-    attachments.push({
-      url,
-      name: file.name,
-      contentType: file.type || "application/octet-stream",
-      size: file.size || 0,
-      uploadedAt: Date.now(),
-      uploadedBy: userName
-    });
   }
-
-  return attachments;
+  return out;
 }
-
-// Helper to render attachments
 function renderAttachments(attachments) {
   if (!attachments || attachments.length === 0) return "";
-
   return attachments.map(att => {
     const isImage = att.contentType && att.contentType.startsWith("image/");
-    if (isImage) {
-      return `<a href="${att.url}" target="_blank" class="inline-block">
-        <img src="${att.url}" alt="${att.name}" class="attachment-thumbnail" />
-      </a>`;
-    } else {
-      return `<a href="${att.url}" target="_blank" class="attachment-chip">
-        📎 ${att.name}
-      </a>`;
-    }
+    return isImage
+      ? `<a href="${att.url}" target="_blank" class="inline-block"><img src="${att.url}" alt="${att.name}" class="attachment-thumbnail" /></a>`
+      : `<a href="${att.url}" target="_blank" class="attachment-chip">📎 ${att.name}</a>`;
   }).join(" ");
 }
 
-// Dropdown toggle
+/* Dropdown behavior */
 dropdownBtn.addEventListener("click", () => {
   dropdownList.style.display = dropdownList.style.display === "block" ? "none" : "block";
 });
-
-// Close dropdown on outside click
 document.addEventListener("click", e => {
   const root = document.getElementById("tagDropdown");
-  if (!root.contains(e.target)) {
-    dropdownList.style.display = "none";
-    updateDropdownBtn();
-  }
+  if (!root.contains(e.target)) { dropdownList.style.display = "none"; updateDropdownBtn(); }
 });
-
-// Update button content to chips
 function updateDropdownBtn() {
-  if (selectedTags.length) {
-    dropdownBtn.innerHTML = chipsHTML(selectedTags);
-  } else {
-    dropdownBtn.innerHTML = '<span class="placeholder">Select tags...</span>';
-  }
+  dropdownBtn.innerHTML = selectedTags.length ? chipsHTML(selectedTags) : '<span class="placeholder">Select tags...</span>';
 }
-
-// Handle checkboxes
 dropdownList.querySelectorAll("input[type=checkbox]").forEach(cb => {
   cb.addEventListener("change", () => {
     selectedTags = Array.from(dropdownList.querySelectorAll("input:checked")).map(c => c.value);
@@ -551,64 +312,36 @@ dropdownList.querySelectorAll("input[type=checkbox]").forEach(cb => {
   });
 });
 
-// ---------------- Task Board Functions ----------------
+/* Task board data */
 async function loadTasks() {
   const snapshot = await getDocs(collection(db, "tasks"));
   const data = {
-    columns: {
-      backlog: { title: "Backlog", tasks: [] },
-      todo: { title: "To Do", tasks: [] },
-      inprogress: { title: "In Progress", tasks: [] },
-      done: { title: "Done", tasks: [] }
-    },
+    columns: { backlog: { title: "Backlog", tasks: [] }, todo: { title: "To Do", tasks: [] }, inprogress: { title: "In Progress", tasks: [] }, done: { title: "Done", tasks: [] } },
     order: ["backlog", "todo", "inprogress", "done"]
   };
-
   snapshot.forEach(docSnap => {
     const t = docSnap.data();
-    const taskWithId = { id: docSnap.id, ...t };
-
-    // Filter out deleted and archived tasks from main board
     if (t.deleted || t.archived) return;
-
     const col = t.column || "backlog";
-    if (!data.columns[col]) {
-      data.columns[col] = { title: col, tasks: [] };
-    }
-    data.columns[col].tasks.push(taskWithId);
+    (data.columns[col] ??= { title: col, tasks: [] }).tasks.push({ id: docSnap.id, ...t });
   });
-
-  // Auto-archive check
   await checkAutoArchive(data);
-
   return data;
 }
-
 async function checkAutoArchive(data) {
   const now = Date.now();
   const sevenDays = 7 * 24 * 60 * 60 * 1000;
   const batch = writeBatch(db);
   let needsUpdate = false;
-
-  if (data.columns.done) {
-    for (const task of data.columns.done.tasks) {
-      if (task.completedAt && (now - task.completedAt) > sevenDays && !task.archived) {
-        batch.update(doc(db, "tasks", task.id), {
-          archived: true,
-          archivedAt: now
-        });
-        needsUpdate = true;
-      }
+  for (const task of (data.columns.done?.tasks || [])) {
+    if (task.completedAt && (now - task.completedAt) > sevenDays && !task.archived) {
+      batch.update(doc(db, "tasks", task.id), { archived: true, archivedAt: now });
+      needsUpdate = true;
     }
   }
-
-  if (needsUpdate) {
-    await batch.commit();
-  }
+  if (needsUpdate) await batch.commit();
 }
-
 async function saveTask(task, col) {
-  // Avoid undefined fields; build a clean payload
   const payload = {
     id: task.id,
     title: task.title || "",
@@ -620,15 +353,11 @@ async function saveTask(task, col) {
   };
   if (Array.isArray(task.comments) && task.comments.length > 0) payload.comments = task.comments;
   if (Array.isArray(task.attachments) && task.attachments.length > 0) payload.attachments = task.attachments;
-
   await setDoc(doc(db, "tasks", task.id), payload, { merge: true });
 }
+async function deleteTaskFirestore(taskId) { await deleteDoc(doc(db, "tasks", taskId)); }
 
-async function deleteTaskFirestore(taskId) {
-  await deleteDoc(doc(db, "tasks", taskId));
-}
-
-// ---------------- Render Board ----------------
+/* Render board */
 async function renderBoard() {
   const data = await loadTasks();
   board.innerHTML = "";
@@ -644,33 +373,25 @@ async function renderBoard() {
       <div class="task-list min-h-[120px] space-y-3" data-col="${colId}"></div>
     `;
     board.appendChild(colEl);
-
     const list = colEl.querySelector(".task-list");
     col.tasks
       .filter(t => {
         const f = (filterInput.value || "").toLowerCase();
-        return (
-          !f ||
-          (t.title || "").toLowerCase().includes(f) ||
-          (t.assignee || "").toLowerCase().includes(f) ||
-          (t.tags || []).join(" ").toLowerCase().includes(f)
-        );
+        return !f || (t.title || "").toLowerCase().includes(f) || (t.assignee || "").toLowerCase().includes(f) || (t.tags || []).join(" ").toLowerCase().includes(f);
       })
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .forEach(task => list.appendChild(createTaskEl(task, colId)));
-
     makeDroppable(list);
   });
 }
 
-// ---------------- Create Task Element ----------------
+/* Task card */
 function createTaskEl(task, colId) {
   const div = document.createElement("div");
   div.className = "task-card";
   div.draggable = true;
   div.dataset.id = task.id;
   div.dataset.col = colId;
-
   const assignee = task.assignee || "Unassigned";
 
   div.innerHTML = `
@@ -692,41 +413,22 @@ function createTaskEl(task, colId) {
     ${(task.attachments && task.attachments.length > 0) ? `
       <div class="mt-2 flex gap-2 flex-wrap">
         ${renderAttachments(task.attachments)}
-      </div>
-    ` : ''}
+      </div>` : ''}
 
     <div class="mt-3">
       <button class="text-xs text-sky-600 dark:text-sky-400 underline toggle-comments">Show Notes</button>
       <div class="comments-section hidden mt-2 border-t border-slate-100 dark:border-slate-800 pt-2 space-y-2">
         <div class="comments-list text-sm text-slate-800 dark:text-slate-200">
           ${(task.comments || []).map(c => {
-            const dateStr = c.timestamp
-              ? new Date(c.timestamp).toLocaleString([], {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit"
-                })
-              : "";
+            const dateStr = c.timestamp ? new Date(c.timestamp).toLocaleString([], { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
             const authorStr = c.author || "Anonymous";
             const textHtml = c.text ? `<span class="block">${c.text}</span>` : "";
-            const attHtml = (c.attachments && c.attachments.length > 0) ? `
-              <div class="mt-1 flex gap-2 flex-wrap">
-                ${renderAttachments(c.attachments)}
-              </div>` : "";
-            return `
-              <div class="border border-slate-100 dark:border-slate-800 rounded-md p-2 bg-slate-50 dark:bg-slate-900">
-                ${textHtml}
-                ${attHtml}
-                <span class="text-xs text-slate-400">${authorStr} • ${dateStr}</span>
-              </div>
-            `;
+            const attHtml = (c.attachments && c.attachments.length > 0) ? `<div class="mt-1 flex gap-2 flex-wrap">${renderAttachments(c.attachments)}</div>` : "";
+            return `<div class="border border-slate-100 dark:border-slate-800 rounded-md p-2 bg-slate-50 dark:bg-slate-900">${textHtml}${attHtml}<span class="text-xs text-slate-400">${authorStr} • ${dateStr}</span></div>`;
           }).join("")}
         </div>
         <div class="flex flex-col gap-2 mt-2">
-          <input type="text" placeholder="Add note..."
-            class="comment-input flex-1 border border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200" />
+          <input type="text" placeholder="Add note..." class="comment-input flex-1 border border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200" />
           <input type="file" multiple class="comment-file text-xs" />
           <button class="add-comment px-2 py-1 bg-sky-600 text-white rounded-md text-xs hover:bg-sky-700">Add</button>
         </div>
@@ -734,38 +436,33 @@ function createTaskEl(task, colId) {
     </div>
   `;
 
-  // ---- Delete task (soft delete) ----
+  /* Soft delete */
   div.querySelector(".del-btn").onclick = async () => {
     if (!confirm(`Delete "${task.title}"?`)) return;
     div.classList.add("transition", "duration-300", "opacity-0", "translate-x-4");
     setTimeout(async () => {
-      await setDoc(doc(db, "tasks", task.id), {
-        deleted: true,
-        deletedAt: Date.now(),
-        deletedBy: getCurrentUserName()
-      }, { merge: true });
+      await setDoc(doc(db, "tasks", task.id), { deleted: true, deletedAt: Date.now(), deletedBy: getCurrentUserName() }, { merge: true });
       div.remove();
       renderBoard();
     }, 300);
   };
 
-  // ---- Edit task ----
+  /* Edit */
   div.querySelector(".edit-btn").onclick = () => openEditModal(task, colId);
 
-  // ---- Toggle comments visibility ----
+  /* Notes toggle */
   div.querySelector(".toggle-comments").onclick = (e) => {
     const section = div.querySelector(".comments-section");
     const isHidden = section.classList.toggle("hidden");
     e.target.textContent = isHidden ? "Show Notes" : "Hide Notes";
   };
 
-  // ---- Add comment ----
+  /* Add comment */
   div.querySelector(".add-comment").onclick = async () => {
     const input = div.querySelector(".comment-input");
     const fileInput = div.querySelector(".comment-file");
     const text = input.value.trim();
     const files = fileInput.files;
-
     if (!text && files.length === 0) return;
 
     const button = div.querySelector(".add-comment");
@@ -776,14 +473,9 @@ function createTaskEl(task, colId) {
     try {
       let attachments = [];
       if (files.length > 0) {
-        attachments = await uploadFiles(Array.from(files), task.id);
+        attachments = await uploadFilesToGitHub(Array.from(files), task.id);
       }
-
-      // Build the comment without undefined fields
-      const newComment = {
-        timestamp: Date.now(),
-        author: getCurrentUserName(),
-      };
+      const newComment = { timestamp: Date.now(), author: getCurrentUserName() };
       if (text) newComment.text = text;
       if (attachments.length > 0) newComment.attachments = attachments;
 
@@ -807,7 +499,7 @@ function createTaskEl(task, colId) {
   return div;
 }
 
-// ---------------- Edit Modal ----------------
+/* Edit modal */
 function openEditModal(task, colId) {
   const modal = document.createElement("div");
   modal.className = "fixed inset-0 bg-black/30 flex items-center justify-center z-50";
@@ -843,11 +535,7 @@ function openEditModal(task, colId) {
   const editDropdownList = modal.querySelector("#editDropdownList");
 
   function updateEditDropdownBtn() {
-    if (editSelectedTags.length) {
-      editDropdownBtn.innerHTML = chipsHTML(editSelectedTags);
-    } else {
-      editDropdownBtn.innerHTML = '<span class="placeholder">Select tags...</span>';
-    }
+    editDropdownBtn.innerHTML = editSelectedTags.length ? chipsHTML(editSelectedTags) : '<span class="placeholder">Select tags...</span>';
   }
 
   editDropdownList.querySelectorAll("input[type=checkbox]").forEach(cb => {
@@ -862,9 +550,7 @@ function openEditModal(task, colId) {
     editDropdownList.style.display = editDropdownList.style.display === "block" ? "none" : "block";
   });
 
-  document.addEventListener("click", e => {
-    if (!modal.contains(e.target)) editDropdownList.style.display = "none";
-  });
+  document.addEventListener("click", e => { if (!modal.contains(e.target)) editDropdownList.style.display = "none"; });
 
   updateEditDropdownBtn();
 
@@ -880,112 +566,71 @@ function openEditModal(task, colId) {
   };
 }
 
-// ---------------- Draggable Task Cards ----------------
+/* DnD */
 function makeDraggable(taskEl) {
   taskEl.addEventListener("dragstart", e => {
     taskEl.classList.add("dragging");
-    e.dataTransfer.setData("text/plain", JSON.stringify({
-      id: taskEl.dataset.id,
-      from: taskEl.dataset.col
-    }));
+    e.dataTransfer.setData("text/plain", JSON.stringify({ id: taskEl.dataset.id, from: taskEl.dataset.col }));
   });
-
   taskEl.addEventListener("dragend", async () => {
     taskEl.classList.remove("dragging");
-
     const parentCol = taskEl.closest(".task-list");
     if (!parentCol) return;
-
     const siblings = [...parentCol.querySelectorAll("[data-id]")];
     const batch = writeBatch(db);
-
     for (let i = 0; i < siblings.length; i++) {
       const id = siblings[i].dataset.id;
-      batch.update(doc(db, "tasks", id), {
-        order: i,
-        column: parentCol.dataset.col
-      });
+      batch.update(doc(db, "tasks", id), { order: i, column: parentCol.dataset.col });
     }
-
     await batch.commit();
   });
 }
-
-// ---------------- Drag & Drop ----------------
 function makeDroppable(el) {
   el.addEventListener("dragover", e => {
     e.preventDefault();
     const dragging = document.querySelector(".dragging");
     if (!dragging) return;
-
-    const afterElement = getDragAfterElement(el, e.clientY);
-    if (afterElement && afterElement instanceof Node) {
-      el.insertBefore(dragging, afterElement);
-    } else {
-      el.appendChild(dragging);
-    }
+    const after = getDragAfterElement(el, e.clientY);
+    if (after && after instanceof Node) el.insertBefore(dragging, after); else el.appendChild(dragging);
   });
-
   el.addEventListener("dragenter", () => el.classList.add("droppable-hover"));
   el.addEventListener("dragleave", () => el.classList.remove("droppable-hover"));
   el.addEventListener("drop", async e => {
     e.preventDefault();
     el.classList.remove("droppable-hover");
-
     const data = e.dataTransfer.getData("text/plain");
     if (!data) return;
-
     const { id, from } = JSON.parse(data);
     const to = el.dataset.col;
     const taskDocRef = doc(db, "tasks", id);
-    const taskSnap = await getDoc(taskDocRef);
-    if (!taskSnap.exists()) return;
-
-    const taskData = taskSnap.data();
-    const newColumn = to;
-
-    // Handle completedAt
-    const updates = { column: newColumn };
-    if (newColumn === "done" && !taskData.completedAt) {
-      updates.completedAt = Date.now();
-    } else if (from === "done" && newColumn !== "done") {
-      updates.completedAt = null;
-    }
-
-    // Move to new column
+    const snap = await getDoc(taskDocRef);
+    if (!snap.exists()) return;
+    const t = snap.data();
+    const updates = { column: to };
+    if (to === "done" && !t.completedAt) updates.completedAt = Date.now();
+    else if (from === "done" && to !== "done") updates.completedAt = null;
     await setDoc(taskDocRef, updates, { merge: true });
-
-    // Recalculate order
-    const taskEls = [...el.querySelectorAll("[data-id]")];
+    const els = [...el.querySelectorAll("[data-id]")];
     const batch = writeBatch(db);
-    for (let i = 0; i < taskEls.length; i++) {
-      const tId = taskEls[i].dataset.id;
-      batch.update(doc(db, "tasks", tId), { order: i, column: newColumn });
-    }
+    for (let i = 0; i < els.length; i++) batch.update(doc(db, "tasks", els[i].dataset.id), { order: i, column: to });
     await batch.commit();
-
     await renderBoard();
   });
 }
-
 function getDragAfterElement(container, y) {
-  const draggableElements = [...container.querySelectorAll(".task-card:not(.dragging)")];
-  return draggableElements.reduce((closest, child) => {
+  const cards = [...container.querySelectorAll(".task-card:not(.dragging)")];
+  return cards.reduce((closest, child) => {
     const box = child.getBoundingClientRect();
     const offset = y - box.top - box.height / 2;
-    if (offset < 0 && offset > closest.offset) {
-      return { offset, element: child };
-    } else {
-      return closest;
-    }
+    if (offset < 0 && offset > closest.offset) return { offset, element: child };
+    return closest;
   }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-// ---------------- Add Task ----------------
+/* Add Task */
 addBtn.onclick = async () => {
   const title = (document.getElementById("newTitle").value || "").trim();
   if (!title) return;
-
   const assignee = document.getElementById("newAssignee").value || "Unassigned";
   const due = document.getElementById("newDue").value || "";
   const fileInput = document.getElementById("newAttachments");
@@ -997,24 +642,13 @@ addBtn.onclick = async () => {
 
   try {
     const snapshot = await getDocs(collection(db, "tasks"));
-    const count = snapshot.size; // for order tracking
-    const task = {
-      title,
-      assignee,
-      due,
-      tags: selectedTags.slice(),
-      column: "backlog",
-      order: count
-    };
-
+    const count = snapshot.size;
+    const task = { title, assignee, due, tags: selectedTags.slice(), column: "backlog", order: count };
     const docRef = await addDoc(collection(db, "tasks"), task);
 
-    // Upload attachments if any
     if (files.length > 0) {
-      const attachments = await uploadFiles(Array.from(files), docRef.id);
-      if (attachments.length > 0) {
-        await setDoc(doc(db, "tasks", docRef.id), { attachments }, { merge: true });
-      }
+      const attachments = await uploadFilesToGitHub(Array.from(files), docRef.id);
+      if (attachments.length > 0) await setDoc(doc(db, "tasks", docRef.id), { attachments }, { merge: true });
     }
 
     document.getElementById("newTitle").value = "";
@@ -1035,21 +669,18 @@ addBtn.onclick = async () => {
   }
 };
 
-// ---------------- Drawer helpers ----------------
+/* Drawer */
 async function renderDrawer() {
   const snapshot = await getDocs(collection(db, "tasks"));
-  const trashTasks = [];
-  const archiveTasks = [];
-
+  const trash = [], archive = [];
   snapshot.forEach(docSnap => {
     const t = { id: docSnap.id, ...docSnap.data() };
-    if (t.deleted) trashTasks.push(t);
-    if (t.archived) archiveTasks.push(t);
+    if (t.deleted) trash.push(t);
+    if (t.archived) archive.push(t);
   });
 
-  // Render trash
   const trashList = document.getElementById("trashList");
-  trashList.innerHTML = trashTasks
+  trashList.innerHTML = trash
     .sort((a, b) => (b.deletedAt || 0) - (a.deletedAt || 0))
     .map(t => `
       <div class="p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900">
@@ -1063,9 +694,8 @@ async function renderDrawer() {
       </div>
     `).join("") || '<div class="text-sm text-slate-500 dark:text-slate-400">No items in trash</div>';
 
-  // Render archive
   const archiveList = document.getElementById("archiveList");
-  archiveList.innerHTML = archiveTasks
+  archiveList.innerHTML = archive
     .sort((a, b) => (b.archivedAt || 0) - (a.archivedAt || 0))
     .map(t => `
       <div class="p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900">
@@ -1080,17 +710,11 @@ async function renderDrawer() {
       </div>
     `).join("") || '<div class="text-sm text-slate-500 dark:text-slate-400">No items in archive</div>';
 
-  // Wire up actions (delegate)
   trashList.querySelectorAll(".restore-btn").forEach(btn => {
     btn.onclick = async () => {
       const id = btn.getAttribute("data-id");
-      await setDoc(doc(db, "tasks", id), {
-        deleted: false,
-        deletedAt: null,
-        deletedBy: null
-      }, { merge: true });
-      await renderBoard();
-      await renderDrawer();
+      await setDoc(doc(db, "tasks", id), { deleted: false, deletedAt: null, deletedBy: null }, { merge: true });
+      await renderBoard(); await renderDrawer();
     };
   });
   [...trashList.querySelectorAll(".permadelete-btn"), ...archiveList.querySelectorAll(".permadelete-btn")].forEach(btn => {
@@ -1104,24 +728,14 @@ async function renderDrawer() {
   archiveList.querySelectorAll(".unarchive-btn").forEach(btn => {
     btn.onclick = async () => {
       const id = btn.getAttribute("data-id");
-      await setDoc(doc(db, "tasks", id), {
-        archived: false,
-        archivedAt: null,
-        column: "backlog"
-      }, { merge: true });
-      await renderBoard();
-      await renderDrawer();
+      await setDoc(doc(db, "tasks", id), { archived: false, archivedAt: null, column: "backlog" }, { merge: true });
+      await renderBoard(); await renderDrawer();
     };
   });
 }
 
-// Events
-filterInput.oninput = () => {
-  // Debounce could be added; this is fine for now
-  renderBoard();
-};
-
-// Initial render
+/* Filter and initial render */
+filterInput.oninput = () => { renderBoard(); };
 renderBoard();
 </script>
 

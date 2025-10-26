@@ -7,7 +7,11 @@
   <title>Trident Robotics 4296 - Sponsors</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Match index.html heading font -->
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Include JWT decode library -->
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
+
   <style>
     /* ====== Colors ====== */
     :root {
@@ -25,17 +29,28 @@
       font-style: normal;
     }
 
-    /* ====== Global ====== */
+    /* ====== Global Styles ====== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(-45deg, #050c24, #0a1f44);
       color: var(--white);
+      line-height: 1.6;
     }
     a { text-decoration: none; color: inherit; }
     img { display: block; max-width: 100%; height: auto; }
 
-    /* ====== Sections and headings (match index) ====== */
+    /* IMPORTANT: Do not let the global img rule distort the Google Sign-In button */
+    #googleSignIn img, #googleSignIn svg {
+      display: inline-block !important;
+      max-width: none !important;
+      width: auto !important;
+      height: auto !important;
+      vertical-align: middle !important;
+    }
+    #googleSignIn { display: inline-block; }
+
+    /* ====== Sections, headings (match index) ====== */
     section { padding: 3rem 1.5rem; max-width: 1100px; margin: auto; }
     h2 {
       color: var(--light-blue);
@@ -46,95 +61,7 @@
       padding-bottom: 0.25rem;
     }
 
-    /* ====== Navigation (aligned with index) ====== */
-    .site-nav {
-      background: var(--medium-blue);
-      display: flex;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      border-bottom: 3px solid var(--light-blue);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    .nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      padding: 0.6rem 1rem;
-      width: 100%;
-    }
-    .nav-logo img { height: 50px; width: auto; }
-    .nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
-
-    .nav-links {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-    .nav-links a {
-      font-weight: bold;
-      text-transform: uppercase;
-      padding: 0.25rem 0.5rem;
-      border-bottom: 2px solid transparent;
-      transition: 0.25s;
-    }
-    .nav-links a:hover {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-    }
-
-    .nav-toggle {
-      display: none;
-      width: 40px;
-      height: 40px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      position: relative;
-      z-index: 1002;
-    }
-    .nav-toggle .hamburger,
-    .nav-toggle .hamburger::before,
-    .nav-toggle .hamburger::after {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background: var(--white);
-      border-radius: 2px;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translateX(-50%);
-      content: "";
-    }
-    .nav-toggle .hamburger::before { top: -7px; }
-    .nav-toggle .hamburger::after  { top: 7px; }
-
-    /* Mobile dropdown like index */
-    .nav-links-mobile {
-      display: none;
-      flex-direction: column;
-      background: var(--medium-blue);
-      position: absolute;
-      top: 100%;
-      left: 0;
-      width: 100%;
-      border-top: 3px solid var(--light-blue);
-      z-index: 1001;
-    }
-    .nav-links-mobile a {
-      padding: 0.8rem 0;
-      text-align: center;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .nav-links-mobile.show { display: flex; }
-
-    /* ====== Hero header (match index look) ====== */
+    /* ====== Hero Header (image on top) ====== */
     header {
       position: relative;
       height: 45vh;
@@ -191,7 +118,132 @@
       box-shadow: 0 6px 15px rgba(0,0,0,0.4);
     }
 
-    /* ====== Sponsor grid styled like cards on index ====== */
+    /* ====== Navigation (copied from index) ====== */
+    .site-nav {
+      background: var(--medium-blue);
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 3px solid var(--light-blue);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      padding: 0.6rem 1rem;
+      width: 100%;
+    }
+    .nav-logo img { height: 50px; width: auto; }
+    .nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
+
+    .nav-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .nav-links a {
+      font-weight: bold;
+      text-transform: uppercase;
+      padding: 0.25rem 0.5rem;
+      border-bottom: 2px solid transparent;
+      transition: 0.25s;
+    }
+    .nav-links a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .nav-toggle {
+      justify-self: end;
+      display: none;
+      width: 40px;
+      height: 40px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      z-index: 1002;
+    }
+    .nav-toggle .hamburger,
+    .nav-toggle .hamburger::before,
+    .nav-toggle .hamburger::after {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--white);
+      border-radius: 2px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translateX(-50%);
+      content: "";
+    }
+    .nav-toggle .hamburger::before { top: -7px; }
+    .nav-toggle .hamburger::after  { top: 7px; }
+
+    /* Mobile dropdown (match index) */
+    .nav-links-mobile {
+      display: none;
+      flex-direction: column;
+      background: var(--medium-blue);
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      border-top: 3px solid var(--light-blue);
+      z-index: 1001;
+    }
+    .nav-links-mobile a {
+      padding: 0.8rem 0;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .nav-links-mobile.show { display: flex; }
+
+    /* ====== Google Login in Nav (match index) ===== */
+    .nav-login { justify-self: end; display: flex; align-items: center; gap: .5rem; }
+    .nav-login .google-btn {
+      display: flex;
+      align-items: center;
+      background: var(--medium-blue);
+      color: var(--white);
+      border: 2px solid var(--accent);
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    }
+    .nav-login .google-btn:hover {
+      background: var(--light-blue);
+      color: var(--dark-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    }
+    .nav-login .google-btn img {
+      height: 18px;
+      margin-right: 6px;
+    }
+
+    /* small inline signed-in UI */
+    #googleSignedIn {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #googleSignedIn img { height: 28px; width: 28px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.08); }
+    #googleEmail { font-weight: 600; font-size: 0.95rem; color: var(--white); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ====== Sponsors Grid (cards) ====== */
     .sponsors-section { padding-top: 3rem; }
     .sponsor-grid {
       display: grid;
@@ -232,7 +284,7 @@
       letter-spacing: .3px;
     }
 
-    /* ====== Competition image band (polished) ====== */
+    /* ====== Competition Image Band ====== */
     .competition-band {
       max-width: 1100px;
       margin: 2rem auto 3.5rem;
@@ -244,13 +296,9 @@
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
       border: 2px solid rgba(79,163,209,0.35);
     }
-    .competition-frame img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
+    .competition-frame img { width: 100%; height: auto; display: block; }
 
-    /* ====== Footer (match index) ====== */
+    /* ====== Footer ===== */
     footer {
       background: var(--medium-blue);
       color: #dcdcdc;
@@ -267,16 +315,29 @@
     /* ====== Responsive ====== */
     @media (max-width: 768px) {
       header { min-height: 320px; }
+      .nav-login #googleSignIn { width: auto; }
       .nav-toggle { display: block; }
       .nav-links { display: none; }
       .nav-links-mobile { display: none; }
       .nav-links-mobile.show { display: flex; }
+      .nav-login .google-btn { width: 90%; justify-content: center; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ====== Navigation ====== -->
+  <!-- ====== Header (image first) ====== -->
+  <header>
+    <img class="hero-bg" src="assets/group.png" alt="" aria-hidden="true">
+    <h1>Our Sponsors</h1>
+    <p>
+      Trident Robotics 4296 is funded by sponsor funding and donations. Our participation in competitions
+      is possible thanks to the generosity of our sponsors.
+    </p>
+    <button class="sponsor-button" onclick="window.location.href='mailto:sveselack@wths.net'">Sponsor Us</button>
+  </header>
+
+  <!-- ====== Navigation (copied from index and placed below header) ====== -->
   <nav class="site-nav">
     <div class="nav-inner">
       <a class="nav-logo" href="index.html" aria-label="Trident Robotics Home">
@@ -289,15 +350,30 @@
         <a href="index.html#updates">Updates</a>
         <a href="index.html#contact">Contact</a>
         <a href="sponsors.html" aria-current="page">Sponsors</a>
+        <!-- Tasks link will appear here dynamically -->
+        <a href="tasks.html" id="tasksLink" style="display:none;">Tasks</a>
       </div>
 
-      <!-- Mobile links (match index) -->
+      <!-- Mobile-only nav links -->
       <div class="nav-links-mobile" id="navLinksMobile">
         <a href="index.html#about">About</a>
         <a href="index.html#team">Team</a>
         <a href="index.html#updates">Updates</a>
         <a href="index.html#contact">Contact</a>
         <a href="sponsors.html" aria-current="page">Sponsors</a>
+        <a href="tasks.html" id="tasksLinkMobile" style="display:none;">Tasks</a>
+      </div>
+
+      <div class="nav-login">
+        <!-- Container where Google renders Sign-in button -->
+        <div id="googleSignIn"></div>
+
+        <!-- Signed-in UI (hidden by default; shown when signed in) -->
+        <div id="googleSignedIn" aria-live="polite">
+          <img id="googleAvatar" src="" alt="Avatar">
+          <span id="googleEmail">Not signed in</span>
+          <button id="googleSignOut" class="google-btn" title="Sign out">Sign out</button>
+        </div>
       </div>
 
       <button class="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">
@@ -306,20 +382,7 @@
     </div>
   </nav>
 
-  <!-- ====== Hero Header (same vibe as index) ====== -->
-  <header>
-    <img class="hero-bg" src="assets/group.png" alt="" aria-hidden="true">
-    <h1>Our Sponsors</h1>
-    <p>
-      Trident Robotics 4296 is funded by sponsor funding and donations. Our participation in competitions
-      is possible thanks to the generosity of our sponsors.
-    </p>
-    <button class="sponsor-button" onclick="window.location.href='mailto:sveselack@wths.net'">
-      Sponsor Us
-    </button>
-  </header>
-
-  <!-- ====== Sponsors (card grid matching index cards) ====== -->
+  <!-- ====== Sponsors (card grid) ====== -->
   <section class="sponsors-section" aria-labelledby="sponsorHeading">
     <h2 id="sponsorHeading">Current Sponsors</h2>
     <div class="sponsor-grid">
@@ -350,7 +413,7 @@
     </div>
   </section>
 
-  <!-- ====== Competition Image (polished band) ====== -->
+  <!-- ====== Competition Image ====== -->
   <section class="competition-band" aria-labelledby="competitionHeading">
     <h2 id="competitionHeading">Competition Moments</h2>
     <div class="competition-frame">
@@ -372,7 +435,7 @@
   </footer>
 
   <script>
-    // Mobile nav toggle (mirrors index behavior for dropdown)
+    // ====== Mobile nav toggle (match index behavior) ======
     document.addEventListener('DOMContentLoaded', function () {
       const navToggle = document.querySelector('.nav-toggle');
       const navLinksMobile = document.getElementById('navLinksMobile');
@@ -387,6 +450,133 @@
         link.addEventListener('click', () => navLinksMobile.classList.remove('show'));
       });
     });
+
+    // ====== Google Sign-In logic (copied from index) ======
+    const G_CRED_KEY = 'g_credential_v1';
+
+    function updateTasksVisibility(email) {
+      const tasksDesktop = document.getElementById("tasksLink");
+      const tasksMobile = document.getElementById("tasksLinkMobile");
+      if (!tasksDesktop || !tasksMobile) return;
+
+      if (!email) {
+        tasksDesktop.style.display = "none";
+        tasksMobile.style.display = "none";
+        return;
+      }
+      const allowedDomains = ["wths.net"];
+      const allowedEmails = ["blackshocktrooper@gmail.com"];
+      const allowed = allowedDomains.some(domain => email.endsWith(`@${domain}`)) || allowedEmails.includes(email);
+      if (allowed) {
+        tasksDesktop.style.display = "inline-block";
+        tasksMobile.style.display = "block";
+      } else {
+        tasksDesktop.style.display = "none";
+        tasksMobile.style.display = "none";
+      }
+    }
+
+    function setSignedInUI(profile) {
+      const signInContainer = document.getElementById('googleSignIn');
+      const signedContainer = document.getElementById('googleSignedIn');
+      const emailSpan = document.getElementById('googleEmail');
+      const avatarImg = document.getElementById('googleAvatar');
+
+      if (signInContainer) signInContainer.style.display = 'none';
+      if (signedContainer) signedContainer.style.display = 'flex';
+
+      emailSpan.textContent = profile.email || profile.name || 'Signed in';
+      avatarImg.src = profile.picture || '/assets/icon.png';
+
+      updateTasksVisibility(profile.email);
+    }
+
+    function setSignedOutUI() {
+      const signInContainer = document.getElementById('googleSignIn');
+      const signedContainer = document.getElementById('googleSignedIn');
+
+      if (signInContainer) signInContainer.style.display = 'block';
+      if (signedContainer) signedContainer.style.display = 'none';
+
+      updateTasksVisibility(null);
+    }
+
+    function handleCredentialResponse(response) {
+      try {
+        const data = jwt_decode(response.credential);
+        localStorage.setItem(G_CRED_KEY, response.credential);
+        setSignedInUI(data);
+      } catch (err) {
+        console.error('Error decoding credential:', err);
+        alert('Sign-in failed (invalid token).');
+      }
+    }
+
+    function signOut() {
+      const raw = localStorage.getItem(G_CRED_KEY);
+      if (raw) {
+        try {
+          const decoded = jwt_decode(raw);
+          const email = decoded.email;
+          if (google && google.accounts && google.accounts.id && email) {
+            try {
+              google.accounts.id.revoke(email, (done) => {
+                console.log('revoke callback:', done);
+              });
+            } catch (e) {
+              console.warn('revoke call failed', e);
+            }
+          }
+        } catch (e) {
+          // ignore decode errors
+        }
+      }
+      localStorage.removeItem(G_CRED_KEY);
+      if (google && google.accounts && google.accounts.id) {
+        try { google.accounts.id.disableAutoSelect(); } catch(e){}
+      }
+      setSignedOutUI();
+    }
+
+    window.onload = function() {
+      // Initialize Google Sign-In
+      google.accounts.id.initialize({
+        client_id: "635936985251-tj5uq36b5altf4qmk7019r3u504mm1fs.apps.googleusercontent.com",
+        callback: handleCredentialResponse,
+        auto_select: false
+      });
+
+      // Wire up sign out button
+      document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'googleSignOut') {
+          signOut();
+        }
+      });
+
+      // Restore saved credential if present
+      const saved = localStorage.getItem(G_CRED_KEY);
+      if (saved) {
+        try {
+          const data = jwt_decode(saved);
+          setSignedInUI(data);
+          try { google.accounts.id.disableAutoSelect(); } catch(e){}
+        } catch (err) {
+          console.warn('Stored credential invalid, clearing', err);
+          localStorage.removeItem(G_CRED_KEY);
+          // render sign-in button below
+          google.accounts.id.renderButton(
+            document.getElementById("googleSignIn"),
+            { theme: "outline", size: "medium", text: "signin_with" }
+          );
+        }
+      } else {
+        // Not signed in: render the button
+        google.accounts.id.renderButton(
+          document.getElementById("googleSignIn"),
+          { theme: "outline", size: "medium", text: "signin_with" }
+        );
+      }
+    };
   </script>
 </body>
 </html>

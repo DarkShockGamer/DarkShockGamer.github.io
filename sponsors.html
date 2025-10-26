@@ -253,7 +253,7 @@
       gap: 2rem;
       justify-items: center;
       align-items: stretch;
-      overflow: visible; /* ensure raised cards aren't clipped */
+      overflow: visible;
     }
     .sponsor-card {
       background: linear-gradient(135deg, #0a1f44, #1f4d7a, #4fa3d1);
@@ -278,13 +278,12 @@
       box-shadow: 0 14px 28px rgba(0,0,0,0.35);
     }
 
-    /* Center logos perfectly inside a consistent box */
     .sponsor-media {
       width: 100%;
       height: 140px;              /* consistent visual box for every logo */
-      display: grid;
+      display: grid;              /* centers both horizontally and vertically */
       place-items: center;
-      padding: 0.25rem;
+      padding: 0.25rem;           /* small breathing room */
     }
     .sponsor-logo {
       max-width: 85%;
@@ -320,7 +319,6 @@
       padding: 1rem;
       background: rgba(0,0,0,0.08);
     }
-    /* Masonry using CSS columns to avoid gaps for mixed aspect ratios */
     .competition-grid {
       column-count: 3;
       column-gap: 1rem;
@@ -329,7 +327,7 @@
     @media (max-width: 600px)  { .competition-grid { column-count: 1; } }
 
     .competition-item {
-      display: inline-block;      /* required for column masonry */
+      display: inline-block;
       width: 100%;
       margin: 0 0 1rem;
       break-inside: avoid;
@@ -372,7 +370,7 @@
       .nav-links-mobile.show { display: flex; }
       .nav-login .google-btn { width: 90%; justify-content: center; }
 
-      .sponsor-media { height: 120px; } /* slightly smaller box on mobile */
+      .sponsor-media { height: 120px; }
     }
   </style>
 </head>
@@ -434,44 +432,11 @@
     </div>
   </nav>
 
-  <!-- ====== Sponsors (card grid) ====== -->
+  <!-- ====== Sponsors (dynamic from site.json) ====== -->
   <section class="sponsors-section" aria-labelledby="sponsorHeading">
     <h2 id="sponsorHeading">Current Sponsors</h2>
-    <div class="sponsor-grid">
-      <article class="sponsor-card" tabindex="0">
-        <div class="sponsor-media">
-          <img class="sponsor-logo" src="assets/Baxter-Logo.png" alt="Baxter" loading="lazy" width="220" height="120">
-        </div>
-        <div class="sponsor-name">Baxter</div>
-      </article>
-
-      <article class="sponsor-card" tabindex="0">
-        <div class="sponsor-media">
-          <img class="sponsor-logo" src="assets/NASA-Logo.png" alt="NASA" loading="lazy" width="220" height="120">
-        </div>
-        <div class="sponsor-name">NASA</div>
-      </article>
-
-      <article class="sponsor-card" tabindex="0">
-        <div class="sponsor-media">
-          <img class="sponsor-logo" src="assets/Kubota-Logo.png" alt="Kubota" loading="lazy" width="220" height="120">
-        </div>
-        <div class="sponsor-name">Kubota</div>
-      </article>
-
-      <article class="sponsor-card" tabindex="0">
-        <div class="sponsor-media">
-          <img class="sponsor-logo" src="assets/WWDisplays.png" alt="WW Displays Inc" loading="lazy" width="220" height="120">
-        </div>
-        <div class="sponsor-name">WW Displays Inc</div>
-      </article>
-
-      <article class="sponsor-card" tabindex="0">
-        <div class="sponsor-media">
-          <img class="sponsor-logo" src="assets/PatelFamily.png" alt="Patel Family" loading="lazy" width="220" height="120">
-        </div>
-        <div class="sponsor-name">Patel Family</div>
-      </article>
+    <div class="sponsor-grid" id="sponsorGrid">
+      <!-- populated dynamically from data/site.json -->
     </div>
   </section>
 
@@ -641,7 +606,7 @@
     };
   </script>
 
-  <!-- Load media from site.json (hero header + gallery masonry) -->
+  <!-- Load media and sponsors from site.json -->
   <script>
   (async function(){
     try {
@@ -654,18 +619,43 @@
       const hero = document.querySelector('header img.hero-bg');
       if (hero && media.sponsorsHeader) hero.src = media.sponsorsHeader;
 
+      // Sponsors grid
+      const grid = document.getElementById('sponsorGrid');
+      if (grid) {
+        let sponsors = Array.isArray(site.sponsors) ? site.sponsors : [
+          { name: "Baxter", logo: "assets/Baxter-Logo.png", url: "" },
+          { name: "NASA", logo: "assets/NASA-Logo.png", url: "" },
+          { name: "Kubota", logo: "assets/Kubota-Logo.png", url: "" },
+          { name: "WW Displays Inc", logo: "assets/WWDisplays.png", url: "" },
+          { name: "Patel Family", logo: "assets/PatelFamily.png", url: "" }
+        ];
+        grid.innerHTML = sponsors.map(s => {
+          const name = (s && s.name) ? s.name : '';
+          const logo = (s && s.logo) ? s.logo : '';
+          const url = (s && s.url) ? s.url : '';
+          const mediaBlock = `
+            <div class="sponsor-media">
+              <img class="sponsor-logo" src="${logo}" alt="${name}" loading="lazy" width="220" height="120">
+            </div>
+          `;
+          const nameBlock = `<div class="sponsor-name">${name}</div>`;
+          const inner = url ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${mediaBlock}${nameBlock}</a>` : `${mediaBlock}${nameBlock}`;
+          return `<article class="sponsor-card" tabindex="0">${inner}</article>`;
+        }).join('');
+      }
+
       // Competition gallery (masonry via CSS columns)
       const gallery = document.getElementById('competitionGallery');
-      if (!gallery) return;
-      let images = Array.isArray(media.competitionImages) ? media.competitionImages : [];
-      if (!images.length && media.competitionImage) images = [media.competitionImage];
-      if (!images.length) images = ['assets/Compitition-Photo1.png'];
-
-      gallery.innerHTML = images.map(url => `
-        <div class="competition-item">
-          <img src="${url}" alt="Competition moment" loading="lazy" decoding="async">
-        </div>
-      `).join('');
+      if (gallery) {
+        let images = Array.isArray(media.competitionImages) ? media.competitionImages : [];
+        if (!images.length && media.competitionImage) images = [media.competitionImage];
+        if (!images.length) images = ['assets/Compitition-Photo1.png'];
+        gallery.innerHTML = images.map(url => `
+          <div class="competition-item">
+            <img src="${url}" alt="Competition moment" loading="lazy" decoding="async">
+          </div>
+        `).join('');
+      }
     } catch(e) { /* ignore */ }
   })();
   </script>

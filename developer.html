@@ -251,6 +251,50 @@
       <pre id="media-result" class="muted mt-3 whitespace-pre-wrap text-sm"></pre>
     </section>
 
+    <!-- Sponsors Manager -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
+      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Sponsors Manager</h2>
+      <p class="muted mt-1">
+        Add sponsors shown on sponsors.html. Upload a logo, set the sponsor name (and optional link), reorder, or remove.
+        <span class="ml-1 text-[0.8rem] text-amber-600 dark:text-amber-400">Note: Uploaded logo files are committed immediately, but changes to the sponsors list are saved when you click “Push to GitHub”.</span>
+      </p>
+
+      <!-- Add sponsor form -->
+      <div class="mt-4 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Sponsor Name</label>
+          <input id="new-sponsor-name" type="text" placeholder="Sponsor name (e.g., Baxter)"
+                 class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Optional Link URL</label>
+          <input id="new-sponsor-link" type="text" placeholder="https://example.com (optional)"
+                 class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Logo URL</label>
+          <div class="flex gap-2">
+            <input id="new-sponsor-logo" type="text" placeholder="/assets/uploads/logo.png or https://..."
+                   class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+            <button id="btn-upload-sponsor-logo" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload Logo</button>
+            <input id="file-sponsor-logo" type="file" accept="image/*" class="hidden">
+          </div>
+          <img id="preview-sponsor-logo" alt="Logo preview" class="mt-2 max-h-24 rounded-md border border-slate-200 dark:border-slate-700">
+        </div>
+
+        <div class="flex items-end">
+          <button id="add-sponsor" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm w-full">
+            + Add Sponsor
+          </button>
+        </div>
+      </div>
+
+      <!-- Existing sponsors list -->
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="sponsors-list"></div>
+    </section>
+
     <!-- Data Actions -->
     <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
       <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">Data Actions</h2>
@@ -346,7 +390,14 @@
         indexPhoto: "/assets/Shark-Photo.png",
         sponsorsHeader: "/assets/group.png",
         competitionImages: ["/assets/Compitition-Photo1.png"]
-      }
+      },
+      sponsors: [
+        { name: "Baxter", logo: "/assets/Baxter-Logo.png", url: "" },
+        { name: "NASA", logo: "/assets/NASA-Logo.png", url: "" },
+        { name: "Kubota", logo: "/assets/Kubota-Logo.png", url: "" },
+        { name: "WW Displays Inc", logo: "/assets/WWDisplays.png", url: "" },
+        { name: "Patel Family", logo: "/assets/PatelFamily.png", url: "" }
+      ]
     };
 
     let isDirty = false;
@@ -385,8 +436,12 @@
         });
       }
       ensureMediaDefaults();
+      ensureSponsorsDefaults();
       renderEditor();
       bindMediaManager();
+      bindSponsorAddControls();
+      renderSponsorsList();
+
       // Loaded from disk -> clean state
       isDirty = false;
       updateSaveStatus();
@@ -403,6 +458,25 @@
       if (!Array.isArray(imgs)) imgs = imgs ? [imgs] : [];
       if (!imgs.length) imgs = ['/assets/Compitition-Photo1.png'];
       siteData.media.competitionImages = imgs;
+    }
+
+    function ensureSponsorsDefaults() {
+      if (!Array.isArray(siteData.sponsors)) {
+        siteData.sponsors = [
+          { name: "Baxter", logo: "/assets/Baxter-Logo.png", url: "" },
+          { name: "NASA", logo: "/assets/NASA-Logo.png", url: "" },
+          { name: "Kubota", logo: "/assets/Kubota-Logo.png", url: "" },
+          { name: "WW Displays Inc", logo: "/assets/WWDisplays.png", url: "" },
+          { name: "Patel Family", logo: "/assets/PatelFamily.png", url: "" }
+        ];
+      } else {
+        // Coerce to expected shape
+        siteData.sponsors = siteData.sponsors.map(s => ({
+          name: (s && s.name) || '',
+          logo: (s && s.logo) || '',
+          url: (s && s.url) || ''
+        }));
+      }
     }
 
     function teamOptionsHtml(selectedTeam) {
@@ -527,7 +601,7 @@
       renderCompetitionList();
     }
 
-    // Add handlers (top-level add buttons)
+    // ===== Add handlers (top-level add buttons) =====
     document.getElementById('add-timeline').addEventListener('click', ()=>{
       siteData.timeline.push({id:uid(), date:new Date().toLocaleDateString(), title:'New event', description:''});
       setDirty('Timeline updated');
@@ -556,7 +630,7 @@
       }
     });
 
-    // Live updates => mark dirty
+    // ===== Live updates => mark dirty =====
     document.getElementById('site-title').addEventListener('input',(e)=> { siteData.title = e.target.value; setDirty('Content changed'); });
     document.getElementById('about-heading').addEventListener('input',(e)=> { siteData.about.heading = e.target.value; setDirty('Content changed'); });
     document.getElementById('about-content').addEventListener('input',(e)=> { siteData.about.content = e.target.value; setDirty('Content changed'); });
@@ -615,7 +689,7 @@
       const token = document.getElementById('gh-token').value.trim();
       if (!owner || !repo || !token) { document.getElementById('gh-result').textContent = 'owner/repo/token required'; return; }
       try {
-        // Ensure latest edits captured (including media)
+        // Ensure latest edits captured (including media & sponsors)
         siteData.title = document.getElementById('site-title').value;
         siteData.about.heading = document.getElementById('about-heading').value;
         siteData.about.content = document.getElementById('about-content').value;
@@ -629,7 +703,7 @@
           document.getElementById('gh-result').textContent = 'Success. Commit: ' + res.commit.sha;
           isDirty = false; updateSaveStatus();
           const msg = document.getElementById('media-result');
-          if (msg) msg.textContent = 'site.json saved. Your image references are now live.';
+          if (msg) msg.textContent = 'site.json saved. Your image and sponsor changes are now live.';
         } else {
           document.getElementById('gh-result').textContent = 'Response: ' + JSON.stringify(res);
         }
@@ -718,7 +792,6 @@
           setter(url);
           field.value = url;
           preview.src = url;
-          // Uploaded binary immediately, but site.json reference pending until push
           setDirty('Image uploaded to repository ✓ (reference pending in site.json)');
           document.getElementById('media-result').textContent = `Uploaded: ${url}\nImage file is committed. Reference will be saved to site.json when you click "Push to GitHub".`;
         } catch (err) {
@@ -832,6 +905,137 @@
       );
       bindCompetitionControls();
       renderCompetitionList();
+    }
+
+    // ===== Sponsors Manager =====
+    function bindSponsorAddControls() {
+      const logoBtn = document.getElementById('btn-upload-sponsor-logo');
+      const logoInput = document.getElementById('file-sponsor-logo');
+      const logoUrlField = document.getElementById('new-sponsor-logo');
+      const logoPreview = document.getElementById('preview-sponsor-logo');
+      const addBtn = document.getElementById('add-sponsor');
+
+      if (logoBtn && logoInput && logoUrlField && logoPreview) {
+        logoBtn.addEventListener('click', () => logoInput.click());
+        logoInput.addEventListener('change', async (e) => {
+          const f = e.target.files && e.target.files[0];
+          if (!f) return;
+          try {
+            document.getElementById('media-result').textContent = 'Uploading logo...';
+            const url = await uploadOneImage(f);
+            logoUrlField.value = url;
+            logoPreview.src = url;
+            setDirty('Sponsor logo uploaded ✓ (reference pending in site.json)');
+            document.getElementById('media-result').textContent = `Uploaded logo: ${url}\nLogo file is committed. Add sponsor and push to save changes.`;
+          } catch (err) {
+            document.getElementById('media-result').textContent = 'Error: ' + err.message;
+          } finally {
+            logoInput.value = '';
+          }
+        });
+        logoUrlField.addEventListener('input', () => {
+          logoPreview.src = logoUrlField.value.trim() || '';
+        });
+      }
+
+      if (addBtn) {
+        addBtn.addEventListener('click', () => {
+          const name = document.getElementById('new-sponsor-name').value.trim();
+          const logo = document.getElementById('new-sponsor-logo').value.trim();
+          const url = document.getElementById('new-sponsor-link').value.trim();
+          if (!name || !logo) {
+            alert('Please provide at least a sponsor name and a logo URL.');
+            return;
+          }
+          siteData.sponsors.push({ name, logo, url });
+          // clear inputs
+          document.getElementById('new-sponsor-name').value = '';
+          document.getElementById('new-sponsor-logo').value = '';
+          document.getElementById('new-sponsor-link').value = '';
+          const prev = document.getElementById('preview-sponsor-logo'); if (prev) prev.src = '';
+          setDirty('Sponsors list updated');
+          renderSponsorsList();
+        });
+      }
+    }
+
+    function renderSponsorsList() {
+      const wrap = document.getElementById('sponsors-list');
+      if (!wrap) return;
+      wrap.innerHTML = '';
+      (siteData.sponsors || []).forEach((s, idx) => {
+        const card = document.createElement('div');
+        card.className = 'rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm';
+
+        card.innerHTML = `
+          <div class="p-3 flex items-start gap-3">
+            <img src="${(s.logo||'').replace(/"/g,'&quot;')}" alt="${(s.name||'').replace(/"/g,'&quot;')}" class="h-16 w-24 object-contain rounded border border-slate-200 dark:border-slate-700 bg-white">
+            <div class="flex-1 grid grid-cols-1 gap-2">
+              <div>
+                <label class="block text-xs text-slate-500">Name</label>
+                <input data-k="name" class="w-full rounded-md border border-slate-300 px-2 py-1.5 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
+                       value="${(s.name||'').replace(/"/g,'&quot;')}">
+              </div>
+              <div>
+                <label class="block text-xs text-slate-500">Link (optional)</label>
+                <input data-k="url" class="w-full rounded-md border border-slate-300 px-2 py-1.5 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
+                       value="${(s.url||'').replace(/"/g,'&quot;')}" placeholder="https://example.com">
+              </div>
+              <div>
+                <label class="block text-xs text-slate-500">Logo URL</label>
+                <input data-k="logo" class="w-full rounded-md border border-slate-300 px-2 py-1.5 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
+                       value="${(s.logo||'').replace(/"/g,'&quot;')}">
+              </div>
+            </div>
+          </div>
+          <div class="px-3 pb-3 flex items-center justify-end gap-2">
+            <button class="border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs" data-act="up">↑</button>
+            <button class="border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs" data-act="down">↓</button>
+            <button class="border border-red-300 dark:border-red-900 text-red-600 dark:text-red-400 rounded px-2 py-1 text-xs" data-act="del">Delete</button>
+          </div>
+        `;
+
+        // Bind inputs
+        card.querySelectorAll('input[data-k]').forEach(inp => {
+          inp.addEventListener('input', e => {
+            const key = e.target.getAttribute('data-k');
+            const val = e.target.value;
+            siteData.sponsors[idx][key] = val;
+            if (key === 'logo') {
+              const img = card.querySelector('img');
+              if (img) img.src = val;
+            }
+            setDirty('Sponsors list updated');
+          });
+        });
+
+        // Actions
+        card.querySelector('[data-act="up"]').addEventListener('click', () => {
+          if (idx > 0) {
+            const a = siteData.sponsors[idx-1];
+            siteData.sponsors[idx-1] = siteData.sponsors[idx];
+            siteData.sponsors[idx] = a;
+            setDirty('Sponsors reordered');
+            renderSponsorsList();
+          }
+        });
+        card.querySelector('[data-act="down"]').addEventListener('click', () => {
+          if (idx < siteData.sponsors.length - 1) {
+            const a = siteData.sponsors[idx+1];
+            siteData.sponsors[idx+1] = siteData.sponsors[idx];
+            siteData.sponsors[idx] = a;
+            setDirty('Sponsors reordered');
+            renderSponsorsList();
+          }
+        });
+        card.querySelector('[data-act="del"]').addEventListener('click', () => {
+          siteData.sponsors.splice(idx, 1);
+          setDirty('Sponsor removed');
+          renderSponsorsList();
+        });
+
+        wrap.appendChild(card);
+      });
     }
 
     // Start

@@ -6,6 +6,8 @@
   <link rel="shortcut icon" type="image/png" href="/assets/logo.png">
   <title>Trident Robotics 4296 - Sponsors</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Match index.html heading font -->
   <style>
     /* ====== Colors ====== */
     :root {
@@ -16,18 +18,35 @@
       --accent: #ffd700;
     }
 
-    /* ====== Global Styles ====== */
+    @font-face {
+      font-family: 'Ethnocentric';
+      src: url('/assets/fonts/Ethnocentric Rg.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    /* ====== Global ====== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--dark-blue);
+      background: linear-gradient(-45deg, #050c24, #0a1f44);
       color: var(--white);
-      line-height: 1.6;
     }
     a { text-decoration: none; color: inherit; }
     img { display: block; max-width: 100%; height: auto; }
 
-    /* ====== Navigation ====== */
+    /* ====== Sections and headings (match index) ====== */
+    section { padding: 3rem 1.5rem; max-width: 1100px; margin: auto; }
+    h2 {
+      color: var(--light-blue);
+      font-size: 2rem;
+      border-bottom: 3px solid var(--light-blue);
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.25rem;
+    }
+
+    /* ====== Navigation (aligned with index) ====== */
     .site-nav {
       background: var(--medium-blue);
       display: flex;
@@ -39,24 +58,23 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     .nav-inner {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
+      display: flex;
       align-items: center;
+      justify-content: space-between;
+      position: relative;
       padding: 0.6rem 1rem;
       width: 100%;
     }
-    .nav-logo {
-      justify-self: start;
-    }
-    .nav-logo img {
-      height: 50px;
-      width: auto;
-    }
+    .nav-logo img { height: 50px; width: auto; }
     .nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
+
     .nav-links {
       display: flex;
       justify-content: center;
       gap: 1rem;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
     }
     .nav-links a {
       font-weight: bold;
@@ -65,10 +83,12 @@
       border-bottom: 2px solid transparent;
       transition: 0.25s;
     }
-    .nav-links a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+    .nav-links a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
 
     .nav-toggle {
-      justify-self: end;
       display: none;
       width: 40px;
       height: 40px;
@@ -90,131 +110,176 @@
       left: 50%;
       top: 50%;
       transform: translateX(-50%);
-    }
-    .nav-toggle .hamburger::before { 
       content: "";
-      top: -7px;
     }
-    .nav-toggle .hamburger::after  { 
-      content: "";
-      top: 7px;
-    }
+    .nav-toggle .hamburger::before { top: -7px; }
+    .nav-toggle .hamburger::after  { top: 7px; }
 
-    /* ====== Header ====== */
-    header {
-      background: linear-gradient(90deg, var(--medium-blue), var(--light-blue));
+    /* Mobile dropdown like index */
+    .nav-links-mobile {
+      display: none;
+      flex-direction: column;
+      background: var(--medium-blue);
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      border-top: 3px solid var(--light-blue);
+      z-index: 1001;
+    }
+    .nav-links-mobile a {
+      padding: 0.8rem 0;
       text-align: center;
-      padding: 3rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .nav-links-mobile.show { display: flex; }
+
+    /* ====== Hero header (match index look) ====== */
+    header {
+      position: relative;
+      height: 45vh;
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: var(--white);
+      overflow: hidden;
       border-bottom: 3px solid var(--light-blue);
     }
+    header img.hero-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.55);
+      z-index: -1;
+    }
     header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
+      font-family: 'Ethnocentric', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 0.8rem;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.6);
     }
     header p {
-      font-size: 1.1rem;
-      max-width: 800px;
-      margin: 0 auto 1.5rem;
-      line-height: 1.5;
-      color: #e0e7ff;
+      font-size: 1.15rem;
+      color: #e0f2ff;
+      opacity: 0.95;
+      max-width: 900px;
+      padding: 0 1rem;
     }
     .sponsor-button {
+      margin-top: 1.1rem;
       background: var(--accent);
       color: var(--dark-blue);
       padding: 0.75rem 1.5rem;
       border: none;
-      border-radius: 5px;
-      font-weight: bold;
+      border-radius: 8px;
+      font-weight: 800;
+      letter-spacing: .3px;
       cursor: pointer;
       transition: 0.3s;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
     }
-    .sponsor-button:hover { background: #e6c200; }
+    .sponsor-button:hover {
+      background: #e6c200;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    }
 
-    /* ====== Sponsor Logos ====== */
-    .sponsor-logos {
+    /* ====== Sponsor grid styled like cards on index ====== */
+    .sponsors-section { padding-top: 3rem; }
+    .sponsor-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 3rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
       justify-items: center;
-      align-items: center;
-      padding: 3rem 1.5rem;
-      background: var(--medium-blue);
+      align-items: stretch;
     }
-    .sponsor-logos img {
-      max-width: 180px;
-      height: auto;
-      object-fit: contain;
-      transition: transform 0.3s, filter 0.3s;
-      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6));
-    }
-    .sponsor-logos img:hover {
-      transform: scale(1.1);
-      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
-    }
-
-    /* ====== Competition Section ====== */
-    #Compitition {
-      background: var(--dark-blue);
-      display: flex;
-      justify-content: center;
-      padding: 3rem 1.5rem;
-      border-top: 3px solid var(--light-blue);
-    }
-    #Compitition img {
-      max-width: 900px;
-      width: 100%;
+    .sponsor-card {
+      background: linear-gradient(135deg, #0a1f44, #1f4d7a, #4fa3d1);
+      padding: 1.25rem 1rem;
       border-radius: 15px;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s, filter .3s;
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 320px;
+      color: var(--white);
+    }
+    .sponsor-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.35);
+    }
+    .sponsor-logo {
+      width: 85%;
+      max-width: 220px;
+      margin: 0 auto 0.75rem;
+      object-fit: contain;
+      filter: grayscale(10%) drop-shadow(0 0 6px rgba(255,255,255,0.25));
+      transition: filter .3s, transform .3s;
+    }
+    .sponsor-card:hover .sponsor-logo {
+      filter: grayscale(0%) drop-shadow(0 0 10px rgba(255,255,255,0.35));
+      transform: scale(1.03);
+    }
+    .sponsor-name {
+      font-weight: 700;
+      letter-spacing: .3px;
     }
 
-    /* ====== Footer ===== */
+    /* ====== Competition image band (polished) ====== */
+    .competition-band {
+      max-width: 1100px;
+      margin: 2rem auto 3.5rem;
+      padding: 0 1.5rem;
+    }
+    .competition-frame {
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+      border: 2px solid rgba(79,163,209,0.35);
+    }
+    .competition-frame img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* ====== Footer (match index) ====== */
     footer {
       background: var(--medium-blue);
       color: #dcdcdc;
       text-align: center;
       padding: 1rem 1.5rem;
-      font-size: 0.8rem;
+      font-size: 0.8rem !important;
       line-height: 1.4;
       border-top: 3px solid var(--light-blue);
       margin: 0 auto;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
     }
-
-    footer p {
-      margin: 0.25rem 0;
-      font-weight: 400;
-    }
+    footer p { margin: 0.25rem 0; font-weight: 400; font-size: 0.8rem; }
 
     /* ====== Responsive ====== */
     @media (max-width: 768px) {
-      .nav-toggle { display: flex; }
-      .nav-links {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        flex-direction: column;
-        display: none;
-        background: var(--medium-blue);
-        border-top: 3px solid var(--light-blue);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-        z-index: 1001;
-      }
-      .nav-links.show { display: flex; }
-      .nav-links a {
-        width: 100%;
-        text-align: center;
-        padding: 0.8rem 0;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-      }
+      header { min-height: 320px; }
+      .nav-toggle { display: block; }
+      .nav-links { display: none; }
+      .nav-links-mobile { display: none; }
+      .nav-links-mobile.show { display: flex; }
     }
   </style>
 </head>
 <body>
+
   <!-- ====== Navigation ====== -->
   <nav class="site-nav">
     <div class="nav-inner">
-      <a class="nav-logo" href="index.html">
+      <a class="nav-logo" href="index.html" aria-label="Trident Robotics Home">
         <img src="assets/icon.png" alt="Trident Robotics Logo">
       </a>
 
@@ -223,7 +288,16 @@
         <a href="index.html#team">Team</a>
         <a href="index.html#updates">Updates</a>
         <a href="index.html#contact">Contact</a>
-        <a href="sponsors.html">Sponsors</a>
+        <a href="sponsors.html" aria-current="page">Sponsors</a>
+      </div>
+
+      <!-- Mobile links (match index) -->
+      <div class="nav-links-mobile" id="navLinksMobile">
+        <a href="index.html#about">About</a>
+        <a href="index.html#team">Team</a>
+        <a href="index.html#updates">Updates</a>
+        <a href="index.html#contact">Contact</a>
+        <a href="sponsors.html" aria-current="page">Sponsors</a>
       </div>
 
       <button class="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">
@@ -232,28 +306,56 @@
     </div>
   </nav>
 
-  <!-- ====== Header ====== -->
+  <!-- ====== Hero Header (same vibe as index) ====== -->
   <header>
+    <img class="hero-bg" src="assets/group.png" alt="" aria-hidden="true">
     <h1>Our Sponsors</h1>
     <p>
-      Trident Robotics 4296 is funded by sponsor funding, and donations.
-      Our participation in competitions across the country is dependent on the generosity of our sponsors.
+      Trident Robotics 4296 is funded by sponsor funding and donations. Our participation in competitions
+      is possible thanks to the generosity of our sponsors.
     </p>
-    <button class="sponsor-button" onclick="window.location.href='mailto:sveselack@wths.net'">Sponsor Us</button>
+    <button class="sponsor-button" onclick="window.location.href='mailto:sveselack@wths.net'">
+      Sponsor Us
+    </button>
   </header>
 
-  <!-- ====== Sponsor Logos ====== -->
-  <section class="sponsor-logos">
-    <img src="assets/Baxter-Logo.png" alt="Baxter Logo">
-    <img src="assets/NASA-Logo.png" alt="NASA Logo">
-    <img src="assets/Kubota-Logo.png" alt="Kubota Logo">
-    <img src="assets/WWDisplays.png" alt="WW Displays Inc">
-    <img src="assets/PatelFamily.png" alt="Patel Family">
+  <!-- ====== Sponsors (card grid matching index cards) ====== -->
+  <section class="sponsors-section" aria-labelledby="sponsorHeading">
+    <h2 id="sponsorHeading">Current Sponsors</h2>
+    <div class="sponsor-grid">
+      <article class="sponsor-card">
+        <img class="sponsor-logo" src="assets/Baxter-Logo.png" alt="Baxter" loading="lazy" width="220" height="120">
+        <div class="sponsor-name">Baxter</div>
+      </article>
+
+      <article class="sponsor-card">
+        <img class="sponsor-logo" src="assets/NASA-Logo.png" alt="NASA" loading="lazy" width="220" height="120">
+        <div class="sponsor-name">NASA</div>
+      </article>
+
+      <article class="sponsor-card">
+        <img class="sponsor-logo" src="assets/Kubota-Logo.png" alt="Kubota" loading="lazy" width="220" height="120">
+        <div class="sponsor-name">Kubota</div>
+      </article>
+
+      <article class="sponsor-card">
+        <img class="sponsor-logo" src="assets/WWDisplays.png" alt="WW Displays Inc" loading="lazy" width="220" height="120">
+        <div class="sponsor-name">WW Displays Inc</div>
+      </article>
+
+      <article class="sponsor-card">
+        <img class="sponsor-logo" src="assets/PatelFamily.png" alt="Patel Family" loading="lazy" width="220" height="120">
+        <div class="sponsor-name">Patel Family</div>
+      </article>
+    </div>
   </section>
 
-  <!-- ====== Competition Image ====== -->
-  <section id="Compitition">
-    <img src="assets/Compitition-Photo1.png" alt="Competition">
+  <!-- ====== Competition Image (polished band) ====== -->
+  <section class="competition-band" aria-labelledby="competitionHeading">
+    <h2 id="competitionHeading">Competition Moments</h2>
+    <div class="competition-frame">
+      <img src="assets/Compitition-Photo1.png" alt="Trident Robotics at competition" loading="lazy">
+    </div>
   </section>
 
   <!-- ====== Footer ====== -->
@@ -270,18 +372,19 @@
   </footer>
 
   <script>
+    // Mobile nav toggle (mirrors index behavior for dropdown)
     document.addEventListener('DOMContentLoaded', function () {
       const navToggle = document.querySelector('.nav-toggle');
-      const navLinks = document.getElementById('navLinks');
+      const navLinksMobile = document.getElementById('navLinksMobile');
 
-      navToggle.addEventListener('click', function () {
+      navToggle?.addEventListener('click', function () {
         const expanded = navToggle.getAttribute('aria-expanded') === 'true';
         navToggle.setAttribute('aria-expanded', (!expanded).toString());
-        navLinks.classList.toggle('show');
+        navLinksMobile.classList.toggle('show');
       });
 
-      document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', () => navLinks.classList.remove('show'));
+      document.querySelectorAll('.nav-links-mobile a').forEach(link => {
+        link.addEventListener('click', () => navLinksMobile.classList.remove('show'));
       });
     });
   </script>

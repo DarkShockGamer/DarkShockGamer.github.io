@@ -132,19 +132,19 @@
         <div class="col-span-1">
           <label for="site-title" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Site Title</label>
           <input id="site-title" type="text" placeholder="Site title"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:ring-sky-800"/>
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
         </div>
         <div class="col-span-1">
           <label for="about-heading" class="block text-sm font-medium text-slate-700 dark:text-slate-300">About Heading</label>
           <input id="about-heading" type="text" placeholder="About heading"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:ring-sky-800"/>
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
         </div>
       </div>
 
       <div class="mt-4">
         <label for="about-content" class="block text-sm font-medium text-slate-700 dark:text-slate-300">About Content (HTML allowed)</label>
         <textarea id="about-content" placeholder="<p>About text...</p>"
-                  class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-sky-800"></textarea>
+                  class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500"></textarea>
       </div>
     </section>
 
@@ -168,9 +168,9 @@
         <div id="leads-list" class="mt-2"></div>
         <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2">
           <input id="new-lead" type="text" placeholder="Add lead name"
-                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:ring-sky-800"/>
+                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
           <select id="new-lead-team" aria-label="Lead team"
-                  class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-sky-800"></select>
+                  class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-sky-700"></select>
           <button id="add-lead"
                   class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">Add</button>
         </div>
@@ -182,14 +182,73 @@
         <div id="drivers-list" class="mt-2"></div>
         <div class="mt-3 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-2">
           <input id="new-driver" type="text" placeholder="Add driver name"
-                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:ring-sky-800"/>
+                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
           <button id="add-driver"
                   class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">Add</button>
         </div>
       </div>
     </section>
 
-    <!-- Actions -->
+    <!-- Media Manager -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
+      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Media Manager</h2>
+      <p class="muted mt-1">Upload images directly to this repo (via your PAT below) and set which images appear on the site.</p>
+
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Index Header Image URL</label>
+          <div class="flex gap-2">
+            <input id="media-indexHeader" type="text" placeholder="/assets/group.png" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+            <button id="btn-upload-indexHeader" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload & Set</button>
+            <input id="file-indexHeader" type="file" accept="image/*" class="hidden">
+          </div>
+          <img id="preview-indexHeader" alt="Preview" class="mt-2 max-h-36 rounded-md border border-slate-200 dark:border-slate-700">
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Index Team Photo URL</label>
+          <div class="flex gap-2">
+            <input id="media-indexPhoto" type="text" placeholder="/assets/Shark-Photo.png" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+            <button id="btn-upload-indexPhoto" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload & Set</button>
+            <input id="file-indexPhoto" type="file" accept="image/*" class="hidden">
+          </div>
+          <img id="preview-indexPhoto" alt="Preview" class="mt-2 max-h-36 rounded-md border border-slate-200 dark:border-slate-700">
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Sponsors Header Image URL</label>
+          <div class="flex gap-2">
+            <input id="media-sponsorsHeader" type="text" placeholder="/assets/group.png" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+            <button id="btn-upload-sponsorsHeader" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload & Set</button>
+            <input id="file-sponsorsHeader" type="file" accept="image/*" class="hidden">
+          </div>
+          <img id="preview-sponsorsHeader" alt="Preview" class="mt-2 max-h-36 rounded-md border border-slate-200 dark:border-slate-700">
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Upload Destination Directory</label>
+          <input id="media-dest-dir" type="text" value="assets/uploads" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+          <p class="text-xs muted">Relative to repo root. Default: assets/uploads</p>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <h3 class="text-md font-semibold text-slate-700 dark:text-slate-200 mb-2">Competition Moments Gallery</h3>
+
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <input id="new-competition-url" type="text" placeholder="https://... or /assets/uploads/your-image.png" class="flex-1 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+          <button id="add-competition-url" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">Add URL</button>
+          <button id="btn-upload-competition" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload & Add</button>
+          <input id="file-competition" type="file" accept="image/*" multiple class="hidden">
+        </div>
+
+        <div id="media-competition-list" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+      </div>
+
+      <pre id="media-result" class="muted mt-3 whitespace-pre-wrap text-sm"></pre>
+    </section>
+
+    <!-- Data Actions -->
     <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
       <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">Data Actions</h2>
       <div class="flex flex-wrap gap-2">
@@ -212,27 +271,27 @@
         <div>
           <label for="gh-owner" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Owner</label>
           <input id="gh-owner" type="text" placeholder="owner" value="DarkShockGamer"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:ring-sky-800"/>
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
         </div>
         <div>
           <label for="gh-repo" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Repo</label>
           <input id="gh-repo" type="text" placeholder="repo" value="DarkShockGamer.github.io"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:ring-sky-800"/>
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
         </div>
         <div>
           <label for="gh-branch" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Branch</label>
           <input id="gh-branch" type="text" placeholder="branch" value="main"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:ring-sky-800"/>
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
         </div>
         <div>
           <label for="gh-path" class="block text-sm font-medium text-slate-700 dark:text-slate-300">File path</label>
           <input id="gh-path" type="text" placeholder="path" value="data/site.json"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:ring-sky-800"/>
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
         </div>
         <div class="md:col-span-2">
           <label for="gh-token" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Personal Access Token (PAT)</label>
           <input id="gh-token" type="password" placeholder="ghp_xxx"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:ring-sky-800"/>
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
         </div>
       </div>
 
@@ -255,7 +314,7 @@
   </main>
 
   <script>
-    // Minimal editor logic (unchanged functionality)
+    // Minimal editor logic (base)
     function uid(){ return 'id_'+Math.random().toString(36).slice(2,9); }
     let siteData = {
       title: document.getElementById('site-title')?.value || 'Trident Robotics 4296',
@@ -272,6 +331,12 @@
         // leads supports objects: { name, team }
         leads: [],
         drivers: []
+      },
+      media: {
+        indexHeader: "/assets/group.png",
+        indexPhoto: "/assets/Shark-Photo.png",
+        sponsorsHeader: "/assets/group.png",
+        competitionImages: ["/assets/Compitition-Photo1.png"]
       }
     };
 
@@ -289,7 +354,21 @@
           return { name: String(l || ''), team: '' };
         });
       }
+      ensureMediaDefaults();
       renderEditor();
+      // Bind media UI after first render
+      bindMediaManager();
+    }
+
+    function ensureMediaDefaults() {
+      siteData.media = siteData.media || {};
+      siteData.media.indexHeader = siteData.media.indexHeader || '/assets/group.png';
+      siteData.media.indexPhoto = siteData.media.indexPhoto || '/assets/Shark-Photo.png';
+      siteData.media.sponsorsHeader = siteData.media.sponsorsHeader || '/assets/group.png';
+      let imgs = siteData.media.competitionImages;
+      if (!Array.isArray(imgs)) imgs = imgs ? [imgs] : [];
+      if (!imgs.length) imgs = ['/assets/Compitition-Photo1.png'];
+      siteData.media.competitionImages = imgs;
     }
 
     function teamOptionsHtml(selectedTeam) {
@@ -324,17 +403,17 @@
           <div class="grid grid-cols-1 gap-2 mt-2">
             <div>
               <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">When</label>
-              <input class="ev-date mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-sky-800"
+              <input class="ev-date mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
                      value="${(ev.date||ev.year||'').replace(/"/g, '&quot;')}">
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Title</label>
-              <input class="ev-title mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-sky-800"
+              <input class="ev-title mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
                      value="${(ev.title||'').replace(/"/g, '&quot;')}">
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Description (HTML)</label>
-              <textarea class="ev-desc mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-sky-800">${ev.description||''}</textarea>
+              <textarea class="ev-desc mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">${ev.description||''}</textarea>
             </div>
           </div>
         `;
@@ -396,6 +475,18 @@
         const btn = document.createElement('button'); btn.textContent='×'; btn.addEventListener('click',()=>{ siteData.leadership.drivers.splice(i,1); renderEditor(); });
         span.appendChild(btn); driversC.appendChild(span);
       });
+
+      // Sync media fields if already bound
+      const f1 = document.getElementById('media-indexHeader');
+      const f2 = document.getElementById('media-indexPhoto');
+      const f3 = document.getElementById('media-sponsorsHeader');
+      if (f1) f1.value = siteData.media.indexHeader || '';
+      if (f2) f2.value = siteData.media.indexPhoto || '';
+      if (f3) f3.value = siteData.media.sponsorsHeader || '';
+      const p1 = document.getElementById('preview-indexHeader'); if (p1) p1.src = siteData.media.indexHeader || '';
+      const p2 = document.getElementById('preview-indexPhoto'); if (p2) p2.src = siteData.media.indexPhoto || '';
+      const p3 = document.getElementById('preview-sponsorsHeader'); if (p3) p3.src = siteData.media.sponsorsHeader || '';
+      renderCompetitionList();
     }
 
     // Add handlers
@@ -483,10 +574,14 @@
       const token = document.getElementById('gh-token').value.trim();
       if (!owner || !repo || !token) { document.getElementById('gh-result').textContent = 'owner/repo/token required'; return; }
       try {
-        // Ensure latest edits captured
+        // Ensure latest edits captured (including media)
         siteData.title = document.getElementById('site-title').value;
         siteData.about.heading = document.getElementById('about-heading').value;
         siteData.about.content = document.getElementById('about-content').value;
+        siteData.media.indexHeader = document.getElementById('media-indexHeader')?.value?.trim() || siteData.media.indexHeader;
+        siteData.media.indexPhoto = document.getElementById('media-indexPhoto')?.value?.trim() || siteData.media.indexPhoto;
+        siteData.media.sponsorsHeader = document.getElementById('media-sponsorsHeader')?.value?.trim() || siteData.media.sponsorsHeader;
+
         document.getElementById('gh-result').textContent = 'Pushing...';
         const res = await pushFile(owner, repo, path, branch, token, JSON.stringify(siteData,null,2), 'Update site data via developer.html');
         if (res && res.commit && res.commit.sha) document.getElementById('gh-result').textContent = 'Success. Commit: ' + res.commit.sha;
@@ -494,6 +589,190 @@
       } catch (e) { document.getElementById('gh-result').textContent = 'Error: ' + e.message; }
     });
 
+    // ========= Media Manager helpers =========
+    function sanitizeFileName(name) {
+      return name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    }
+    function base64FromFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const bytes = new Uint8Array(reader.result);
+            let binary = '';
+            const chunk = 0x8000;
+            for (let i = 0; i < bytes.length; i += chunk) {
+              binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+            }
+            resolve(btoa(binary));
+          } catch (e) { reject(e); }
+        };
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+      });
+    }
+    async function pushBinaryFile(owner, repo, path, branch, token, base64, message) {
+      const sha = await getSha(owner, repo, path, branch, token);
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
+      const body = { message: message || 'Upload image via developer.html', content: base64, branch };
+      if (sha) body.sha = sha;
+      const r = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          Authorization: 'token ' + token,
+          Accept: 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.message || JSON.stringify(j));
+      return j;
+    }
+    async function uploadOneImage(file) {
+      const owner = document.getElementById('gh-owner').value.trim();
+      const repo = document.getElementById('gh-repo').value.trim();
+      const branch = (document.getElementById('gh-branch').value.trim() || 'main');
+      const token = document.getElementById('gh-token').value.trim();
+      const destDir = (document.getElementById('media-dest-dir').value.trim() || 'assets/uploads').replace(/\/+$/,'');
+      if (!owner || !repo || !token) throw new Error('owner/repo/token required (see "Optional: Push to GitHub" inputs).');
+
+      const safeName = `${Date.now()}-${sanitizeFileName(file.name)}`;
+      const path = `${destDir}/${safeName}`.replace(/^\/+/,'');
+      const b64 = await base64FromFile(file);
+      const res = await pushBinaryFile(owner, repo, path, branch, token, b64, `Upload image ${safeName} via developer.html`);
+      return `/${res.content.path}`; // site-relative URL
+    }
+    function bindImageField(fieldId, fileInputId, buttonId, previewId, getter, setter) {
+      const field = document.getElementById(fieldId);
+      const fileInput = document.getElementById(fileInputId);
+      const button = document.getElementById(buttonId);
+      const preview = document.getElementById(previewId);
+      if (!field || !fileInput || !button || !preview) return;
+
+      field.value = getter() || '';
+      preview.src = getter() || '';
+
+      field.addEventListener('input', () => {
+        setter(field.value.trim());
+        preview.src = field.value.trim() || '';
+      });
+
+      button.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', async (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (!f) return;
+        try {
+          document.getElementById('media-result').textContent = 'Uploading...';
+          const url = await uploadOneImage(f);
+          setter(url);
+          field.value = url;
+          preview.src = url;
+          document.getElementById('media-result').textContent = `Uploaded: ${url}`;
+        } catch (err) {
+          document.getElementById('media-result').textContent = 'Error: ' + err.message;
+        } finally {
+          fileInput.value = '';
+        }
+      });
+    }
+    function renderCompetitionList() {
+      const list = document.getElementById('media-competition-list');
+      if (!list || !siteData.media) return;
+      list.innerHTML = '';
+      (siteData.media.competitionImages || []).forEach((url, idx) => {
+        const card = document.createElement('div');
+        card.className = 'rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900';
+        card.innerHTML = `
+          <img src="${url}" alt="Competition ${idx+1}" class="w-full aspect-[4/3] object-cover">
+          <div class="p-2 flex items-center justify-between gap-2">
+            <span class="text-xs truncate" title="${url}">${url}</span>
+            <div class="flex gap-1">
+              <button class="border border-slate-300 dark:border-slate-700 rounded px-2 text-xs" data-act="up">↑</button>
+              <button class="border border-slate-300 dark:border-slate-700 rounded px-2 text-xs" data-act="down">↓</button>
+              <button class="border border-red-300 dark:border-red-900 text-red-600 dark:text-red-400 rounded px-2 text-xs" data-act="del">✕</button>
+            </div>
+          </div>
+        `;
+        card.querySelector('[data-act="up"]').addEventListener('click', () => {
+          if (idx > 0) {
+            const a = siteData.media.competitionImages[idx-1];
+            siteData.media.competitionImages[idx-1] = siteData.media.competitionImages[idx];
+            siteData.media.competitionImages[idx] = a;
+            renderCompetitionList();
+          }
+        });
+        card.querySelector('[data-act="down"]').addEventListener('click', () => {
+          if (idx < siteData.media.competitionImages.length - 1) {
+            const a = siteData.media.competitionImages[idx+1];
+            siteData.media.competitionImages[idx+1] = siteData.media.competitionImages[idx];
+            siteData.media.competitionImages[idx] = a;
+            renderCompetitionList();
+          }
+        });
+        card.querySelector('[data-act="del"]').addEventListener('click', () => {
+          siteData.media.competitionImages.splice(idx, 1);
+          renderCompetitionList();
+        });
+        list.appendChild(card);
+      });
+    }
+    function bindCompetitionControls() {
+      const addBtn = document.getElementById('add-competition-url');
+      const urlInput = document.getElementById('new-competition-url');
+      const btn = document.getElementById('btn-upload-competition');
+      const fileInput = document.getElementById('file-competition');
+      if (addBtn && urlInput) {
+        addBtn.addEventListener('click', () => {
+          const v = urlInput.value.trim();
+          if (!v) return;
+          siteData.media.competitionImages.push(v);
+          urlInput.value = '';
+          renderCompetitionList();
+        });
+      }
+      if (btn && fileInput) {
+        btn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', async (e) => {
+          const files = Array.from(e.target.files || []);
+          if (!files.length) return;
+          try {
+            document.getElementById('media-result').textContent = 'Uploading...';
+            for (const f of files) {
+              const url = await uploadOneImage(f);
+              siteData.media.competitionImages.push(url);
+            }
+            document.getElementById('media-result').textContent = 'Uploaded ' + files.length + ' file(s).';
+            renderCompetitionList();
+          } catch (err) {
+            document.getElementById('media-result').textContent = 'Error: ' + err.message;
+          } finally {
+            fileInput.value = '';
+          }
+        });
+      }
+    }
+    function bindMediaManager() {
+      bindImageField(
+        'media-indexHeader', 'file-indexHeader', 'btn-upload-indexHeader', 'preview-indexHeader',
+        () => siteData.media.indexHeader,
+        (v) => siteData.media.indexHeader = v
+      );
+      bindImageField(
+        'media-indexPhoto', 'file-indexPhoto', 'btn-upload-indexPhoto', 'preview-indexPhoto',
+        () => siteData.media.indexPhoto,
+        (v) => siteData.media.indexPhoto = v
+      );
+      bindImageField(
+        'media-sponsorsHeader', 'file-sponsorsHeader', 'btn-upload-sponsorsHeader', 'preview-sponsorsHeader',
+        () => siteData.media.sponsorsHeader,
+        (v) => siteData.media.sponsorsHeader = v
+      );
+      bindCompetitionControls();
+      renderCompetitionList();
+    }
+
+    // Load data and initialize
     loadExisting();
   </script>
 </body>

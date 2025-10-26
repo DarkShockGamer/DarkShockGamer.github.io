@@ -121,7 +121,9 @@
         <p class="text-sm text-sky-600 dark:text-sky-400">Edit site content and download or push the data file</p>
       </div>
     </div>
-    <p class="muted mt-2">Pushing directly requires a GitHub Personal Access Token with repo write permissions. You can also download the file and commit via GitHub.</p>
+    <p class="muted mt-2">
+      Pushing directly requires a GitHub Personal Access Token with repo write permissions. You can also download the file and commit via GitHub.
+    </p>
   </header>
 
   <main class="max-w-6xl mx-auto px-4 pb-16 space-y-6">
@@ -309,17 +311,19 @@
       </div>
     </section>
 
-    <!-- GitHub Push -->
+    <!-- GitHub Push (required to save from here) -->
     <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
       <div class="flex items-center gap-2">
-        <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Optional: Push to GitHub</h3>
+        <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Push to GitHub</h3>
         <!-- Live save status badge -->
         <span id="save-status" class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
           All changes saved
         </span>
       </div>
-      <p class="muted mt-1">Provide owner/repo/branch/path and a PAT with repo permissions to push directly.
-        The token is only used in your browser.</p>
+      <p class="muted mt-1">
+        Provide owner/repo/branch/path and a PAT with repo permissions. This is required to save changes from this editor.
+        Alternatively, you can download site.json above and commit it manually.
+      </p>
 
       <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -757,7 +761,7 @@
       const branch = (document.getElementById('gh-branch').value.trim() || 'main');
       const token = document.getElementById('gh-token').value.trim();
       const destDir = (document.getElementById('media-dest-dir').value.trim() || 'assets/uploads').replace(/\/+$/,'');
-      if (!owner || !repo || !token) throw new Error('owner/repo/token required (set in "Optional: Push to GitHub").');
+      if (!owner || !repo || !token) throw new Error('owner/repo/token required (set in the "Push to GitHub" section).');
 
       const safeName = `${Date.now()}-${sanitizeFileName(file.name)}`;
       const path = `${destDir}/${safeName}`.replace(/^\/+/,'');

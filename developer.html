@@ -7,13 +7,17 @@
   <style>
     body { font-family: system-ui, Arial, sans-serif; padding: 24px; max-width: 1100px; margin: auto; color: #111; background:#fafafa; }
     label { display:block; margin-top:12px; font-weight:600; }
-    input[type="text"], textarea { width:100%; padding:8px; box-sizing:border-box; margin-top:6px; }
+    input[type="text"], textarea, select { width:100%; padding:8px; box-sizing:border-box; margin-top:6px; }
     textarea { min-height:120px; font-family:inherit; }
     .timeline-entry { border:1px solid #ddd; padding:12px; margin-bottom:8px; border-radius:6px; background:#fff; }
     button { padding:8px 12px; margin-top:8px; }
-    .pill { display:inline-block; background:#efefef; padding:6px 10px; border-radius:16px; margin:4px 4px 0 0; }
+    .pill { display:inline-flex; align-items:center; gap:8px; background:#efefef; padding:6px 10px; border-radius:16px; margin:4px 4px 0 0; }
     .controls { margin-top:16px; display:flex; gap:8px; flex-wrap:wrap; }
     .muted { color:#666; font-size:0.9rem; }
+    .row { display:flex; gap:8px; align-items:flex-start; flex-wrap:wrap; }
+    .row > * { flex: 1 1 auto; min-width: 180px; }
+    .pill button { margin: 0 0 0 4px; padding: 2px 8px; line-height: 1; }
+    .pill select { margin: 0; padding: 2px 6px; }
   </style>
 </head>
 <body>
@@ -37,15 +41,16 @@
   <div>
     <label>Leads</label>
     <div id="leads-list"></div>
-    <div style="display:flex; gap:8px; margin-top:6px;">
+    <div class="row" style="margin-top:6px;">
       <input id="new-lead" type="text" placeholder="Add lead name">
+      <select id="new-lead-team" aria-label="Lead team"></select>
       <button id="add-lead">Add</button>
     </div>
   </div>
   <div style="margin-top:12px;">
     <label>Drivers</label>
     <div id="drivers-list"></div>
-    <div style="display:flex; gap:8px; margin-top:6px;">
+    <div class="row" style="margin-top:6px;">
       <input id="new-driver" type="text" placeholder="Add driver name">
       <button id="add-driver">Add</button>
     </div>
@@ -57,7 +62,9 @@
   </div>
 
   <h3 style="margin-top:20px">(Optional) Push to GitHub</h3>
-  <div class="muted">Provide owner/repo/branch/path and a PAT with repo permissions to push directly. Token is only used in your browser; you can also download and commit via the GitHub web UI.</div>
+  <div class="muted">
+    Provide owner/repo/branch/path and a PAT with repo permissions to push directly. Token is only used in your browser; you can also download and commit via the GitHub web UI.
+  </div>
 
   <label for="gh-owner">Owner</label>
   <input id="gh-owner" type="text" placeholder="owner" value="DarkShockGamer">
@@ -91,6 +98,7 @@
           { team: "Programming Team", role: "Lead", members: [] },
           { team: "Drive Team", role: "Driver", members: [] }
         ],
+        // leads now supports objects: { name, team }
         leads: [],
         drivers: []
       }
@@ -101,16 +109,50 @@
         const r = await fetch('/data/site.json?_=' + Date.now());
         if (r.ok) siteData = await r.json();
       } catch (e) { /* ignore */ }
+      // Backward-compat: normalize leads [string] -> [{name, team:""}]
+      if (siteData && siteData.leadership) {
+        const leads = siteData.leadership.leads || [];
+        siteData.leadership.leads = leads.map(l => {
+          if (typeof l === 'string') return { name: l, team: '' };
+          if (l && typeof l === 'object') return { name: l.name || '', team: l.team || '' };
+          return { name: String(l || ''), team: '' };
+        });
+      }
       renderEditor();
     }
+
+    function teamOptionsHtml(selectedTeam) {
+      const teams = (siteData.leadership && siteData.leadership.teams) ? siteData.leadership.teams : [];
+      const options = [''].concat(teams.map(t => t.team));
+      return options.map(t => {
+        const sel = (t === (selectedTeam || '')) ? ' selected' : '';
+        const label = t || '— Select team —';
+        return `<option value="${t.replace(/"/g, '&quot;')}"${sel}>${label}</option>`;
+      }).join('');
+    }
+
     function renderEditor(){
       document.getElementById('site-title').value = siteData.title || '';
       document.getElementById('about-heading').value = (siteData.about && siteData.about.heading) || '';
       document.getElementById('about-content').value = (siteData.about && siteData.about.content) || '';
+
+      // Timeline
       const tl = document.getElementById('timeline-list'); tl.innerHTML = '';
       (siteData.timeline || []).forEach((ev, idx) => {
         const div = document.createElement('div'); div.className='timeline-entry';
-        div.innerHTML = `<label>When</label><input class="ev-date" value="${ev.date||ev.year||''}"><label>Title</label><input class="ev-title" value="${ev.title||''}"><label>Description (HTML)</label><textarea class="ev-desc">${ev.description||''}</textarea><div style="margin-top:6px;"><button class="up">Up</button><button class="down">Down</button><button class="del">Delete</button></div>`;
+        div.innerHTML = `
+          <label>When</label>
+          <input class="ev-date" value="${(ev.date||ev.year||'').replace(/"/g, '&quot;')}">
+          <label>Title</label>
+          <input class="ev-title" value="${(ev.title||'').replace(/"/g, '&quot;')}">
+          <label>Description (HTML)</label>
+          <textarea class="ev-desc">${ev.description||''}</textarea>
+          <div class="row" style="margin-top:8px;">
+            <button type="button" class="up">↑</button>
+            <button type="button" class="down">↓</button>
+            <button type="button" class="del" style="margin-left:auto;">Delete</button>
+          </div>
+        `;
         tl.appendChild(div);
         div.querySelector('.del').addEventListener('click',()=>{ siteData.timeline.splice(idx,1); renderEditor(); });
         div.querySelector('.up').addEventListener('click',()=>{ if(idx>0){ const a=siteData.timeline[idx-1]; siteData.timeline[idx-1]=siteData.timeline[idx]; siteData.timeline[idx]=a; renderEditor(); }});
@@ -120,31 +162,77 @@
         div.querySelector('.ev-desc').addEventListener('input',(e)=> siteData.timeline[idx].description = e.target.value);
       });
 
-      // leadership lists
-      const renderList = (id, arr) => {
-        const c = document.getElementById(id); c.innerHTML = '';
-        (arr || []).forEach((n,i)=> {
-          const span = document.createElement('span'); span.className='pill'; span.textContent=n;
-          const btn = document.createElement('button'); btn.textContent='×'; btn.addEventListener('click',()=>{ arr.splice(i,1); renderEditor(); });
-          span.appendChild(btn); c.appendChild(span);
+      // Leadership lists
+      // Render Leads with team selection
+      const leadsC = document.getElementById('leads-list'); leadsC.innerHTML = '';
+      (siteData.leadership.leads || []).forEach((lead, i) => {
+        const item = (typeof lead === 'string') ? { name: lead, team: '' } : (lead || { name: '', team: '' });
+        const span = document.createElement('span'); span.className='pill';
+        span.innerHTML = `
+          <strong>${(item.name||'').replace(/</g,'&lt;')}</strong>
+          <span class="muted">—</span>
+          <select class="lead-team" aria-label="Lead team">${teamOptionsHtml(item.team)}</select>
+          <button type="button" class="remove" aria-label="Remove lead">×</button>
+        `;
+        leadsC.appendChild(span);
+        span.querySelector('.lead-team').addEventListener('change',(e)=>{
+          siteData.leadership.leads[i] = { name: item.name, team: e.target.value };
         });
-      };
-      renderList('leads-list', siteData.leadership.leads || []);
-      renderList('drivers-list', siteData.leadership.drivers || []);
+        span.querySelector('.remove').addEventListener('click',()=>{
+          siteData.leadership.leads.splice(i,1);
+          renderEditor();
+        });
+      });
+
+      // Populate the "new lead team" select
+      const newLeadTeam = document.getElementById('new-lead-team');
+      newLeadTeam.innerHTML = teamOptionsHtml('');
+
+      // Drivers (simple list of strings)
+      const driversC = document.getElementById('drivers-list'); driversC.innerHTML = '';
+      (siteData.leadership.drivers || []).forEach((n,i)=> {
+        const span = document.createElement('span'); span.className='pill';
+        span.textContent=n;
+        const btn = document.createElement('button'); btn.textContent='×'; btn.addEventListener('click',()=>{ siteData.leadership.drivers.splice(i,1); renderEditor(); });
+        span.appendChild(btn); driversC.appendChild(span);
+      });
     }
 
-    document.getElementById('add-timeline').addEventListener('click', ()=>{ siteData.timeline.push({id:uid(), date:new Date().toLocaleDateString(), title:'New event', description:''}); renderEditor(); });
-    document.getElementById('add-lead').addEventListener('click', ()=>{ const v=document.getElementById('new-lead').value.trim(); if(v){ siteData.leadership.leads.push(v); document.getElementById('new-lead').value=''; renderEditor(); }});
-    document.getElementById('add-driver').addEventListener('click', ()=>{ const v=document.getElementById('new-driver').value.trim(); if(v){ siteData.leadership.drivers.push(v); document.getElementById('new-driver').value=''; renderEditor(); }});
+    document.getElementById('add-timeline').addEventListener('click', ()=>{
+      siteData.timeline.push({id:uid(), date:new Date().toLocaleDateString(), title:'New event', description:''});
+      renderEditor();
+    });
+
+    document.getElementById('add-lead').addEventListener('click', ()=>{
+      const name = document.getElementById('new-lead').value.trim();
+      const team = document.getElementById('new-lead-team').value.trim();
+      if (name){
+        siteData.leadership.leads.push({ name, team });
+        document.getElementById('new-lead').value = '';
+        document.getElementById('new-lead-team').value = '';
+        renderEditor();
+      }
+    });
+
+    document.getElementById('add-driver').addEventListener('click', ()=>{
+      const v=document.getElementById('new-driver').value.trim();
+      if(v){
+        siteData.leadership.drivers.push(v);
+        document.getElementById('new-driver').value='';
+        renderEditor();
+      }
+    });
 
     document.getElementById('site-title').addEventListener('input',(e)=> siteData.title = e.target.value);
     document.getElementById('about-heading').addEventListener('input',(e)=> siteData.about.heading = e.target.value);
     document.getElementById('about-content').addEventListener('input',(e)=> siteData.about.content = e.target.value);
 
-    document.getElementById('download-json').addEventListener('click', ()=> {
-      const b = new Blob([JSON.stringify(siteData,null,2)], {type:'application/json'}); const u = URL.createObjectURL(b);
+    document.getElementById('download-json').addEventListener('click', ()=>{
+      const b = new Blob([JSON.stringify(siteData,null,2)], {type:'application/json'});
+      const u = URL.createObjectURL(b);
       const a = document.createElement('a'); a.href = u; a.download = 'site.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(u);
     });
+
     document.getElementById('preview-json').addEventListener('click', ()=> alert(JSON.stringify(siteData,null,2)));
 
     // GitHub push (optional)
@@ -172,7 +260,13 @@
       const path = document.getElementById('gh-path').value.trim() || 'data/site.json';
       const token = document.getElementById('gh-token').value.trim();
       if (!owner || !repo || !token) { document.getElementById('gh-result').textContent = 'owner/repo/token required'; return; }
-      try { document.getElementById('gh-result').textContent = 'Checking...'; const sha = await getSha(owner, repo, path, branch, token); document.getElementById('gh-result').textContent = sha ? ('File exists, sha: '+sha) : 'File does not exist (will be created)'; } catch(e){ document.getElementById('gh-result').textContent = 'Error: '+e.message; }
+      try {
+        document.getElementById('gh-result').textContent = 'Checking...';
+        const sha = await getSha(owner, repo, path, branch, token);
+        document.getElementById('gh-result').textContent = sha ? ('Found existing file. SHA: ' + sha) : 'No existing file (will create new).';
+      } catch (e) {
+        document.getElementById('gh-result').textContent = 'Error: ' + e.message;
+      }
     });
 
     document.getElementById('push-github').addEventListener('click', async ()=>{

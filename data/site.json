@@ -38,13 +38,54 @@
   ],
   "leadership": {
     "teams": [
-      { "team": "Design Team", "role": "Lead", "members": [] },
-      { "team": "Mechanical Team", "role": "Lead", "members": [] },
-      { "team": "Electrical Team", "role": "Lead", "members": [] },
-      { "team": "Programming Team", "role": "Lead", "members": [] },
-      { "team": "Drive Team", "role": "Driver", "members": [] }
+      {
+        "team": "Design Team",
+        "role": "Lead",
+        "members": []
+      },
+      {
+        "team": "Mechanical Team",
+        "role": "Lead",
+        "members": []
+      },
+      {
+        "team": "Electrical Team",
+        "role": "Lead",
+        "members": []
+      },
+      {
+        "team": "Programming Team",
+        "role": "Lead",
+        "members": []
+      },
+      {
+        "team": "Drive Team",
+        "role": "Driver",
+        "members": []
+      }
     ],
-    "leads": [],
+    "leads": [
+      {
+        "name": "Lucas",
+        "team": "Design Team"
+      },
+      {
+        "name": "Raaed",
+        "team": "Design Team"
+      },
+      {
+        "name": "Gabe",
+        "team": "Electrical Team"
+      },
+      {
+        "name": "Ruhi",
+        "team": "Electrical Team"
+      },
+      {
+        "name": "Illia",
+        "team": "Mechanical Team"
+      }
+    ],
     "drivers": []
   }
 }

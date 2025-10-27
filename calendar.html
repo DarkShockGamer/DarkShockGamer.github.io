@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trident Robotics — Calendar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Match tasks.html overall vibe */
+    html, body { height: 100%; overflow: hidden; }
+    body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+
+    /* Day cell styling */
+    .day-cell {
+      background: white;
+      border: 1px solid #e2e8f0; /* slate-200 */
+      border-radius: 0.75rem;
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+      min-width: 0;
+      transition: border-color 150ms, box-shadow 150ms, transform 150ms;
+    }
+    .day-cell:hover {
+      border-color: #93c5fd; /* sky-300 */
+      box-shadow: 0 6px 16px rgba(2,132,199,0.12);
+      transform: translateY(-1px);
+    }
+    .day-muted { opacity: 0.45; }
+    .today-dot {
+      display: inline-block;
+      width: 0.375rem;
+      height: 0.375rem;
+      background: #0ea5e9; /* sky-500 */
+      border-radius: 9999px;
+      margin-left: 0.25rem;
+    }
+
+    .event-pill {
+      display: block;
+      font-size: 0.75rem;
+      line-height: 1.1rem;
+      background: #e0f2fe;    /* sky-100 */
+      color: #0369a1;         /* sky-700 */
+      border: 1px solid #bae6fd; /* sky-200 */
+      border-radius: 0.5rem;
+      padding: 0.125rem 0.375rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .task-pill {
+      display: block;
+      font-size: 0.75rem;
+      line-height: 1.1rem;
+      background: #ecfdf5;     /* emerald-50 */
+      color: #047857;          /* emerald-700 */
+      border: 1px solid #a7f3d0;/* emerald-200 */
+      border-radius: 0.5rem;
+      padding: 0.125rem 0.375rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .more-pill {
+      display: inline-block;
+      font-size: 0.75rem;
+      color: #64748b;          /* slate-500 */
+    }
+
+    .weekday {
+      font-size: 0.75rem;
+      color: #0369a1; /* sky-700 */
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; z-index: 50; }
+    .modal-overlay.open { display: flex; }
+    .modal-card { background: white; border-radius: 0.75rem; width: min(720px, calc(100vw - 2rem)); max-height: min(80vh, 640px); overflow: auto; border: 1px solid #e2e8f0; }
+
+    /* Dark mode match (from tasks.html palette) */
+    @media (prefers-color-scheme: dark) {
+      html, body { color-scheme: dark; }
+      body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; }
+      .day-cell { background: #0f172a !important; border-color: #1f2937 !important; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.3); }
+      .day-cell:hover { border-color: #0ea5e9 !important; box-shadow: 0 6px 16px rgba(14,165,233,0.18); }
+
+      .weekday { color: #7dd3fc !important; }
+      .event-pill { background: #0c4a6e !important; color: #e0f2fe !important; border-color: #075985 !important; }
+      .task-pill  { background: #052e2b !important; color: #a7f3d0 !important; border-color: #065f46 !important; }
+      .more-pill { color: #94a3b8 !important; }
+
+      input[type="text"] {
+        background: #0b1220 !important; color: #e5e7eb !important; border-color: #334155 !important;
+      }
+      .modal-card { background: #0f172a !important; border-color: #1f2937 !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen p-6">
+
+  <header class="max-w-7xl mx-auto mb-6 px-2">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
+      <div class="flex flex-col gap-1 w-full md:w-auto">
+        <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">Trident Robotics — Calendar</h1>
+        <p class="text-sm text-sky-600 dark:text-sky-400">Public events for everyone. Team tasks appear when you’re signed in (like the Task Board).</p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+        <input id="userNameInput" placeholder="Your name..." class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
+        <div class="text-xs text-slate-500 dark:text-slate-400">Tasks visible when your name is set</div>
+      </div>
+    </div>
+
+    <div class="mt-4 bg-white p-3 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <button id="prevBtn" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" title="Previous month" aria-label="Previous month">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div id="monthLabel" class="text-base font-semibold text-slate-700 dark:text-slate-200 min-w-[10ch]"></div>
+          <button id="nextBtn" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" title="Next month" aria-label="Next month">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+          <span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded bg-sky-200 border border-sky-300 dark:bg-[#0c4a6e] dark:border-[#075985]"></span> Event</span>
+          <span class="inline-flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-100 border border-emerald-200 dark:bg-[#052e2b] dark:border-[#065f46]"></span> Task due</span>
+          <span class="inline-flex items-center gap-1"><span class="today-dot"></span> Today</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto flex flex-col h-[calc(100vh-208px)]">
+    <!-- Weekday header -->
+    <div id="weekdayHeader" class="grid grid-cols-7 px-2 py-2">
+      <div class="weekday">Sun</div>
+      <div class="weekday">Mon</div>
+      <div class="weekday">Tue</div>
+      <div class="weekday">Wed</div>
+      <div class="weekday">Thu</div>
+      <div class="weekday">Fri</div>
+      <div class="weekday">Sat</div>
+    </div>
+
+    <!-- Calendar grid (7 x 6) -->
+    <div id="calendarGrid" class="grid grid-cols-7 grid-rows-6 gap-2 px-2 overflow-hidden flex-1"></div>
+
+    <footer class="mt-4 text-center py-4 border-t border-slate-100 dark:border-slate-800 flex flex-col items-center gap-1">
+      <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-6 w-6" />
+      <span class="text-sky-600 dark:text-sky-400 text-sm">© 2025 Trident Robotics — Calendar</span>
+      <span class="text-xs text-sky-400">Public calendar • Tasks appear when signed in</span>
+    </footer>
+  </main>
+
+  <!-- Modal for full day details -->
+  <div id="dayModal" class="modal-overlay">
+    <div class="modal-card p-4 md:p-6">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <div id="modalDate" class="text-lg font-bold text-slate-800 dark:text-slate-200"></div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">All items for this date</div>
+        </div>
+        <button id="closeModal" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div id="modalContent" class="space-y-4">
+        <div>
+          <div class="text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">Events</div>
+          <div id="modalEvents" class="space-y-1 text-sm"></div>
+        </div>
+        <div>
+          <div class="text-sm font-semibold mb-1 text-slate-700 dark:text-slate-300">Tasks due</div>
+          <div id="modalTasks" class="space-y-1 text-sm"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+    // Same Firebase project as tasks.html
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHFWZI",
+      authDomain: "tridenttaskboard.firebaseapp.com",
+      projectId: "tridenttaskboard",
+      storageBucket: "tridenttaskboard.firebasestorage.appspot.com",
+      messagingSenderId: "143400263387",
+      appId: "1:143400263387:web:66ed521ae75af588e836fe",
+      measurementId: "G-F12DDQCX87"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // DOM
+    const userNameInput = document.getElementById("userNameInput");
+    const monthLabel = document.getElementById("monthLabel");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const grid = document.getElementById("calendarGrid");
+
+    const modal = document.getElementById("dayModal");
+    const closeModalBtn = document.getElementById("closeModal");
+    const modalDateEl = document.getElementById("modalDate");
+    const modalEventsEl = document.getElementById("modalEvents");
+    const modalTasksEl = document.getElementById("modalTasks");
+
+    // Persist name (same as tasks.html behavior)
+    userNameInput.value = localStorage.getItem("userName") || "";
+    userNameInput.oninput = () => {
+      localStorage.setItem("userName", userNameInput.value);
+      render(); // refresh to show/hide tasks
+    };
+
+    function isLoggedIn() {
+      return (userNameInput.value || "").trim().length > 0;
+    }
+
+    // Date state
+    let current = new Date();
+    current.setDate(1); // focus on the first of the month
+
+    // Data caches
+    let events = [];  // {title, date(YYYY-MM-DD), time?, location?, isPublic?}
+    let tasks = [];   // firestore tasks
+
+    function pad(n) { return String(n).padStart(2, "0"); }
+    function fmtDateKey(d) { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+    function toKey(y, m, day) { return `${y}-${pad(m+1)}-${pad(day)}`; }
+
+    function monthMatrix(year, month) {
+      // Build an array of 42 day objects for a 6-row calendar grid
+      const first = new Date(year, month, 1);
+      const startDay = first.getDay(); // 0..6 (Sun..Sat)
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const prevDays = new Date(year, month, 0).getDate();
+
+      const cells = [];
+      // Leading days from previous month
+      for (let i = 0; i < startDay; i++) {
+        const day = prevDays - startDay + 1 + i;
+        cells.push({ date: new Date(year, month - 1, day), inMonth: false });
+      }
+      // Current month days
+      for (let d = 1; d <= daysInMonth; d++) {
+        cells.push({ date: new Date(year, month, d), inMonth: true });
+      }
+      // Trailing days from next month
+      while (cells.length < 42) {
+        const last = cells[cells.length - 1].date;
+        cells.push({ date: new Date(last.getFullYear(), last.getMonth(), last.getDate() + 1), inMonth: false });
+      }
+      return cells;
+    }
+
+    function groupByDate(items, getDateKey) {
+      const map = new Map();
+      for (const it of items) {
+        const k = getDateKey(it);
+        if (!k) continue;
+        if (!map.has(k)) map.set(k, []);
+        map.get(k).push(it);
+      }
+      return map;
+    }
+
+    async function loadEvents() {
+      try {
+        const snap = await getDocs(collection(db, "events"));
+        const arr = [];
+        snap.forEach(doc => {
+          const e = doc.data() || {};
+          // Expect date as YYYY-MM-DD (same as tasks due)
+          const date = typeof e.date === "string" ? e.date : "";
+          if (!date) return;
+          arr.push({
+            id: doc.id,
+            title: e.title || "(Untitled)",
+            date: date,
+            time: e.time || "",
+            location: e.location || "",
+            isPublic: e.isPublic !== false // default true if undefined
+          });
+        });
+        events = arr;
+      } catch (err) {
+        console.warn("Failed to load events (showing none):", err);
+        events = [];
+      }
+    }
+
+    async function loadTasks() {
+      try {
+        const snap = await getDocs(collection(db, "tasks"));
+        const arr = [];
+        snap.forEach(doc => {
+          const t = doc.data() || {};
+          if (t.deleted || t.archived) return;
+          arr.push({
+            id: doc.id,
+            title: t.title || "(Untitled)",
+            assignee: t.assignee || "Unassigned",
+            due: typeof t.due === "string" ? t.due : ""
+          });
+        });
+        tasks = arr;
+      } catch (err) {
+        console.warn("Failed to load tasks (showing none):", err);
+        tasks = [];
+      }
+    }
+
+    function renderMonthLabel(year, month) {
+      const dtf = new Intl.DateTimeFormat([], { month: "long", year: "numeric" });
+      monthLabel.textContent = dtf.format(new Date(year, month, 1));
+    }
+
+    function isToday(d) {
+      const now = new Date();
+      return d.getFullYear() === now.getFullYear() &&
+             d.getMonth() === now.getMonth() &&
+             d.getDate() === now.getDate();
+    }
+
+    function openModal(dateObj, dayEvents, dayTasks) {
+      modalDateEl.textContent = dateObj.toLocaleDateString([], { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+
+      // Events (public only)
+      modalEventsEl.innerHTML = (dayEvents.length
+        ? dayEvents.map(e => {
+            const time = e.time ? ` • ${e.time}` : "";
+            const loc = e.location ? ` • ${e.location}` : "";
+            return `<div class="p-2 rounded border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"><span class="event-pill">${escapeHtml(e.title)}</span><div class="text-xs text-slate-500 dark:text-slate-400 mt-1">${escapeHtml(e.date)}${escapeHtml(time)}${escapeHtml(loc)}</div></div>`;
+          }).join("")
+        : '<div class="text-slate-400 text-sm">No events</div>'
+      );
+
+      // Tasks
+      modalTasksEl.innerHTML = (dayTasks.length
+        ? dayTasks.map(t => {
+            const who = t.assignee ? ` • ${t.assignee}` : "";
+            return `<div class="p-2 rounded border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900"><span class="task-pill">${escapeHtml(t.title)}</span><div class="text-xs text-slate-500 dark:text-slate-400 mt-1">${escapeHtml(t.due)}${escapeHtml(who)}</div></div>`;
+          }).join("")
+        : '<div class="text-slate-400 text-sm">No tasks due</div>'
+      );
+
+      modal.classList.add("open");
+    }
+
+    function closeModal() { modal.classList.remove("open"); }
+
+    closeModalBtn.onclick = closeModal;
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function renderGrid(year, month) {
+      renderMonthLabel(year, month);
+      grid.innerHTML = "";
+
+      const cells = monthMatrix(year, month);
+
+      const eventsByDate = groupByDate(
+        events.filter(e => e.isPublic === true),
+        e => e.date
+      );
+      const tasksByDate = groupByDate(
+        tasks,
+        t => t.due
+      );
+      const showTasks = isLoggedIn();
+
+      const MAX_VISIBLE = 3; // items inside each cell with no internal scrolling
+
+      for (const { date, inMonth } of cells) {
+        const key = fmtDateKey(date);
+        const dayEvents = (eventsByDate.get(key) || []);
+        const dayTasks = showTasks ? (tasksByDate.get(key) || []) : [];
+        const total = dayEvents.length + dayTasks.length;
+
+        const cell = document.createElement("button");
+        cell.type = "button";
+        cell.className = "day-cell text-left";
+        cell.setAttribute("data-date", key);
+        if (!inMonth) cell.classList.add("day-muted");
+
+        // Header row: day number (+ today marker)
+        const head = document.createElement("div");
+        head.className = "flex items-center justify-between gap-2";
+        const num = document.createElement("div");
+        num.className = "text-sm font-semibold text-slate-700 dark:text-slate-200";
+        num.textContent = date.getDate();
+        head.appendChild(num);
+
+        if (isToday(date)) {
+          const dot = document.createElement("span");
+          dot.className = "today-dot";
+          head.appendChild(dot);
+        }
+
+        cell.appendChild(head);
+
+        // Items (events then tasks)
+        const items = document.createElement("div");
+        items.className = "flex flex-col gap-1 min-h-0";
+
+        const addPill = (txt, cls) => {
+          const span = document.createElement("span");
+          span.className = cls;
+          span.title = txt;
+          span.textContent = txt;
+          items.appendChild(span);
+        };
+
+        let shown = 0;
+        for (const e of dayEvents) {
+          if (shown >= MAX_VISIBLE) break;
+          addPill(e.title, "event-pill");
+          shown++;
+        }
+        for (const t of dayTasks) {
+          if (shown >= MAX_VISIBLE) break;
+          addPill(t.title, "task-pill");
+          shown++;
+        }
+
+        if (total > shown) {
+          const more = document.createElement("span");
+          more.className = "more-pill";
+          more.textContent = `+${total - shown} more`;
+          items.appendChild(more);
+        }
+
+        cell.appendChild(items);
+
+        // Open modal with full list
+        cell.addEventListener("click", () => openModal(date, dayEvents, dayTasks));
+
+        grid.appendChild(cell);
+      }
+    }
+
+    async function render() {
+      // Load data in parallel
+      await Promise.all([loadEvents(), loadTasks()]);
+      renderGrid(current.getFullYear(), current.getMonth());
+      fitCalendarToViewport();
+    }
+
+    prevBtn.onclick = () => {
+      current.setMonth(current.getMonth() - 1);
+      renderGrid(current.getFullYear(), current.getMonth());
+      fitCalendarToViewport();
+    };
+    nextBtn.onclick = () => {
+      current.setMonth(current.getMonth() + 1);
+      renderGrid(current.getFullYear(), current.getMonth());
+      fitCalendarToViewport();
+    };
+
+    // Keep the calendar fully visible without page scrolling
+    function fitCalendarToViewport() {
+      // We’ll make the grid exactly fill the remaining height between header controls and footer
+      const header = document.querySelector("header");
+      const weekHeader = document.getElementById("weekdayHeader");
+      const footer = document.querySelector("footer");
+
+      const top = header.getBoundingClientRect().bottom;
+      const bottom = footer.getBoundingClientRect().top;
+      const available = Math.max(0, bottom - top - 8); // small gap
+
+      // Set a fixed height so there’s no page scroll, then make cells flex to fill
+      const main = document.querySelector("main");
+      main.style.height = `${available + weekHeader.offsetHeight + 8}px`;
+
+      // Ensure day cells can grow to fill the 6 rows
+      grid.style.gridAutoRows = "1fr";
+    }
+
+    window.addEventListener("resize", () => {
+      fitCalendarToViewport();
+    });
+
+    // Initial
+    render();
+  </script>
+</body>
+</html>

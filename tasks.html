@@ -54,7 +54,7 @@
     .column-count { color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 9999px; padding: 0 0.5rem; font-size: 0.75rem; line-height: 1.25rem; }
 
     /* Task card */
-    .task-card { background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; box-shadow: 0 1px 1px rgba(2, 6, 23, 0.04); transition: box-shadow 150ms, border-color 150ms, transform 150ms; }
+    .task-card { background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; box-shadow: 0 1px 1px rgba(2, 6, 23, 0.04); transition: box-shadow 150ms, border-color 150ms; }
     .task-card:hover { box-shadow: 0 6px 16px rgba(2,132,199,0.12); border-color: #93c5fd; transform: translateY(-1px); }
 
     /* Dark mode */
@@ -108,8 +108,8 @@
   <!-- Add Task section -->
   <div class="mt-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
     <div class="flex flex-col sm:flex-row gap-3 flex-wrap items-start sm:items-center">
-      <input id="newTitle" class="flex-1 rounded-md border border-slate-300 px-3 py-2 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Task title (e.g. prototype the intake)" />
-      <input id="newAssignee" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee" />
+      <input id="newTitle" class="flex-1 rounded-md border border-slate-300 px-3 py-2 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Task title..." />
+      <input id="newAssignee" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee..." />
       <input id="newDue" type="date" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
 
       <!-- Custom dropdown -->
@@ -121,8 +121,9 @@
           <label><input type="checkbox" value="Programming" /> <span>Programming</span></label>
           <label><input type="checkbox" value="Electrical" /> <span>Electrical</span></label>
           <label><input type="checkbox" value="Business" /> <span>Business</span></label>
-          <label><input type="checkbox" value="Website" /> <span>Webiste</span></label>
           <label><input type="checkbox" value="Misc" /> <span>Misc</span></label>
+          <!-- Added per request -->
+          <label><input type="checkbox" value="Webiste" /> <span>Webiste</span></label>
         </div>
       </div>
 
@@ -357,16 +358,35 @@ function createTaskEl(task, colId) {
       <button class="text-xs text-sky-600 dark:text-sky-400 underline toggle-comments">Show Notes</button>
       <div class="comments-section hidden mt-2 border-t border-slate-100 dark:border-slate-800 pt-2 space-y-2">
         <div class="comments-list text-sm text-slate-800 dark:text-slate-200">
-          ${(task.comments || []).map(c => {
+          ${(task.comments || []).map((c, idx) => {
             const dateStr = c.timestamp
               ? new Date(c.timestamp).toLocaleString([], { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
               : "";
             const authorStr = c.author || "Anonymous";
-            const textHtml = c.text ? `<span class="block">${c.text}</span>` : "";
+            const safeText = c.text || "";
+            const textHtml = safeText ? `<span class="block">${safeText}</span>` : "";
             return `
-              <div class="border border-slate-100 dark:border-slate-800 rounded-md p-2 bg-slate-50 dark:bg-slate-900">
-                ${textHtml}
-                <span class="text-xs text-slate-400">${authorStr} • ${dateStr}</span>
+              <div class="border border-slate-100 dark:border-slate-800 rounded-md p-2 bg-slate-50 dark:bg-slate-900 comment-item" data-ts="${c.timestamp || ''}" data-idx="${idx}">
+                <div class="flex items-start justify-between gap-2">
+                  <div>
+                    ${textHtml}
+                    <span class="text-xs text-slate-400">${authorStr} • ${dateStr}</span>
+                  </div>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button class="comment-edit p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Edit">
+                      <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5h2m-9 9l2 2 12-12a2.121 2.121 0 10-3-3L3 13l-1 4 4-1z" />
+                      </svg>
+                    </button>
+                    <button class="comment-delete p-1 rounded hover:bg-red-50 dark:hover:bg-red-950" title="Delete">
+                      <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
             `;
           }).join("")}
@@ -433,6 +453,61 @@ function createTaskEl(task, colId) {
     }
   };
 
+  /* Edit an existing comment (pencil icon) */
+  div.querySelectorAll(".comment-edit").forEach(btn => {
+    btn.onclick = async () => {
+      const container = btn.closest(".comment-item");
+      if (!container) return;
+      const ts = parseInt(container.dataset.ts || "0", 10);
+      const idx = parseInt(container.dataset.idx || "-1", 10);
+
+      let existing = null;
+      if (ts) existing = (task.comments || []).find(c => c.timestamp === ts);
+      if (!existing && idx >= 0) existing = (task.comments || [])[idx];
+
+      const newText = prompt("Edit note:", existing?.text || "");
+      if (newText === null) return; // cancel
+      const trimmed = newText.trim();
+      if (!trimmed) return;
+
+      const updated = (task.comments || []).map((c, i) =>
+        (ts ? c.timestamp === ts : i === idx) ? { ...c, text: trimmed } : c
+      );
+
+      try {
+        await setDoc(doc(db, "tasks", task.id), { comments: updated }, { merge: true });
+        task.comments = updated;
+        renderBoard();
+      } catch (err) {
+        console.error("Failed to edit comment:", err);
+        alert(`Failed to edit comment: ${err.message || err}`);
+      }
+    };
+  });
+
+  /* Delete an existing comment (red X) */
+  div.querySelectorAll(".comment-delete").forEach(btn => {
+    btn.onclick = async () => {
+      const container = btn.closest(".comment-item");
+      if (!container) return;
+      const ts = parseInt(container.dataset.ts || "0", 10);
+      const idx = parseInt(container.dataset.idx || "-1", 10);
+
+      if (!confirm("Delete this note?")) return;
+
+      const updated = (task.comments || []).filter((c, i) => ts ? c.timestamp !== ts : i !== idx);
+
+      try {
+        await setDoc(doc(db, "tasks", task.id), { comments: updated }, { merge: true });
+        task.comments = updated;
+        renderBoard();
+      } catch (err) {
+        console.error("Failed to delete comment:", err);
+        alert(`Failed to delete comment: ${err.message || err}`);
+      }
+    };
+  });
+
   makeDraggable(div);
   return div;
 }
@@ -444,9 +519,9 @@ function openEditModal(task, colId) {
   modal.innerHTML = `
     <div class="bg-white p-6 rounded-xl shadow-xl w-80 space-y-3 border border-slate-200 ring-1 ring-slate-100 modal-panel dark:bg-slate-900 dark:border-slate-800">
       <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">Edit Task</h3>
-      <input id="editTitle" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" value="${task.title || ""}" />
-      <input id="editAssignee" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" value="${task.assignee || ""}" />
-      <input id="editDue" type="date" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" value="${task.due || ""}" />
+      <input id="editTitle" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Title..." />
+      <input id="editAssignee" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee..." />
+      <input id="editDue" type="date" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
 
       <div class="dropdown mt-2" id="editTagDropdown">
         <div class="dropdown-btn" id="editDropdownBtn"><span class="placeholder">Select tags...</span></div>
@@ -456,8 +531,9 @@ function openEditModal(task, colId) {
           <label><input type="checkbox" value="Programming" /> <span>Programming</span></label>
           <label><input type="checkbox" value="Electrical" /> <span>Electrical</span></label>
           <label><input type="checkbox" value="Business" /> <span>Business</span></label>
-          <label><input type="checkbox" value="Website" /> <span>Webiste</span></label>
           <label><input type="checkbox" value="Misc" /> <span>Misc</span></label>
+          <!-- Added per request -->
+          <label><input type="checkbox" value="Webiste" /> <span>Webiste</span></label>
         </div>
       </div>
 

@@ -290,17 +290,17 @@
     .sponsor-media {
       width: 100%;
       aspect-ratio: 16 / 9;
-      min-height: 140px;          /* ensure enough height for taller logos */
+      min-height: 140px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 12px 14px 18px;    /* extra bottom padding to avoid visual cut */
+      padding: 12px 14px 18px;
       border-radius: 12px;
       background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
       border: 1.5px solid rgba(79,163,209,0.35);
       box-shadow: 0 6px 16px rgba(0,0,0,0.35);
       position: relative;
-      overflow: visible;           /* prevent any perceived clipping at edges */
+      overflow: visible;
       isolation: isolate;
     }
 
@@ -310,11 +310,18 @@
       width: auto;
       height: auto;
       max-width: 92%;
-      max-height: 78%;            /* leaves breathing room inside the frame */
+      max-height: 78%;
       object-fit: contain;
       object-position: center center;
       filter: grayscale(6%) drop-shadow(0 0 6px rgba(255,255,255,0.18));
       transition: filter .25s ease;
+    }
+
+    /* Only increase Patel Family logo slightly */
+    .sponsor-logo[alt^="Patel Family"],
+    .sponsor-logo[src*="PatelFamily"] {
+      max-width: 96%;
+      max-height: 86%;
     }
 
     @media (hover: hover) and (pointer: fine) {
@@ -584,9 +591,7 @@
               google.accounts.id.revoke(email, (done) => {
                 console.log('revoke callback:', done);
               });
-            } catch (e) {
-              console.warn('revoke call failed', e);
-            }
+            } catch (e) { console.warn('revoke call failed', e); }
           }
         } catch (e) { /* ignore */ }
       }

@@ -22,6 +22,7 @@
       gap: 0.375rem;
       min-width: 0;
       transition: border-color 150ms, box-shadow 150ms, transform 150ms;
+      cursor: pointer;
     }
     .day-cell:hover {
       border-color: #93c5fd; /* sky-300 */
@@ -38,36 +39,32 @@
       margin-left: 0.25rem;
     }
 
-    .event-pill {
-      display: block;
-      font-size: 0.75rem;
-      line-height: 1.1rem;
-      background: #e0f2fe;    /* sky-100 */
-      color: #0369a1;         /* sky-700 */
-      border: 1px solid #bae6fd; /* sky-200 */
-      border-radius: 0.5rem;
-      padding: 0.125rem 0.375rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .event-pill,
     .task-pill {
       display: block;
       font-size: 0.75rem;
       line-height: 1.1rem;
-      background: #ecfdf5;     /* emerald-50 */
-      color: #047857;          /* emerald-700 */
-      border: 1px solid #a7f3d0;/* emerald-200 */
       border-radius: 0.5rem;
       padding: 0.125rem 0.375rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .event-pill {
+      background: #e0f2fe;      /* sky-100 */
+      color: #0369a1;           /* sky-700 */
+      border: 1px solid #bae6fd;/* sky-200 */
+    }
+    .task-pill {
+      background: #ecfdf5;       /* emerald-50 */
+      color: #047857;            /* emerald-700 */
+      border: 1px solid #a7f3d0; /* emerald-200 */
     }
     .more-pill {
       display: inline-block;
-      font-size: 0.75rem;
-      color: #64748b;          /* slate-500 */
+      font-size: 0.72rem;
+      color: #64748b;            /* slate-500 */
     }
 
     .weekday {
@@ -94,9 +91,6 @@
       .task-pill  { background: #052e2b !important; color: #a7f3d0 !important; border-color: #065f46 !important; }
       .more-pill { color: #94a3b8 !important; }
 
-      input[type="text"] {
-        background: #0b1220 !important; color: #e5e7eb !important; border-color: #334155 !important;
-      }
       .modal-card { background: #0f172a !important; border-color: #1f2937 !important; }
     }
   </style>
@@ -107,12 +101,13 @@
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
       <div class="flex flex-col gap-1 w-full md:w-auto">
         <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">Trident Robotics — Calendar</h1>
-        <p class="text-sm text-sky-600 dark:text-sky-400">Public events for everyone. Team tasks appear when you’re signed in (like the Task Board).</p>
+        <p class="text-sm text-sky-600 dark:text-sky-400">Public events for everyone. Team tasks appear only when signed in with Google on the home page.</p>
       </div>
 
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-        <input id="userNameInput" placeholder="Your name..." class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
-        <div class="text-xs text-slate-500 dark:text-slate-400">Tasks visible when your name is set</div>
+      <div class="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
+        <div id="taskAccessBadge" class="text-xs px-2 py-1 rounded border border-slate-300 text-slate-600 bg-white shadow-sm dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700">
+          Tasks hidden • Sign in on the home page
+        </div>
       </div>
     </div>
 
@@ -136,7 +131,8 @@
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto flex flex-col h-[calc(100vh-208px)]">
+  <!-- NOTE: removed fixed h-[calc(...)] to prevent compounding layout shrink -->
+  <main class="max-w-7xl mx-auto flex flex-col">
     <!-- Weekday header -->
     <div id="weekdayHeader" class="grid grid-cols-7 px-2 py-2">
       <div class="weekday">Sun</div>
@@ -149,7 +145,7 @@
     </div>
 
     <!-- Calendar grid (7 x 6) -->
-    <div id="calendarGrid" class="grid grid-cols-7 grid-rows-6 gap-2 px-2 overflow-hidden flex-1"></div>
+    <div id="calendarGrid" class="grid grid-cols-7 grid-rows-6 gap-2 px-2 overflow-hidden"></div>
 
     <footer class="mt-4 text-center py-4 border-t border-slate-100 dark:border-slate-800 flex flex-col items-center gap-1">
       <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-6 w-6" />
@@ -202,11 +198,11 @@
     const db = getFirestore(app);
 
     // DOM
-    const userNameInput = document.getElementById("userNameInput");
     const monthLabel = document.getElementById("monthLabel");
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
     const grid = document.getElementById("calendarGrid");
+    const badge = document.getElementById("taskAccessBadge");
 
     const modal = document.getElementById("dayModal");
     const closeModalBtn = document.getElementById("closeModal");
@@ -214,15 +210,56 @@
     const modalEventsEl = document.getElementById("modalEvents");
     const modalTasksEl = document.getElementById("modalTasks");
 
-    // Persist name (same as tasks.html behavior)
-    userNameInput.value = localStorage.getItem("userName") || "";
-    userNameInput.oninput = () => {
-      localStorage.setItem("userName", userNameInput.value);
-      render(); // refresh to show/hide tasks
-    };
+    // Google Sign-In state from index.html
+    const G_CRED_KEY = "g_credential_v1";
+    const allowedDomains = ["wths.net"];
+    const allowedEmails = ["blackshocktrooper@gmail.com"];
 
-    function isLoggedIn() {
-      return (userNameInput.value || "").trim().length > 0;
+    function decodeJwtPayload(raw) {
+      try {
+        const parts = String(raw).split(".");
+        if (parts.length < 2) return null;
+        const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+        const json = atob(base64);
+        try {
+          // handle unicode
+          const decoded = decodeURIComponent(Array.prototype.map.call(json, c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+          return JSON.parse(decoded);
+        } catch {
+          return JSON.parse(json);
+        }
+      } catch {
+        return null;
+      }
+    }
+
+    function getGoogleProfile() {
+      const raw = localStorage.getItem(G_CRED_KEY);
+      if (!raw) return null;
+      return decodeJwtPayload(raw);
+    }
+
+    function isTaskAccessAllowed() {
+      const prof = getGoogleProfile();
+      if (!prof || !prof.email) return false;
+      const email = String(prof.email).toLowerCase();
+      const domainAllowed = allowedDomains.some(d => email.endsWith("@" + d));
+      const emailAllowed = allowedEmails.map(e => e.toLowerCase()).includes(email);
+      return domainAllowed || emailAllowed;
+    }
+
+    function setTaskAccessBadge() {
+      const allowed = isTaskAccessAllowed();
+      if (!badge) return;
+      if (allowed) {
+        badge.textContent = "Tasks visible • Signed in";
+        badge.classList.remove("border-slate-300", "text-slate-600");
+        badge.classList.add("border-emerald-300", "text-emerald-700");
+      } else {
+        badge.textContent = "Tasks hidden • Sign in on the home page";
+        badge.classList.remove("border-emerald-300", "text-emerald-700");
+        badge.classList.add("border-slate-300", "text-slate-600");
+      }
     }
 
     // Date state
@@ -231,11 +268,10 @@
 
     // Data caches
     let events = [];  // {title, date(YYYY-MM-DD), time?, location?, isPublic?}
-    let tasks = [];   // firestore tasks
+    let tasks = [];   // firestore tasks (only when access allowed)
 
     function pad(n) { return String(n).padStart(2, "0"); }
     function fmtDateKey(d) { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
-    function toKey(y, m, day) { return `${y}-${pad(m+1)}-${pad(day)}`; }
 
     function monthMatrix(year, month) {
       // Build an array of 42 day objects for a 6-row calendar grid
@@ -262,10 +298,10 @@
       return cells;
     }
 
-    function groupByDate(items, getDateKey) {
+    function groupByDate(items, getKey) {
       const map = new Map();
       for (const it of items) {
-        const k = getDateKey(it);
+        const k = getKey(it);
         if (!k) continue;
         if (!map.has(k)) map.set(k, []);
         map.get(k).push(it);
@@ -279,26 +315,29 @@
         const arr = [];
         snap.forEach(doc => {
           const e = doc.data() || {};
-          // Expect date as YYYY-MM-DD (same as tasks due)
           const date = typeof e.date === "string" ? e.date : "";
           if (!date) return;
           arr.push({
             id: doc.id,
             title: e.title || "(Untitled)",
-            date: date,
+            date,
             time: e.time || "",
             location: e.location || "",
-            isPublic: e.isPublic !== false // default true if undefined
+            isPublic: e.isPublic !== false // default true
           });
         });
         events = arr;
       } catch (err) {
-        console.warn("Failed to load events (showing none):", err);
+        console.warn("Failed to load events:", err);
         events = [];
       }
     }
 
-    async function loadTasks() {
+    async function loadTasksIfAllowed() {
+      if (!isTaskAccessAllowed()) {
+        tasks = [];
+        return;
+      }
       try {
         const snap = await getDocs(collection(db, "tasks"));
         const arr = [];
@@ -314,7 +353,7 @@
         });
         tasks = arr;
       } catch (err) {
-        console.warn("Failed to load tasks (showing none):", err);
+        console.warn("Failed to load tasks:", err);
         tasks = [];
       }
     }
@@ -329,6 +368,15 @@
       return d.getFullYear() === now.getFullYear() &&
              d.getMonth() === now.getMonth() &&
              d.getDate() === now.getDate();
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
     }
 
     function openModal(dateObj, dayEvents, dayTasks) {
@@ -357,20 +405,8 @@
     }
 
     function closeModal() { modal.classList.remove("open"); }
-
-    closeModalBtn.onclick = closeModal;
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) closeModal();
-    });
-
-    function escapeHtml(str) {
-      return String(str ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
-    }
+    document.getElementById("closeModal").onclick = closeModal;
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
 
     function renderGrid(year, month) {
       renderMonthLabel(year, month);
@@ -382,45 +418,40 @@
         events.filter(e => e.isPublic === true),
         e => e.date
       );
-      const tasksByDate = groupByDate(
-        tasks,
-        t => t.due
-      );
-      const showTasks = isLoggedIn();
+      const canSeeTasks = isTaskAccessAllowed();
+      const tasksByDate = canSeeTasks ? groupByDate(tasks, t => t.due) : new Map();
 
-      const MAX_VISIBLE = 3; // items inside each cell with no internal scrolling
+      // Fit count depending on screen width to avoid overflow
+      const MAX_VISIBLE = window.innerWidth < 640 ? 2 : 3;
 
       for (const { date, inMonth } of cells) {
         const key = fmtDateKey(date);
         const dayEvents = (eventsByDate.get(key) || []);
-        const dayTasks = showTasks ? (tasksByDate.get(key) || []) : [];
+        const dayTasks = canSeeTasks ? (tasksByDate.get(key) || []) : [];
         const total = dayEvents.length + dayTasks.length;
 
-        const cell = document.createElement("button");
-        cell.type = "button";
+        const cell = document.createElement("div");
         cell.className = "day-cell text-left";
         cell.setAttribute("data-date", key);
         if (!inMonth) cell.classList.add("day-muted");
 
         // Header row: day number (+ today marker)
         const head = document.createElement("div");
-        head.className = "flex items-center justify-between gap-2";
+        head.className = "flex items-center justify-between gap-2 shrink-0";
         const num = document.createElement("div");
         num.className = "text-sm font-semibold text-slate-700 dark:text-slate-200";
         num.textContent = date.getDate();
         head.appendChild(num);
-
         if (isToday(date)) {
           const dot = document.createElement("span");
           dot.className = "today-dot";
           head.appendChild(dot);
         }
-
         cell.appendChild(head);
 
         // Items (events then tasks)
         const items = document.createElement("div");
-        items.className = "flex flex-col gap-1 min-h-0";
+        items.className = "flex flex-col gap-1 min-h-0 overflow-hidden";
 
         const addPill = (txt, cls) => {
           const span = document.createElement("span");
@@ -459,47 +490,53 @@
     }
 
     async function render() {
-      // Load data in parallel
-      await Promise.all([loadEvents(), loadTasks()]);
+      setTaskAccessBadge();
+      // Load data (tasks only if allowed) in parallel
+      await Promise.all([loadEvents(), loadTasksIfAllowed()]);
       renderGrid(current.getFullYear(), current.getMonth());
-      fitCalendarToViewport();
+      layoutHeights();
     }
 
     prevBtn.onclick = () => {
       current.setMonth(current.getMonth() - 1);
       renderGrid(current.getFullYear(), current.getMonth());
-      fitCalendarToViewport();
+      layoutHeights();
     };
     nextBtn.onclick = () => {
       current.setMonth(current.getMonth() + 1);
       renderGrid(current.getFullYear(), current.getMonth());
-      fitCalendarToViewport();
+      layoutHeights();
     };
 
-    // Keep the calendar fully visible without page scrolling
-    function fitCalendarToViewport() {
-      // We’ll make the grid exactly fill the remaining height between header controls and footer
-      const header = document.querySelector("header");
-      const weekHeader = document.getElementById("weekdayHeader");
-      const footer = document.querySelector("footer");
-
-      const top = header.getBoundingClientRect().bottom;
-      const bottom = footer.getBoundingClientRect().top;
-      const available = Math.max(0, bottom - top - 8); // small gap
-
-      // Set a fixed height so there’s no page scroll, then make cells flex to fill
+    // Stable layout sizing to prevent “shrinking then disappearing”
+    function layoutHeights() {
+      const viewport = window.innerHeight;
+      const outerHeader = document.querySelector("header");
       const main = document.querySelector("main");
-      main.style.height = `${available + weekHeader.offsetHeight + 8}px`;
+      const weekHeader = document.getElementById("weekdayHeader");
+      const footer = main.querySelector("footer");
 
-      // Ensure day cells can grow to fill the 6 rows
-      grid.style.gridAutoRows = "1fr";
+      const headerH = outerHeader.offsetHeight;
+      const footerH = footer.offsetHeight;
+      const vhRemaining = Math.max(0, viewport - headerH - 24); // small margin
+
+      // Set main to fill remaining viewport
+      main.style.height = `${vhRemaining}px`;
+      main.style.minHeight = `${vhRemaining}px`;
+
+      // Give the calendar grid a precise height (no page scroll)
+      const gridH = Math.max(180, vhRemaining - weekHeader.offsetHeight - footerH - 16);
+      grid.style.height = `${gridH}px`;
+
+      // Ensure equal 6 rows that won't collapse
+      grid.style.gridAutoRows = "minmax(0, 1fr)";
     }
 
     window.addEventListener("resize", () => {
-      fitCalendarToViewport();
+      layoutHeights();
     });
 
-    // Initial
+    // Initial load
     render();
   </script>
 </body>

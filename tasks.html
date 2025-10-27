@@ -127,6 +127,11 @@
         </div>
       </div>
 
+      <!-- New: Description (supports - [ ] and - [x] checklist lines) -->
+      <textarea id="newDescription" rows="3" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="- [ ] Subtask 1
+- [ ] Subtask 2
+Notes line without a checkbox"></textarea>
+
       <button id="addTaskBtn" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Add Task</button>
     </div>
   </div>
@@ -238,6 +243,46 @@ dropdownList.querySelectorAll("input[type=checkbox]").forEach(cb => {
   });
 });
 
+/* Description helpers (Markdown-style checklist) */
+function escHtml(str) {
+  return String(str ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+function renderDescriptionHTML(desc, taskId) {
+  const text = String(desc || "");
+  if (!text.trim()) return "";
+  const lines = text.split(/\r?\n/);
+  return lines.map((line, idx) => {
+    const m = line.match(/^\s*-\s*\[([ xX])\]\s*(.*)$/);
+    if (m) {
+      const checked = m[1].toLowerCase() === "x";
+      const item = m[2] || "";
+      return `
+        <label class="flex items-start gap-2 py-0.5 select-none cursor-pointer">
+          <input type="checkbox" class="desc-checkbox mt-0.5 h-4 w-4 text-emerald-600 border-gray-300 rounded"
+            data-task-id="${escHtml(taskId)}" data-line-index="${idx}" ${checked ? "checked" : ""} />
+          <span class="leading-tight whitespace-pre-wrap break-words">${escHtml(item)}</span>
+        </label>
+      `;
+    }
+    return `<div class="leading-tight py-0.5 whitespace-pre-wrap break-words">${escHtml(line)}</div>`;
+  }).join("");
+}
+function toggleChecklistLine(desc, lineIndex) {
+  const lines = String(desc || "").split(/\r?\n/);
+  if (lineIndex < 0 || lineIndex >= lines.length) return desc;
+  const line = lines[lineIndex];
+  const m = line.match(/^(\s*-\s*\[)([ xX])(\]\s*)(.*)$/);
+  if (!m) return desc;
+  const newMark = m[2].toLowerCase() === "x" ? " " : "x";
+  lines[lineIndex] = `${m[1]}${newMark}${m[3]}${m[4]}`;
+  return lines.join("\n");
+}
+
 /* Data loading */
 async function loadTasks() {
   const snapshot = await getDocs(collection(db, "tasks"));
@@ -287,7 +332,8 @@ async function saveTask(task, col) {
     due: task.due || "",
     tags: Array.isArray(task.tags) ? task.tags : [],
     order: typeof task.order === "number" ? task.order : 0,
-    column: col
+    column: col,
+    description: task.description || ""
   };
   if (Array.isArray(task.comments) && task.comments.length > 0) payload.comments = task.comments;
   await setDoc(doc(db, "tasks", task.id), payload, { merge: true });
@@ -337,6 +383,7 @@ function createTaskEl(task, colId) {
   div.dataset.col = colId;
 
   const assignee = task.assignee || "Unassigned";
+  const descHtml = renderDescriptionHTML(task.description || "", task.id);
 
   div.innerHTML = `
     <div class="flex items-start justify-between gap-2">
@@ -353,6 +400,12 @@ function createTaskEl(task, colId) {
     <div class="mt-2 flex gap-2 flex-wrap">
       ${(task.tags || []).map(t => `<span class="tag-chip">${t}</span>`).join("")}
     </div>
+
+    ${descHtml ? `
+      <div class="mt-3 border border-slate-100 dark:border-slate-800 rounded-md p-2 bg-slate-50 dark:bg-slate-900" data-role="description">
+        ${descHtml}
+      </div>
+    ` : ""}
 
     <div class="mt-3">
       <button class="text-xs text-sky-600 dark:text-sky-400 underline toggle-comments">Show Notes</button>
@@ -508,6 +561,27 @@ function createTaskEl(task, colId) {
     };
   });
 
+  /* Description checkbox toggles (event delegation within card) */
+  div.addEventListener("change", async (e) => {
+    const cb = e.target.closest(".desc-checkbox");
+    if (!cb) return;
+    const lineIndex = parseInt(cb.getAttribute("data-line-index"), 10);
+    if (Number.isNaN(lineIndex)) return;
+
+    const newDesc = toggleChecklistLine(task.description || "", lineIndex);
+    try {
+      await setDoc(doc(db, "tasks", task.id), { description: newDesc }, { merge: true });
+      task.description = newDesc;
+      const container = div.querySelector('[data-role="description"]');
+      if (container) container.innerHTML = renderDescriptionHTML(newDesc, task.id);
+    } catch (err) {
+      console.error("Failed to update description:", err);
+      alert(`Failed to update description: ${err.message || err}`);
+      // revert visual toggle on failure
+      cb.checked = !cb.checked;
+    }
+  });
+
   makeDraggable(div);
   return div;
 }
@@ -519,9 +593,15 @@ function openEditModal(task, colId) {
   modal.innerHTML = `
     <div class="bg-white p-6 rounded-xl shadow-xl w-80 space-y-3 border border-slate-200 ring-1 ring-slate-100 modal-panel dark:bg-slate-900 dark:border-slate-800">
       <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">Edit Task</h3>
-      <input id="editTitle" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Title..." />
-      <input id="editAssignee" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee..." />
+      <input id="editTitle" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Title" />
+      <input id="editAssignee" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee" />
       <input id="editDue" type="date" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
+
+      <!-- New: Description editor -->
+      <label class="block text-sm text-slate-600 dark:text-slate-300 mt-1">Description</label>
+      <textarea id="editDescription" rows="6" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="- [ ] Subtask 1
+- [x] Completed item
+Free-form notes line"></textarea>
 
       <div class="dropdown mt-2" id="editTagDropdown">
         <div class="dropdown-btn" id="editDropdownBtn"><span class="placeholder">Select tags...</span></div>
@@ -544,6 +624,12 @@ function openEditModal(task, colId) {
     </div>
   `;
   document.body.appendChild(modal);
+
+  // Prefill fields so "Edit" shows task info to modify
+  modal.querySelector("#editTitle").value = task.title || "";
+  modal.querySelector("#editAssignee").value = task.assignee || "";
+  modal.querySelector("#editDue").value = task.due || "";
+  modal.querySelector("#editDescription").value = task.description || "";
 
   let editSelectedTags = Array.isArray(task.tags) ? task.tags.slice() : [];
   const editDropdownBtn = modal.querySelector("#editDropdownBtn");
@@ -574,6 +660,7 @@ function openEditModal(task, colId) {
     task.title = (modal.querySelector("#editTitle").value || "").trim();
     task.assignee = (modal.querySelector("#editAssignee").value || "").trim() || "Unassigned";
     task.due = modal.querySelector("#editDue").value || "";
+    task.description = modal.querySelector("#editDescription").value || "";
     task.tags = editSelectedTags.slice();
     await saveTask(task, colId);
     modal.remove();
@@ -676,6 +763,7 @@ addBtn.onclick = async () => {
 
   const assignee = document.getElementById("newAssignee").value || "Unassigned";
   const due = document.getElementById("newDue").value || "";
+  const description = document.getElementById("newDescription").value || "";
 
   addBtn.disabled = true;
   const originalAddLabel = addBtn.textContent;
@@ -688,6 +776,7 @@ addBtn.onclick = async () => {
       title,
       assignee,
       due,
+      description,
       tags: selectedTags.slice(),
       column: "backlog",
       order: count
@@ -698,6 +787,7 @@ addBtn.onclick = async () => {
     document.getElementById("newTitle").value = "";
     document.getElementById("newAssignee").value = "";
     document.getElementById("newDue").value = "";
+    document.getElementById("newDescription").value = "";
     selectedTags = [];
     dropdownList.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
     updateDropdownBtn();

@@ -112,6 +112,7 @@
       cursor: pointer;
       transition: 0.3s;
       box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+      display: inline-block;
     }
     .sponsor-button:hover {
       background: #e6c200;
@@ -156,83 +157,20 @@
       border-bottom: 2px solid transparent;
       transition: 0.25s;
     }
-    .nav-links a:hover {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-    }
+    .nav-links a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
-    .nav-toggle {
-      justify-self: end;
-      display: none;
-      width: 40px;
-      height: 40px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      position: relative;
-      z-index: 1002;
-    }
+    .nav-toggle { justify-self: end; display: none; width: 40px; height: 40px; background: none; border: none; cursor: pointer; position: relative; z-index: 1002; }
     .nav-toggle .hamburger,
     .nav-toggle .hamburger::before,
     .nav-toggle .hamburger::after {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background: var(--white);
-      border-radius: 2px;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translateX(-50%);
-      content: "";
+      display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; position: absolute; left: 50%; top: 50%; transform: translateX(-50%); content: "";
     }
     .nav-toggle .hamburger::before { top: -7px; }
-    .nav-toggle .hamburger::after  { top: 7px; }
+    .nav-toggle .hamburger::after { top: 7px; }
 
-    .nav-links-mobile {
-      display: none;
-      flex-direction: column;
-      background: var(--medium-blue);
-      position: absolute;
-      top: 100%;
-      left: 0;
-      width: 100%;
-      border-top: 3px solid var(--light-blue);
-      z-index: 1001;
-    }
-    .nav-links-mobile a {
-      padding: 0.8rem 0;
-      text-align: center;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .nav-links-mobile.show { display: flex; }
-
-    .nav-login { justify-self: end; display: flex; align-items: center; gap: .5rem; }
-    .nav-login .google-btn {
-      display: flex;
-      align-items: center;
-      background: var(--medium-blue);
-      color: var(--white);
-      border: 2px solid var(--accent);
-      padding: 0.4rem 0.8rem;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-    }
-    .nav-login .google-btn:hover {
-      background: var(--light-blue);
-      color: var(--dark-blue);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-    }
-    .nav-login .google-btn img { height: 18px; margin-right: 6px; }
-
-    #googleSignedIn { display: none; align-items: center; gap: 0.5rem; }
-    #googleSignedIn img { height: 28px; width: 28px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.08); }
-    #googleEmail { font-weight: 600; font-size: 0.95rem; color: var(--white); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .nav-links-mobile { display: none; flex-direction: column; background: var(--medium-blue); position: absolute; top: 100%; left: 0; width: 100%; border-top: 3px solid var(--light-blue); z-index: 1001; }
+    .nav-links-mobile a { padding: 0.8rem 0; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    @media (max-width: 768px) { .nav-links-mobile { display: none; } .nav-links-mobile.show { display: flex; } }
 
     /* ====== Sponsors Grid ====== */
     .sponsors-section { padding-top: 3rem; }
@@ -244,34 +182,27 @@
       align-items: stretch;
       overflow: visible;
     }
-
     .sponsor-card {
       background: linear-gradient(135deg, #0a1f44, #183f6c 40%, #2c74a0);
       padding: 0.9rem 0.9rem 1rem;
       border-radius: 16px;
       color: var(--white);
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      justify-content: space-between;
+      display: flex; flex-direction: column; align-items: stretch; justify-content: space-between;
       position: relative;
-      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color .25s ease;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
       border: 1px solid rgba(255,255,255,0.06);
       overflow: visible;
       height: 100%;
     }
-
     @media (hover: hover) and (pointer: fine) {
-      .sponsor-card:hover,
-      .sponsor-card:focus-within {
+      .sponsor-card:hover, .sponsor-card:focus-within {
         transform: translateY(-6px);
         box-shadow: 0 14px 28px rgba(0,0,0,0.35);
         z-index: 2;
         border-color: rgba(79,163,209,0.55);
       }
     }
-
     .sponsor-card > a {
       display: flex;
       flex-direction: column;
@@ -283,140 +214,39 @@
       outline: none;
     }
     .sponsor-card > a:focus-visible {
-      box-shadow: 0 0 0 3px rgba(79,163,209,0.6), 0 0 0 6px rgba(10,31,68,0.6);
+      box-shadow: 0 0 0 3px rgba(79,163,209,0.6), 0 0 0 6px rgba(10,31,68,0.9);
     }
 
-    /* Logo frame: more vertical room + safe padding + no clipping */
-    .sponsor-media {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      min-height: 140px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 14px 18px;
-      border-radius: 12px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
-      border: 1.5px solid rgba(79,163,209,0.35);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
-      position: relative;
-      overflow: visible;
-      isolation: isolate;
-    }
+    /* ====== Logo frame ====== */
+    .sponsor-media { width: 100%; aspect-ratio: 16 / 9; min-height: 140px; display: flex; align-items: center; justify-content: center; padding: 12px 14px 18px; border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); border: 1.5px solid rgba(79,163,209,0.35); box-shadow: 0 6px 16px rgba(0,0,0,0.35); position: relative; overflow: visible; }
+    .sponsor-logo { display: block; width: auto; height: auto; max-width: 92%; max-height: 78%; object-fit: contain; object-position: center center; filter: grayscale(6%) drop-shadow(0 0 6px rgba(255,255,255,0.18)); transition: filter .25s ease; }
+    .sponsor-card:hover .sponsor-logo, .sponsor-card:focus-within .sponsor-logo { filter: grayscale(0%) drop-shadow(0 0 10px rgba(255,255,255,0.28)); }
 
-    /* Logos: contain and center with generous max bounds */
-    .sponsor-logo {
-      display: block;
-      width: auto;
-      height: auto;
-      max-width: 92%;
-      max-height: 78%;
-      object-fit: contain;
-      object-position: center center;
-      filter: grayscale(6%) drop-shadow(0 0 6px rgba(255,255,255,0.18));
-      transition: filter .25s ease;
-    }
-
-    /* Only increase Patel Family logo slightly */
-    .sponsor-logo[alt^="Patel Family"],
-    .sponsor-logo[src*="PatelFamily"] {
-      max-width: 96%;
-      max-height: 86%;
-    }
-
-    @media (hover: hover) and (pointer: fine) {
-      .sponsor-card:hover .sponsor-logo,
-      .sponsor-card:focus-within .sponsor-logo {
-        filter: grayscale(0%) drop-shadow(0 0 10px rgba(255,255,255,0.28));
-      }
-    }
-
-    .sponsor-name {
-      font-weight: 700;
-      letter-spacing: .3px;
-      text-align: center;
-      margin-top: 0.7rem;
-      padding: 0 0.25rem;
-      font-size: clamp(0.95rem, 1.2vw, 1.05rem);
-      color: #e7f5ff;
-      text-shadow: 0 1px 0 rgba(0,0,0,0.3);
-    }
+    /* ====== Name ====== */
+    .sponsor-name { font-weight: 700; letter-spacing: .3px; text-align: center; margin-top: .7rem; padding: 0 .25rem; font-size: clamp(0.95rem, 1.2vw, 1.05rem); color: #e7f5ff; text-shadow: 0 1px 0 rgba(0,0,0,0.3); }
 
     @media (max-width: 768px) {
-      .sponsor-grid {
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 1rem;
-      }
-      .sponsor-media {
-        aspect-ratio: 15 / 9;
-        min-height: 120px;
-        padding: 10px 12px 16px;
-      }
-      .sponsor-name {
-        margin-top: 0.55rem;
-        font-size: 0.95rem;
-      }
+      .sponsor-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; }
+      .sponsor-media { aspect-ratio: 15 / 9; min-height: 120px; padding: 10px 12px 16px; }
+      .sponsor-name { margin-top: 0.55rem; font-size: 0.95rem; }
     }
 
     /* ====== Competition Image Band ====== */
-    .competition-band {
-      max-width: 1100px;
-      margin: 2rem auto 3.5rem;
-      padding: 0 1.5rem;
-    }
-    .competition-frame {
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-      border: 2px solid rgba(79,163,209,0.35);
-      padding: 1rem;
-      background: rgba(0,0,0,0.08);
-    }
-    .competition-grid {
-      column-count: 3;
-      column-gap: 1rem;
-    }
+    .competition-band { max-width: 1100px; margin: 2rem auto 3.5rem; padding: 0 1.5rem; }
+    .competition-frame { border-radius: 15px; overflow: hidden; box-shadow: 0 6px 15px rgba(0,0,0,0.3); border: 2px solid rgba(79,163,209,0.35); padding: 1rem; background: rgba(0,0,0,0.08); }
+    .competition-grid { column-count: 3; column-gap: 1rem; }
     @media (max-width: 1024px) { .competition-grid { column-count: 2; } }
-    @media (max-width: 600px)  { .competition-grid { column-count: 1; } }
-
-    .competition-item {
-      display: inline-block;
-      width: 100%;
-      margin: 0 0 1rem;
-      break-inside: avoid;
-      -webkit-column-break-inside: avoid;
-      -moz-column-break-inside: avoid;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-      border: 2px solid rgba(79,163,209,0.35);
-      background: rgba(10,31,68,0.85);
-    }
+    @media (max-width: 600px) { .competition-grid { column-count: 1; } }
+    .competition-item { display: inline-block; width: 100%; margin: 0 0 1rem; break-inside: avoid; -webkit-column-break-inside: avoid; -moz-column-break-inside: avoid; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 15px rgba(0,0,0,0.3); border: 2px solid rgba(79,163,209,0.35); background: rgba(10,31,68,0.85); }
     .competition-item img { width: 100%; height: auto; display: block; }
 
-    /* ====== Footer ===== */
-    footer {
-      background: var(--medium-blue);
-      color: #dcdcdc;
-      text-align: center;
-      padding: 1rem 1.5rem;
-      font-size: 0.8rem !important;
-      line-height: 1.4;
-      border-top: 3px solid var(--light-blue);
-      margin: 0 auto;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
-    }
+    /* ====== Footer ====== */
+    footer { background: var(--medium-blue); color: #dcdcdc; text-align: center; padding: 1rem 1.5rem; font-size: 0.8rem !important; line-height: 1.4; border-top: 3px solid var(--light-blue); margin: 0 auto; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1); }
     footer p { margin: 0.25rem 0; font-weight: 400; font-size: 0.8rem; }
 
     /* ====== Responsive nav tweaks ====== */
     @media (max-width: 768px) {
       header { min-height: 320px; }
-      .nav-login #googleSignIn { width: auto; }
-      .nav-toggle { display: block; }
-      .nav-links { display: none; }
-      .nav-links-mobile { display: none; }
-      .nav-links-mobile.show { display: flex; }
-      .nav-login .google-btn { width: 90%; justify-content: center; }
     }
   </style>
 </head>
@@ -430,7 +260,8 @@
       Trident Robotics 4296 is funded by sponsor funding and donations. Our participation in competitions
       is possible thanks to the generosity of our sponsors.
     </p>
-    <button class="sponsor-button" onclick="window.location.href='mailto:sveselack@wths.net'">Sponsor Us</button>
+    <!-- Changed from mailto to link to index.html#contact -->
+    <a class="sponsor-button" href="index.html#contact">Sponsor Us</a>
   </header>
 
   <!-- ====== Navigation ====== -->
@@ -493,8 +324,8 @@
   <footer>
     <p>© 2025 Trident Robotics 4296. All rights reserved.</p>
     <p>
-      This website and its content are independently created and maintained by Lucas Palmquist and members of Trident Robotics 4296. 
-      Trident Robotics, the Trident Robotics logo, and all related materials are intellectual property of the team 
+      This website and its content are independently created and maintained by Lucas Palmquist and members of Trident Robotics 4296.
+      Trident Robotics, the Trident Robotics logo, and all related materials are intellectual property of the team
       and/or Warren Township High School.
     </p>
     <p>
@@ -507,205 +338,133 @@
     document.addEventListener('DOMContentLoaded', function () {
       const navToggle = document.querySelector('.nav-toggle');
       const navLinksMobile = document.getElementById('navLinksMobile');
-
       navToggle?.addEventListener('click', function () {
         const expanded = navToggle.getAttribute('aria-expanded') === 'true';
         navToggle.setAttribute('aria-expanded', (!expanded).toString());
         navLinksMobile.classList.toggle('show');
       });
-
       document.querySelectorAll('.nav-links-mobile a').forEach(link => {
         link.addEventListener('click', () => navLinksMobile.classList.remove('show'));
       });
     });
 
-    // ====== Google Sign-In logic ======
+    // ====== Google Sign-In logic (UI only on this page) ======
     const G_CRED_KEY = 'g_credential_v1';
-
     function updateTasksVisibility(email) {
       const tasksDesktop = document.getElementById("tasksLink");
       const tasksMobile = document.getElementById("tasksLinkMobile");
-      if (!tasksDesktop || !tasksMobile) return;
-
-      if (!email) {
-        tasksDesktop.style.display = "none";
-        tasksMobile.style.display = "none";
-        return;
-      }
-      const allowedDomains = ["wths.net"];
-      const allowedEmails = ["blackshocktrooper@gmail.com"];
+      if (!email) { if (tasksDesktop) tasksDesktop.style.display = "none"; if (tasksMobile) tasksMobile.style.display = "none"; return; }
+      const allowedDomains = ["wths.net"]; const allowedEmails = ["blackshocktrooper@gmail.com"];
       const allowed = allowedDomains.some(domain => email.endsWith(`@${domain}`)) || allowedEmails.includes(email);
-      if (allowed) {
-        tasksDesktop.style.display = "inline-block";
-        tasksMobile.style.display = "block";
-      } else {
-        tasksDesktop.style.display = "none";
-        tasksMobile.style.display = "none";
-      }
+      if (allowed) { if (tasksDesktop) tasksDesktop.style.display = "inline-block"; if (tasksMobile) tasksMobile.style.display = "block"; }
+      else { if (tasksDesktop) tasksDesktop.style.display = "none"; if (tasksMobile) tasksMobile.style.display = "none"; }
     }
-
     function setSignedInUI(profile) {
       const signInContainer = document.getElementById('googleSignIn');
       const signedContainer = document.getElementById('googleSignedIn');
       const emailSpan = document.getElementById('googleEmail');
       const avatarImg = document.getElementById('googleAvatar');
-
       if (signInContainer) signInContainer.style.display = 'none';
       if (signedContainer) signedContainer.style.display = 'flex';
-
       if (emailSpan) emailSpan.textContent = profile.email || profile.name || 'Signed in';
       if (avatarImg) avatarImg.src = profile.picture || '/assets/icon.png';
-
       updateTasksVisibility(profile.email);
     }
-
     function setSignedOutUI() {
       const signInContainer = document.getElementById('googleSignIn');
       const signedContainer = document.getElementById('googleSignedIn');
-
       if (signInContainer) signInContainer.style.display = 'block';
       if (signedContainer) signedContainer.style.display = 'none';
-
       updateTasksVisibility(null);
     }
-
     function handleCredentialResponse(response) {
-      try {
-        const data = jwt_decode(response.credential);
-        localStorage.setItem(G_CRED_KEY, response.credential);
-        setSignedInUI(data);
-      } catch (err) {
-        console.error('Error decoding credential:', err);
-        alert('Sign-in failed (invalid token).');
-      }
+      try { const data = jwt_decode(response.credential); localStorage.setItem(G_CRED_KEY, response.credential); setSignedInUI(data); }
+      catch (err) { console.error('Error decoding credential:', err); alert('Sign-in failed (invalid token).'); }
     }
-
     function signOut() {
       const raw = localStorage.getItem(G_CRED_KEY);
       if (raw) {
-        try {
-          const decoded = jwt_decode(raw);
-          const email = decoded.email;
-          if (google && google.accounts && google.accounts.id && email) {
-            try {
-              google.accounts.id.revoke(email, (done) => {
-                console.log('revoke callback:', done);
-              });
-            } catch (e) { console.warn('revoke call failed', e); }
-          }
-        } catch (e) { /* ignore */ }
+        try { const decoded = jwt_decode(raw); const email = decoded.email; if (google?.accounts?.id && email) { try { google.accounts.id.revoke(email, () => {}); } catch(e){} } } catch(e){}
       }
       localStorage.removeItem(G_CRED_KEY);
-      if (google && google.accounts && google.accounts.id) {
-        try { google.accounts.id.disableAutoSelect(); } catch(e){}
-      }
+      try { google?.accounts?.id?.disableAutoSelect(); } catch(e){}
       setSignedOutUI();
     }
-
-    window.onload = function() {
+    window.onload = function () {
       google.accounts.id.initialize({
         client_id: "635936985251-tj5uq36b5altf4qmk7019r3u504mm1fs.apps.googleusercontent.com",
         callback: handleCredentialResponse,
         auto_select: false
       });
-
-      document.addEventListener('click', (e) => {
-        if (e.target && e.target.id === 'googleSignOut') {
-          signOut();
-        }
-      });
-
+      document.addEventListener('click', (e) => { if (e.target && e.target.id === 'googleSignOut') { signOut(); } });
       const saved = localStorage.getItem(G_CRED_KEY);
       if (saved) {
-        try {
-          const data = jwt_decode(saved);
-          setSignedInUI(data);
-          try { google.accounts.id.disableAutoSelect(); } catch(e){}
-        } catch (err) {
-          console.warn('Stored credential invalid, clearing', err);
-          localStorage.removeItem(G_CRED_KEY);
-          google.accounts.id.renderButton(
-            document.getElementById("googleSignIn"),
-            { theme: "outline", size: "medium", text: "signin_with" }
-          );
-        }
+        try { const data = jwt_decode(saved); setSignedInUI(data); try { google.accounts.id.disableAutoSelect(); } catch(e){} }
+        catch (err) { console.warn('Stored credential invalid, clearing', err); localStorage.removeItem(G_CRED_KEY); google.accounts.id.renderButton(document.getElementById("googleSignIn"), { theme: "outline", size: "medium", text: "signin_with" }); }
       } else {
-        google.accounts.id.renderButton(
-          document.getElementById("googleSignIn"),
-          { theme: "outline", size: "medium", text: "signin_with" }
-        );
+        google.accounts.id.renderButton(document.getElementById("googleSignIn"), { theme: "outline", size: "medium", text: "signin_with" });
       }
     };
-  </script>
 
-  <!-- Load media and sponsors from site.json -->
-  <script>
-  (async function(){
-    try {
-      const r = await fetch('/data/site.json?_=' + Date.now());
-      if (!r.ok) return;
-      const site = await r.json();
-      const media = site.media || {};
+    // ====== Load media and sponsors from data/site.json ======
+    (async function(){
+      try {
+        const r = await fetch('/data/site.json?_=' + Date.now());
+        if (!r.ok) return; const site = await r.json(); const media = site.media || {};
 
-      // Header hero
-      const hero = document.querySelector('header img.hero-bg');
-      if (hero && media.sponsorsHeader) hero.src = media.sponsorsHeader;
+        // Header hero override
+        const hero = document.querySelector('header img.hero-bg');
+        if (hero && media.sponsorsHeader) hero.src = media.sponsorsHeader;
 
-      // Sponsors grid
-      const grid = document.getElementById('sponsorGrid');
-      if (grid) {
-        let sponsors = Array.isArray(site.sponsors) ? site.sponsors : [
-          { name: "Baxter", logo: "assets/Baxter-Logo.png", url: "" },
-          { name: "NASA", logo: "assets/NASA-Logo.png", url: "" },
-          { name: "Kubota", logo: "assets/Kubota-Logo.png", url: "" },
-          { name: "WW Displays Inc", logo: "assets/WWDisplays.png", url: "" },
-          { name: "Patel Family", logo: "assets/PatelFamily.png", url: "" }
-        ];
-        grid.innerHTML = sponsors.map(s => {
-          const name = (s && s.name) ? s.name : '';
-          const logo = (s && s.logo) ? s.logo : '';
-          const url = (s && s.url) ? s.url : '';
-          const safeAlt = name ? `${name} logo` : 'Sponsor logo';
-
-          const mediaBlock = `
-            <div class="sponsor-media">
-              <img class="sponsor-logo" src="${logo}" alt="${safeAlt}" loading="lazy" decoding="async">
-            </div>
-          `;
-          const nameBlock = `<div class="sponsor-name">${name}</div>`;
-
-          if (url) {
-            return `
-              <article class="sponsor-card">
-                <a href="${url}" target="_blank" rel="noopener noreferrer" title="${name}" aria-label="${name} (opens in new tab)">
+        // Sponsors grid
+        const grid = document.getElementById('sponsorGrid');
+        if (grid) {
+          let sponsors = Array.isArray(site.sponsors) ? site.sponsors : [
+            { name: "Baxter", logo: "assets/Baxter-Logo.png", url: "" },
+            { name: "NASA", logo: "assets/NASA-Logo.png", url: "" },
+            { name: "Kubota", logo: "assets/Kubota-Logo.png", url: "" },
+            { name: "WW Displays Inc", logo: "assets/WWDisplays.png", url: "" },
+            { name: "Patel Family", logo: "assets/PatelFamily.png", url: "" }
+          ];
+          grid.innerHTML = sponsors.map(s => {
+            const name = (s && s.name) ? s.name : '';
+            const logo = (s && s.logo) ? s.logo : '';
+            const url = (s && s.url) ? s.url : '';
+            const safeAlt = name ? `${name} logo` : 'Sponsor logo';
+            const mediaBlock = `
+              <div class="sponsor-media">
+                <img class="sponsor-logo" src="${logo}" alt="${safeAlt}" loading="lazy" decoding="async">
+              </div>`;
+            const nameBlock = `<div class="sponsor-name">${name}</div>`;
+            if (url) {
+              return `
+                <article class="sponsor-card">
+                  <a href="${url}" target="_blank" rel="noopener noreferrer" title="${name}" aria-label="${name} (opens in new tab)">
+                    ${mediaBlock}${nameBlock}
+                  </a>
+                </article>`;
+            } else {
+              return `
+                <article class="sponsor-card" tabindex="0" aria-label="${name}">
                   ${mediaBlock}${nameBlock}
-                </a>
-              </article>
-            `;
-          } else {
-            return `
-              <article class="sponsor-card" tabindex="0" aria-label="${name}">
-                ${mediaBlock}${nameBlock}
-              </article>
-            `;
-          }
-        }).join('');
-      }
+                </article>`;
+            }
+          }).join('');
+        }
 
-      // Competition gallery
-      const gallery = document.getElementById('competitionGallery');
-      if (gallery) {
-        let images = Array.isArray(media.competitionImages) ? media.competitionImages : [];
-        if (!images.length && media.competitionImage) images = [media.competitionImage];
-        if (!images.length) images = ['assets/Compitition-Photo1.png'];
-        gallery.innerHTML = images.map(url => `
-          <div class="competition-item">
-            <img src="${url}" alt="Competition moment" loading="lazy" decoding="async">
-          </div>
-        `).join('');
-      }
-    } catch(e) { /* ignore */ }
-  })();
+        // Competition gallery
+        const gallery = document.getElementById('competitionGallery');
+        if (gallery) {
+          let images = Array.isArray(media.competitionImages) ? media.competitionImages : [];
+          if (!images.length && media.competitionImage) images = [media.competitionImage];
+          if (!images.length) images = ['assets/Competition-Photo1.png'];
+          gallery.innerHTML = images.map(url => `
+            <div class="competition-item">
+              <img src="${url}" alt="Competition moment" loading="lazy" decoding="async">
+            </div>`).join('');
+        }
+      } catch(e) { /* ignore */ }
+    })();
   </script>
 </body>
 </html>

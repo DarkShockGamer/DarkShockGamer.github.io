@@ -20,11 +20,6 @@
       --light-blue: #4fa3d1;
       --white: #f4f8fb;
       --accent: #ffd700;
-
-      /* Logo frame styling */
-      --logo-frame-bg: rgba(255,255,255,0.04);
-      --logo-frame-border: rgba(79,163,209,0.35);
-      --logo-frame-shadow: 0 6px 16px rgba(0,0,0,0.35);
     }
 
     @font-face {
@@ -44,7 +39,6 @@
     }
     a { text-decoration: none; color: inherit; }
 
-    /* Global image reset (content images) */
     img { display: block; max-width: 100%; height: auto; }
 
     /* Keep the Google sign-in button intact */
@@ -57,7 +51,7 @@
     }
     #googleSignIn { display: inline-block; }
 
-    /* ====== Sections, headings (match index) ====== */
+    /* ====== Sections, headings ====== */
     section { padding: 3rem 1.5rem; max-width: 1100px; margin: auto; }
     h2 {
       color: var(--light-blue);
@@ -68,7 +62,7 @@
       padding-bottom: 0.25rem;
     }
 
-    /* ====== Hero Header (image on top) ====== */
+    /* ====== Hero Header ====== */
     header {
       position: relative;
       height: 45vh;
@@ -125,7 +119,7 @@
       box-shadow: 0 6px 15px rgba(0,0,0,0.4);
     }
 
-    /* ====== Navigation (copied from index and placed below header) ====== */
+    /* ====== Navigation ====== */
     .site-nav {
       background: var(--medium-blue);
       display: flex;
@@ -195,7 +189,6 @@
     .nav-toggle .hamburger::before { top: -7px; }
     .nav-toggle .hamburger::after  { top: 7px; }
 
-    /* Mobile dropdown (match index) */
     .nav-links-mobile {
       display: none;
       flex-direction: column;
@@ -214,7 +207,6 @@
     }
     .nav-links-mobile.show { display: flex; }
 
-    /* ====== Google Login in Nav (match index) ===== */
     .nav-login { justify-self: end; display: flex; align-items: center; gap: .5rem; }
     .nav-login .google-btn {
       display: flex;
@@ -236,21 +228,13 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 15px rgba(0,0,0,0.4);
     }
-    .nav-login .google-btn img {
-      height: 18px;
-      margin-right: 6px;
-    }
+    .nav-login .google-btn img { height: 18px; margin-right: 6px; }
 
-    /* small inline signed-in UI */
-    #googleSignedIn {
-      display: none;
-      align-items: center;
-      gap: 0.5rem;
-    }
+    #googleSignedIn { display: none; align-items: center; gap: 0.5rem; }
     #googleSignedIn img { height: 28px; width: 28px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.08); }
     #googleEmail { font-weight: 600; font-size: 0.95rem; color: var(--white); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* ====== Sponsors Grid (cards) ====== */
+    /* ====== Sponsors Grid ====== */
     .sponsors-section { padding-top: 3rem; }
     .sponsor-grid {
       display: grid;
@@ -271,7 +255,6 @@
       align-items: stretch;
       justify-content: space-between;
       position: relative;
-      will-change: transform, box-shadow;
       transition: transform 0.25s ease, box-shadow 0.25s ease, border-color .25s ease;
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
       border: 1px solid rgba(255,255,255,0.06);
@@ -279,7 +262,6 @@
       height: 100%;
     }
 
-    /* Card interactive states (only on hover-capable devices) */
     @media (hover: hover) and (pointer: fine) {
       .sponsor-card:hover,
       .sponsor-card:focus-within {
@@ -290,7 +272,6 @@
       }
     }
 
-    /* Make entire card clickable when link is present */
     .sponsor-card > a {
       display: flex;
       flex-direction: column;
@@ -305,52 +286,41 @@
       box-shadow: 0 0 0 3px rgba(79,163,209,0.6), 0 0 0 6px rgba(10,31,68,0.6);
     }
 
-    /* Uniform logo frame for consistent sizing and centering */
+    /* Logo frame: more vertical room + safe padding + no clipping */
     .sponsor-media {
       width: 100%;
-      aspect-ratio: 16 / 9;            /* consistent across all screens */
-      display: grid;
-      place-items: center;
-      padding: clamp(0.5rem, 1.2vw, 0.9rem);
+      aspect-ratio: 16 / 9;
+      min-height: 140px;          /* ensure enough height for taller logos */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 14px 18px;    /* extra bottom padding to avoid visual cut */
       border-radius: 12px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)) padding-box,
-        linear-gradient(135deg, rgba(79,163,209,0.6), rgba(79,163,209,0.15)) border-box;
-      border: 1.5px solid var(--logo-frame-border);
-      box-shadow: var(--logo-frame-shadow);
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+      border: 1.5px solid rgba(79,163,209,0.35);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
       position: relative;
-      overflow: hidden;
+      overflow: visible;           /* prevent any perceived clipping at edges */
       isolation: isolate;
     }
-    /* Subtle glossy highlight */
-    .sponsor-media::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(120% 60% at -10% -20%, rgba(255,255,255,0.18), transparent 60%),
-                  radial-gradient(120% 60% at 110% 120%, rgba(255,255,255,0.08), transparent 60%);
-      pointer-events: none;
-      z-index: -1;
-    }
 
-    /* Fill frame and center the artwork */
+    /* Logos: contain and center with generous max bounds */
     .sponsor-logo {
-      width: 100%;
-      height: 100%;
-      max-width: 100%;
-      max-height: 100%;
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 92%;
+      max-height: 78%;            /* leaves breathing room inside the frame */
       object-fit: contain;
       object-position: center center;
-      filter: grayscale(8%) drop-shadow(0 0 6px rgba(255,255,255,0.22));
+      filter: grayscale(6%) drop-shadow(0 0 6px rgba(255,255,255,0.18));
       transition: filter .25s ease;
-      will-change: transform;
     }
 
     @media (hover: hover) and (pointer: fine) {
       .sponsor-card:hover .sponsor-logo,
       .sponsor-card:focus-within .sponsor-logo {
-        filter: grayscale(0%) drop-shadow(0 0 10px rgba(255,255,255,0.35));
-        /* removed scale to avoid clipping edges */
+        filter: grayscale(0%) drop-shadow(0 0 10px rgba(255,255,255,0.28));
       }
     }
 
@@ -365,7 +335,6 @@
       text-shadow: 0 1px 0 rgba(0,0,0,0.3);
     }
 
-    /* Tighten grid and frame on small screens */
     @media (max-width: 768px) {
       .sponsor-grid {
         grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -373,7 +342,8 @@
       }
       .sponsor-media {
         aspect-ratio: 15 / 9;
-        padding: 0.5rem;
+        min-height: 120px;
+        padding: 10px 12px 16px;
       }
       .sponsor-name {
         margin-top: 0.55rem;
@@ -381,7 +351,7 @@
       }
     }
 
-    /* ====== Competition Image Band (Masonry columns) ====== */
+    /* ====== Competition Image Band ====== */
     .competition-band {
       max-width: 1100px;
       margin: 2rem auto 3.5rem;
@@ -409,18 +379,13 @@
       break-inside: avoid;
       -webkit-column-break-inside: avoid;
       -moz-column-break-inside: avoid;
-
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
       border: 2px solid rgba(79,163,209,0.35);
       background: rgba(10,31,68,0.85);
     }
-    .competition-item img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
+    .competition-item img { width: 100%; height: auto; display: block; }
 
     /* ====== Footer ===== */
     footer {
@@ -450,7 +415,7 @@
 </head>
 <body>
 
-  <!-- ====== Header (image first) ====== -->
+  <!-- ====== Header ====== -->
   <header>
     <img class="hero-bg" src="assets/group.png" alt="" aria-hidden="true">
     <h1>Our Sponsors</h1>
@@ -461,7 +426,7 @@
     <button class="sponsor-button" onclick="window.location.href='mailto:sveselack@wths.net'">Sponsor Us</button>
   </header>
 
-  <!-- ====== Navigation (from index.html, below header) ====== -->
+  <!-- ====== Navigation ====== -->
   <nav class="site-nav">
     <div class="nav-inner">
       <a class="nav-logo" href="index.html" aria-label="Trident Robotics Home">
@@ -474,11 +439,9 @@
         <a href="index.html#updates">Updates</a>
         <a href="index.html#contact">Contact</a>
         <a href="sponsors.html" aria-current="page">Sponsors</a>
-        <!-- Tasks link will appear here dynamically -->
         <a href="tasks.html" id="tasksLink" style="display:none;">Tasks</a>
       </div>
 
-      <!-- Mobile-only nav links -->
       <div class="nav-links-mobile" id="navLinksMobile">
         <a href="index.html#about">About</a>
         <a href="index.html#team">Team</a>
@@ -489,10 +452,7 @@
       </div>
 
       <div class="nav-login">
-        <!-- Container where Google renders Sign-in button -->
         <div id="googleSignIn"></div>
-
-        <!-- Signed-in UI (hidden by default; shown when signed in) -->
         <div id="googleSignedIn" aria-live="polite">
           <img id="googleAvatar" src="" alt="Avatar">
           <span id="googleEmail">Not signed in</span>
@@ -506,7 +466,7 @@
     </div>
   </nav>
 
-  <!-- ====== Sponsors (dynamic from site.json) ====== -->
+  <!-- ====== Sponsors ====== -->
   <section class="sponsors-section" aria-labelledby="sponsorHeading">
     <h2 id="sponsorHeading">Current Sponsors</h2>
     <div class="sponsor-grid" id="sponsorGrid">
@@ -514,7 +474,7 @@
     </div>
   </section>
 
-  <!-- ====== Competition Images (masonry) ====== -->
+  <!-- ====== Competition Images ====== -->
   <section class="competition-band" aria-labelledby="competitionHeading">
     <h2 id="competitionHeading">Competition Moments</h2>
     <div class="competition-frame">
@@ -536,7 +496,7 @@
   </footer>
 
   <script>
-    // ====== Mobile nav toggle (match index behavior) ======
+    // ====== Mobile nav toggle ======
     document.addEventListener('DOMContentLoaded', function () {
       const navToggle = document.querySelector('.nav-toggle');
       const navLinksMobile = document.getElementById('navLinksMobile');
@@ -552,7 +512,7 @@
       });
     });
 
-    // ====== Google Sign-In logic (copied from index) ======
+    // ====== Google Sign-In logic ======
     const G_CRED_KEY = 'g_credential_v1';
 
     function updateTasksVisibility(email) {
@@ -628,9 +588,7 @@
               console.warn('revoke call failed', e);
             }
           }
-        } catch (e) {
-          // ignore decode errors
-        }
+        } catch (e) { /* ignore */ }
       }
       localStorage.removeItem(G_CRED_KEY);
       if (google && google.accounts && google.accounts.id) {
@@ -640,21 +598,18 @@
     }
 
     window.onload = function() {
-      // Initialize Google Sign-In
       google.accounts.id.initialize({
         client_id: "635936985251-tj5uq36b5altf4qmk7019r3u504mm1fs.apps.googleusercontent.com",
         callback: handleCredentialResponse,
         auto_select: false
       });
 
-      // Wire up sign out button
       document.addEventListener('click', (e) => {
         if (e.target && e.target.id === 'googleSignOut') {
           signOut();
         }
       });
 
-      // Restore saved credential if present
       const saved = localStorage.getItem(G_CRED_KEY);
       if (saved) {
         try {
@@ -664,14 +619,12 @@
         } catch (err) {
           console.warn('Stored credential invalid, clearing', err);
           localStorage.removeItem(G_CRED_KEY);
-          // render sign-in button below
           google.accounts.id.renderButton(
             document.getElementById("googleSignIn"),
             { theme: "outline", size: "medium", text: "signin_with" }
           );
         }
       } else {
-        // Not signed in: render the button
         google.accounts.id.renderButton(
           document.getElementById("googleSignIn"),
           { theme: "outline", size: "medium", text: "signin_with" }
@@ -680,106 +633,9 @@
     };
   </script>
 
-  <!-- Load media and sponsors from site.json + auto-trim logos with safe padding -->
+  <!-- Load media and sponsors from site.json -->
   <script>
   (async function(){
-    // Utility: trim transparent borders from an <img> and return dataURL
-    function trimTransparentBorders(img, alphaThreshold = 1) {
-      const w = img.naturalWidth || 0;
-      const h = img.naturalHeight || 0;
-      if (!w || !h) return null;
-
-      // Draw source into a canvas
-      const srcCanvas = document.createElement('canvas');
-      srcCanvas.width = w; srcCanvas.height = h;
-      const sctx = srcCanvas.getContext('2d');
-      sctx.drawImage(img, 0, 0);
-
-      let imageData;
-      try {
-        imageData = sctx.getImageData(0, 0, w, h);
-      } catch (e) {
-        // Cross-origin protection or other issue
-        return null;
-      }
-      const data = imageData.data;
-
-      let top = h, left = w, right = -1, bottom = -1;
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const idx = (y * w + x) * 4;
-          const a = data[idx + 3];
-          if (a >= alphaThreshold) {
-            if (x < left) left = x;
-            if (x > right) right = x;
-            if (y < top) top = y;
-            if (y > bottom) bottom = y;
-          }
-        }
-      }
-
-      if (right < left || bottom < top) {
-        // Entire image is transparent or failed to detect
-        return null;
-      }
-
-      let cw = right - left + 1;
-      let ch = bottom - top + 1;
-
-      // Skip trimming if it barely changes size (<4% in both dimensions)
-      const shrinkX = (w - cw) / w;
-      const shrinkY = (h - ch) / h;
-      if (shrinkX < 0.04 && shrinkY < 0.04) {
-        return null;
-      }
-
-      // Add safe padding around the content to avoid cutting edges
-      const pad = Math.max(2, Math.min(12, Math.round(Math.max(w, h) * 0.015))); // ~1.5%, min 2px, max 12px
-      const nx = Math.max(0, left - pad);
-      const ny = Math.max(0, top - pad);
-      const nw = Math.min(w - nx, cw + pad * 2);
-      const nh = Math.min(h - ny, ch + pad * 2);
-
-      // Create output canvas and copy trimmed region
-      const outCanvas = document.createElement('canvas');
-      outCanvas.width = nw; outCanvas.height = nh;
-      const octx = outCanvas.getContext('2d');
-      octx.drawImage(srcCanvas, nx, ny, nw, nh, 0, 0, nw, nh);
-      return outCanvas.toDataURL('image/png');
-    }
-
-    async function ensureLoaded(img) {
-      if (img.complete && img.naturalWidth) {
-        try { await img.decode(); } catch(e) {}
-        return;
-      }
-      return new Promise(resolve => {
-        const done = () => resolve();
-        img.addEventListener('load', done, { once: true });
-        img.addEventListener('error', done, { once: true });
-      });
-    }
-
-    async function autoTrimAll(root = document) {
-      const logos = Array.from(root.querySelectorAll('.sponsor-logo'));
-      // Wait for all to load/decode
-      await Promise.all(logos.map(ensureLoaded));
-
-      for (const img of logos) {
-        if (img.dataset.skipTrim === 'true') continue;
-        if (img.dataset.trimmed === 'true') continue;
-        try {
-          const trimmed = trimTransparentBorders(img, 1);
-          if (trimmed) {
-            img.src = trimmed;
-            img.dataset.trimmed = 'true';
-          }
-        } catch(e) {
-          // ignore and keep original
-        }
-      }
-    }
-
     try {
       const r = await fetch('/data/site.json?_=' + Date.now());
       if (!r.ok) return;
@@ -800,7 +656,6 @@
           { name: "WW Displays Inc", logo: "assets/WWDisplays.png", url: "" },
           { name: "Patel Family", logo: "assets/PatelFamily.png", url: "" }
         ];
-
         grid.innerHTML = sponsors.map(s => {
           const name = (s && s.name) ? s.name : '';
           const logo = (s && s.logo) ? s.logo : '';
@@ -830,12 +685,9 @@
             `;
           }
         }).join('');
-
-        // Auto-trim logos after they are injected and loaded
-        autoTrimAll(grid);
       }
 
-      // Competition gallery (masonry via CSS columns)
+      // Competition gallery
       const gallery = document.getElementById('competitionGallery');
       if (gallery) {
         let images = Array.isArray(media.competitionImages) ? media.competitionImages : [];

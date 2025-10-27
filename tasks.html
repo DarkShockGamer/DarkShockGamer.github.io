@@ -57,6 +57,40 @@
     .task-card { background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; box-shadow: 0 1px 1px rgba(2, 6, 23, 0.04); transition: box-shadow 150ms, border-color 150ms; }
     .task-card:hover { box-shadow: 0 6px 16px rgba(2,132,199,0.12); border-color: #93c5fd; transform: translateY(-1px); }
 
+    /* Custom checkbox styling for description checklists */
+    .desc-checkbox {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid #d1d5db;
+      border-radius: 0.25rem;
+      background-color: white;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: all 150ms;
+    }
+    .desc-checkbox:hover {
+      border-color: #10b981;
+    }
+    .desc-checkbox:checked {
+      background-color: #10b981;
+      border-color: #10b981;
+    }
+    .desc-checkbox:checked::after {
+      content: '';
+      position: absolute;
+      left: 0.25rem;
+      top: 0.0625rem;
+      width: 0.375rem;
+      height: 0.625rem;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
     /* Dark mode */
     @media (prefers-color-scheme: dark) {
       html, body { color-scheme: dark; }
@@ -86,6 +120,19 @@
 
       .modal-panel { background: #0f172a !important; border-color: #1f2937 !important; }
       .drawer { background: #0f172a !important; border-left: 1px solid #1f2937 !important; }
+
+      /* Dark mode for description checkboxes */
+      .desc-checkbox {
+        background-color: #0b1220 !important;
+        border-color: #475569 !important;
+      }
+      .desc-checkbox:hover {
+        border-color: #10b981 !important;
+      }
+      .desc-checkbox:checked {
+        background-color: #10b981 !important;
+        border-color: #10b981 !important;
+      }
     }
   </style>
 </head>
@@ -263,7 +310,7 @@ function renderDescriptionHTML(desc, taskId) {
       const item = m[2] || "";
       return `
         <label class="flex items-start gap-2 py-0.5 select-none cursor-pointer">
-          <input type="checkbox" class="desc-checkbox mt-0.5 h-4 w-4 text-emerald-600 border-gray-300 rounded"
+          <input type="checkbox" class="desc-checkbox mt-0.5"
             data-task-id="${escHtml(taskId)}" data-line-index="${idx}" ${checked ? "checked" : ""} />
           <span class="leading-tight whitespace-pre-wrap break-words">${escHtml(item)}</span>
         </label>

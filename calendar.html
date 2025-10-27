@@ -63,10 +63,11 @@
       text-overflow: ellipsis;
       max-width: 100%;
     }
+    /* Event pill uses CSS variables so each event can have its own color (light/dark) */
     .event-pill {
-      background: #e0f2fe;      /* sky-100 */
-      color: #0369a1;           /* sky-700 */
-      border: 1px solid #bae6fd;/* sky-200 */
+      background: var(--ev-bg, #e0f2fe);
+      color: var(--ev-fg, #0369a1);
+      border: 1px solid var(--ev-br, #bae6fd);
     }
     .task-pill {
       background: #ecfdf5;       /* emerald-50 */
@@ -99,7 +100,12 @@
       .day-cell:hover { border-color: #0ea5e9 !important; box-shadow: 0 6px 16px rgba(14,165,233,0.18); }
 
       .weekday { color: #7dd3fc !important; }
-      .event-pill { background: #0c4a6e !important; color: #e0f2fe !important; border-color: #075985 !important; }
+      /* Event pill dark colors provided via variables, with sensible defaults */
+      .event-pill { 
+        background: var(--ev-bg-dark, #0c4a6e) !important; 
+        color: var(--ev-fg-dark, #e0f2fe) !important; 
+        border-color: var(--ev-br-dark, #075985) !important; 
+      }
       .task-pill  { background: #052e2b !important; color: #a7f3d0 !important; border-color: #065f46 !important; }
       .more-pill { color: #94a3b8 !important; }
       .presence-event { background: #0c4a6e !important; border-color: #075985 !important; }
@@ -234,6 +240,19 @@
         <label class="text-sm md:col-span-2">Location
           <input id="evLoc" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Room 123" />
         </label>
+        <label class="text-sm">Color
+          <select id="evColor" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm bg-white dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+            <option value="sky">Sky (Blue)</option>
+            <option value="indigo">Indigo</option>
+            <option value="purple">Purple</option>
+            <option value="rose">Rose</option>
+            <option value="orange">Orange</option>
+            <option value="amber">Amber</option>
+            <option value="emerald">Emerald (Green)</option>
+            <option value="teal">Teal</option>
+            <option value="cyan">Cyan</option>
+          </select>
+        </label>
         <label class="text-sm inline-flex items-center gap-2 md:col-span-2">
           <input id="evPublic" type="checkbox" class="w-4 h-4" checked />
           Public (visible to everyone)
@@ -272,6 +291,19 @@
         </label>
         <label class="text-sm md:col-span-2">Location
           <input id="scLoc" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Shop / Room 123" />
+        </label>
+        <label class="text-sm">Color
+          <select id="scColor" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm bg-white dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+            <option value="sky">Sky (Blue)</option>
+            <option value="indigo">Indigo</option>
+            <option value="purple">Purple</option>
+            <option value="rose">Rose</option>
+            <option value="orange">Orange</option>
+            <option value="amber">Amber</option>
+            <option value="emerald">Emerald (Green)</option>
+            <option value="teal">Teal</option>
+            <option value="cyan">Cyan</option>
+          </select>
         </label>
         <div class="md:col-span-2">
           <div class="text-sm font-medium mb-1">Weekdays</div>
@@ -318,6 +350,35 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Color palettes for event pills (light/dark)
+    const EVENT_COLOR_MAP = {
+      sky:     { light:{bg:"#e0f2fe", fg:"#0369a1", br:"#bae6fd"}, dark:{bg:"#0c4a6e", fg:"#e0f2fe", br:"#075985"} },
+      indigo:  { light:{bg:"#e0e7ff", fg:"#3730a3", br:"#c7d2fe"}, dark:{bg:"#312e81", fg:"#c7d2fe", br:"#3730a3"} },
+      purple:  { light:{bg:"#f3e8ff", fg:"#6b21a8", br:"#e9d5ff"}, dark:{bg:"#3b0764", fg:"#e9d5ff", br:"#6b21a8"} },
+      rose:    { light:{bg:"#ffe4e6", fg:"#9f1239", br:"#fecdd3"}, dark:{bg:"#4c0519", fg:"#fecdd3", br:"#9f1239"} },
+      orange:  { light:{bg:"#ffedd5", fg:"#9a3412", br:"#fed7aa"}, dark:{bg:"#7c2d12", fg:"#fed7aa", br:"#9a3412"} },
+      amber:   { light:{bg:"#fef3c7", fg:"#92400e", br:"#fde68a"}, dark:{bg:"#78350f", fg:"#fde68a", br:"#92400e"} },
+      emerald: { light:{bg:"#ecfdf5", fg:"#047857", br:"#a7f3d0"}, dark:{bg:"#052e2b", fg:"#a7f3d0", br:"#065f46"} },
+      teal:    { light:{bg:"#ccfbf1", fg:"#115e59", br:"#99f6e4"}, dark:{bg:"#134e4a", fg:"#99f6e4", br:"#0f766e"} },
+      cyan:    { light:{bg:"#cffafe", fg:"#155e75", br:"#a5f3fc"}, dark:{bg:"#164e63", fg:"#a5f3fc", br:"#0e7490"} },
+    };
+    const DEFAULT_EVENT_COLOR = "sky";
+    const sanitizeEventColor = (c) => (EVENT_COLOR_MAP[c] ? c : DEFAULT_EVENT_COLOR);
+
+    function applyEventColorVars(el, colorKey) {
+      const c = EVENT_COLOR_MAP[sanitizeEventColor(colorKey)];
+      el.style.setProperty("--ev-bg", c.light.bg);
+      el.style.setProperty("--ev-fg", c.light.fg);
+      el.style.setProperty("--ev-br", c.light.br);
+      el.style.setProperty("--ev-bg-dark", c.dark.bg);
+      el.style.setProperty("--ev-fg-dark", c.dark.fg);
+      el.style.setProperty("--ev-br-dark", c.dark.br);
+    }
+    function styleAttrForEventColor(colorKey) {
+      const c = EVENT_COLOR_MAP[sanitizeEventColor(colorKey)];
+      return `style="--ev-bg:${c.light.bg};--ev-fg:${c.light.fg};--ev-br:${c.light.br};--ev-bg-dark:${c.dark.bg};--ev-fg-dark:${c.dark.fg};--ev-br-dark:${c.dark.br};"`;
+    }
+
     // DOM
     const monthLabel = document.getElementById("monthLabel");
     const prevBtn = document.getElementById("prevBtn");
@@ -349,6 +410,7 @@
     const evStart = document.getElementById("evStart");
     const evEnd = document.getElementById("evEnd");
     const evLoc = document.getElementById("evLoc");
+    const evColor = document.getElementById("evColor");
     const evPublic = document.getElementById("evPublic");
     const saveEventBtn = document.getElementById("saveEventBtn");
 
@@ -361,6 +423,7 @@
     const scStart = document.getElementById("scStart");
     const scEnd = document.getElementById("scEnd");
     const scLoc = document.getElementById("scLoc");
+    const scColor = document.getElementById("scColor");
     const scPublic = document.getElementById("scPublic");
     const scReplace = document.getElementById("scReplace");
 
@@ -438,7 +501,7 @@
     current.setDate(1); // focus on first of month
 
     // Data caches
-    let events = [];  // {id,title,date,time,location,isPublic,createdBy,createdAt}
+    let events = [];  // {id,title,date,time,startTime,endTime,location,isPublic,color,createdBy,createdAt}
     let tasks = [];   // only if task access allowed
 
     function pad(n) { return String(n).padStart(2, "0"); }
@@ -509,6 +572,7 @@
             endTime: e.endTime || "",
             location: e.location || "",
             isPublic: e.isPublic !== false,
+            color: sanitizeEventColor(e.color || DEFAULT_EVENT_COLOR),
             createdBy: e.createdBy || "",
             createdAt: e.createdAt || 0
           });
@@ -580,10 +644,11 @@
                 <button class="del-ev px-2 py-0.5 text-xs border border-red-200 text-red-600 rounded hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950" data-id="${e.id}">Delete</button>
               </div>
             ` : "";
+            const styleAttr = styleAttrForEventColor(e.color || DEFAULT_EVENT_COLOR);
             return `
               <div class="p-2 border border-slate-200 dark:border-slate-800 rounded bg-slate-50 dark:bg-slate-900 flex items-start justify-between gap-2">
                 <div>
-                  <div class="event-pill">${escapeHtml(e.title)}</div>
+                  <div class="event-pill" ${styleAttr}>${escapeHtml(e.title)}</div>
                   <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">${escapeHtml(e.date)}${timeStr}${locStr}</div>
                 </div>
                 ${adminBtns}
@@ -690,11 +755,14 @@
         const items = document.createElement("div");
         items.className = "flex flex-col gap-1 min-h-0 overflow-hidden";
 
-        const addPill = (txt, cls, title) => {
+        const addPill = (txt, cls, title, opts = {}) => {
           const span = document.createElement("span");
           span.className = cls;
           span.title = title || txt;
           span.textContent = txt;
+          if (cls.includes("event-pill")) {
+            applyEventColorVars(span, opts.evColor || DEFAULT_EVENT_COLOR);
+          }
           items.appendChild(span);
         };
 
@@ -708,7 +776,7 @@
           const e0 = dayEvents[0];
           const tr0 = formatTimeRange(e0) || e0.time || "";
           const label0 = tr0 ? `${tr0} ${e0.title}` : e0.title;
-          addPill(label0, "event-pill", `${e0.title}${tr0 ? " • " + tr0 : ""}${e0.location ? " • " + e0.location : ""}`);
+          addPill(label0, "event-pill", `${e0.title}${tr0 ? " • " + tr0 : ""}${e0.location ? " • " + e0.location : ""}`, { evColor: e0.color || DEFAULT_EVENT_COLOR });
           shown++; shownEvents++;
 
           // Then show one task if room
@@ -724,7 +792,7 @@
           const e = dayEvents[i];
           const tr = formatTimeRange(e) || e.time || "";
           const label = tr ? `${tr} ${e.title}` : e.title;
-          addPill(label, "event-pill", `${e.title}${tr ? " • " + tr : ""}${e.location ? " • " + e.location : ""}`);
+          addPill(label, "event-pill", `${e.title}${tr ? " • " + tr : ""}${e.location ? " • " + e.location : ""}`, { evColor: e.color || DEFAULT_EVENT_COLOR });
           shown++;
         }
         for (let j = shownTasks; j < dayTasks.length && shown < MAX_VISIBLE; j++) {
@@ -876,6 +944,7 @@
       evStart.value = ev?.startTime || (ev?.time || "");
       evEnd.value = ev?.endTime || "";
       evLoc.value = ev?.location || "";
+      evColor.value = sanitizeEventColor(ev?.color || DEFAULT_EVENT_COLOR);
       evPublic.checked = ev?.isPublic !== false;
 
       saveEventBtn.onclick = async () => {
@@ -884,6 +953,7 @@
         const startTime = evStart.value || "";
         const endTime = evEnd.value || "";
         const location = evLoc.value.trim();
+        const color = sanitizeEventColor(evColor.value);
         const isPublic = !!evPublic.checked;
 
         if (!title || !date) { alert("Title and date are required."); return; }
@@ -892,13 +962,13 @@
         try {
           if (ev && ev.id) {
             await setDoc(doc(db, "events", ev.id), {
-              title, date, startTime, endTime, location, isPublic,
+              title, date, startTime, endTime, location, isPublic, color,
               updatedAt: Date.now(),
               updatedBy: prof?.email || ""
             }, { merge: true });
           } else {
             await addDoc(collection(db, "events"), {
-              title, date, startTime, endTime, location, isPublic,
+              title, date, startTime, endTime, location, isPublic, color,
               createdAt: Date.now(),
               createdBy: prof?.email || ""
             });
@@ -930,6 +1000,7 @@
       scStart.value = "15:30";
       scEnd.value = "18:00";
       scLoc.value = "Shop / Room 123";
+      scColor.value = DEFAULT_EVENT_COLOR;
       scPublic.checked = true;
       scReplace.checked = false;
 
@@ -946,6 +1017,7 @@
       const startTime = scStart.value || "";
       const endTime = scEnd.value || "";
       const location = scLoc.value.trim();
+      const color = sanitizeEventColor(scColor.value);
       const isPublic = !!scPublic.checked;
       const replace = !!scReplace.checked;
 
@@ -979,7 +1051,7 @@
           batch.set(ref, {
             title, date: dateStr,
             startTime, endTime,
-            location, isPublic,
+            location, isPublic, color,
             createdAt: Date.now(),
             createdBy: prof?.email || ""
           });

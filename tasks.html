@@ -310,7 +310,7 @@ function renderDescriptionHTML(desc, taskId) {
       const item = m[2] || "";
       return `
         <label class="flex items-start gap-2 py-0.5 select-none cursor-pointer">
-          <input type="checkbox" class="desc-checkbox mt-0.5 h-4 w-4 text-emerald-600 border-gray-300 rounded"
+          <input type="checkbox" class="desc-checkbox mt-0.5"
             data-task-id="${escHtml(taskId)}" data-line-index="${idx}" ${checked ? "checked" : ""} />
           <span class="leading-tight whitespace-pre-wrap break-words">${escHtml(item)}</span>
         </label>

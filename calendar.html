@@ -115,11 +115,11 @@
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between gap-3">
           <div class="flex items-center gap-2">
-            <button id="prevBtn" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" title="Previous month" aria-label="Previous month">
+            <button id="prevBtn" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <div id="monthLabel" class="text-base font-semibold text-slate-700 dark:text-slate-200 min-w-[10ch]"></div>
-            <button id="nextBtn" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" title="Next month" aria-label="Next month">
+            <button id="nextBtn" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
           </div>
@@ -136,7 +136,7 @@
           <label class="text-sm text-slate-600 dark:text-slate-300">Jump to
             <input id="monthPicker" type="month" class="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
           </label>
-          <button id="exportIcsBtn" class="px-3 py-1 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 text-sm dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">Export .ics (this month)</button>
+          <button id="exportIcsBtn" class="px-3 py-1 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 text-sm dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">Export .ics</button>
 
           <!-- Admin-only -->
           <div id="adminControls" class="hidden ml-auto flex items-center gap-2">
@@ -178,7 +178,7 @@
           <div id="modalDate" class="text-lg font-bold text-slate-800 dark:text-slate-200"></div>
           <div class="text-xs text-slate-500 dark:text-slate-400">All items for this date</div>
         </div>
-        <button id="closeModal" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Close">
+        <button id="closeModal" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
@@ -200,7 +200,7 @@
     <div class="modal-card p-4 md:p-6">
       <div class="flex items-center justify-between mb-3">
         <div class="text-lg font-bold text-slate-800 dark:text-slate-200" id="eventEditorTitle">Add Event</div>
-        <button id="closeEventEditor" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Close">
+        <button id="closeEventEditor" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
@@ -236,7 +236,7 @@
     <div class="modal-card p-4 md:p-6">
       <div class="flex items-center justify-between mb-3">
         <div class="text-lg font-bold text-slate-800 dark:text-slate-200">Add Meeting Schedule</div>
-        <button id="closeScheduleEditor" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Close">
+        <button id="closeScheduleEditor" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
@@ -673,16 +673,37 @@
           items.appendChild(span);
         };
 
+        // UPDATED: Ensure a green task pill shows when both events and tasks exist
         let shown = 0;
-        for (const e of dayEvents) {
-          if (shown >= MAX_VISIBLE) break;
+        let shownEvents = 0;
+        let shownTasks = 0;
+
+        if (dayEvents.length && dayTasks.length) {
+          // First show one event
+          const e0 = dayEvents[0];
+          const tr0 = formatTimeRange(e0) || e0.time || "";
+          const label0 = tr0 ? `${tr0} ${e0.title}` : e0.title;
+          addPill(label0, "event-pill", `${e0.title}${tr0 ? " • " + tr0 : ""}${e0.location ? " • " + e0.location : ""}`);
+          shown++; shownEvents++;
+
+          // Then show one task if there's still room
+          if (shown < MAX_VISIBLE) {
+            const t0 = dayTasks[0];
+            addPill(t0.title, "task-pill", `${t0.title} • ${t0.assignee || ""}`);
+            shown++; shownTasks++;
+          }
+        }
+
+        // Fill remaining slots: remaining events, then remaining tasks
+        for (let i = shownEvents; i < dayEvents.length && shown < MAX_VISIBLE; i++) {
+          const e = dayEvents[i];
           const tr = formatTimeRange(e) || e.time || "";
           const label = tr ? `${tr} ${e.title}` : e.title;
           addPill(label, "event-pill", `${e.title}${tr ? " • " + tr : ""}${e.location ? " • " + e.location : ""}`);
           shown++;
         }
-        for (const t of dayTasks) {
-          if (shown >= MAX_VISIBLE) break;
+        for (let j = shownTasks; j < dayTasks.length && shown < MAX_VISIBLE; j++) {
+          const t = dayTasks[j];
           addPill(t.title, "task-pill", `${t.title} • ${t.assignee || ""}`);
           shown++;
         }
@@ -776,7 +797,7 @@
         // Use local time (floating) to avoid timezone surprises on import
         if (!timeStr) return dateStr.replace(/-/g, "") + "T000000";
         const [hh, mm] = timeStr.split(":");
-        return dateStr.replace(/-/g, "") + "T" + hh.padStart(2, "0") + mm.padStart(2, "0") + "00";
+        return dateStr.replace(/-/g, "") + "T" + String(hh).padStart(2, "0") + String(mm).padStart(2, "0") + "00";
       };
 
       for (const e of inRange) {
@@ -898,7 +919,7 @@
       const from = scFrom.value;
       const to = scTo.value;
       const startTime = scStart.value || "";
-      const endTime = scEnd.value || "";
+      the endTime = scEnd.value || "";
       const location = scLoc.value.trim();
       const isPublic = !!scPublic.checked;
       const replace = !!scReplace.checked;

@@ -39,6 +39,7 @@
     }
     a { text-decoration: none; color: inherit; }
 
+    /* Global image reset (content images) */
     img { display: block; max-width: 100%; height: auto; }
 
     /* Keep the Google sign-in button intact */
@@ -159,18 +160,108 @@
     }
     .nav-links a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
-    .nav-toggle { justify-self: end; display: none; width: 40px; height: 40px; background: none; border: none; cursor: pointer; position: relative; z-index: 1002; }
+    .nav-toggle {
+      justify-self: end;
+      display: none;
+      width: 40px;
+      height: 40px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      z-index: 1002;
+    }
     .nav-toggle .hamburger,
     .nav-toggle .hamburger::before,
     .nav-toggle .hamburger::after {
-      display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; position: absolute; left: 50%; top: 50%; transform: translateX(-50%); content: "";
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--white);
+      border-radius: 2px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translateX(-50%);
+      content: "";
     }
     .nav-toggle .hamburger::before { top: -7px; }
     .nav-toggle .hamburger::after { top: 7px; }
 
-    .nav-links-mobile { display: none; flex-direction: column; background: var(--medium-blue); position: absolute; top: 100%; left: 0; width: 100%; border-top: 3px solid var(--light-blue); z-index: 1001; }
+    .nav-links-mobile {
+      display: none;
+      flex-direction: column;
+      background: var(--medium-blue);
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      border-top: 3px solid var(--light-blue);
+      z-index: 1001;
+    }
     .nav-links-mobile a { padding: 0.8rem 0; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    @media (max-width: 768px) { .nav-links-mobile { display: none; } .nav-links-mobile.show { display: flex; } }
+    @media (max-width: 768px) {
+      .nav-links-mobile { display: none; }
+      .nav-links-mobile.show { display: flex; }
+    }
+
+    /* ====== Sign-in UI in nav (match index.html) ====== */
+    .nav-login { justify-self: end; display: flex; align-items: center; gap: .5rem; }
+    .nav-login .google-btn {
+      display: flex;
+      align-items: center;
+      background: var(--medium-blue);
+      color: var(--white);
+      border: 2px solid var(--accent);
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    }
+    .nav-login .google-btn:hover {
+      background: var(--light-blue);
+      color: var(--dark-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    }
+    .nav-login .google-btn img { height: 18px; margin-right: 6px; }
+
+    /* Small inline signed-in UI */
+    #googleSignedIn {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #googleSignedIn img {
+      height: 28px;
+      width: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.08);
+    }
+    #googleEmail {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--white);
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 768px) {
+      /* Avoid stretching the Google sign-in button on mobile */
+      .nav-login #googleSignIn { width: auto; }
+
+      /* Adjust layout order so sign-in appears left of hamburger */
+      .nav-login { order: 1; margin: 0.5rem 0.5rem 0.5rem auto; }
+      .nav-toggle { order: 2; }
+      .nav-login .google-btn { width: 90%; justify-content: center; }
+      header { min-height: 320px; }
+    }
 
     /* ====== Sponsors Grid ====== */
     .sponsors-section { padding-top: 3rem; }
@@ -218,12 +309,45 @@
     }
 
     /* ====== Logo frame ====== */
-    .sponsor-media { width: 100%; aspect-ratio: 16 / 9; min-height: 140px; display: flex; align-items: center; justify-content: center; padding: 12px 14px 18px; border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); border: 1.5px solid rgba(79,163,209,0.35); box-shadow: 0 6px 16px rgba(0,0,0,0.35); position: relative; overflow: visible; }
-    .sponsor-logo { display: block; width: auto; height: auto; max-width: 92%; max-height: 78%; object-fit: contain; object-position: center center; filter: grayscale(6%) drop-shadow(0 0 6px rgba(255,255,255,0.18)); transition: filter .25s ease; }
-    .sponsor-card:hover .sponsor-logo, .sponsor-card:focus-within .sponsor-logo { filter: grayscale(0%) drop-shadow(0 0 10px rgba(255,255,255,0.28)); }
+    .sponsor-media {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      min-height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 14px 18px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.04));
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .sponsor-logo {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 92%;
+      max-height: 78%;
+      object-fit: contain;
+      object-position: center center;
+      filter: grayscale(6%) drop-shadow(0 0 6px rgba(255,255,255,0.18));
+      transition: filter .25s ease;
+    }
+    .sponsor-card:hover .sponsor-logo,
+    .sponsor-card:focus-within .sponsor-logo {
+      filter: grayscale(0%) drop-shadow(0 0 10px rgba(255,255,255,0.28));
+    }
 
     /* ====== Name ====== */
-    .sponsor-name { font-weight: 700; letter-spacing: .3px; text-align: center; margin-top: .7rem; padding: 0 .25rem; font-size: clamp(0.95rem, 1.2vw, 1.05rem); color: #e7f5ff; text-shadow: 0 1px 0 rgba(0,0,0,0.3); }
+    .sponsor-name {
+      font-weight: 700;
+      letter-spacing: .3px;
+      text-align: center;
+      margin-top: .7rem;
+      padding: 0 .25rem;
+      font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+      color: #e7f5ff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+    }
 
     @media (max-width: 768px) {
       .sponsor-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; }
@@ -237,17 +361,12 @@
     .competition-grid { column-count: 3; column-gap: 1rem; }
     @media (max-width: 1024px) { .competition-grid { column-count: 2; } }
     @media (max-width: 600px) { .competition-grid { column-count: 1; } }
-    .competition-item { display: inline-block; width: 100%; margin: 0 0 1rem; break-inside: avoid; -webkit-column-break-inside: avoid; -moz-column-break-inside: avoid; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 15px rgba(0,0,0,0.3); border: 2px solid rgba(79,163,209,0.35); background: rgba(10,31,68,0.85); }
+    .competition-item { display: inline-block; width: 100%; margin: 0 0 1rem; break-inside: avoid; -webkit-column-break-inside: avoid; -moz-column-break-inside: avoid; border-radius: 12px; overflow: hidden; }
     .competition-item img { width: 100%; height: auto; display: block; }
 
     /* ====== Footer ====== */
     footer { background: var(--medium-blue); color: #dcdcdc; text-align: center; padding: 1rem 1.5rem; font-size: 0.8rem !important; line-height: 1.4; border-top: 3px solid var(--light-blue); margin: 0 auto; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1); }
     footer p { margin: 0.25rem 0; font-weight: 400; font-size: 0.8rem; }
-
-    /* ====== Responsive nav tweaks ====== */
-    @media (max-width: 768px) {
-      header { min-height: 320px; }
-    }
   </style>
 </head>
 <body>
@@ -260,8 +379,8 @@
       Trident Robotics 4296 is funded by sponsor funding and donations. Our participation in competitions
       is possible thanks to the generosity of our sponsors.
     </p>
-    <!-- Changed from mailto to link to index.html#contact -->
-    <a class="sponsor-button" href="index.html#contact">Sponsor Us</a>
+    <!-- Updated to ensure navigation to the Contact section on the homepage -->
+    <a class="sponsor-button" href="/#contact">Sponsor Us</a>
   </header>
 
   <!-- ====== Navigation ====== -->
@@ -384,7 +503,13 @@
     function signOut() {
       const raw = localStorage.getItem(G_CRED_KEY);
       if (raw) {
-        try { const decoded = jwt_decode(raw); const email = decoded.email; if (google?.accounts?.id && email) { try { google.accounts.id.revoke(email, () => {}); } catch(e){} } } catch(e){}
+        try {
+          const decoded = jwt_decode(raw);
+          const email = decoded.email;
+          if (google?.accounts?.id && email) {
+            try { google.accounts.id.revoke(email, () => {}); } catch(e){}
+          }
+        } catch(e){}
       }
       localStorage.removeItem(G_CRED_KEY);
       try { google?.accounts?.id?.disableAutoSelect(); } catch(e){}
@@ -399,10 +524,24 @@
       document.addEventListener('click', (e) => { if (e.target && e.target.id === 'googleSignOut') { signOut(); } });
       const saved = localStorage.getItem(G_CRED_KEY);
       if (saved) {
-        try { const data = jwt_decode(saved); setSignedInUI(data); try { google.accounts.id.disableAutoSelect(); } catch(e){} }
-        catch (err) { console.warn('Stored credential invalid, clearing', err); localStorage.removeItem(G_CRED_KEY); google.accounts.id.renderButton(document.getElementById("googleSignIn"), { theme: "outline", size: "medium", text: "signin_with" }); }
+        try {
+          const data = jwt_decode(saved);
+          setSignedInUI(data);
+          try { google.accounts.id.disableAutoSelect(); } catch(e){}
+        }
+        catch (err) {
+          console.warn('Stored credential invalid, clearing', err);
+          localStorage.removeItem(G_CRED_KEY);
+          google.accounts.id.renderButton(
+            document.getElementById("googleSignIn"),
+            { theme: "outline", size: "medium", text: "signin_with" }
+          );
+        }
       } else {
-        google.accounts.id.renderButton(document.getElementById("googleSignIn"), { theme: "outline", size: "medium", text: "signin_with" });
+        google.accounts.id.renderButton(
+          document.getElementById("googleSignIn"),
+          { theme: "outline", size: "medium", text: "signin_with" }
+        );
       }
     };
 

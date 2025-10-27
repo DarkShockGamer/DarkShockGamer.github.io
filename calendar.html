@@ -673,7 +673,7 @@
           items.appendChild(span);
         };
 
-        // UPDATED: Ensure a green task pill shows when both events and tasks exist
+        // Ensure a task pill shows when both events and tasks exist
         let shown = 0;
         let shownEvents = 0;
         let shownTasks = 0;
@@ -686,7 +686,7 @@
           addPill(label0, "event-pill", `${e0.title}${tr0 ? " • " + tr0 : ""}${e0.location ? " • " + e0.location : ""}`);
           shown++; shownEvents++;
 
-          // Then show one task if there's still room
+          // Then show one task if room
           if (shown < MAX_VISIBLE) {
             const t0 = dayTasks[0];
             addPill(t0.title, "task-pill", `${t0.title} • ${t0.assignee || ""}`);
@@ -694,7 +694,7 @@
           }
         }
 
-        // Fill remaining slots: remaining events, then remaining tasks
+        // Fill remaining visible slots with remaining events, then tasks
         for (let i = shownEvents; i < dayEvents.length && shown < MAX_VISIBLE; i++) {
           const e = dayEvents[i];
           const tr = formatTimeRange(e) || e.time || "";
@@ -919,7 +919,7 @@
       const from = scFrom.value;
       const to = scTo.value;
       const startTime = scStart.value || "";
-      the endTime = scEnd.value || "";
+      const endTime = scEnd.value || "";   // FIXED: was mistakenly "the endTime"
       const location = scLoc.value.trim();
       const isPublic = !!scPublic.checked;
       const replace = !!scReplace.checked;

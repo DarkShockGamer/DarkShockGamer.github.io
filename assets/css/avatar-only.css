@@ -1,0 +1,2 @@
+/* Hide the email text in the navbar when signed in; show only the avatar */
+#googleEmail { display: none !important; }

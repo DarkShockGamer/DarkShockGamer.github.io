@@ -8,7 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Match tasks.html overall vibe */
-    html, body { height: 100%; overflow: hidden; }
+    /* Allow full-page scrolling instead of locking to viewport */
+    html, body { min-height: 100%; overflow: auto; }
     body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
 
     /* Day cell styling */
@@ -80,16 +81,6 @@
       color: #64748b;            /* slate-500 */
     }
 
-    /* Scrollable area inside each day cell */
-    .day-items {
-      flex: 1 1 auto;
-      min-height: 0;
-      overflow-y: auto;
-      padding-right: 2px; /* space for scrollbar */
-    }
-    .day-items::-webkit-scrollbar { width: 6px; }
-    .day-items::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
-
     .weekday {
       font-size: 0.75rem;
       color: #0369a1; /* sky-700 */
@@ -122,7 +113,6 @@
       .presence-task  { background: #052e2b !important; border-color: #065f46 !important; }
 
       .modal-card { background: #0f172a !important; border-color: #1f2937 !important; }
-      .day-items::-webkit-scrollbar-thumb { background: #334155; }
     }
 
     @media (max-width: 420px) {
@@ -760,7 +750,7 @@
       const canSeeTasks = isTaskAccessAllowed();
       const tasksByDate = canSeeTasks ? groupByDate(tasks, t => t.due) : new Map();
 
-      // Responsive cap to prevent overflow inside the cell before scroll appears
+      // Responsive cap for inline pills (cells remain square; page can scroll)
       const MAX_VISIBLE = window.innerWidth < 640 ? 2 : 3;
 
       for (const { date, inMonth } of cells) {
@@ -799,7 +789,8 @@
         cell.appendChild(head);
 
         const items = document.createElement("div");
-        items.className = "day-items flex flex-col gap-1 min-h-0 overflow-y-auto";
+        // Keep items clipped to the square; no inner scrolling
+        items.className = "flex flex-col gap-1 min-h-0 overflow-hidden";
 
         const addPill = (txt, cls, title, opts = {}) => {
           const span = document.createElement("span");
@@ -861,35 +852,14 @@
       }
     }
 
-    function layoutHeights() {
-      const viewport = window.innerHeight;
-      const outerHeader = document.querySelector("header");
-      const main = document.querySelector("main");
-      const weekHeader = document.getElementById("weekdayHeader");
-      const footer = main.querySelector("footer");
-
-      const headerH = outerHeader.offsetHeight;
-      const footerH = footer.offsetHeight;
-      const vhRemaining = Math.max(0, viewport - headerH - 24); // small spacing
-
-      // Main fills remaining space
-      main.style.height = `${vhRemaining}px`;
-      main.style.minHeight = `${vhRemaining}px`;
-
-      // Calendar grid height target (no page scroll)
-      const gridH = Math.max(180, vhRemaining - weekHeader.offsetHeight - footerH - 16);
-      grid.style.height = `${gridH}px`;
-
-      // Compute a row height that keeps cells square (row height ~= column width)
+    // Keep day cells square based on column width, but let the page scroll
+    function setSquareRows() {
       const cs = getComputedStyle(grid);
       const colGap = parseFloat(cs.columnGap) || 0;
-      const rowGap = parseFloat(cs.rowGap) || 0;
-      const gridWidth = grid.clientWidth;
+      const gridWidth = grid.clientWidth || grid.offsetWidth;
 
-      const colWidth = (gridWidth - colGap * 6) / 7;              // 7 columns, 6 gaps
-      const maxRowByHeight = (gridH - rowGap * 5) / 6;            // 6 rows, 5 gaps
-      const rowPx = Math.floor(Math.min(colWidth, maxRowByHeight)); // square, but don’t exceed available height
-
+      const colWidth = (gridWidth - colGap * 6) / 7; // 7 columns, 6 gaps
+      const rowPx = Math.floor(colWidth);
       grid.style.gridAutoRows = `${rowPx}px`;
     }
 
@@ -897,24 +867,24 @@
       setBadgesAndAdminUI();
       await Promise.all([loadEvents(), loadTasksIfAllowed()]);
       renderGrid(current.getFullYear(), current.getMonth());
-      layoutHeights();
+      setSquareRows(); // size rows to squares; allow page height to grow and scroll
     }
 
     prevBtn.onclick = () => {
       current.setMonth(current.getMonth() - 1);
       renderGrid(current.getFullYear(), current.getMonth());
-      layoutHeights();
+      setSquareRows();
     };
     nextBtn.onclick = () => {
       current.setMonth(current.getMonth() + 1);
       renderGrid(current.getFullYear(), current.getMonth());
-      layoutHeights();
+      setSquareRows();
     };
     todayBtn.onclick = () => {
       const now = new Date();
       current = new Date(now.getFullYear(), now.getMonth(), 1);
       renderGrid(current.getFullYear(), current.getMonth());
-      layoutHeights();
+      setSquareRows();
     };
     monthPicker.addEventListener("change", () => {
       const val = monthPicker.value; // yyyy-mm
@@ -922,10 +892,10 @@
       const [y, m] = val.split("-").map(x => parseInt(x, 10));
       current = new Date(y, m - 1, 1);
       renderGrid(current.getFullYear(), current.getMonth());
-      layoutHeights();
+      setSquareRows();
     });
 
-    window.addEventListener("resize", layoutHeights);
+    window.addEventListener("resize", setSquareRows);
 
     // ICS export for visible month
     function exportVisibleMonthICS() {
@@ -1065,7 +1035,7 @@
         const from = scFrom.value;
         const to = scTo.value;
         const startTime = scStart.value || "";
-        const endTime = scEnd.value || "";
+               const endTime = scEnd.value || "";
         const location = scLoc.value.trim();
         const color = sanitizeEventColor(scColor.value);
         const isPublic = !!scPublic.checked;

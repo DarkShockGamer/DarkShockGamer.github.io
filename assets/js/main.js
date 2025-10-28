@@ -3,6 +3,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const navLinksMobile = document.getElementById('navLinksMobile');
   const navToggle = document.querySelector('.nav-toggle');
 
+  // Hide email text in Google signed-in UI to prevent nav overlap
+  try {
+    const hideEmailStyle = document.createElement('style');
+    hideEmailStyle.textContent = '#googleEmail{display:none !important;}';
+    document.head.appendChild(hideEmailStyle);
+  } catch(e) { /* ignore */ }
+
   // ======= Navigation visibility =======
   function updateNavVisibility() {
     if (window.innerWidth <= 768) {

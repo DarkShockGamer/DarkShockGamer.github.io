@@ -80,6 +80,16 @@
       color: #64748b;            /* slate-500 */
     }
 
+    /* Scrollable area inside each day cell */
+    .day-items {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      padding-right: 2px; /* space for scrollbar */
+    }
+    .day-items::-webkit-scrollbar { width: 6px; }
+    .day-items::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+
     .weekday {
       font-size: 0.75rem;
       color: #0369a1; /* sky-700 */
@@ -112,6 +122,7 @@
       .presence-task  { background: #052e2b !important; border-color: #065f46 !important; }
 
       .modal-card { background: #0f172a !important; border-color: #1f2937 !important; }
+      .day-items::-webkit-scrollbar-thumb { background: #334155; }
     }
 
     @media (max-width: 420px) {
@@ -147,11 +158,11 @@
       <div class="flex flex-col gap-2">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-2">
-            <button id="prevBtn" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200">
+            <button id="prevBtn" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Previous month">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <div id="monthLabel" class="text-base font-semibold text-slate-700 dark:text-slate-200 min-w-[10ch]"></div>
-            <button id="nextBtn" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200">
+            <button id="nextBtn" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Next month">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
           </div>
@@ -194,7 +205,7 @@
           <button id="exportIcsBtn" class="px-3 py-1 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 text-sm dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">Export .ics</button>
 
           <!-- Admin-only -->
-          <div id="adminControls" class="hidden ml-auto flex items-center gap-2">
+          <div id="adminControls" class="hidden ml-auto items-center gap-2">
             <button id="addEventBtn" class="px-3 py-1 bg-sky-600 text-white rounded-md text-sm hover:bg-sky-700">Add Event</button>
             <button id="addScheduleBtn" class="px-3 py-1 bg-sky-600 text-white rounded-md text-sm hover:bg-sky-700">Add Schedule</button>
           </div>
@@ -233,7 +244,7 @@
           <div id="modalDate" class="text-lg font-bold text-slate-800 dark:text-slate-200"></div>
           <div class="text-xs text-slate-500 dark:text-slate-400">All items for this date</div>
         </div>
-        <button id="closeModal" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200">
+        <button id="closeModal" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Close">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
@@ -255,7 +266,7 @@
     <div class="modal-card p-4 md:p-6">
       <div class="flex items-center justify-between mb-3">
         <div class="text-lg font-bold text-slate-800 dark:text-slate-200" id="eventEditorTitle">Add Event</div>
-        <button id="closeEventEditor" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200">
+        <button id="closeEventEditor" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Close">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
@@ -304,7 +315,7 @@
     <div class="modal-card p-4 md:p-6">
       <div class="flex items-center justify-between mb-3">
         <div class="text-lg font-bold text-slate-800 dark:text-slate-200">Add Meeting Schedule</div>
-        <button id="closeScheduleEditor" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200">
+        <button id="closeScheduleEditor" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Close">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
@@ -749,7 +760,7 @@
       const canSeeTasks = isTaskAccessAllowed();
       const tasksByDate = canSeeTasks ? groupByDate(tasks, t => t.due) : new Map();
 
-      // Responsive cap to prevent overflow
+      // Responsive cap to prevent overflow inside the cell before scroll appears
       const MAX_VISIBLE = window.innerWidth < 640 ? 2 : 3;
 
       for (const { date, inMonth } of cells) {
@@ -788,7 +799,7 @@
         cell.appendChild(head);
 
         const items = document.createElement("div");
-        items.className = "flex flex-col gap-1 min-h-0 overflow-hidden";
+        items.className = "day-items flex flex-col gap-1 min-h-0 overflow-y-auto";
 
         const addPill = (txt, cls, title, opts = {}) => {
           const span = document.createElement("span");
@@ -865,10 +876,21 @@
       main.style.height = `${vhRemaining}px`;
       main.style.minHeight = `${vhRemaining}px`;
 
-      // Calendar grid exact height (no page scroll)
+      // Calendar grid height target (no page scroll)
       const gridH = Math.max(180, vhRemaining - weekHeader.offsetHeight - footerH - 16);
       grid.style.height = `${gridH}px`;
-      grid.style.gridAutoRows = "minmax(0, 1fr)";
+
+      // Compute a row height that keeps cells square (row height ~= column width)
+      const cs = getComputedStyle(grid);
+      const colGap = parseFloat(cs.columnGap) || 0;
+      const rowGap = parseFloat(cs.rowGap) || 0;
+      const gridWidth = grid.clientWidth;
+
+      const colWidth = (gridWidth - colGap * 6) / 7;              // 7 columns, 6 gaps
+      const maxRowByHeight = (gridH - rowGap * 5) / 6;            // 6 rows, 5 gaps
+      const rowPx = Math.floor(Math.min(colWidth, maxRowByHeight)); // square, but don’t exceed available height
+
+      grid.style.gridAutoRows = `${rowPx}px`;
     }
 
     async function render() {
@@ -939,9 +961,9 @@
           dtEnd = toICSDate(e.date, endTime);
         } else if (startTime) {
           const [hh, mm] = startTime.split(":").map(x => parseInt(x, 10));
-          const d = new Date(e.date + "T" + pad(hh) + ":" + pad(mm) + ":00");
+          const d = new Date(e.date + "T" + String(hh).padStart(2,"0") + ":" + String(mm).padStart(2,"0") + ":00");
           d.setHours(d.getHours() + 1);
-          dtEnd = `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+          dtEnd = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}T${String(d.getHours()).padStart(2,"0")}${String(d.getMinutes()).padStart(2,"0")}00`;
         } else {
           // all-day
           dtEnd = e.date.replace(/-/g, "") + "T235900";
@@ -975,12 +997,15 @@
 
       evtTitleEl.textContent = ev ? "Edit Event" : "Add Event";
       evTitle.value = ev?.title || "";
-      evDate.value = ev?.date || `${current.getFullYear()}-${pad(current.getMonth()+1)}-${pad(new Date().getDate())}`;
+      const today = new Date();
+      evDate.value = ev?.date || `${current.getFullYear()}-${pad(current.getMonth()+1)}-${pad(today.getDate())}`;
       evStart.value = ev?.startTime || (ev?.time || "");
       evEnd.value = ev?.endTime || "";
       evLoc.value = ev?.location || "";
       evColor.value = sanitizeEventColor(ev?.color || DEFAULT_EVENT_COLOR);
       evPublic.checked = ev?.isPublic !== false;
+
+      eventEditor.classList.add("open");
 
       saveEventBtn.onclick = async () => {
         const title = evTitle.value.trim();
@@ -998,14 +1023,14 @@
           if (ev && ev.id) {
             await setDoc(doc(db, "events", ev.id), {
               title, date, startTime, endTime, location, isPublic, color,
-              updatedAt: Date.now(),
-              updatedBy: prof?.email || ""
-            }, { merge: true });
+              createdBy: ev.createdBy || (prof?.email || ""),
+              createdAt: ev.createdAt || Date.now()
+            });
           } else {
             await addDoc(collection(db, "events"), {
               title, date, startTime, endTime, location, isPublic, color,
-              createdAt: Date.now(),
-              createdBy: prof?.email || ""
+              createdBy: prof?.email || "",
+              createdAt: Date.now()
             });
           }
           eventEditor.classList.remove("open");
@@ -1014,98 +1039,94 @@
           alert("Save failed: " + (err?.message || err));
         }
       };
-
-      eventEditor.classList.add("open");
     }
-    function closeEventEditorModal() { eventEditor.classList.remove("open"); }
-    closeEventEditor.onclick = closeEventEditorModal;
-    eventEditor.addEventListener("click", (e) => { if (e.target === eventEditor) closeEventEditorModal(); });
+    closeEventEditor.onclick = () => eventEditor.classList.remove("open");
+    eventEditor.addEventListener("click", (e) => { if (e.target === eventEditor) eventEditor.classList.remove("open"); });
 
-    addEventBtn?.addEventListener("click", () => openEventEditor());
-
-    // Admin-only: Schedule (recurring)
+    // Admin-only: Schedule creation
     function openScheduleEditor() {
       if (!isEventEditor()) return alert("You are not authorized to manage schedules.");
-
-      scTitle.value = "Robotics Meeting";
-      const y = current.getFullYear();
-      const m = current.getMonth();
-      scFrom.value = `${y}-${pad(m+1)}-01`;
-      scTo.value = `${y}-${pad(m+1)}-${pad(new Date(y, m+1, 0).getDate())}`;
-      scStart.value = "15:30";
-      scEnd.value = "18:00";
-      scLoc.value = "Shop / Room 123";
-      scColor.value = DEFAULT_EVENT_COLOR;
+      // Reset form
+      scTitle.value = "";
+      scFrom.value = "";
+      scTo.value = "";
+      scStart.value = "";
+      scEnd.value = "";
+      scLoc.value = "";
+      scColor.value = "sky";
       scPublic.checked = true;
       scReplace.checked = false;
 
       scheduleEditor.classList.add("open");
-    }
-    function closeScheduleEditorModal() { scheduleEditor.classList.remove("open"); }
-    closeScheduleEditor.onclick = closeScheduleEditorModal;
-    scheduleEditor.addEventListener("click", (e) => { if (e.target === scheduleEditor) closeScheduleEditorModal(); });
 
-    async function createSchedule() {
-      const title = scTitle.value.trim();
-      const from = scFrom.value;
-      const to = scTo.value;
-      const startTime = scStart.value || "";
-      const endTime = scEnd.value || "";
-      const location = scLoc.value.trim();
-      const color = sanitizeEventColor(scColor.value);
-      const isPublic = !!scPublic.checked;
-      const replace = !!scReplace.checked;
+      // Create on save
+      const onSave = async () => {
+        const title = scTitle.value.trim();
+        const from = scFrom.value;
+        const to = scTo.value;
+        const startTime = scStart.value || "";
+        const endTime = scEnd.value || "";
+        const location = scLoc.value.trim();
+        const color = sanitizeEventColor(scColor.value);
+        const isPublic = !!scPublic.checked;
+        const replaceExisting = !!scReplace.checked;
 
-      if (!title || !from || !to) { alert("Title, From, and To are required."); return; }
+        const weekdayChecks = Array.from(scheduleEditor.querySelectorAll(".sc-wd"));
+        const weekdays = weekdayChecks.filter(cb => cb.checked).map(cb => parseInt(cb.value, 10));
 
-      const weekdays = Array.from(scheduleEditor.querySelectorAll(".sc-wd:checked")).map(cb => parseInt(cb.value, 10));
-      if (weekdays.length === 0) { alert("Select at least one weekday."); return; }
+        if (!title || !from || !to) { alert("Title, from, and to are required."); return; }
+        if (!weekdays.length) { alert("Select at least one weekday."); return; }
 
-      const startDate = new Date(from + "T00:00:00");
-      const endDate = new Date(to + "T00:00:00");
-      if (endDate < startDate) { alert("To date must be after From date."); return; }
+        try {
+          const start = new Date(from + "T00:00:00");
+          const end = new Date(to + "T00:00:00");
+          if (end < start) { alert("End date must be on or after start date."); return; }
 
-      const prof = getGoogleProfile();
-      const batch = writeBatch(db);
+          const prof = getGoogleProfile();
 
-      // Optionally replace: delete existing events with same title in range
-      if (replace) {
-        for (const e of events) {
-          if (e.title === title && e.date >= from && e.date <= to) {
-            batch.delete(doc(db, "events", e.id));
+          const batch = writeBatch(db);
+          // Optionally delete existing events with same title in range
+          if (replaceExisting) {
+            const all = events.filter(e => e.title === title && e.date >= from && e.date <= to);
+            for (const e of all) batch.delete(doc(db, "events", e.id));
           }
-        }
-      }
 
-      // Create new events for each matching weekday in range
-      const cursor = new Date(startDate);
-      while (cursor <= endDate) {
-        if (weekdays.includes(cursor.getDay())) {
-          const dateStr = fmtDateKey(cursor);
-          const ref = doc(collection(db, "events"));
-          batch.set(ref, {
-            title, date: dateStr,
-            startTime, endTime,
-            location, isPublic, color,
-            createdAt: Date.now(),
-            createdBy: prof?.email || ""
-          });
-        }
-        cursor.setDate(cursor.getDate() + 1);
-      }
+          // Generate dates
+          for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+            if (!weekdays.includes(d.getDay())) continue;
+            const dateKey = fmtDateKey(d);
+            const ref = doc(collection(db, "events"));
+            batch.set(ref, {
+              title,
+              date: dateKey,
+              startTime, endTime, location, isPublic, color,
+              createdBy: prof?.email || "",
+              createdAt: Date.now()
+            });
+          }
 
-      try {
-        await batch.commit();
-        scheduleEditor.classList.remove("open");
-        await render();
-      } catch (err) {
-        alert("Schedule creation failed: " + (err?.message || err));
-      }
+          await batch.commit();
+          scheduleEditor.classList.remove("open");
+          await render();
+        } catch (err) {
+          alert("Schedule creation failed: " + (err?.message || err));
+        }
+      };
+
+      // Ensure only one active handler
+      const newBtn = document.getElementById("saveScheduleBtn");
+      const cloned = newBtn.cloneNode(true);
+      newBtn.parentNode.replaceChild(cloned, newBtn);
+      cloned.addEventListener("click", onSave);
     }
-    document.getElementById("saveScheduleBtn")?.addEventListener("click", createSchedule);
-    addScheduleBtn?.addEventListener("click", openScheduleEditor);
+    closeScheduleEditor.onclick = () => scheduleEditor.classList.remove("open");
+    scheduleEditor.addEventListener("click", (e) => { if (e.target === scheduleEditor) scheduleEditor.classList.remove("open"); });
 
-    // Initial mount
+    // Wire admin buttons
+    addEventBtn?.addEventListener("click", () => openEventEditor(null));
+    addScheduleBtn?.addEventListener("click", () => openScheduleEditor());
+
+    // Initial render
     render();
   </script>
 </body>

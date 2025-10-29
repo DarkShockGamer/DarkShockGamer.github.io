@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
       } else if (window.SFX && typeof window.SFX.playPrimaryClick === 'function') {
         window.SFX.playPrimaryClick();
       }
-      // If neither exists, we silently do nothing to avoid breaking
+      // no-op if not available
     } catch (e) {
       // swallow errors to avoid disrupting navigation
     }

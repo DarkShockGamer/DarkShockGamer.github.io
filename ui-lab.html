@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trident Robotics — UI Motion & Sound Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Base look and feel (mirrors tasks.html vibes) */
+    body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    @media (prefers-color-scheme: dark) {
+      html, body { color-scheme: dark; }
+      body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; }
+    }
+
+    .panel { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05); }
+    .panel-dark { }
+    @media (prefers-color-scheme: dark) {
+      .panel { background: #0f172a; border-color: #1f2937; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.30); }
+    }
+
+    /* Button ripple effect */
+    .btn-ripple { position: relative; overflow: hidden; }
+    .btn-ripple:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
+    .ripple {
+      position: absolute;
+      border-radius: 9999px;
+      transform: translate(-50%, -50%) scale(0);
+      pointer-events: none;
+      opacity: 0.25;
+      background: currentColor;
+      animation: ripple 650ms ease-out forwards;
+      mix-blend-mode: multiply;
+    }
+    @keyframes ripple {
+      to { transform: translate(-50%, -50%) scale(6); opacity: 0; }
+    }
+
+    /* Hover lift and gentle tilt */
+    .hover-lift { transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease; will-change: transform; }
+    .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(2,132,199,0.12); border-color: #93c5fd; }
+
+    .tilt {
+      transform-style: preserve-3d;
+      perspective: 800px;
+    }
+    .tilt-inner {
+      transition: transform 120ms ease;
+      transform: rotateX(0) rotateY(0);
+    }
+
+    /* Drawer */
+    .drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 420px; height: 100vh; background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.15); transition: right 300ms ease; z-index: 1001; }
+    .drawer.open { right: 0; }
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
+    .drawer-overlay.active { display: block; }
+    @media (prefers-color-scheme: dark) {
+      .drawer { background: #0f172a; border-left: 1px solid #1f2937; }
+    }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1002; }
+    .modal-panel { width: 92vw; max-width: 480px; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; transform: scale(0.96); opacity: 0; transition: all 180ms ease; }
+    .modal-panel.show { transform: scale(1); opacity: 1; }
+    @media (prefers-color-scheme: dark) {
+      .modal-panel { background: #0f172a; border-color: #1f2937; }
+    }
+
+    /* Toasts */
+    .toast-stack { position: fixed; right: 1rem; top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 1003; }
+    .toast {
+      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.5rem;
+      padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid; min-width: 240px;
+      background: white; transform: translateX(16px); opacity: 0; transition: all 200ms ease;
+      box-shadow: 0 10px 24px rgba(2,132,199,0.08);
+    }
+    .toast.show { transform: translateX(0); opacity: 1; }
+    .toast.success { border-color: #bbf7d0; background: #f0fdf4; color: #065f46; }
+    .toast.info    { border-color: #bae6fd; background: #eff6ff; color: #075985; }
+    .toast.warn    { border-color: #fde68a; background: #fffbeb; color: #92400e; }
+    .toast.error   { border-color: #fecaca; background: #fef2f2; color: #7f1d1d; }
+    @media (prefers-color-scheme: dark) {
+      .toast { background: #0f172a; border-color: #1f2937; color: #e5e7eb; box-shadow: 0 10px 24px rgba(14,165,233,0.18); }
+      .toast.success { border-color: #064e3b; background: #052e2b; color: #bbf7d0; }
+      .toast.info    { border-color: #0c4a6e; background: #052335; color: #bae6fd; }
+      .toast.warn    { border-color: #78350f; background: #2f1f05; color: #fde68a; }
+      .toast.error   { border-color: #7f1d1d; background: #2b0b0b; color: #fecaca; }
+    }
+
+    /* Scroll reveal */
+    .reveal { opacity: 0; transform: translateY(10px); transition: all 400ms ease; }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+
+    /* Progress demo */
+    .progress-wrap { height: 10px; background: #e5e7eb; border-radius: 9999px; overflow: hidden; border: 1px solid #e5e7eb; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, #0ea5e9, #22d3ee); width: 0%; transition: width 120ms linear; }
+    @media (prefers-color-scheme: dark) {
+      .progress-wrap { background: #111827; border-color: #1f2937; }
+    }
+  </style>
+</head>
+<body class="min-h-screen p-6">
+  <header class="max-w-7xl mx-auto mb-6 px-2">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-8 w-8">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">UI Motion & Sound Lab</h1>
+          <p class="text-sm text-sky-600 dark:text-sky-400">Experiment with animations and sonic feedback for your site</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="toggleSound" class="btn-ripple bg-sky-600 hover:bg-sky-700 text-white px-3 py-2 rounded-md font-semibold shadow-sm">Sound: On</button>
+        <button id="openDrawer" class="btn-ripple border border-slate-300 dark:border-slate-700 px-3 py-2 rounded-md shadow-sm dark:text-slate-200">Menu</button>
+      </div>
+    </div>
+
+    <div class="mt-4 panel p-4">
+      <p class="text-sm text-slate-600 dark:text-slate-300">This page showcases reusable micro-interactions you can copy into other pages (click sounds, success/error tones, toasts, modal, drawer, ripples, tilt, progress). Sounds synthesized via Web Audio (no assets needed). Respects reduced motion.</p>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto space-y-6">
+    <!-- Buttons + ripple + sound -->
+    <section class="panel p-5 hover-lift reveal">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Buttons: Ripple + Sonic Feedback</h2>
+      <div class="flex flex-wrap gap-2">
+        <button data-sound="click" class="btn-ripple px-4 py-2 rounded-md bg-sky-600 hover:bg-sky-700 text-white shadow-sm">Primary Click</button>
+        <button data-sound="success" class="btn-ripple px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">Confirm</button>
+        <button data-sound="warn" class="btn-ripple px-4 py-2 rounded-md bg-amber-500 hover:bg-amber-600 text-white shadow-sm">Warn</button>
+        <button data-sound="error" class="btn-ripple px-4 py-2 rounded-md bg-rose-600 hover:bg-rose-700 text-white shadow-sm">Danger</button>
+      </div>
+    </section>
+
+    <!-- Toasts -->
+    <section class="panel p-5 hover-lift reveal">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Toasts: Slide-in + Sound</h2>
+      <div class="flex flex-wrap gap-2">
+        <button class="btn-ripple border border-slate-300 dark:border-slate-700 px-3 py-2 rounded-md" onclick="demoToast('success')">Show Success</button>
+        <button class="btn-ripple border border-slate-300 dark:border-slate-700 px-3 py-2 rounded-md" onclick="demoToast('info')">Show Info</button>
+        <button class="btn-ripple border border-slate-300 dark:border-slate-700 px-3 py-2 rounded-md" onclick="demoToast('warn')">Show Warning</button>
+        <button class="btn-ripple border border-slate-300 dark:border-slate-700 px-3 py-2 rounded-md" onclick="demoToast('error')">Show Error</button>
+      </div>
+      <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Toasts auto-dismiss and are ARIA-live polite.</p>
+    </section>
+
+    <!-- Modal -->
+    <section class="panel p-5 hover-lift reveal">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Modal: Scale-in + Whoosh</h2>
+      <button id="openModal" class="btn-ripple px-4 py-2 rounded-md bg-sky-600 hover:bg-sky-700 text-white shadow-sm">Open Modal</button>
+    </section>
+
+    <!-- Drawer -->
+    <section class="panel p-5 hover-lift reveal">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Drawer: Slide-in + Whoosh</h2>
+      <button class="btn-ripple border border-slate-300 dark:border-slate-700 px-3 py-2 rounded-md" onclick="openAppDrawer()">Open Drawer</button>
+    </section>
+
+    <!-- Cards with tilt -->
+    <section class="panel p-5 reveal">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Cards: Hover Tilt + Lift</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 tilt">
+        <div class="tilt-inner panel p-4 hover-lift">
+          <h3 class="font-medium text-slate-800 dark:text-slate-200">Interactive Card</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Moves subtly with cursor for depth.</p>
+        </div>
+        <div class="tilt-inner panel p-4 hover-lift">
+          <h3 class="font-medium text-slate-800 dark:text-slate-200">Another Card</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Good for dashboards and tiles.</p>
+        </div>
+        <div class="tilt-inner panel p-4 hover-lift">
+          <h3 class="font-medium text-slate-800 dark:text-slate-200">Low Motion Safe</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Disables when reduced motion is on.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Progress / Loader -->
+    <section class="panel p-5 hover-lift reveal">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Progress: Smooth Fill + Success Chime</h2>
+      <div class="progress-wrap">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+      <div class="mt-3 flex gap-2">
+        <button class="btn-ripple px-3 py-2 rounded-md bg-sky-600 hover:bg-sky-700 text-white" onclick="startProgress()">Start</button>
+        <button class="btn-ripple px-3 py-2 rounded-md border border-slate-300 dark:border-slate-700" onclick="resetProgress()">Reset</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Drawer -->
+  <div id="drawerOverlay" class="drawer-overlay"></div>
+  <aside id="drawer" class="drawer">
+    <div class="p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Menu</h3>
+        <button id="closeDrawer" class="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Close">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="space-y-2 text-sm text-slate-600 dark:text-slate-300">
+        <p>Try other components on this page. Great candidates for reuse across your site:</p>
+        <ul class="list-disc ml-5">
+          <li>Button ripple + click sounds</li>
+          <li>Toasts for feedback</li>
+          <li>Modal for forms/details</li>
+          <li>Drawer for navigation</li>
+          <li>Progress for uploads/tasks</li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Toast stack -->
+  <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Modal (dynamic via JS) -->
+
+  <script>
+    // Sound Engine: lightweight Web Audio synth (no asset files)
+    const Sound = (() => {
+      const state = {
+        ctx: null,
+        master: null,
+        enabled: true,
+        whooshFilter: null,
+        prefersReduced: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      };
+
+      function ensureCtx() {
+        if (!state.ctx) {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const master = ctx.createGain();
+          master.gain.value = 0.6;
+          master.connect(ctx.destination);
+          state.ctx = ctx;
+          state.master = master;
+          // Resume on first user gesture if needed
+          const resume = () => { if (ctx.state === 'suspended') ctx.resume(); document.removeEventListener('pointerdown', resume, true); };
+          document.addEventListener('pointerdown', resume, true);
+        }
+      }
+
+      function setEnabled(on) {
+        state.enabled = on;
+        if (state.master) state.master.gain.value = on ? 0.6 : 0.0;
+      }
+
+      function tone({ freq=440, type='sine', duration=0.12, attack=0.005, decay=0.08, gain=0.3, detune=0 }) {
+        if (!state.enabled) return;
+        ensureCtx();
+        const t0 = state.ctx.currentTime;
+        const osc = state.ctx.createOscillator();
+        const g = state.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, t0);
+        if (detune) osc.detune.setValueAtTime(detune, t0);
+        g.gain.setValueAtTime(0, t0);
+        g.gain.linearRampToValueAtTime(gain, t0 + attack);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + attack + decay);
+        osc.connect(g).connect(state.master);
+        osc.start(t0);
+        osc.stop(t0 + Math.max(duration, attack + decay));
+      }
+
+      function click() {
+        tone({ freq: 240, type: 'triangle', duration: 0.08, attack: 0.002, decay: 0.06, gain: 0.22 });
+      }
+
+      function success() {
+        // Pleasant two-note arpeggio
+        tone({ freq: 660, type: 'sine', attack: 0.004, decay: 0.10, gain: 0.25 });
+        setTimeout(() => tone({ freq: 880, type: 'sine', attack: 0.004, decay: 0.12, gain: 0.23 }), 90);
+      }
+
+      function warn() {
+        tone({ freq: 320, type: 'square', attack: 0.003, decay: 0.15, gain: 0.2 });
+      }
+
+      function error() {
+        tone({ freq: 220, type: 'square', attack: 0.002, decay: 0.2, gain: 0.25 });
+        setTimeout(() => tone({ freq: 180, type: 'square', attack: 0.002, decay: 0.22, gain: 0.22 }), 90);
+      }
+
+      function info() {
+        tone({ freq: 520, type: 'triangle', attack: 0.004, decay: 0.12, gain: 0.22 });
+      }
+
+      function whoosh() {
+        if (state.prefersReduced || !state.enabled) return;
+        ensureCtx();
+        const t0 = state.ctx.currentTime;
+        const bufferSize = 2 * state.ctx.sampleRate;
+        const noiseBuffer = state.ctx.createBuffer(1, bufferSize, state.ctx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize); // tail off
+        const noise = state.ctx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        const filter = state.ctx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.setValueAtTime(400, t0);
+        const g = state.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.08);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.45);
+        noise.connect(filter).connect(g).connect(state.master);
+        noise.start(t0);
+        noise.stop(t0 + 0.5);
+      }
+
+      return { setEnabled, click, success, warn, error, info, whoosh };
+    })();
+
+    // Ripple helper
+    function addRipple(e) {
+      const btn = e.currentTarget;
+      const rect = btn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const span = document.createElement('span');
+      span.className = 'ripple';
+      span.style.width = span.style.height = size + 'px';
+      span.style.left = (e.clientX - rect.left) + 'px';
+      span.style.top = (e.clientY - rect.top) + 'px';
+      btn.appendChild(span);
+      span.addEventListener('animationend', () => span.remove());
+    }
+
+    // Attach ripple and sounds to demo buttons
+    document.querySelectorAll('.btn-ripple').forEach(btn => {
+      btn.addEventListener('click', addRipple);
+      const soundType = btn.getAttribute('data-sound');
+      if (soundType) {
+        btn.addEventListener('click', () => {
+          if (soundType === 'click') Sound.click();
+          if (soundType === 'success') Sound.success();
+          if (soundType === 'warn') Sound.warn();
+          if (soundType === 'error') Sound.error();
+        });
+      }
+    });
+
+    // Header controls
+    const toggleSoundBtn = document.getElementById('toggleSound');
+    toggleSoundBtn.addEventListener('click', () => {
+      const on = toggleSoundBtn.textContent.includes('On');
+      Sound.setEnabled(!on);
+      toggleSoundBtn.textContent = `Sound: ${on ? 'Off' : 'On'}`;
+      if (!on) Sound.info();
+    });
+
+    // Toasts
+    const toastStack = document.getElementById('toastStack');
+    function showToast(type, message, timeout = 3000) {
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.setAttribute('role', 'status');
+      el.innerHTML = `
+        <span aria-hidden="true">
+          ${
+            type === 'success' ? '✅' :
+            type === 'info' ? 'ℹ️' :
+            type === 'warn' ? '⚠️' : '⛔'
+          }
+        </span>
+        <div class="text-sm">${message}</div>
+        <button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Dismiss">✖</button>
+      `;
+      toastStack.appendChild(el);
+      requestAnimationFrame(() => el.classList.add('show'));
+
+      // Sound
+      if (type === 'success') Sound.success();
+      else if (type === 'info') Sound.info();
+      else if (type === 'warn') Sound.warn();
+      else if (type === 'error') Sound.error();
+
+      const close = () => {
+        el.classList.remove('show');
+        setTimeout(() => el.remove(), 180);
+      };
+      el.querySelector('button').addEventListener('click', close);
+      const id = setTimeout(close, timeout);
+      el.addEventListener('pointerenter', () => clearTimeout(id), { once: true });
+    }
+    window.demoToast = (type) => {
+      const text = {
+        success: 'Saved successfully!',
+        info: 'Heads up! New update available.',
+        warn: 'Careful — unsaved changes.',
+        error: 'Something went wrong.'
+      }[type] || 'Message';
+      showToast(type, text);
+    };
+
+    // Modal
+    document.getElementById('openModal').addEventListener('click', () => {
+      Sound.whoosh();
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.innerHTML = `
+        <div class="modal-panel">
+          <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">Example Modal</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Scale-in animation with whoosh sound. Great for confirmations or quick forms.</p>
+          <div class="mt-4 flex gap-2">
+            <button class="btn-ripple px-3 py-2 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white" id="modalConfirm">Confirm</button>
+            <button class="btn-ripple px-3 py-2 rounded-md border border-slate-300 dark:border-slate-700" id="modalClose">Close</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      const panel = overlay.querySelector('.modal-panel');
+      requestAnimationFrame(() => panel.classList.add('show'));
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) close();
+      });
+      overlay.querySelector('#modalClose').addEventListener('click', close);
+      overlay.querySelector('#modalConfirm').addEventListener('click', () => {
+        Sound.success();
+        showToast('success', 'Confirmed!');
+        close();
+      });
+
+      function close() {
+        panel.classList.remove('show');
+        Sound.click();
+        setTimeout(() => overlay.remove(), 160);
+      }
+      overlay.querySelectorAll('.btn-ripple').forEach(b => b.addEventListener('click', addRipple));
+    });
+
+    // Drawer
+    const drawer = document.getElementById('drawer');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+    function openAppDrawer() {
+      drawer.classList.add('open');
+      drawerOverlay.classList.add('active');
+      Sound.whoosh();
+    }
+    window.openAppDrawer = openAppDrawer;
+    document.getElementById('openDrawer').addEventListener('click', openAppDrawer);
+    document.getElementById('closeDrawer').addEventListener('click', closeDrawer);
+    drawerOverlay.addEventListener('click', closeDrawer);
+    function closeDrawer() {
+      drawer.classList.remove('open');
+      drawerOverlay.classList.remove('active');
+      Sound.click();
+    }
+
+    // Tilt cards (disabled when reduced motion)
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!prefersReduced) {
+      const tiltRoot = document.querySelector('.tilt');
+      const items = tiltRoot ? tiltRoot.querySelectorAll('.tilt-inner') : [];
+      tiltRoot?.addEventListener('mousemove', (e) => {
+        const rect = tiltRoot.getBoundingClientRect();
+        const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+        const px = (cx / rect.width) - 0.5;
+        const py = (cy / rect.height) - 0.5;
+        const max = 6;
+        items.forEach(el => {
+          el.style.transform = `rotateX(${-py*max}deg) rotateY(${px*max}deg)`;
+        });
+      });
+      tiltRoot?.addEventListener('mouseleave', () => items.forEach(el => el.style.transform = 'rotateX(0) rotateY(0)'));
+    }
+
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          // Soft chime only once per section
+          Sound.info();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Progress demo
+    let progressTimer = null;
+    function startProgress() {
+      Sound.whoosh();
+      const bar = document.getElementById('progressBar');
+      clearInterval(progressTimer);
+      let w = 0;
+      progressTimer = setInterval(() => {
+        w += Math.random() * 7 + 3; // step 3-10%
+        if (w >= 100) {
+          w = 100;
+          clearInterval(progressTimer);
+          Sound.success();
+          showToast('success', 'All done!');
+        }
+        bar.style.width = w + '%';
+      }, 160);
+    }
+    function resetProgress() {
+      const bar = document.getElementById('progressBar');
+      bar.style.width = '0%';
+      Sound.click();
+    }
+    window.startProgress = startProgress;
+    window.resetProgress = resetProgress;
+  </script>
+</body>
+</html>

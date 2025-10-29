@@ -95,7 +95,35 @@
     "competitionImages": [
       "/assets/Compitition-Photo1.png",
       "/assets/uploads/1761495217065-Trident-Robotics-Team-4296_20250416_4.jpg",
-      "/assets/uploads/1761495322018-Trident-Robotics-Team-4296_20250407_1.jpg"
+      "/assets/uploads/1761495322018-Trident-Robotics-Team-4296_20250407_1.jpg",
+      "/assets/uploads/1761781558410-Trident-Robotics-Team-4296_20250416_2.jpg"
     ]
-  }
+  },
+  "sponsors": [
+    {
+      "name": "Baxter",
+      "logo": "/assets/Baxter-Logo.png",
+      "url": ""
+    },
+    {
+      "name": "NASA",
+      "logo": "/assets/NASA-Logo.png",
+      "url": ""
+    },
+    {
+      "name": "Kubota",
+      "logo": "/assets/Kubota-Logo.png",
+      "url": ""
+    },
+    {
+      "name": "WW Displays Inc",
+      "logo": "/assets/WWDisplays.png",
+      "url": ""
+    },
+    {
+      "name": "Patel Family",
+      "logo": "/assets/PatelFamily.png",
+      "url": ""
+    }
+  ]
 }

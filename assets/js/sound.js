@@ -27,11 +27,13 @@
       }
       if (!state.resumeBound) {
         state.resumeBound = true;
-        const resume = () => {
+        const unlock = () => {
           if (state.ctx && state.ctx.state === 'suspended') state.ctx.resume();
-          document.removeEventListener('pointerdown', resume, true);
         };
-        document.addEventListener('pointerdown', resume, true);
+        // Unlock on common user gestures (helps Safari/iOS, keyboard users)
+        ['pointerdown', 'touchend', 'keydown'].forEach(evt => {
+          document.addEventListener(evt, unlock, { capture: true, once: true });
+        });
       }
     }
 
@@ -77,7 +79,8 @@
     function info() {
       tone({ freq: 520, type: 'triangle', attack: 0.004, decay: 0.12, gain: 0.22 });
     }
-    // New: dedicated sounds for checklist toggle
+
+    // Dedicated sounds for checklist toggle
     function checkOn() {
       // subtle upward chirp
       tone({ freq: 660, type: 'triangle', attack: 0.003, decay: 0.08, gain: 0.20 });

@@ -110,6 +110,44 @@
         background: #1f2937 !important; /* slate-800 */
       }
     }
+
+    /* Toasts: Slide-in + Sound-ready */
+    .toast-stack {
+      position: fixed;
+      right: 1rem;
+      top: 1rem;
+      display: grid;
+      gap: 0.5rem;
+      z-index: 1003;
+    }
+    .toast {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 0.75rem;
+      border-radius: 0.5rem;
+      min-width: 240px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      transform: translateX(16px);
+      opacity: 0;
+      transition: all 200ms ease;
+      box-shadow: 0 10px 24px rgba(2,132,199,0.08);
+      will-change: opacity, transform;
+    }
+    .toast.show { transform: translateX(0); opacity: 1; }
+    .toast.success { border-color: #bbf7d0; background: #f0fdf4; color: #065f46; }
+    .toast.info    { border-color: #bae6fd; background: #eff6ff; color: #075985; }
+    .toast.warn    { border-color: #fde68a; background: #fffbea; color: #92400e; }
+    .toast.error   { border-color: #fecaca; background: #fef2f2; color: #7f1d1d; }
+    @media (prefers-color-scheme: dark) {
+      .toast { background: #0f172a; border-color: #1f2937; color: #e5e7eb; box-shadow: 0 10px 24px rgba(14,165,233,.18); }
+      .toast.success { border-color: #064e3b; background: #052e2b; color: #bbf7d0; }
+      .toast.info    { border-color: #0c4a6e; background: #052335; color: #bae6fd; }
+      .toast.warn    { border-color: #78350f; background: #2f1f05; color: #fde68a; }
+      .toast.error   { border-color: #7f1d1d; background: #2b0b0b; color: #fecaca; }
+    }
   </style>
 </head>
 <body class="min-h-screen bg-gradient-to-b from-sky-50 to-white dark:from-slate-900 dark:to-slate-950 font-sans text-slate-800 dark:text-slate-200">
@@ -134,12 +172,12 @@
         <div class="col-span-1">
           <label for="site-title" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Site Title</label>
           <input id="site-title" type="text" placeholder="Site title"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500"/>
         </div>
         <div class="col-span-1">
           <label for="about-heading" class="block text-sm font-medium text-slate-700 dark:text-slate-300">About Heading</label>
           <input id="about-heading" type="text" placeholder="About heading"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500"/>
         </div>
       </div>
 
@@ -170,9 +208,9 @@
         <div id="leads-list" class="mt-2"></div>
         <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2">
           <input id="new-lead" type="text" placeholder="Add lead name"
-                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
+                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500"/>
           <select id="new-lead-team" aria-label="Lead team"
-                  class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-sky-700"></select>
+                  class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"></select>
           <button id="add-lead"
                   class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">Add</button>
         </div>
@@ -184,7 +222,7 @@
         <div id="drivers-list" class="mt-2"></div>
         <div class="mt-3 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-2">
           <input id="new-driver" type="text" placeholder="Add driver name"
-                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
+                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500"/>
           <button id="add-driver"
                   class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">Add</button>
         </div>
@@ -283,7 +321,6 @@
             <button id="btn-upload-sponsor-logo" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload Logo</button>
             <input id="file-sponsor-logo" type="file" accept="image/*" class="hidden">
           </div>
-          <!-- Hide preview until a valid src is set -->
           <img id="preview-sponsor-logo" alt="Logo preview" class="mt-2 max-h-24 rounded-md border border-slate-200 dark:border-slate-700 hidden">
         </div>
 
@@ -370,6 +407,9 @@
       <span class="text-xs text-sky-400">Internal content management • Edits saved to data/site.json</span>
     </footer>
   </main>
+
+  <!-- Toast stack -->
+  <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
 
   <script>
     // ===== Base state and helpers =====
@@ -670,19 +710,85 @@
       return await r.json();
     }
 
+    // ===== Toasts (Slide-in + Sound hooks) with fade-out and reliable auto-dismiss =====
+    const toastStack = document.getElementById('toastStack');
+    function showToast(type, message, timeout = 10000) {
+      if (!toastStack) return;
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.setAttribute('role', 'status');
+      el.innerHTML = `
+        <span aria-hidden="true">
+          ${type === 'success' ? '✔' : type === 'info' ? 'ℹ️' : type === 'warn' ? '⚠️' : '✖'}
+        </span>
+        <div class="text-sm">${message}</div>
+        <button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Dismiss">✖</button>
+      `;
+      toastStack.appendChild(el);
+      requestAnimationFrame(() => el.classList.add('show'));
+
+      try {
+        if (window.Sound) {
+          if (type === 'success' && Sound.success) Sound.success();
+          else if (type === 'info' && Sound.info) Sound.info();
+          else if (type === 'warn' && Sound.warn) Sound.warn();
+          else if (type === 'error' && Sound.error) Sound.error();
+        }
+      } catch {}
+
+      const removeAfterTransition = () => {
+        const onEnd = (e) => {
+          if (e.target === el) {
+            el.removeEventListener('transitionend', onEnd);
+            el.remove();
+          }
+        };
+        el.addEventListener('transitionend', onEnd);
+        el.classList.remove('show'); // fade out
+      };
+
+      // Dismiss on click
+      el.querySelector('button')?.addEventListener('click', removeAfterTransition);
+
+      // Auto-dismiss with hover pause/resume
+      let start = Date.now();
+      let remaining = timeout;
+      let timer = setTimeout(removeAfterTransition, remaining);
+
+      const pause = () => { clearTimeout(timer); remaining -= (Date.now() - start); };
+      const resume = () => { start = Date.now(); clearTimeout(timer); timer = setTimeout(removeAfterTransition, Math.max(0, remaining)); };
+
+      el.addEventListener('mouseenter', pause);
+      el.addEventListener('mouseleave', resume);
+
+      window.showToast = showToast;
+    }
+
+    // ===== Dry run and Push handlers with toasts =====
     document.getElementById('dry-run').addEventListener('click', async ()=>{
       const owner = document.getElementById('gh-owner').value.trim();
       const repo = document.getElementById('gh-repo').value.trim();
       const branch = document.getElementById('gh-branch').value.trim() || 'main';
       const path = document.getElementById('gh-path').value.trim() || 'data/site.json';
       const token = document.getElementById('gh-token').value.trim();
-      if (!owner || !repo || !token) { document.getElementById('gh-result').textContent = 'owner/repo/token required'; return; }
+
+      if (!owner || !repo || !token) {
+        document.getElementById('gh-result').textContent = 'owner/repo/token required';
+        showToast('warn', 'Please provide owner, repo, and token.');
+        return;
+      }
+
       try {
         document.getElementById('gh-result').textContent = 'Checking...';
+        showToast('info', 'Checking GitHub for existing file…');
         const sha = await getSha(owner, repo, path, branch, token);
-        document.getElementById('gh-result').textContent = sha ? ('Found existing file. SHA: ' + sha) : 'No existing file (will create new).';
+        const msg = sha ? ('Found existing file. SHA: ' + sha) : 'No existing file (will create new).';
+        document.getElementById('gh-result').textContent = msg;
+        showToast('success', msg);
       } catch (e) {
-        document.getElementById('gh-result').textContent = 'Error: ' + e.message;
+        const msg = 'Error: ' + e.message;
+        document.getElementById('gh-result').textContent = msg;
+        showToast('error', msg);
       }
     });
 
@@ -692,7 +798,13 @@
       const branch = document.getElementById('gh-branch').value.trim() || 'main';
       const path = document.getElementById('gh-path').value.trim() || 'data/site.json';
       const token = document.getElementById('gh-token').value.trim();
-      if (!owner || !repo || !token) { document.getElementById('gh-result').textContent = 'owner/repo/token required'; return; }
+
+      if (!owner || !repo || !token) {
+        document.getElementById('gh-result').textContent = 'owner/repo/token required';
+        showToast('warn', 'Please provide owner, repo, and token.');
+        return;
+      }
+
       try {
         // Ensure latest edits captured (including media & sponsors)
         siteData.title = document.getElementById('site-title').value;
@@ -703,22 +815,30 @@
         siteData.media.sponsorsHeader = document.getElementById('media-sponsorsHeader')?.value?.trim() || siteData.media.sponsorsHeader;
 
         document.getElementById('gh-result').textContent = 'Pushing...';
+        showToast('info', 'Pushing to GitHub…');
+
         const res = await pushFile(owner, repo, path, branch, token, JSON.stringify(siteData,null,2), 'Update site data via developer.html');
         if (res && res.commit && res.commit.sha) {
-          document.getElementById('gh-result').textContent = 'Success. Commit: ' + res.commit.sha;
+          const msg = 'Success. Commit: ' + res.commit.sha;
+          document.getElementById('gh-result').textContent = msg;
+          showToast('success', 'site.json saved • ' + res.commit.sha);
           isDirty = false; updateSaveStatus();
-          const msg = document.getElementById('media-result');
-          if (msg) msg.textContent = 'site.json saved. Your image and sponsor changes are now live.';
+          const note = document.getElementById('media-result');
+          if (note) note.textContent = 'site.json saved. Your image and sponsor changes are now live.';
         } else {
-          document.getElementById('gh-result').textContent = 'Response: ' + JSON.stringify(res);
+          const msg = 'Response: ' + JSON.stringify(res);
+          document.getElementById('gh-result').textContent = msg;
+          showToast('error', msg);
         }
-      } catch (e) { document.getElementById('gh-result').textContent = 'Error: ' + e.message; }
+      } catch (e) {
+        const msg = 'Error: ' + e.message;
+        document.getElementById('gh-result').textContent = msg;
+        showToast('error', msg);
+      }
     });
 
     // ===== Media Manager: upload binary files to repo =====
-    function sanitizeFileName(name) {
-      return name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    }
+    function sanitizeFileName(name) { return name.replace(/[^a-zA-Z0-9._-]/g, '_'); }
     function base64FromFile(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -999,77 +1119,58 @@
             <img src="${safeLogo}" alt="${safeName}" class="h-16 w-24 object-contain rounded border border-slate-200 dark:border-slate-700 bg-white" onerror="this.style.visibility='hidden'">
             <div class="flex-1 grid grid-cols-1 gap-2">
               <div>
-                <label class="block text-xs text-slate-500">Name</label>
-                <input data-k="name" class="w-full rounded-md border border-slate-300 px-2 py-1.5 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
-                       value="${safeName}">
+                <label class="block text-xs text-slate-500 dark:text-slate-400">Name</label>
+                <input class="s-name mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" value="${safeName}">
               </div>
               <div>
-                <label class="block text-xs text-slate-500">Link (optional)</label>
-                <input data-k="url" class="w-full rounded-md border border-slate-300 px-2 py-1.5 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
-                       value="${safeUrl}" placeholder="https://example.com">
+                <label class="block text-xs text-slate-500 dark:text-slate-400">Logo URL</label>
+                <input class="s-logo mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" value="${safeLogo}">
               </div>
               <div>
-                <label class="block text-xs text-slate-500">Logo URL</label>
-                <input data-k="logo" class="w-full rounded-md border border-slate-300 px-2 py-1.5 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"
-                       value="${safeLogo}">
+                <label class="block text-xs text-slate-500 dark:text-slate-400">Link URL (optional)</label>
+                <input class="s-url mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" value="${safeUrl}">
+              </div>
+              <div class="flex gap-2">
+                <button class="up border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs">↑</button>
+                <button class="down border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs">↓</button>
+                <button class="del border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 rounded px-2 py-1 text-xs">Delete</button>
               </div>
             </div>
           </div>
-          <div class="px-3 pb-3 flex items-center justify-end gap-2">
-            <button class="border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs" data-act="up">↑</button>
-            <button class="border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs" data-act="down">↓</button>
-            <button class="border border-red-300 dark:border-red-900 text-red-600 dark:text-red-400 rounded px-2 py-1 text-xs" data-act="del">Delete</button>
-          </div>
         `;
+        wrap.appendChild(card);
 
-        // Bind inputs
-        card.querySelectorAll('input[data-k]').forEach(inp => {
-          inp.addEventListener('input', e => {
-            const key = e.target.getAttribute('data-k');
-            const val = e.target.value;
-            siteData.sponsors[idx][key] = val;
-            if (key === 'logo') {
-              const img = card.querySelector('img');
-              if (img) {
-                img.style.visibility = 'visible';
-                img.onerror = () => { img.style.visibility = 'hidden'; };
-                img.src = val;
-              }
-            }
-            setDirty('Sponsors list updated');
-          });
-        });
-
-        // Actions
-        card.querySelector('[data-act="up"]').addEventListener('click', () => {
+        // Bind events
+        card.querySelector('.s-name').addEventListener('input', (e) => { siteData.sponsors[idx].name = e.target.value; setDirty('Sponsors list updated'); });
+        card.querySelector('.s-logo').addEventListener('input', (e) => { siteData.sponsors[idx].logo = e.target.value; setDirty('Sponsors list updated'); });
+        card.querySelector('.s-url').addEventListener('input', (e) => { siteData.sponsors[idx].url = e.target.value; setDirty('Sponsors list updated'); });
+        card.querySelector('.up').addEventListener('click', () => {
           if (idx > 0) {
             const a = siteData.sponsors[idx-1];
             siteData.sponsors[idx-1] = siteData.sponsors[idx];
             siteData.sponsors[idx] = a;
-            setDirty('Sponsors reordered');
+            setDirty('Sponsors list updated');
             renderSponsorsList();
           }
         });
-        card.querySelector('[data-act="down"]').addEventListener('click', () => {
+        card.querySelector('.down').addEventListener('click', () => {
           if (idx < siteData.sponsors.length - 1) {
             const a = siteData.sponsors[idx+1];
             siteData.sponsors[idx+1] = siteData.sponsors[idx];
             siteData.sponsors[idx] = a;
-            setDirty('Sponsors reordered');
+            setDirty('Sponsors list updated');
             renderSponsorsList();
           }
         });
-        card.querySelector('[data-act="del"]').addEventListener('click', () => {
+        card.querySelector('.del').addEventListener('click', () => {
           siteData.sponsors.splice(idx, 1);
-          setDirty('Sponsor removed');
+          setDirty('Sponsors list updated');
           renderSponsorsList();
         });
-
-        wrap.appendChild(card);
       });
     }
 
-    // Start
+    // Initial load
     loadExisting();
   </script>
   <script src="/assets/js/sound.js" defer></script>

@@ -15,7 +15,6 @@
     .drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 480px; height: 100vh; background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.15); transition: right 0.3s ease-in-out; z-index: 1000; overflow-y: auto; }
     .drawer.open { right: 0; }
     .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
-    .drawer-overlay.active { display: block; }
 
     /* Due date colors */
     .due-overdue { color: #dc2626 !important; } /* red-600 */
@@ -57,28 +56,7 @@
     .task-card { background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; box-shadow: 0 1px 1px rgba(2, 6, 23, 0.04); transition: box-shadow 150ms, border-color 150ms; }
     .task-card:hover { box-shadow: 0 6px 16px rgba(2,132,199,0.12); border-color: #93c5fd; transform: translateY(-1px); }
 
-    /* Toasts */
-    .toast-stack { position: fixed; right: 1rem; top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 1003; }
-    .toast {
-      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.5rem;
-      padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid; min-width: 240px;
-      background: white; transform: translateX(16px); opacity: 0; transition: all 200ms ease;
-      box-shadow: 0 10px 24px rgba(2,132,199,0.08);
-    }
-    .toast.show { transform: translateX(0); opacity: 1; }
-    .toast.success { border-color: #bbf7d0; background: #f0fdf4; color: #065f46; }
-    .toast.info    { border-color: #bae6fd; background: #eff6ff; color: #075985; }
-    .toast.warn    { border-color: #fde68a; background: #fffbeb; color: #92400e; }
-    .toast.error   { border-color: #fecaca; background: #fef2f2; color: #7f1d1d; }
-    @media (prefers-color-scheme: dark) {
-      .toast { background: #0f172a; border-color: #1f2937; color: #e5e7eb; box-shadow: 0 10px 24px rgba(14,165,233,0.18); }
-      .toast.success { border-color: #064e3b; background: #052e2b; color: #bbf7d0; }
-      .toast.info    { border-color: #0c4a6e; background: #052335; color: #bae6fd; }
-      .toast.warn    { border-color: #78350f; background: #2f1f05; color: #fde68a; }
-      .toast.error   { border-color: #7f1d1d; background: #2b0b0b; color: #fecaca; }
-    }
-
-    /* Custom checkbox styling for description checklists */
+    /* Custom checkbox styling for description checklist */
     .desc-checkbox {
       -webkit-appearance: none;
       -moz-appearance: none;
@@ -155,6 +133,43 @@
         border-color: #10b981 !important;
       }
     }
+
+    /* Toasts: Slide-in + Sound-ready */
+    .toast-stack {
+      position: fixed;
+      right: 1rem;
+      top: 1rem;
+      display: grid;
+      gap: 0.5rem;
+      z-index: 1003;
+    }
+    .toast {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 0.75rem;
+      border-radius: 0.5rem;
+      min-width: 240px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      transform: translateX(16px);
+      opacity: 0;
+      transition: all 200ms ease;
+      box-shadow: 0 10px 24px rgba(2,132,199,0.08);
+    }
+    .toast.show { transform: translateX(0); opacity: 1; }
+    .toast.success { border-color: #bbf7d0; background: #f0fdf4; color: #065f46; }
+    .toast.info    { border-color: #bae6fd; background: #eff6ff; color: #075985; }
+    .toast.warn    { border-color: #fde68a; background: #fffbea; color: #92400e; }
+    .toast.error   { border-color: #fecaca; background: #fef2f2; color: #7f1d1d; }
+    @media (prefers-color-scheme: dark) {
+      .toast { background: #0f172a; border-color: #1f2937; color: #e5e7eb; box-shadow: 0 10px 24px rgba(14,165,233,.18); }
+      .toast.success { border-color: #064e3b; background: #052e2b; color: #bbf7d0; }
+      .toast.info    { border-color: #0c4a6e; background: #052335; color: #bae6fd; }
+      .toast.warn    { border-color: #78350f; background: #2f1f05; color: #fde68a; }
+      .toast.error   { border-color: #7f1d1d; background: #2b0b0b; color: #fecaca; }
+    }
   </style>
 </head>
 <body class="min-h-screen p-6">
@@ -177,7 +192,7 @@
   <div class="mt-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
     <div class="flex flex-col sm:flex-row gap-3 flex-wrap items-start sm:items-center">
       <input id="newTitle" class="flex-1 rounded-md border border-slate-300 px-3 py-2 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Task title..." />
-      <input id="newAssignee" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee..." />
+      <input id="newAssign" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee..." />
       <input id="newDue" type="date" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
 
       <!-- Custom dropdown -->
@@ -214,17 +229,20 @@ Notes line without a checkbox"></textarea>
   </footer>
 </main>
 
+<!-- Toast stack -->
+<div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
 <!-- Drawer -->
 <div class="drawer-overlay" id="drawerOverlay"></div>
 <div class="drawer" id="drawer">
   <div class="p-6">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200">Menu</h2>
+      <h2 class="text-xl font-bold text-slate-800 dark:text-slate-300">Menu</h2>
       <button id="closeDrawerBtn" class="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
       </button>
     </div>
-    <div class="mb-6">
+    <div>
       <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-3">Trash</h3>
       <div id="trashList" class="space-y-2"></div>
     </div>
@@ -240,13 +258,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebas
 import { getFirestore, collection, getDocs, addDoc, setDoc, doc, deleteDoc, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHFWZI",
+  apiKey: "AIzaSyC7k3xdqmsuYOE BBDbDfnrmuaebLaHGWZI",
   authDomain: "tridenttaskboard.firebaseapp.com",
   projectId: "tridenttaskboard",
   storageBucket: "tridenttaskboard.firebasestorage.appspot.com",
   messagingSenderId: "143400263387",
   appId: "1:143400263387:web:66ed521ae75af588e836fe",
-  measurementId: "G-F12DDQCX87"
+  measurementId: "G-F12DRDCX87"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -276,9 +294,6 @@ drawerOverlay.onclick = () => { drawer.classList.remove("open"); drawerOverlay.c
 const dropdownBtn = document.getElementById("dropdownBtn");
 const dropdownList = document.getElementById("dropdownList");
 let selectedTags = [];
-
-function chipsHTML(tags) { return (tags || []).map(t => `<span class="tag-chip">${t}</span>`).join(""); }
-function getCurrentUserName() { return userNameInput.value.trim() || "Anonymous"; }
 
 /* Due date formatter with coloring */
 function formatDueDate(dueStr) {
@@ -317,8 +332,9 @@ function escHtml(str) {
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
+    .replaceAll("'", "&quot;")
     .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+    .replaceAll("`", "&#39;");
 }
 function renderDescriptionHTML(desc, taskId) {
   const text = String(desc || "");
@@ -512,7 +528,7 @@ function createTaskEl(task, colId) {
             `;
           }).join("")}
         </div>
-        <div class="flex flex-col gap-2 mt-2">
+        <div class="flex gap-2 mt-2">
           <input type="text" placeholder="Add note..."
             class="comment-input flex-1 border border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200" />
           <button class="add-comment px-2 py-1 bg-sky-600 text-white rounded-md text-xs hover:bg-sky-700">Add</button>
@@ -559,7 +575,7 @@ function createTaskEl(task, colId) {
 
     try {
       const newComment = { timestamp: Date.now(), author: getCurrentUserName(), text };
-      const updatedComments = [...(task.comments || []), newComment];
+      const updatedComments = [ ...(task.comments || []), newComment ];
       await setDoc(doc(db, "tasks", task.id), { comments: updatedComments }, { merge: true });
 
       task.comments = updatedComments;
@@ -662,7 +678,7 @@ function openEditModal(task, colId) {
     <div class="bg-white p-6 rounded-xl shadow-xl w-80 space-y-3 border border-slate-200 ring-1 ring-slate-100 modal-panel dark:bg-slate-900 dark:border-slate-800">
       <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">Edit Task</h3>
       <input id="editTitle" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Title" />
-      <input id="editAssignee" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee" />
+      <input id="editAssign" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee" />
       <input id="editDue" type="date" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
 
       <!-- New: Description editor -->
@@ -695,7 +711,7 @@ Free-form notes line"></textarea>
 
   // Prefill fields so "Edit" shows task info to modify
   modal.querySelector("#editTitle").value = task.title || "";
-  modal.querySelector("#editAssignee").value = task.assignee || "";
+  modal.querySelector("#editAssign").value = task.assignee || "";
   modal.querySelector("#editDue").value = task.due || "";
   modal.querySelector("#editDescription").value = task.description || "";
 
@@ -725,14 +741,22 @@ Free-form notes line"></textarea>
 
   modal.querySelector("#cancelEdit").onclick = () => modal.remove();
   modal.querySelector("#saveEdit").onclick = async () => {
-    task.title = (modal.querySelector("#editTitle").value || "").trim();
-    task.assignee = (modal.querySelector("#editAssignee").value || "").trim() || "Unassigned";
-    task.due = modal.querySelector("#editDue").value || "";
-    task.description = modal.querySelector("#editDescription").value || "";
-    task.tags = editSelectedTags.slice();
-    await saveTask(task, colId);
-    modal.remove();
-    renderBoard();
+    try {
+      task.title = (modal.querySelector("#editTitle").value || "").trim();
+      task.assignee = (modal.querySelector("#editAssign").value || "Unassigned").trim() || "Unassigned";
+      task.due = modal.querySelector("#editDue").value || "";
+      task.description = modal.querySelector("#editDescription").value || "";
+      task.tags = editSelectedTags.slice();
+
+      await saveTask(task, colId);
+
+      showToast('success', 'Task saved!');
+      modal.remove();
+      renderBoard();
+    } catch (err) {
+      console.error("Failed to save task:", err);
+      showToast('error', `Failed to save task: ${err?.message || err}`);
+    }
   };
 }
 
@@ -773,7 +797,6 @@ function makeDroppable(el) {
       el.appendChild(dragging);
     }
   });
-
   el.addEventListener("dragenter", () => el.classList.add("droppable-hover"));
   el.addEventListener("dragleave", () => el.classList.remove("droppable-hover"));
   el.addEventListener("drop", async e => {
@@ -829,8 +852,8 @@ addBtn.onclick = async () => {
   const title = (document.getElementById("newTitle").value || "").trim();
   if (!title) return;
 
-  const assignee = document.getElementById("newAssignee").value || "Unassigned";
-  const due = document.getElementById("newDue").value || "";
+  const assign = document.getElementById("newAssign").value || "Unassigned";
+  const due    = document.getElementById("newDue").value || "";
   const description = document.getElementById("newDescription").value || "";
 
   addBtn.disabled = true;
@@ -842,7 +865,7 @@ addBtn.onclick = async () => {
     const count = snapshot.size;
     const task = {
       title,
-      assignee,
+      assignee: assign,
       due,
       description,
       tags: selectedTags.slice(),
@@ -853,17 +876,19 @@ addBtn.onclick = async () => {
     await addDoc(collection(db, "tasks"), task);
 
     document.getElementById("newTitle").value = "";
-    document.getElementById("newAssignee").value = "";
+    document.getElementById("newAssign").value = "";
     document.getElementById("newDue").value = "";
     document.getElementById("newDescription").value = "";
     selectedTags = [];
-    dropdownList.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
+    document.querySelectorAll("#dropdownList input[type=checkbox]").forEach(cb => cb.checked = false);
     updateDropdownBtn();
 
     await renderBoard();
+
+    showToast('success', 'Task added successfully!');
   } catch (err) {
     console.error("Failed to add task:", err);
-    alert(`Failed to add task: ${err.message || err}`);
+    showToast('error', `Failed to add task: ${err?.message || err}`);
   } finally {
     addBtn.disabled = false;
     addBtn.textContent = originalAddLabel || "Add Task";
@@ -942,6 +967,46 @@ async function renderDrawer() {
 
 /* Filter */
 filterInput.oninput = () => { renderBoard(); };
+
+/* Chips util */
+function chipsHTML(tags) { return (tags || []).map(t => `<span class="tag-chip">${t}</span>`).join(""); }
+function getCurrentUserName() { return userNameInput.value.trim() || "Anonymous"; }
+
+/* Toasts (Slide-in + Sound hooks) */
+const toastStack = document.getElementById('toastStack');
+function showToast(type, message, timeout = 3000) {
+  if (!toastStack) return;
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.setAttribute('role', 'status');
+  el.innerHTML = `
+    <span aria-hidden="true">
+      ${type === 'success' ? '✔' : type === 'info' ? 'ℹ️' : type === 'warn' ? '⚠️' : '✖'}
+    </span>
+    <div class="text-sm">${message}</div>
+    <button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Dismiss">✖</button>
+  `;
+  toastStack.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+
+  try {
+    if (window.Sound) {
+      if (type === 'success' && Sound.success) Sound.success();
+      else if (type === 'info' && Sound.info) Sound.info();
+      else if (type === 'warn' && Sound.warn) Sound.warn();
+      else if (type === 'error' && Sound.error) Sound.error();
+    }
+  } catch {}
+
+  const close = () => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 180);
+  };
+  el.querySelector('button')?.addEventListener('click', close);
+  const id = setTimeout(close, timeout);
+  el.addEventListener('pointerenter', () => clearTimeout(id), { once: true });
+  window.showToast = showToast;
+}
 
 /* Initial render */
 renderBoard();

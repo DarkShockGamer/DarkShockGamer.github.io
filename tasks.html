@@ -15,6 +15,7 @@
     .drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 480px; height: 100vh; background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.15); transition: right 0.3s ease-in-out; z-index: 1000; overflow-y: auto; }
     .drawer.open { right: 0; }
     .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
+    .drawer-overlay.active { display: block; }
 
     /* Due date colors */
     .due-overdue { color: #dc2626 !important; } /* red-600 */
@@ -258,7 +259,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebas
 import { getFirestore, collection, getDocs, addDoc, setDoc, doc, deleteDoc, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC7k3xdqmsuYOE BBDbDfnrmuaebLaHGWZI",
+  apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHGWZI",
   authDomain: "tridenttaskboard.firebaseapp.com",
   projectId: "tridenttaskboard",
   storageBucket: "tridenttaskboard.firebasestorage.appspot.com",
@@ -974,7 +975,7 @@ function getCurrentUserName() { return userNameInput.value.trim() || "Anonymous"
 
 /* Toasts (Slide-in + Sound hooks) */
 const toastStack = document.getElementById('toastStack');
-function showToast(type, message, timeout = 3000) {
+function showToast(type, message, timeout = 10000) {
   if (!toastStack) return;
   const el = document.createElement('div');
   el.className = `toast ${type}`;
@@ -1002,9 +1003,22 @@ function showToast(type, message, timeout = 3000) {
     el.classList.remove('show');
     setTimeout(() => el.remove(), 180);
   };
+
   el.querySelector('button')?.addEventListener('click', close);
-  const id = setTimeout(close, timeout);
-  el.addEventListener('pointerenter', () => clearTimeout(id), { once: true });
+
+  // Auto-dismiss with pause/resume on hover
+  let dismissAt = Date.now() + timeout;
+  let tid = setTimeout(close, timeout);
+
+  el.addEventListener('mouseenter', () => {
+    clearTimeout(tid);
+  });
+  el.addEventListener('mouseleave', () => {
+    const remaining = Math.max(0, dismissAt - Date.now());
+    clearTimeout(tid);
+    tid = setTimeout(close, remaining);
+  });
+
   window.showToast = showToast;
 }
 

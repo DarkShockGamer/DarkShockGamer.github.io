@@ -77,8 +77,17 @@
     function info() {
       tone({ freq: 520, type: 'triangle', attack: 0.004, decay: 0.12, gain: 0.22 });
     }
+    // New: dedicated sounds for checklist toggle
+    function checkOn() {
+      // subtle upward chirp
+      tone({ freq: 660, type: 'triangle', attack: 0.003, decay: 0.08, gain: 0.20 });
+    }
+    function checkOff() {
+      // soft tick
+      tone({ freq: 380, type: 'triangle', attack: 0.002, decay: 0.06, gain: 0.16 });
+    }
 
-    return { setEnabled, click, success, warn, error, info };
+    return { setEnabled, click, success, warn, error, info, checkOn, checkOff };
   })();
 
   // Expose for optional controls
@@ -235,6 +244,17 @@
       (el.tagName === 'INPUT' && (el.type === 'submit' || el.type === 'button'))
     ) {
       play('click');
+    }
+  }, true);
+
+  // New: checklist checkbox sound binding for description checklists
+  document.addEventListener('change', (e) => {
+    const cb = e.target && e.target.closest && e.target.closest('.desc-checkbox');
+    if (!cb || cb.disabled) return;
+    if (cb.checked) {
+      Sound.checkOn();
+    } else {
+      Sound.checkOff();
     }
   }, true);
 

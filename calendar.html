@@ -102,10 +102,10 @@
 
       .weekday { color: #7dd3fc !important; }
       /* Event pill dark colors provided via variables, with sensible defaults */
-      .event-pill { 
-        background: var(--ev-bg-dark, #0c4a6e) !important; 
-        color: var(--ev-fg-dark, #e0f2fe) !important; 
-        border-color: var(--ev-br-dark, #075985) !important; 
+      .event-pill {
+        background: var(--ev-bg-dark, #0c4a6e) !important;
+        color: var(--ev-fg-dark, #e0f2fe) !important;
+        border-color: var(--ev-br-dark, #075985) !important;
       }
       .task-pill  { background: #052e2b !important; color: #a7f3d0 !important; border-color: #065f46 !important; }
       .more-pill { color: #94a3b8 !important; }
@@ -125,6 +125,44 @@
         font-size: 0.7rem;
         padding: 0.1rem 0.3rem;
       }
+    }
+
+    /* Toasts: Slide-in + Sound-ready */
+    .toast-stack {
+      position: fixed;
+      right: 1rem;
+      top: 1rem;
+      display: grid;
+      gap: 0.5rem;
+      z-index: 1003;
+    }
+    .toast {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 0.75rem;
+      border-radius: 0.5rem;
+      min-width: 240px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      transform: translateX(16px);
+      opacity: 0;
+      transition: all 200ms ease;
+      box-shadow: 0 10px 24px rgba(2,132,199,0.08);
+      will-change: opacity, transform;
+    }
+    .toast.show { transform: translateX(0); opacity: 1; }
+    .toast.success { border-color: #bbf7d0; background: #f0fdf4; color: #065f46; }
+    .toast.info    { border-color: #bae6fd; background: #eff6ff; color: #075985; }
+    .toast.warn    { border-color: #fde68a; background: #fffbea; color: #92400e; }
+    .toast.error   { border-color: #fecaca; background: #fef2f2; color: #7f1d1d; }
+    @media (prefers-color-scheme: dark) {
+      .toast { background: #0f172a; border-color: #1f2937; color: #e5e7eb; box-shadow: 0 10px 24px rgba(14,165,233,.18); }
+      .toast.success { border-color: #064e3b; background: #052e2b; color: #bbf7d0; }
+      .toast.info    { border-color: #0c4a6e; background: #052335; color: #bae6fd; }
+      .toast.warn    { border-color: #78350f; background: #2f1f05; color: #fde68a; }
+      .toast.error   { border-color: #7f1d1d; background: #2b0b0b; color: #fecaca; }
     }
   </style>
 </head>
@@ -148,11 +186,11 @@
       <div class="flex flex-col gap-2">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-2">
-            <button id="prevBtn" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Previous month">
+            <button id="prevBtn" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" title="Previous month">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <div id="monthLabel" class="text-base font-semibold text-slate-700 dark:text-slate-200 min-w-[10ch]"></div>
-            <button id="nextBtn" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Next month">
+            <button id="nextBtn" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" title="Next month">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
           </div>
@@ -234,7 +272,7 @@
           <div id="modalDate" class="text-lg font-bold text-slate-800 dark:text-slate-200"></div>
           <div class="text-xs text-slate-500 dark:text-slate-400">All items for this date</div>
         </div>
-        <button id="closeModal" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Close">
+        <button id="closeModal" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" title="Close">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
@@ -256,7 +294,7 @@
     <div class="modal-card p-4 md:p-6">
       <div class="flex items-center justify-between mb-3">
         <div class="text-lg font-bold text-slate-800 dark:text-slate-200" id="eventEditorTitle">Add Event</div>
-        <button id="closeEventEditor" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Close">
+        <button id="closeEventEditor" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" title="Close">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
@@ -305,7 +343,7 @@
     <div class="modal-card p-4 md:p-6">
       <div class="flex items-center justify-between mb-3">
         <div class="text-lg font-bold text-slate-800 dark:text-slate-200">Add Meeting Schedule</div>
-        <button id="closeScheduleEditor" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Close">
+        <button id="closeScheduleEditor" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" title="Close">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
@@ -368,9 +406,12 @@
     </div>
   </div>
 
+  <!-- Toast stack -->
+  <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, setDoc, doc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
     // Same Firebase project as tasks.html
     const firebaseConfig = {
@@ -462,8 +503,60 @@
     const scColor = document.getElementById("scColor");
     const scPublic = document.getElementById("scPublic");
     const scReplace = document.getElementById("scReplace");
+    const saveScheduleBtn = document.getElementById("saveScheduleBtn");
 
-    // Google Sign-In state from index.html
+    // Toasts (Slide-in + Sound hooks) with fade-out and reliable auto-dismiss
+    const toastStack = document.getElementById('toastStack');
+    function showToast(type, message, timeout = 10000) {
+      if (!toastStack) return;
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.setAttribute('role', 'status');
+      el.innerHTML = `
+        <span aria-hidden="true">
+          ${type === 'success' ? '✔' : type === 'info' ? 'ℹ️' : type === 'warn' ? '⚠️' : '✖'}
+        </span>
+        <div class="text-sm">${message}</div>
+        <button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Dismiss">✖</button>
+      `;
+      toastStack.appendChild(el);
+      requestAnimationFrame(() => el.classList.add('show'));
+
+      try {
+        if (window.Sound) {
+          if (type === 'success' && Sound.success) Sound.success();
+          else if (type === 'info' && Sound.info) Sound.info();
+          else if (type === 'warn' && Sound.warn) Sound.warn();
+          else if (type === 'error' && Sound.error) Sound.error();
+        }
+      } catch {}
+
+      const removeAfterTransition = () => {
+        const onEnd = (e) => {
+          if (e.target === el) {
+            el.removeEventListener('transitionend', onEnd);
+            el.remove();
+          }
+        };
+        el.addEventListener('transitionend', onEnd);
+        el.classList.remove('show'); // triggers fade-out via CSS transition
+      };
+
+      el.querySelector('button')?.addEventListener('click', removeAfterTransition);
+
+      let start = Date.now();
+      let remaining = timeout;
+      let timer = setTimeout(removeAfterTransition, remaining);
+      const pause = () => { clearTimeout(timer); remaining -= (Date.now() - start); };
+      const resume = () => { start = Date.now(); clearTimeout(timer); timer = setTimeout(removeAfterTransition, Math.max(0, remaining)); };
+
+      el.addEventListener('mouseenter', pause);
+      el.addEventListener('mouseleave', resume);
+
+      window.showToast = showToast;
+    }
+
+    // Google Sign-In state (read-only from index.html)
     const G_CRED_KEY = "g_credential_v1";
     const allowedDomains = ["wths.net"]; // from index.html
     const allowedEmails = ["blackshocktrooper@gmail.com"]; // from index.html
@@ -478,7 +571,6 @@
         const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
         const json = atob(base64);
         try {
-          // handle unicode
           const decoded = decodeURIComponent(Array.prototype.map.call(json, c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
           return JSON.parse(decoded);
         } catch {
@@ -724,10 +816,13 @@
             if (!confirm("Delete this event?")) return;
             try {
               await deleteDoc(doc(db, "events", id));
+              showToast('success', 'Event deleted.');
               await render(); // reload
               closeModal();
             } catch (err) {
-              alert("Delete failed: " + (err?.message || err));
+              const msg = "Delete failed: " + (err?.message || err);
+              console.error(msg);
+              showToast('error', msg);
             }
           });
         });
@@ -775,7 +870,7 @@
           dot.className = "today-dot";
           head.appendChild(dot);
         }
-        // Presence dots: show at-a-glance indicators for events and tasks
+        // Presence dots
         if (dayEvents.length > 0) {
           const dotE = document.createElement("span");
           dotE.className = "presence-dot presence-event";
@@ -789,7 +884,6 @@
         cell.appendChild(head);
 
         const items = document.createElement("div");
-        // Keep items clipped to the square; no inner scrolling
         items.className = "flex flex-col gap-1 min-h-0 overflow-hidden";
 
         const addPill = (txt, cls, title, opts = {}) => {
@@ -824,7 +918,7 @@
           }
         }
 
-        // Fill remaining visible slots with remaining events, then tasks
+        // Fill remaining visible slots
         for (let i = shownEvents; i < dayEvents.length && shown < MAX_VISIBLE; i++) {
           const e = dayEvents[i];
           const tr = formatTimeRange(e) || e.time || "";
@@ -867,7 +961,7 @@
       setBadgesAndAdminUI();
       await Promise.all([loadEvents(), loadTasksIfAllowed()]);
       renderGrid(current.getFullYear(), current.getMonth());
-      setSquareRows(); // size rows to squares; allow page height to grow and scroll
+      setSquareRows();
     }
 
     prevBtn.onclick = () => {
@@ -903,10 +997,11 @@
       const m = current.getMonth();
       const start = new Date(y, m, 1);
       const end = new Date(y, m + 1, 0);
+
       const startKey = fmtDateKey(start);
       const endKey = fmtDateKey(end);
-
       const inRange = events.filter(e => e.isPublic !== false && e.date >= startKey && e.date <= endKey);
+
       const lines = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
@@ -914,7 +1009,6 @@
       ];
 
       const toICSDate = (dateStr, timeStr) => {
-        // Use local time (floating) to avoid timezone surprises on import
         if (!timeStr) return dateStr.replace(/-/g, "") + "T000000";
         const [hh, mm] = timeStr.split(":");
         return dateStr.replace(/-/g, "") + "T" + String(hh).padStart(2, "0") + String(mm).padStart(2, "0") + "00";
@@ -925,7 +1019,6 @@
         const startTime = e.startTime || e.time || "";
         const endTime = e.endTime || "";
         const dtStart = toICSDate(e.date, startTime);
-        // If no endTime, set default +1h
         let dtEnd = "";
         if (endTime) {
           dtEnd = toICSDate(e.date, endTime);
@@ -935,7 +1028,6 @@
           d.setHours(d.getHours() + 1);
           dtEnd = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}T${String(d.getHours()).padStart(2,"0")}${String(d.getMinutes()).padStart(2,"0")}00`;
         } else {
-          // all-day
           dtEnd = e.date.replace(/-/g, "") + "T235900";
         }
 
@@ -986,7 +1078,7 @@
         const color = sanitizeEventColor(evColor.value);
         const isPublic = !!evPublic.checked;
 
-        if (!title || !date) { alert("Title and date are required."); return; }
+        if (!title || !date) { showToast('warn', 'Title and date are required.'); return; }
 
         const prof = getGoogleProfile();
         try {
@@ -995,109 +1087,121 @@
               title, date, startTime, endTime, location, isPublic, color,
               createdBy: ev.createdBy || (prof?.email || ""),
               createdAt: ev.createdAt || Date.now()
-            });
+            }, { merge: true });
+            showToast('success', 'Event saved.');
           } else {
             await addDoc(collection(db, "events"), {
               title, date, startTime, endTime, location, isPublic, color,
-              createdBy: prof?.email || "",
+              createdBy: (prof?.email || ""),
               createdAt: Date.now()
             });
+            showToast('success', 'Event added.');
           }
           eventEditor.classList.remove("open");
           await render();
         } catch (err) {
-          alert("Save failed: " + (err?.message || err));
+          const msg = 'Failed to save event: ' + (err?.message || err);
+          console.error(msg);
+          showToast('error', msg);
         }
       };
     }
-    closeEventEditor.onclick = () => eventEditor.classList.remove("open");
-    eventEditor.addEventListener("click", (e) => { if (e.target === eventEditor) eventEditor.classList.remove("open"); });
 
-    // Admin-only: Schedule creation
+    // Openers and closers
+    addEventBtn?.addEventListener('click', () => openEventEditor());
+    closeEventEditor?.addEventListener('click', () => eventEditor.classList.remove('open'));
+    eventEditor.addEventListener('click', (e) => { if (e.target === eventEditor) eventEditor.classList.remove('open'); });
+
+    // Schedule builder
     function openScheduleEditor() {
-      if (!isEventEditor()) return alert("You are not authorized to manage schedules.");
-      // Reset form
+      if (!isEventEditor()) return alert("You are not authorized to manage events.");
+
+      const now = new Date();
+      const y = current.getFullYear();
+      const m = current.getMonth();
       scTitle.value = "";
-      scFrom.value = "";
-      scTo.value = "";
+      scFrom.value = `${y}-${pad(m+1)}-01`;
+      scTo.value = `${y}-${pad(m+1)}-${pad(new Date(y, m+1, 0).getDate())}`;
       scStart.value = "";
       scEnd.value = "";
       scLoc.value = "";
-      scColor.value = "sky";
+      scColor.value = DEFAULT_EVENT_COLOR;
       scPublic.checked = true;
       scReplace.checked = false;
+      document.querySelectorAll('#scheduleEditor .sc-wd').forEach(cb => cb.checked = false);
 
-      scheduleEditor.classList.add("open");
+      scheduleEditor.classList.add('open');
 
-      // Create on save
-      const onSave = async () => {
+      saveScheduleBtn.onclick = async () => {
         const title = scTitle.value.trim();
         const from = scFrom.value;
         const to = scTo.value;
         const startTime = scStart.value || "";
-               const endTime = scEnd.value || "";
+        const endTime = scEnd.value || "";
         const location = scLoc.value.trim();
         const color = sanitizeEventColor(scColor.value);
         const isPublic = !!scPublic.checked;
-        const replaceExisting = !!scReplace.checked;
+        const replace = !!scReplace.checked;
+        const selectedDays = Array.from(document.querySelectorAll('#scheduleEditor .sc-wd:checked')).map(cb => parseInt(cb.value, 10));
 
-        const weekdayChecks = Array.from(scheduleEditor.querySelectorAll(".sc-wd"));
-        const weekdays = weekdayChecks.filter(cb => cb.checked).map(cb => parseInt(cb.value, 10));
-
-        if (!title || !from || !to) { alert("Title, from, and to are required."); return; }
-        if (!weekdays.length) { alert("Select at least one weekday."); return; }
+        if (!title || !from || !to || selectedDays.length === 0) {
+          showToast('warn', 'Title, date range, and at least one weekday are required.');
+          return;
+        }
 
         try {
+          // Optionally remove existing events in range with same title
+          if (replace) {
+            const snap = await getDocs(collection(db, "events"));
+            const toDelete = [];
+            snap.forEach(d => {
+              const e = d.data() || {};
+              if (!e.date || typeof e.date !== 'string') return;
+              if (e.title === title && e.date >= from && e.date <= to) toDelete.push(d.id);
+            });
+            for (const id of toDelete) await deleteDoc(doc(db, "events", id));
+          }
+
+          // Create events for each matching day
           const start = new Date(from + "T00:00:00");
           const end = new Date(to + "T00:00:00");
-          if (end < start) { alert("End date must be on or after start date."); return; }
-
+          let count = 0;
           const prof = getGoogleProfile();
 
-          const batch = writeBatch(db);
-          // Optionally delete existing events with same title in range
-          if (replaceExisting) {
-            const all = events.filter(e => e.title === title && e.date >= from && e.date <= to);
-            for (const e of all) batch.delete(doc(db, "events", e.id));
-          }
-
-          // Generate dates
           for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-            if (!weekdays.includes(d.getDay())) continue;
-            const dateKey = fmtDateKey(d);
-            const ref = doc(collection(db, "events"));
-            batch.set(ref, {
+            if (!selectedDays.includes(d.getDay())) continue;
+            const dateStr = fmtDateKey(d);
+            await addDoc(collection(db, "events"), {
               title,
-              date: dateKey,
-              startTime, endTime, location, isPublic, color,
-              createdBy: prof?.email || "",
+              date: dateStr,
+              startTime,
+              endTime,
+              location,
+              isPublic,
+              color,
+              createdBy: (prof?.email || ""),
               createdAt: Date.now()
             });
+            count++;
           }
 
-          await batch.commit();
-          scheduleEditor.classList.remove("open");
+          showToast('success', `Schedule created (${count} event${count === 1 ? '' : 's'}).`);
+          scheduleEditor.classList.remove('open');
           await render();
         } catch (err) {
-          alert("Schedule creation failed: " + (err?.message || err));
+          const msg = 'Failed to save schedule: ' + (err?.message || err);
+          console.error(msg);
+          showToast('error', msg);
         }
       };
-
-      // Ensure only one active handler
-      const newBtn = document.getElementById("saveScheduleBtn");
-      const cloned = newBtn.cloneNode(true);
-      newBtn.parentNode.replaceChild(cloned, newBtn);
-      cloned.addEventListener("click", onSave);
     }
-    closeScheduleEditor.onclick = () => scheduleEditor.classList.remove("open");
-    scheduleEditor.addEventListener("click", (e) => { if (e.target === scheduleEditor) scheduleEditor.classList.remove("open"); });
 
-    // Wire admin buttons
-    addEventBtn?.addEventListener("click", () => openEventEditor(null));
-    addScheduleBtn?.addEventListener("click", () => openScheduleEditor());
+    addScheduleBtn?.addEventListener('click', () => openScheduleEditor());
+    closeScheduleEditor?.addEventListener('click', () => scheduleEditor.classList.remove('open'));
+    scheduleEditor.addEventListener('click', (e) => { if (e.target === scheduleEditor) scheduleEditor.classList.remove('open'); });
 
     // Initial render
-    render();
+    await render();
   </script>
   <script src="/assets/js/sound.js" defer></script>
 </body>

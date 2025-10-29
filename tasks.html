@@ -158,6 +158,7 @@
       opacity: 0;
       transition: all 200ms ease;
       box-shadow: 0 10px 24px rgba(2,132,199,0.08);
+      will-change: opacity, transform;
     }
     .toast.show { transform: translateX(0); opacity: 1; }
     .toast.success { border-color: #bbf7d0; background: #f0fdf4; color: #065f46; }
@@ -345,7 +346,7 @@ function renderDescriptionHTML(desc, taskId) {
     const m = line.match(/^\s*-\s*\[([ xX])\]\s*(.*)$/);
     if (m) {
       const checked = m[1].toLowerCase() === "x";
-      const item = m[2] || "";
+      const item = m[2] || ""
       return `
         <label class="flex items-start gap-2 py-0.5 select-none cursor-pointer">
           <input type="checkbox" class="desc-checkbox mt-0.5"
@@ -973,7 +974,7 @@ filterInput.oninput = () => { renderBoard(); };
 function chipsHTML(tags) { return (tags || []).map(t => `<span class="tag-chip">${t}</span>`).join(""); }
 function getCurrentUserName() { return userNameInput.value.trim() || "Anonymous"; }
 
-/* Toasts (Slide-in + Sound hooks) */
+/* Toasts (Slide-in + Sound hooks) with fade-out and reliable auto-dismiss */
 const toastStack = document.getElementById('toastStack');
 function showToast(type, message, timeout = 10000) {
   if (!toastStack) return;
@@ -990,6 +991,7 @@ function showToast(type, message, timeout = 10000) {
   toastStack.appendChild(el);
   requestAnimationFrame(() => el.classList.add('show'));
 
+  // Play sounds if available
   try {
     if (window.Sound) {
       if (type === 'success' && Sound.success) Sound.success();
@@ -999,26 +1001,39 @@ function showToast(type, message, timeout = 10000) {
     }
   } catch {}
 
-  const close = () => {
-    el.classList.remove('show');
-    setTimeout(() => el.remove(), 180);
+  const removeAfterTransition = () => {
+    const onEnd = (e) => {
+      if (e.target === el) {
+        el.removeEventListener('transitionend', onEnd);
+        el.remove();
+      }
+    };
+    el.addEventListener('transitionend', onEnd);
+    el.classList.remove('show'); // triggers fade-out via CSS transition
   };
 
-  el.querySelector('button')?.addEventListener('click', close);
+  // Dismiss on button click
+  el.querySelector('button')?.addEventListener('click', removeAfterTransition);
 
-  // Auto-dismiss with pause/resume on hover
-  let dismissAt = Date.now() + timeout;
-  let tid = setTimeout(close, timeout);
+  // Auto-dismiss with hover pause/resume
+  let start = Date.now();
+  let remaining = timeout;
+  let timer = setTimeout(removeAfterTransition, remaining);
 
-  el.addEventListener('mouseenter', () => {
-    clearTimeout(tid);
-  });
-  el.addEventListener('mouseleave', () => {
-    const remaining = Math.max(0, dismissAt - Date.now());
-    clearTimeout(tid);
-    tid = setTimeout(close, remaining);
-  });
+  const pause = () => {
+    clearTimeout(timer);
+    remaining -= (Date.now() - start);
+  };
+  const resume = () => {
+    start = Date.now();
+    clearTimeout(timer);
+    timer = setTimeout(removeAfterTransition, Math.max(0, remaining));
+  };
 
+  el.addEventListener('mouseenter', pause);
+  el.addEventListener('mouseleave', resume);
+
+  // Expose for external use if needed
   window.showToast = showToast;
 }
 

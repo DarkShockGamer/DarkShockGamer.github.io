@@ -10,6 +10,20 @@ document.addEventListener('DOMContentLoaded', function() {
     document.head.appendChild(hideEmailStyle);
   } catch(e) { /* ignore */ }
 
+  // ======= Primary click sound helper =======
+  function safePlayPrimaryClick() {
+    try {
+      if (typeof window.playPrimaryClick === 'function') {
+        window.playPrimaryClick();
+      } else if (window.SFX && typeof window.SFX.playPrimaryClick === 'function') {
+        window.SFX.playPrimaryClick();
+      }
+      // If neither exists, we silently do nothing to avoid breaking
+    } catch (e) {
+      // swallow errors to avoid disrupting navigation
+    }
+  }
+
   // ======= Navigation visibility =======
   function updateNavVisibility() {
     if (window.innerWidth <= 768) {
@@ -32,18 +46,28 @@ document.addEventListener('DOMContentLoaded', function() {
   // ======= Mobile menu toggle =======
   if (navToggle) {
     navToggle.addEventListener('click', () => {
+      safePlayPrimaryClick();
       navLinksMobile.classList.toggle('show');
       navLinksMobile.style.display = navLinksMobile.classList.contains('show') ? 'flex' : 'none';
     });
   }
 
-  // Close menus when a link is clicked
+  // Close menus and play click when any nav link is clicked (desktop or mobile)
   document.querySelectorAll('.nav-links a, .nav-links-mobile a').forEach(link => {
     link.addEventListener('click', () => {
+      safePlayPrimaryClick();
       navLinksMobile.classList.remove('show');
       navLinksMobile.style.display = 'none';
     });
   });
+
+  // Also play click when the Trident Robotics logo button is clicked
+  const navLogo = document.querySelector('.nav-logo');
+  if (navLogo) {
+    navLogo.addEventListener('click', () => {
+      safePlayPrimaryClick();
+    });
+  }
 
   // ======= Google Sign-In & Tasks link dynamic creation =======
   if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
@@ -66,6 +90,11 @@ document.addEventListener('DOMContentLoaded', function() {
               desktopLink.textContent = 'Tasks';
               desktopLink.style.display = 'inline-block';
               navLinks.appendChild(desktopLink);
+
+              // Ensure click sound plays
+              desktopLink.addEventListener('click', () => {
+                safePlayPrimaryClick();
+              });
             }
 
             // Mobile Tasks link
@@ -78,6 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
               navLinksMobile.appendChild(mobileLink);
 
               mobileLink.addEventListener('click', () => {
+                safePlayPrimaryClick();
                 navLinksMobile.classList.remove('show');
                 navLinksMobile.style.display = 'none';
               });

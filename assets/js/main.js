@@ -10,17 +10,19 @@ document.addEventListener('DOMContentLoaded', function() {
     document.head.appendChild(hideEmailStyle);
   } catch(e) { /* ignore */ }
 
-  // ======= Primary click sound helper =======
-  function safePlayPrimaryClick() {
+  // ======= Primary click sound helper (uses your sound engine) =======
+  function sfxClick() {
     try {
-      if (typeof window.playPrimaryClick === 'function') {
+      // Prefer global SFX.click if available, fall back to Sound.click or a custom function if you have it
+      if (window.SFX && typeof window.SFX.click === 'function') {
+        window.SFX.click();
+      } else if (window.Sound && typeof window.Sound.click === 'function') {
+        window.Sound.click();
+      } else if (typeof window.playPrimaryClick === 'function') {
         window.playPrimaryClick();
-      } else if (window.SFX && typeof window.SFX.playPrimaryClick === 'function') {
-        window.SFX.playPrimaryClick();
       }
-      // no-op if not available
     } catch (e) {
-      // swallow errors to avoid disrupting navigation
+      // Do nothing on error to avoid disrupting navigation
     }
   }
 
@@ -43,31 +45,40 @@ document.addEventListener('DOMContentLoaded', function() {
   updateNavVisibility();
   window.addEventListener('resize', updateNavVisibility);
 
+  // ======= Utility to bind sound to elements =======
+  function bindClickSound(el) {
+    if (!el) return;
+    // Immediate feedback on pointer down (covers mouse/touch/pen)
+    el.addEventListener('pointerdown', sfxClick, { passive: true });
+    // Keyboard activation
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') sfxClick();
+    }, { passive: true });
+    // Fallback on click
+    el.addEventListener('click', sfxClick, { passive: true });
+  }
+
   // ======= Mobile menu toggle =======
   if (navToggle) {
+    bindClickSound(navToggle);
     navToggle.addEventListener('click', () => {
-      safePlayPrimaryClick();
       navLinksMobile.classList.toggle('show');
       navLinksMobile.style.display = navLinksMobile.classList.contains('show') ? 'flex' : 'none';
     });
   }
 
-  // Close menus and play click when any nav link is clicked (desktop or mobile)
+  // Close menus when a link is clicked and bind sound to all nav links
   document.querySelectorAll('.nav-links a, .nav-links-mobile a').forEach(link => {
+    bindClickSound(link);
     link.addEventListener('click', () => {
-      safePlayPrimaryClick();
       navLinksMobile.classList.remove('show');
       navLinksMobile.style.display = 'none';
     });
   });
 
-  // Also play click when the Trident Robotics logo button is clicked
+  // Also bind sound to the Trident Robotics logo button
   const navLogo = document.querySelector('.nav-logo');
-  if (navLogo) {
-    navLogo.addEventListener('click', () => {
-      safePlayPrimaryClick();
-    });
-  }
+  bindClickSound(navLogo);
 
   // ======= Google Sign-In & Tasks link dynamic creation =======
   if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
@@ -91,10 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
               desktopLink.style.display = 'inline-block';
               navLinks.appendChild(desktopLink);
 
-              // Ensure click sound plays
-              desktopLink.addEventListener('click', () => {
-                safePlayPrimaryClick();
-              });
+              // Bind sound and close behavior
+              bindClickSound(desktopLink);
             }
 
             // Mobile Tasks link
@@ -106,8 +115,8 @@ document.addEventListener('DOMContentLoaded', function() {
               mobileLink.style.display = 'block'; // vertical menu
               navLinksMobile.appendChild(mobileLink);
 
+              bindClickSound(mobileLink);
               mobileLink.addEventListener('click', () => {
-                safePlayPrimaryClick();
                 navLinksMobile.classList.remove('show');
                 navLinksMobile.style.display = 'none';
               });

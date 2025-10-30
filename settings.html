@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings — Trident Robotics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    @media (prefers-color-scheme: dark) {
+      html, body { color-scheme: dark; }
+      body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; }
+    }
+    .panel { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05); }
+    @media (prefers-color-scheme: dark) {
+      .panel { background: #0f172a; border-color: #1f2937; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.30); }
+    }
+    .tabs { display: flex; gap: 2px; background: #f1f5f9; border-radius: 0.5rem; padding: 4px; }
+    .tab-btn {
+      flex:1; padding: 0.5rem 0; border-radius: 0.5rem; background: none; border: none;
+      font-weight: 600; color: #64748b; transition: background 180ms, color 180ms;
+      cursor: pointer;
+    }
+    .tab-btn[aria-selected="true"] {
+      background: linear-gradient(90deg, #38bdf8 60%, #818cf8 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(56,189,248,0.09);
+    }
+    @media (prefers-color-scheme: dark) {
+      .tabs { background: #1e293b; }
+      .tab-btn { color: #94a3b8; }
+    }
+    .tab-panel {
+      transition: opacity 320ms cubic-bezier(.45,1.5,.65,1), transform 320ms cubic-bezier(.45,1.5,.65,1);
+      opacity: 0;
+      transform: translateX(24px) scale(.98);
+      position: absolute; width: 100%; left: 0; top: 0; z-index: 0;
+      pointer-events: none;
+      background: inherit;
+    }
+    .tab-panel.active {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      pointer-events: auto;
+      z-index: 1;
+      position: relative;
+    }
+    .toggle { width: 44px; height: 24px; border-radius: 9999px; background: #e0e7ef; position: relative; cursor: pointer; transition: background 220ms cubic-bezier(.6,1.7,.2,1); border: 1.5px solid #93c5fd; box-shadow: 0 1px 3px rgba(59,130,246,0.08);}
+    .toggle.on { background: linear-gradient(90deg, #38bdf8 60%, #818cf8 100%); border-color: #818cf8; }
+    .toggle-knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: white; box-shadow: 0 2px 6px rgba(59,130,246,0.09); transition: left 240ms cubic-bezier(.7,1.7,.2,1);}
+    .toggle.on .toggle-knob { left: 22px; background: #818cf8; }
+    .save-btn { background: linear-gradient(90deg, #38bdf8 60%, #818cf8 100%); color: white; font-weight: 600; border: none; border-radius: 0.5rem; padding: 0.5rem 1.5rem; transition: background 180ms, box-shadow 180ms; box-shadow: 0 2px 8px rgba(56,189,248,0.09);}
+    .save-btn:active { background: linear-gradient(90deg, #818cf8 0%, #38bdf8 80%);}
+    .cancel-btn { background: none; border: 1px solid #e2e8f0; color: #64748b; font-weight: 600; border-radius: 0.5rem; padding: 0.5rem 1.5rem; margin-left: 0.5rem;}
+    @media (prefers-color-scheme: dark) {
+      .cancel-btn { border-color: #374151; color: #94a3b8;}
+    }
+    .fadein { animation: fadein 700ms cubic-bezier(.4,2.5,.5,1.1); }
+    @keyframes fadein { from { opacity: 0; transform: translateY(24px);} to { opacity: 1; transform: none;} }
+  </style>
+</head>
+<body class="min-h-screen p-6">
+  <header class="max-w-3xl mx-auto mb-6 px-2">
+    <div class="flex items-center gap-3">
+      <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-8 w-8">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">Settings</h1>
+        <p class="text-sm text-sky-600 dark:text-sky-400">Manage your Trident Robotics account preferences</p>
+      </div>
+    </div>
+  </header>
+  <main class="max-w-3xl mx-auto space-y-6 fadein">
+    <!-- Tabs Bar -->
+    <nav class="tabs mb-2" role="tablist" aria-label="Settings Sections">
+      <button class="tab-btn" id="tabBtn1" aria-controls="tabPanel1" aria-selected="true" role="tab" tabindex="0">Profile</button>
+      <button class="tab-btn" id="tabBtn2" aria-controls="tabPanel2" aria-selected="false" role="tab" tabindex="-1">Account</button>
+      <button class="tab-btn" id="tabBtn3" aria-controls="tabPanel3" aria-selected="false" role="tab" tabindex="-1">Notifications</button>
+      <button class="tab-btn" id="tabBtn4" aria-controls="tabPanel4" aria-selected="false" role="tab" tabindex="-1">Appearance</button>
+      <button class="tab-btn" id="tabBtn5" aria-controls="tabPanel5" aria-selected="false" role="tab" tabindex="-1">Privacy & Security</button>
+    </nav>
+    <div style="position:relative; min-height:340px;">
+      <!-- Profile -->
+      <form id="tabPanel1" class="tab-panel active panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn1" autocomplete="off">
+        <div>
+          <label class="block font-semibold mb-1" for="profileName">Name</label>
+          <input id="profileName" name="name" type="text" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="Full name" />
+        </div>
+        <div>
+          <label class="block font-semibold mb-1" for="profileEmail">Email</label>
+          <input id="profileEmail" name="email" type="email" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="you@email.com" />
+        </div>
+        <div>
+          <label class="block font-semibold mb-1" for="profileBio">Bio</label>
+          <textarea id="profileBio" name="bio" rows="3" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="A short bio..."></textarea>
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" class="save-btn">Save</button>
+          <button type="reset" class="cancel-btn">Cancel</button>
+        </div>
+      </form>
+      <!-- Account -->
+      <form id="tabPanel2" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn2" autocomplete="off">
+        <div>
+          <label class="block font-semibold mb-1" for="username">Username</label>
+          <input id="username" name="username" type="text" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" value="TridentUser" />
+        </div>
+        <div>
+          <label class="block font-semibold mb-1" for="password">Password</label>
+          <input id="password" name="password" type="password" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="••••••••" />
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Two-factor Authentication</label>
+          <div class="flex items-center gap-3">
+            <div id="toggle2fa" class="toggle" tabindex="0" role="switch" aria-checked="false">
+              <div class="toggle-knob"></div>
+            </div>
+            <span id="label2fa" class="text-sm text-slate-700 dark:text-slate-200">Off</span>
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" class="save-btn">Save</button>
+          <button type="reset" class="cancel-btn">Cancel</button>
+        </div>
+      </form>
+      <!-- Notifications -->
+      <form id="tabPanel3" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn3" autocomplete="off">
+        <div>
+          <label class="block font-semibold mb-1">Email Notifications</label>
+          <div class="flex items-center gap-3">
+            <div id="toggleNotifEmail" class="toggle on" tabindex="0" role="switch" aria-checked="true">
+              <div class="toggle-knob"></div>
+            </div>
+            <span id="labelNotifEmail" class="text-sm text-slate-700 dark:text-slate-200">On</span>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Push Notifications</label>
+          <div class="flex items-center gap-3">
+            <div id="toggleNotifPush" class="toggle" tabindex="0" role="switch" aria-checked="false">
+              <div class="toggle-knob"></div>
+            </div>
+            <span id="labelNotifPush" class="text-sm text-slate-700 dark:text-slate-200">Off</span>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Sound on Notification</label>
+          <select class="w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200">
+            <option>Chime</option>
+            <option>Ping</option>
+            <option>Pop</option>
+            <option>Off</option>
+          </select>
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" class="save-btn">Save</button>
+          <button type="reset" class="cancel-btn">Cancel</button>
+        </div>
+      </form>
+      <!-- Appearance -->
+      <form id="tabPanel4" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn4" autocomplete="off">
+        <div>
+          <label class="block font-semibold mb-1">Theme</label>
+          <select class="w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200">
+            <option>System</option>
+            <option>Light</option>
+            <option>Dark</option>
+            <option>High Contrast</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Accent Color</label>
+          <input type="color" value="#38bdf8" class="rounded w-12 h-8 border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Reduce Motion</label>
+          <div class="flex items-center gap-3">
+            <div id="toggleReduceMotion" class="toggle" tabindex="0" role="switch" aria-checked="false">
+              <div class="toggle-knob"></div>
+            </div>
+            <span id="labelReduceMotion" class="text-sm text-slate-700 dark:text-slate-200">Off</span>
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" class="save-btn">Save</button>
+          <button type="reset" class="cancel-btn">Cancel</button>
+        </div>
+      </form>
+      <!-- Privacy & Security -->
+      <form id="tabPanel5" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn5" autocomplete="off">
+        <div>
+          <label class="block font-semibold mb-1">Profile Visibility</label>
+          <select class="w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200">
+            <option>Public</option>
+            <option>Private</option>
+            <option>Friends Only</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Allow Data Export</label>
+          <div class="flex items-center gap-3">
+            <div id="toggleExport" class="toggle on" tabindex="0" role="switch" aria-checked="true">
+              <div class="toggle-knob"></div>
+            </div>
+            <span id="labelExport" class="text-sm text-slate-700 dark:text-slate-200">On</span>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Session Timeout</label>
+          <select class="w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200">
+            <option>15 minutes</option>
+            <option>30 minutes</option>
+            <option>1 hour</option>
+            <option>Never</option>
+          </select>
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" class="save-btn">Save</button>
+          <button type="reset" class="cancel-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </main>
+  <script>
+    // Tabs (animated, motion-safe)
+    const tabBtns = [document.getElementById('tabBtn1'), document.getElementById('tabBtn2'), document.getElementById('tabBtn3'), document.getElementById('tabBtn4'), document.getElementById('tabBtn5')];
+    const tabPanels = [document.getElementById('tabPanel1'), document.getElementById('tabPanel2'), document.getElementById('tabPanel3'), document.getElementById('tabPanel4'), document.getElementById('tabPanel5')];
+    tabBtns.forEach((btn, idx) => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach((b,i) => {
+          b.setAttribute('aria-selected', i === idx);
+          b.tabIndex = i === idx ? 0 : -1;
+        });
+        tabPanels.forEach((panel,i) => {
+          panel.classList.toggle('active', i === idx);
+        });
+        // Sound
+        if (window.Sound) Sound.tab();
+      });
+      btn.addEventListener('keydown', function(e) {
+        if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+          let dir = e.key === "ArrowLeft" ? -1 : 1;
+          let next = (idx + dir + tabBtns.length) % tabBtns.length;
+          tabBtns[next].focus();
+        }
+      });
+    });
+    // Toggle switches, sound and animated (motion-safe)
+    function setupToggle(id, labelId, onText="On", offText="Off") {
+      const el = document.getElementById(id);
+      const label = document.getElementById(labelId);
+      let state = el.classList.contains('on');
+      function set(stateVal) {
+        state = !!stateVal;
+        el.classList.toggle('on', state);
+        el.setAttribute('aria-checked', state);
+        if (label) label.textContent = state ? onText : offText;
+      }
+      function spring() {
+        set(!state);
+        if (window.Sound) Sound.toggle();
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          el.animate([
+            { transform: 'scale(1)' },
+            { transform: 'scale(1.12)' },
+            { transform: 'scale(1)' }
+          ], { duration: 240, easing: 'cubic-bezier(.7,1.7,.2,1)' });
+        }
+      }
+      el.addEventListener('click', spring);
+      el.addEventListener('keydown', function(e) {
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); spring(); }
+      });
+      return { set };
+    }
+    setupToggle('toggle2fa', 'label2fa');
+    setupToggle('toggleNotifEmail', 'labelNotifEmail');
+    setupToggle('toggleNotifPush', 'labelNotifPush');
+    setupToggle('toggleReduceMotion', 'labelReduceMotion');
+    setupToggle('toggleExport', 'labelExport');
+    // Dummy sound engine for tabs/toggles, uses a simple beep for demo
+    window.Sound = {
+      tab() { if (!window.Sound._enabled) return; try { new AudioContext().resume().then(()=>{ let ctx=new(window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.setValueAtTime(700,ctx.currentTime);g.gain.setValueAtTime(0.19,ctx.currentTime);g.gain.linearRampToValueAtTime(0,ctx.currentTime+0.13);o.connect(g).connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.13);setTimeout(()=>ctx.close(),180);}); } catch(e){} }, _enabled:true,
+      toggle() { if (!window.Sound._enabled) return; try { new AudioContext().resume().then(()=>{ let ctx=new(window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),g=ctx.createGain();o.type="square";o.frequency.setValueAtTime(380,ctx.currentTime);g.gain.setValueAtTime(0.16,ctx.currentTime);g.gain.linearRampToValueAtTime(0,ctx.currentTime+0.11);o.connect(g).connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.11);setTimeout(()=>ctx.close(),150);}); } catch(e){} }
+    }
+    // Save/cancel (demo only: show toast)
+    document.querySelectorAll("form").forEach(form=>{
+      form.addEventListener('submit', e=>{
+        e.preventDefault();
+        if(window.Sound) Sound.tab();
+        if(window.Toast) Toast("Settings saved.", "success");
+      });
+      form.addEventListener('reset', e=>{
+        if(window.Sound) Sound.toggle();
+        if(window.Toast) Toast("Changes canceled.", "info");
+      });
+    });
+    // Demo toast
+    window.Toast = function(msg, type){
+      let el = document.createElement("div");
+      el.className = "fixed right-6 top-6 z-50 px-4 py-2 rounded bg-sky-600 text-white font-semibold shadow-lg fadein";
+      el.textContent = msg;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(), 2200);
+    }
+  </script>
+</body>
+</html>

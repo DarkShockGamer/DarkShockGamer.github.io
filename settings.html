@@ -7,10 +7,16 @@
   <title>Settings — Trident Robotics</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    body {
+      background: linear-gradient(to bottom, #f0f9ff 60%, #e0e7ef 100%);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
     @media (prefers-color-scheme: dark) {
       html, body { color-scheme: dark; }
-      body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; }
+      body { background: linear-gradient(to bottom, #192132 60%, #0b1220 100%); color: #e5e7eb; }
     }
     .panel { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05); }
     @media (prefers-color-scheme: dark) {
@@ -58,10 +64,31 @@
     }
     .fadein { animation: fadein 700ms cubic-bezier(.4,2.5,.5,1.1); }
     @keyframes fadein { from { opacity: 0; transform: translateY(24px);} to { opacity: 1; transform: none;} }
+    /* --- Floating Gears Animation --- */
+    #gear-bg {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      overflow: visible;
+    }
+    .gear {
+      filter: drop-shadow(0 2px 8px rgba(56,189,248,0.18));
+      opacity: 0.25;
+      will-change: transform;
+      transition: opacity 0.4s;
+    }
+    @media (prefers-color-scheme: dark) {
+      .gear { opacity: 0.20; }
+    }
   </style>
 </head>
 <body class="min-h-screen p-6">
-  <header class="max-w-3xl mx-auto mb-6 px-2">
+  <!-- Animated floating gears SVG background -->
+  <svg id="gear-bg"></svg>
+  <header class="max-w-3xl mx-auto mb-6 px-2 relative z-10">
     <div class="flex items-center gap-3">
       <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-8 w-8">
       <div>
@@ -70,53 +97,24 @@
       </div>
     </div>
   </header>
-  <main class="max-w-3xl mx-auto space-y-6 fadein">
+  <main class="max-w-3xl mx-auto space-y-6 fadein relative z-10">
     <!-- Tabs Bar -->
     <nav class="tabs mb-2" role="tablist" aria-label="Settings Sections">
-      <button class="tab-btn" id="tabBtn1" aria-controls="tabPanel1" aria-selected="true" role="tab" tabindex="0">Profile</button>
-      <button class="tab-btn" id="tabBtn2" aria-controls="tabPanel2" aria-selected="false" role="tab" tabindex="-1">Account</button>
-      <button class="tab-btn" id="tabBtn3" aria-controls="tabPanel3" aria-selected="false" role="tab" tabindex="-1">Notifications</button>
-      <button class="tab-btn" id="tabBtn4" aria-controls="tabPanel4" aria-selected="false" role="tab" tabindex="-1">Appearance</button>
-      <button class="tab-btn" id="tabBtn5" aria-controls="tabPanel5" aria-selected="false" role="tab" tabindex="-1">Privacy & Security</button>
+      <button class="tab-btn" id="tabBtn1" aria-controls="tabPanel1" aria-selected="true" role="tab" tabindex="0">Account</button>
+      <button class="tab-btn" id="tabBtn2" aria-controls="tabPanel2" aria-selected="false" role="tab" tabindex="-1">Notifications</button>
+      <button class="tab-btn" id="tabBtn3" aria-controls="tabPanel3" aria-selected="false" role="tab" tabindex="-1">Appearance</button>
+      <button class="tab-btn" id="tabBtn4" aria-controls="tabPanel4" aria-selected="false" role="tab" tabindex="-1">Privacy &amp; Security</button>
     </nav>
-    <div style="position:relative; min-height:340px;">
-      <!-- Profile -->
+    <div style="position:relative; min-height:320px;">
+      <!-- Account -->
       <form id="tabPanel1" class="tab-panel active panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn1" autocomplete="off">
         <div>
-          <label class="block font-semibold mb-1" for="profileName">Name</label>
-          <input id="profileName" name="name" type="text" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="Full name" />
+          <label class="block font-semibold mb-1" for="accountEmail">Email</label>
+          <input id="accountEmail" name="email" type="email" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="you@email.com" />
         </div>
         <div>
-          <label class="block font-semibold mb-1" for="profileEmail">Email</label>
-          <input id="profileEmail" name="email" type="email" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="you@email.com" />
-        </div>
-        <div>
-          <label class="block font-semibold mb-1" for="profileBio">Bio</label>
-          <textarea id="profileBio" name="bio" rows="3" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="A short bio..."></textarea>
-        </div>
-        <div class="flex justify-end">
-          <button type="submit" class="save-btn">Save</button>
-          <button type="reset" class="cancel-btn">Cancel</button>
-        </div>
-      </form>
-      <!-- Account -->
-      <form id="tabPanel2" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn2" autocomplete="off">
-        <div>
-          <label class="block font-semibold mb-1" for="username">Username</label>
-          <input id="username" name="username" type="text" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" value="TridentUser" />
-        </div>
-        <div>
-          <label class="block font-semibold mb-1" for="password">Password</label>
-          <input id="password" name="password" type="password" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="••••••••" />
-        </div>
-        <div>
-          <label class="block font-semibold mb-1">Two-factor Authentication</label>
-          <div class="flex items-center gap-3">
-            <div id="toggle2fa" class="toggle" tabindex="0" role="switch" aria-checked="false">
-              <div class="toggle-knob"></div>
-            </div>
-            <span id="label2fa" class="text-sm text-slate-700 dark:text-slate-200">Off</span>
-          </div>
+          <label class="block font-semibold mb-1" for="accountName">Full Name</label>
+          <input id="accountName" name="fullname" type="text" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="Your Name" />
         </div>
         <div class="flex justify-end">
           <button type="submit" class="save-btn">Save</button>
@@ -124,23 +122,15 @@
         </div>
       </form>
       <!-- Notifications -->
-      <form id="tabPanel3" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn3" autocomplete="off">
+      <form id="tabPanel2" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn2" autocomplete="off">
         <div>
-          <label class="block font-semibold mb-1">Email Notifications</label>
+          <label class="block font-semibold mb-1">Site Notifications</label>
           <div class="flex items-center gap-3">
-            <div id="toggleNotifEmail" class="toggle on" tabindex="0" role="switch" aria-checked="true">
+            <div id="toggleReminders" class="toggle on" tabindex="0" role="switch" aria-checked="true">
               <div class="toggle-knob"></div>
             </div>
-            <span id="labelNotifEmail" class="text-sm text-slate-700 dark:text-slate-200">On</span>
-          </div>
-        </div>
-        <div>
-          <label class="block font-semibold mb-1">Push Notifications</label>
-          <div class="flex items-center gap-3">
-            <div id="toggleNotifPush" class="toggle" tabindex="0" role="switch" aria-checked="false">
-              <div class="toggle-knob"></div>
-            </div>
-            <span id="labelNotifPush" class="text-sm text-slate-700 dark:text-slate-200">Off</span>
+            <span id="labelReminders" class="text-sm text-slate-700 dark:text-slate-200">On</span>
+            <span class="ml-2 text-xs text-slate-500 dark:text-slate-400">Reminders for calendar events</span>
           </div>
         </div>
         <div>
@@ -158,7 +148,7 @@
         </div>
       </form>
       <!-- Appearance -->
-      <form id="tabPanel4" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn4" autocomplete="off">
+      <form id="tabPanel3" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn3" autocomplete="off">
         <div>
           <label class="block font-semibold mb-1">Theme</label>
           <select class="w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200">
@@ -167,10 +157,6 @@
             <option>Dark</option>
             <option>High Contrast</option>
           </select>
-        </div>
-        <div>
-          <label class="block font-semibold mb-1">Accent Color</label>
-          <input type="color" value="#38bdf8" class="rounded w-12 h-8 border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
         </div>
         <div>
           <label class="block font-semibold mb-1">Reduce Motion</label>
@@ -187,32 +173,16 @@
         </div>
       </form>
       <!-- Privacy & Security -->
-      <form id="tabPanel5" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn5" autocomplete="off">
+      <form id="tabPanel4" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn4" autocomplete="off">
         <div>
-          <label class="block font-semibold mb-1">Profile Visibility</label>
-          <select class="w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200">
-            <option>Public</option>
-            <option>Private</option>
-            <option>Friends Only</option>
-          </select>
-        </div>
-        <div>
-          <label class="block font-semibold mb-1">Allow Data Export</label>
+          <label class="block font-semibold mb-1">Allow Data Collection</label>
           <div class="flex items-center gap-3">
-            <div id="toggleExport" class="toggle on" tabindex="0" role="switch" aria-checked="true">
+            <div id="toggleDataCollection" class="toggle on" tabindex="0" role="switch" aria-checked="true">
               <div class="toggle-knob"></div>
             </div>
-            <span id="labelExport" class="text-sm text-slate-700 dark:text-slate-200">On</span>
+            <span id="labelDataCollection" class="text-sm text-slate-700 dark:text-slate-200">On</span>
+            <span class="ml-2 text-xs text-slate-500 dark:text-slate-400">Default On</span>
           </div>
-        </div>
-        <div>
-          <label class="block font-semibold mb-1">Session Timeout</label>
-          <select class="w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200">
-            <option>15 minutes</option>
-            <option>30 minutes</option>
-            <option>1 hour</option>
-            <option>Never</option>
-          </select>
         </div>
         <div class="flex justify-end">
           <button type="submit" class="save-btn">Save</button>
@@ -222,13 +192,78 @@
     </div>
   </main>
   <script>
-    // Sound Engine from ui-lab.html
+    // --- Floating Gears Background Animation ---
+    // Generates multiple SVG gears with random movement/rotation
+    const gearColors = [
+      "#38bdf8", "#818cf8", "#64748b", "#facc15", "#0ea5e9"
+    ];
+    const darkGearColors = [
+      "#818cf8", "#38bdf8", "#64748b", "#facc15", "#0ea5e9"
+    ];
+    const bg = document.getElementById('gear-bg');
+    function createGear(cx, cy, r, teeth, fill, id) {
+      // Generate gear path
+      let path = "";
+      for (let i = 0; i < teeth; i++) {
+        const a = ((2 * Math.PI) / teeth) * i;
+        const outer = r * 1.14, inner = r * 0.86;
+        const x1 = cx + outer * Math.cos(a), y1 = cy + outer * Math.sin(a);
+        const x2 = cx + r * Math.cos(a + Math.PI / teeth), y2 = cy + r * Math.sin(a + Math.PI / teeth);
+        path += `${i === 0 ? "M" : "L"}${x1},${y1}L${x2},${y2}`;
+      }
+      path += "Z";
+      return `<g id="gear-${id}"><circle cx="${cx}" cy="${cy}" r="${r*0.65}" fill="${fill}" /><path d="${path}" fill="${fill}" /></g>`;
+    }
+    function randomBetween(a, b) {
+      return a + Math.random() * (b - a);
+    }
+    function renderGears() {
+      let w = window.innerWidth, h = window.innerHeight;
+      let gears = [];
+      // Choose a color set based on theme
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const colors = isDark ? darkGearColors : gearColors;
+      for (let i = 0; i < 7; i++) {
+        let cx = randomBetween(0, w), cy = randomBetween(0, h);
+        let r = randomBetween(38, 80);
+        let t = Math.floor(randomBetween(8, 16));
+        let color = colors[i % colors.length];
+        gears.push(createGear(cx, cy, r, t, color, i));
+      }
+      bg.innerHTML = gears.join('');
+      // Animate
+      Array.from(bg.children).forEach((gear, idx) => {
+        gear.classList.add("gear");
+        animateGear(gear, idx);
+      });
+    }
+    function animateGear(gear, idx) {
+      const w = window.innerWidth, h = window.innerHeight;
+      let angle = randomBetween(0, 360);
+      let speed = randomBetween(12, 30) * (Math.random() < 0.5 ? 1 : -1); // deg/sec
+      let x = randomBetween(0, w), y = randomBetween(0, h);
+      let size = randomBetween(0.8, 1.2);
+      function step(ts) {
+        angle += speed * 0.016; // ~60fps
+        x += Math.sin((angle+idx*60)/60) * 0.1;
+        y += Math.cos((angle+idx*80)/80) * 0.09;
+        if (x < -120) x = w+120; if (x > w+120) x = -120;
+        if (y < -120) y = h+120; if (y > h+120) y = -120;
+        gear.setAttribute('transform', `translate(${x},${y}) scale(${size}) rotate(${angle})`);
+        gear.style.opacity = (0.12 + Math.abs(Math.sin(angle/80))*0.18).toFixed(2);
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    window.addEventListener('resize', renderGears);
+    renderGears();
+
+    // --- Sound Engine from ui-lab.html ---
     const Sound = (() => {
       const state = {
         ctx: null,
         master: null,
         enabled: true,
-        whooshFilter: null,
         prefersReduced: window.matchMedia('(prefers-reduced-motion: reduce)').matches
       };
       function ensureCtx() {
@@ -269,37 +304,14 @@
       function warn() { tone({ freq: 320, type: 'square', attack: 0.003, decay: 0.15, gain: 0.2 }); }
       function error() { tone({ freq: 220, type: 'square', attack: 0.002, decay: 0.2, gain: 0.25 }); setTimeout(() => tone({ freq: 180, type: 'square', attack: 0.002, decay: 0.22, gain: 0.22 }), 90);}
       function info() { tone({ freq: 520, type: 'triangle', attack: 0.004, decay: 0.12, gain: 0.22 }); }
-      function whoosh() {
-        if (state.prefersReduced || !state.enabled) return;
-        ensureCtx();
-        const t0 = state.ctx.currentTime;
-        const bufferSize = 2 * state.ctx.sampleRate;
-        const noiseBuffer = state.ctx.createBuffer(1, bufferSize, state.ctx.sampleRate);
-        const data = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize); // tail off
-        const noise = state.ctx.createBufferSource();
-        noise.buffer = noiseBuffer;
-        const filter = state.ctx.createBiquadFilter();
-        filter.type = 'highpass';
-        filter.frequency.setValueAtTime(400, t0);
-        const g = state.ctx.createGain();
-        g.gain.setValueAtTime(0.0001, t0);
-        g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.08);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.45);
-        noise.connect(filter).connect(g).connect(state.master);
-        noise.start(t0);
-        noise.stop(t0 + 0.5);
-      }
-      function morph() { tone({ freq: 560, type: 'triangle', attack: 0.008, decay: 0.16, gain: 0.22 }); setTimeout(() => tone({ freq: 900, type: 'sine', attack: 0.005, decay: 0.14, gain: 0.19 }), 60);}
-      function toggle() { tone({ freq: 380, type: 'square', attack: 0.002, decay: 0.10, gain: 0.18 }); }
       function tab() { tone({ freq: 700, type: 'triangle', attack: 0.004, decay: 0.11, gain: 0.19 }); }
-      function iconChime() { tone({ freq: 820, type: 'triangle', attack: 0.004, decay: 0.14, gain: 0.16 }); setTimeout(() => tone({ freq: 1220, type: 'sine', attack: 0.003, decay: 0.12, gain: 0.14 }), 55);}
-      return { setEnabled, click, success, warn, error, info, whoosh, morph, toggle, tab, iconChime };
+      function toggle() { tone({ freq: 380, type: 'square', attack: 0.002, decay: 0.10, gain: 0.18 }); }
+      return { setEnabled, click, success, warn, error, info, tab, toggle };
     })();
 
     // Tabs (animated, motion-safe)
-    const tabBtns = [document.getElementById('tabBtn1'), document.getElementById('tabBtn2'), document.getElementById('tabBtn3'), document.getElementById('tabBtn4'), document.getElementById('tabBtn5')];
-    const tabPanels = [document.getElementById('tabPanel1'), document.getElementById('tabPanel2'), document.getElementById('tabPanel3'), document.getElementById('tabPanel4'), document.getElementById('tabPanel5')];
+    const tabBtns = [document.getElementById('tabBtn1'), document.getElementById('tabBtn2'), document.getElementById('tabBtn3'), document.getElementById('tabBtn4')];
+    const tabPanels = [document.getElementById('tabPanel1'), document.getElementById('tabPanel2'), document.getElementById('tabPanel3'), document.getElementById('tabPanel4')];
     tabBtns.forEach((btn, idx) => {
       btn.addEventListener('click', () => {
         tabBtns.forEach((b,i) => {
@@ -319,6 +331,7 @@
         }
       });
     });
+
     // Toggle switches, sound and animated (motion-safe)
     function setupToggle(id, labelId, onText="On", offText="Off") {
       const el = document.getElementById(id);
@@ -341,17 +354,17 @@
           ], { duration: 240, easing: 'cubic-bezier(.7,1.7,.2,1)' });
         }
       }
-      el.addEventListener('click', spring);
-      el.addEventListener('keydown', function(e) {
-        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); spring(); }
-      });
+      if (el) {
+        el.addEventListener('click', spring);
+        el.addEventListener('keydown', function(e) {
+          if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); spring(); }
+        });
+      }
       return { set };
     }
-    setupToggle('toggle2fa', 'label2fa');
-    setupToggle('toggleNotifEmail', 'labelNotifEmail');
-    setupToggle('toggleNotifPush', 'labelNotifPush');
+    setupToggle('toggleReminders', 'labelReminders');
     setupToggle('toggleReduceMotion', 'labelReduceMotion');
-    setupToggle('toggleExport', 'labelExport');
+    setupToggle('toggleDataCollection', 'labelDataCollection');
 
     // Save/cancel (demo only: show toast)
     document.querySelectorAll("form").forEach(form=>{
@@ -373,6 +386,13 @@
       document.body.appendChild(el);
       setTimeout(()=>el.remove(), 2200);
     }
+
+    // --- Autofill email if signed in (simulate) ---
+    document.addEventListener("DOMContentLoaded", function() {
+      // Simulate getting user email from JS variable or backend API
+      var signedInEmail = window.signedInEmail || "darkshockgamer@email.com";
+      document.getElementById("accountEmail").value = signedInEmail;
+    });
   </script>
 </body>
 </html>

@@ -186,7 +186,8 @@
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
       <input id="userNameInput" placeholder="Your name..." class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
       <input id="filterInput" placeholder="Search or filter by assignee..." class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
-      <button id="menuBtn" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Menu</button>
+      <!-- Added data-sound="whoosh" so only the whoosh plays (no default click) -->
+      <button id="menuBtn" data-sound="whoosh" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Menu</button>
     </div>
   </div>
 
@@ -288,11 +289,10 @@ userNameInput.value = localStorage.getItem("userName") || "";
 userNameInput.oninput = () => { localStorage.setItem("userName", userNameInput.value); };
 
 /* Drawer toggle */
-/* Play the whoosh sound on open (from ui-lab.html Sound.whoosh) */
 menuBtn.onclick = () => {
   drawer.classList.add("open");
   drawerOverlay.classList.add("active");
-  try { if (window.Sound?.whoosh) Sound.whoosh(); } catch {}
+  // Removed manual Sound.whoosh(); it's now handled by data-sound="whoosh"
   renderDrawer();
 };
 closeDrawerBtn.onclick = () => { drawer.classList.remove("open"); drawerOverlay.classList.remove("active"); };
@@ -669,7 +669,6 @@ function createTaskEl(task, colId) {
     } catch (err) {
       console.error("Failed to update description:", err);
       alert(`Failed to update description: ${err.message || err}`);
-      // revert visual toggle on failure
       cb.checked = !cb.checked;
     }
   });
@@ -717,7 +716,6 @@ Free-form notes line"></textarea>
   `;
   document.body.appendChild(modal);
 
-  // Prefill fields so "Edit" shows task info to modify
   modal.querySelector("#editTitle").value = task.title || "";
   modal.querySelector("#editAssign").value = task.assignee || "";
   modal.querySelector("#editDue").value = task.due || "";
@@ -997,7 +995,6 @@ function showToast(type, message, timeout = 10000) {
   toastStack.appendChild(el);
   requestAnimationFrame(() => el.classList.add('show'));
 
-  // Play sounds if available
   try {
     if (window.Sound) {
       if (type === 'success' && Sound.success) Sound.success();
@@ -1015,13 +1012,11 @@ function showToast(type, message, timeout = 10000) {
       }
     };
     el.addEventListener('transitionend', onEnd);
-    el.classList.remove('show'); // triggers fade-out via CSS transition
+    el.classList.remove('show');
   };
 
-  // Dismiss on button click
   el.querySelector('button')?.addEventListener('click', removeAfterTransition);
 
-  // Auto-dismiss with hover pause/resume
   let start = Date.now();
   let remaining = timeout;
   let timer = setTimeout(removeAfterTransition, remaining);
@@ -1039,7 +1034,6 @@ function showToast(type, message, timeout = 10000) {
   el.addEventListener('mouseenter', pause);
   el.addEventListener('mouseleave', resume);
 
-  // Expose for external use if needed
   window.showToast = showToast;
 }
 

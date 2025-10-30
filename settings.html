@@ -222,6 +222,81 @@
     </div>
   </main>
   <script>
+    // Sound Engine from ui-lab.html
+    const Sound = (() => {
+      const state = {
+        ctx: null,
+        master: null,
+        enabled: true,
+        whooshFilter: null,
+        prefersReduced: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      };
+      function ensureCtx() {
+        if (!state.ctx) {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const master = ctx.createGain();
+          master.gain.value = 0.6;
+          master.connect(ctx.destination);
+          state.ctx = ctx;
+          state.master = master;
+          // Resume on first user gesture if needed
+          const resume = () => { if (ctx.state === 'suspended') ctx.resume(); document.removeEventListener('pointerdown', resume, true); };
+          document.addEventListener('pointerdown', resume, true);
+        }
+      }
+      function setEnabled(on) {
+        state.enabled = on;
+        if (state.master) state.master.gain.value = on ? 0.6 : 0.0;
+      }
+      function tone({ freq=440, type='sine', duration=0.12, attack=0.005, decay=0.08, gain=0.3, detune=0 }) {
+        if (!state.enabled) return;
+        ensureCtx();
+        const t0 = state.ctx.currentTime;
+        const osc = state.ctx.createOscillator();
+        const g = state.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, t0);
+        if (detune) osc.detune.setValueAtTime(detune, t0);
+        g.gain.setValueAtTime(0, t0);
+        g.gain.linearRampToValueAtTime(gain, t0 + attack);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + attack + decay);
+        osc.connect(g).connect(state.master);
+        osc.start(t0);
+        osc.stop(t0 + Math.max(duration, attack + decay));
+      }
+      function click() { tone({ freq: 240, type: 'triangle', duration: 0.08, attack: 0.002, decay: 0.06, gain: 0.22 }); }
+      function success() { tone({ freq: 660, type: 'sine', attack: 0.004, decay: 0.10, gain: 0.25 }); setTimeout(() => tone({ freq: 880, type: 'sine', attack: 0.004, decay: 0.12, gain: 0.23 }), 90);}
+      function warn() { tone({ freq: 320, type: 'square', attack: 0.003, decay: 0.15, gain: 0.2 }); }
+      function error() { tone({ freq: 220, type: 'square', attack: 0.002, decay: 0.2, gain: 0.25 }); setTimeout(() => tone({ freq: 180, type: 'square', attack: 0.002, decay: 0.22, gain: 0.22 }), 90);}
+      function info() { tone({ freq: 520, type: 'triangle', attack: 0.004, decay: 0.12, gain: 0.22 }); }
+      function whoosh() {
+        if (state.prefersReduced || !state.enabled) return;
+        ensureCtx();
+        const t0 = state.ctx.currentTime;
+        const bufferSize = 2 * state.ctx.sampleRate;
+        const noiseBuffer = state.ctx.createBuffer(1, bufferSize, state.ctx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize); // tail off
+        const noise = state.ctx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        const filter = state.ctx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.setValueAtTime(400, t0);
+        const g = state.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.08);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.45);
+        noise.connect(filter).connect(g).connect(state.master);
+        noise.start(t0);
+        noise.stop(t0 + 0.5);
+      }
+      function morph() { tone({ freq: 560, type: 'triangle', attack: 0.008, decay: 0.16, gain: 0.22 }); setTimeout(() => tone({ freq: 900, type: 'sine', attack: 0.005, decay: 0.14, gain: 0.19 }), 60);}
+      function toggle() { tone({ freq: 380, type: 'square', attack: 0.002, decay: 0.10, gain: 0.18 }); }
+      function tab() { tone({ freq: 700, type: 'triangle', attack: 0.004, decay: 0.11, gain: 0.19 }); }
+      function iconChime() { tone({ freq: 820, type: 'triangle', attack: 0.004, decay: 0.14, gain: 0.16 }); setTimeout(() => tone({ freq: 1220, type: 'sine', attack: 0.003, decay: 0.12, gain: 0.14 }), 55);}
+      return { setEnabled, click, success, warn, error, info, whoosh, morph, toggle, tab, iconChime };
+    })();
+
     // Tabs (animated, motion-safe)
     const tabBtns = [document.getElementById('tabBtn1'), document.getElementById('tabBtn2'), document.getElementById('tabBtn3'), document.getElementById('tabBtn4'), document.getElementById('tabBtn5')];
     const tabPanels = [document.getElementById('tabPanel1'), document.getElementById('tabPanel2'), document.getElementById('tabPanel3'), document.getElementById('tabPanel4'), document.getElementById('tabPanel5')];
@@ -234,8 +309,7 @@
         tabPanels.forEach((panel,i) => {
           panel.classList.toggle('active', i === idx);
         });
-        // Sound
-        if (window.Sound) Sound.tab();
+        Sound.tab();
       });
       btn.addEventListener('keydown', function(e) {
         if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
@@ -258,7 +332,7 @@
       }
       function spring() {
         set(!state);
-        if (window.Sound) Sound.toggle();
+        Sound.toggle();
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
           el.animate([
             { transform: 'scale(1)' },
@@ -278,20 +352,16 @@
     setupToggle('toggleNotifPush', 'labelNotifPush');
     setupToggle('toggleReduceMotion', 'labelReduceMotion');
     setupToggle('toggleExport', 'labelExport');
-    // Dummy sound engine for tabs/toggles, uses a simple beep for demo
-    window.Sound = {
-      tab() { if (!window.Sound._enabled) return; try { new AudioContext().resume().then(()=>{ let ctx=new(window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.setValueAtTime(700,ctx.currentTime);g.gain.setValueAtTime(0.19,ctx.currentTime);g.gain.linearRampToValueAtTime(0,ctx.currentTime+0.13);o.connect(g).connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.13);setTimeout(()=>ctx.close(),180);}); } catch(e){} }, _enabled:true,
-      toggle() { if (!window.Sound._enabled) return; try { new AudioContext().resume().then(()=>{ let ctx=new(window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),g=ctx.createGain();o.type="square";o.frequency.setValueAtTime(380,ctx.currentTime);g.gain.setValueAtTime(0.16,ctx.currentTime);g.gain.linearRampToValueAtTime(0,ctx.currentTime+0.11);o.connect(g).connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.11);setTimeout(()=>ctx.close(),150);}); } catch(e){} }
-    }
+
     // Save/cancel (demo only: show toast)
     document.querySelectorAll("form").forEach(form=>{
       form.addEventListener('submit', e=>{
         e.preventDefault();
-        if(window.Sound) Sound.tab();
+        Sound.tab();
         if(window.Toast) Toast("Settings saved.", "success");
       });
       form.addEventListener('reset', e=>{
-        if(window.Sound) Sound.toggle();
+        Sound.toggle();
         if(window.Toast) Toast("Changes canceled.", "info");
       });
     });

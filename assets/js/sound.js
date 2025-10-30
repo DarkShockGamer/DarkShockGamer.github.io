@@ -80,17 +80,39 @@
       tone({ freq: 520, type: 'triangle', attack: 0.004, decay: 0.12, gain: 0.22 });
     }
 
-    // Dedicated sounds for checklist toggle
-    function checkOn() {
-      // subtle upward chirp
-      tone({ freq: 660, type: 'triangle', attack: 0.003, decay: 0.08, gain: 0.20 });
-    }
-    function checkOff() {
-      // soft tick
-      tone({ freq: 380, type: 'triangle', attack: 0.002, decay: 0.06, gain: 0.16 });
+    // Drawer "whoosh" — filtered noise with quick rise and smooth fade
+    function whoosh() {
+      if (!state.enabled) return;
+      ensureCtx();
+      if (!state.ctx || !state.master) return;
+
+      const t0 = state.ctx.currentTime;
+      const bufferSize = 2 * state.ctx.sampleRate; // ~2s of noise, we'll stop sooner
+      const noiseBuffer = state.ctx.createBuffer(1, bufferSize, state.ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+      const noise = state.ctx.createBufferSource();
+      noise.buffer = noiseBuffer;
+
+      const filter = state.ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(400, t0);
+
+      const g = state.ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.linearRampToValueAtTime(0.22, t0 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.45);
+
+      noise.connect(filter).connect(g).connect(state.master);
+      noise.start(t0);
+      noise.stop(t0 + 0.5);
     }
 
-    return { setEnabled, click, success, warn, error, info, checkOn, checkOff };
+    // Initialize early so unlock handlers are in place before the first click
+    ensureCtx();
+
+    return { setEnabled, click, success, warn, error, info, whoosh, checkOn, checkOff };
   })();
 
   // Expose for optional controls

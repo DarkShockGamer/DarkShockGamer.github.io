@@ -43,7 +43,7 @@
     }
     /* Modal */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1002; }
-    .modal-panel { width: 92vw; max-width: 480px; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; transform: scale(0.96); opacity: 0; transition: all 180ms cubic-bezier(.45,1.5,.65,1);}
+    .modal-panel { width: 92vw; max-width: 480px; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; transform: scale(0.96); opacity: 0; transition: all 180ms cubic-bezier(.45,1.5,.65,1); }
     .modal-panel.show { transform: scale(1); opacity: 1; }
     @media (prefers-color-scheme: dark) {
       .modal-panel { background: #0f172a; border-color: #1f2937; }
@@ -146,28 +146,7 @@
       80% { transform: rotate(4deg);}
       100% { transform: rotate(0deg);}
     }
-    /* --- NEW: Gear Settings Animation --- */
-    .gear-btn { 
-      display: inline-flex; align-items: center; justify-content: center; 
-      border-radius: 999px; padding: 0.5rem; 
-      background: none; border: none; cursor: pointer;
-      transition: background 180ms;
-      position: absolute; right: 1.5rem; top: 1.5rem; z-index: 10;
-    }
-    .gear-btn:hover, .gear-btn:focus { background: #e0e7ef; }
-    @media (prefers-color-scheme: dark) {
-      .gear-btn:hover, .gear-btn:focus { background: #1e293b; }
-    }
-    .gear-svg { transition: transform 320ms cubic-bezier(.6,1.7,.2,1); }
-    .gear-svg.spin { animation: gear-spin 800ms cubic-bezier(.6,1.7,.2,1) both; }
-    @keyframes gear-spin {
-      0% { transform: rotate(0deg);}
-      20% { transform: rotate(42deg);}
-      40% { transform: rotate(-30deg);}
-      65% { transform: rotate(180deg);}
-      80% { transform: rotate(310deg);}
-      100% { transform: rotate(360deg);}
-    }
+    /* --- REMOVED: Gear Settings Animation --- */
   </style>
 </head>
 <body class="min-h-screen p-6">
@@ -186,16 +165,11 @@
       </div>
     </div>
     <div class="mt-4 panel p-4">
-      <p class="text-sm text-slate-600 dark:text-slate-300">This page showcases reusable micro-interactions you can copy into other pages (click sounds, success/error tones, toasts, modal, drawers, tabs, morphing buttons, toggles, and more).</p>
+      <p class="text-sm text-slate-600 dark:text-slate-300">This page showcases reusable micro-interactions you can copy into other pages (click sounds, success/error tones, toasts, modal, drawer, tabs, progress, toggles, and more).</p>
     </div>
   </header>
   <main class="max-w-7xl mx-auto space-y-6">
-    <!-- --- SETTINGS GEAR BUTTON --- -->
-    <button id="gearBtn" class="gear-btn" title="Settings">
-      <svg class="gear-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Zm7.43-2.06c.04-.3.07-.62.07-.94s-.03-.64-.07-.94l1.99-1.56a.5.5 0 0 0 .12-.64l-1.89-3.3a.5.5 0 0 0-.61-.22l-2.35.95a7.03 7.03 0 0 0-1.63-.95l-.36-2.5a.5.5 0 0 0-.5-.42h-3.78a.5.5 0 0 0-.5.42l-.36 2.5a7.03 7.03 0 0 0-1.63.95l-2.35-.95a.5.5 0 0 0-.61.22l-1.89 3.3a.5.5 0 0 0 .12.64l1.99 1.56c-.04.3-.07.62-.07.94s.03.64.07.94l-1.99 1.56a.5.5 0 0 0-.12.64l1.89 3.3a.5.5 0 0 0 .61.22l2.35-.95c.5.37 1.05.7 1.63.95l.36 2.5a.5.5 0 0 0 .5.42h3.78a.5.5 0 0 0 .5-.42l.36-2.5a7.03 7.03 0 0 0 1.63-.95l2.35.95a.5.5 0 0 0 .61-.22l1.89-3.3a.5.5 0 0 0-.12-.64l-1.99-1.56Z" fill="#64748b"/>
-      </svg>
-    </button>
+    <!-- SETTINGS GEAR BUTTON REMOVED -->
     <!-- Buttons + ripple + sound -->
     <section class="panel p-5 hover-lift reveal" style="position:relative;">
       <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Buttons: Ripple + Sonic Feedback</h2>
@@ -269,7 +243,7 @@
       <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Icon Button: Wiggle Motion + Chime</h2>
       <button id="iconBtn" class="btn-ripple px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2">
         <span id="iconWiggle" class="icon-wiggle" aria-hidden="true">
-          <svg width="22" height="22" fill="none" viewBox="0 0 20 20"><path fill="currentColor" d="M10 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm2.15 5.04a.75.75 0 0 0-1.06 0L10 8.13 8.91 7.04a.75.75 0 1 0-1.06 1.06l1.1 1.09-1.09 1.09a.75.75 0 0 0 1.06 1.06L10 11.19l1.09 1.09a.75.75 0 0 0 1.06-1.06l-1.09-1.09 1.09-1.09a.75.75 0 0 0 0-1.06Z"></path></svg>
+          <svg width="22" height="22" fill="none" viewBox="0 0 20 20"><path fill="currentColor" d="M10 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm2.15 5.04a.75.75 0 0 0-1.06 0L10 8.13 8.91 7.04a.75.75 0 1 1-1.06 1.06l1.09 1.09-1.09 1.09a.75.75 0 1 0 1.06 1.06l1.09-1.09 1.09 1.09a.75.75 0 1 0 1.06-1.06l-1.09-1.09 1.09-1.09a.75.75 0 0 0 0-1.06Z"/></svg>
         </span>
         <span>Wiggle Me!</span>
       </button>
@@ -360,7 +334,7 @@
       function click() { tone({ freq: 240, type: 'triangle', duration: 0.08, attack: 0.002, decay: 0.06, gain: 0.22 }); }
       function success() { tone({ freq: 660, type: 'sine', attack: 0.004, decay: 0.10, gain: 0.25 }); setTimeout(() => tone({ freq: 880, type: 'sine', attack: 0.004, decay: 0.12, gain: 0.23 }), 90); }
       function warn() { tone({ freq: 320, type: 'square', attack: 0.003, decay: 0.15, gain: 0.2 }); }
-      function error() { tone({ freq: 220, type: 'square', attack: 0.002, decay: 0.2, gain: 0.25 }); setTimeout(() => tone({ freq: 180, type: 'square', attack: 0.002, decay: 0.22, gain: 0.22 }), 50); }
+      function error() { tone({ freq: 220, type: 'square', attack: 0.002, decay: 0.2, gain: 0.25 }); setTimeout(() => tone({ freq: 180, type: 'square', attack: 0.002, decay: 0.22, gain: 0.22 }), 100); }
       function info() { tone({ freq: 520, type: 'triangle', attack: 0.004, decay: 0.12, gain: 0.22 }); }
       function whoosh() {
         if (state.prefersReduced || !state.enabled) return;
@@ -384,18 +358,11 @@
         noise.stop(t0 + 0.5);
       }
       // New sounds
-      function morph() { tone({ freq: 560, type: 'triangle', attack: 0.008, decay: 0.16, gain: 0.22 }); setTimeout(() => tone({ freq: 900, type: 'sine', attack: 0.005, decay: 0.14, gain: 0.19 }), 80); }
+      function morph() { tone({ freq: 560, type: 'triangle', attack: 0.008, decay: 0.16, gain: 0.22 }); setTimeout(() => tone({ freq: 900, type: 'sine', attack: 0.005, decay: 0.14, gain: 0.19 }), 100); }
       function toggle() { tone({ freq: 380, type: 'square', attack: 0.002, decay: 0.10, gain: 0.18 }); }
       function tab() { tone({ freq: 700, type: 'triangle', attack: 0.004, decay: 0.11, gain: 0.19 }); }
-      function iconChime() { tone({ freq: 820, type: 'triangle', attack: 0.004, decay: 0.14, gain: 0.16 }); setTimeout(() => tone({ freq: 1220, type: 'sine', attack: 0.003, decay: 0.12, gain: 0.11 }), 60); }
-      // --- NEW: Unique Gear Sound ---
-      function gear() {
-        // A little mechanical-sounding multi-step synth
-        tone({ freq: 480, type: 'sawtooth', attack: 0.005, decay: 0.10, gain: 0.18 });
-        setTimeout(() => tone({ freq: 740, type: 'triangle', attack: 0.004, decay: 0.07, gain: 0.15 }), 55);
-        setTimeout(() => tone({ freq: 320, type: 'square', attack: 0.003, decay: 0.07, gain: 0.13 }), 120);
-      }
-      return { setEnabled, click, success, warn, error, info, whoosh, morph, toggle, tab, iconChime, gear };
+      function iconChime() { tone({ freq: 820, type: 'triangle', attack: 0.004, decay: 0.14, gain: 0.16 }); setTimeout(() => tone({ freq: 1220, type: 'sine', attack: 0.003, decay: 0.12, gain: 0.13 }), 70); }
+      return { setEnabled, click, success, warn, error, info, whoosh, morph, toggle, tab, iconChime };
     })();
 
     // Ripple helper
@@ -635,19 +602,8 @@
     });
     iconWiggle.addEventListener('animationend', () => iconWiggle.classList.remove('wiggled'));
 
-    // --- NEW: Settings Gear Animation and Sound ---
-    const gearBtn = document.getElementById('gearBtn');
-    const gearSvg = gearBtn.querySelector('.gear-svg');
-    gearBtn.addEventListener('click', () => {
-      // Animate gear
-      gearSvg.classList.remove('spin');
-      // Restart animation if needed
-      void gearSvg.offsetWidth;
-      gearSvg.classList.add('spin');
-      // Play unique gear sound
-      Sound.gear();
-    });
-    gearSvg.addEventListener('animationend', () => gearSvg.classList.remove('spin'));
+    // --- REMOVED: Settings Gear Animation and Sound ---
+    // All code related to #gearBtn, .gear-btn, .gear-svg, and Sound.gear() has been removed from this file.
   </script>
 </body>
 </html>

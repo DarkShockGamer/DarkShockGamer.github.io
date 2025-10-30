@@ -80,6 +80,16 @@
       tone({ freq: 520, type: 'triangle', attack: 0.004, decay: 0.12, gain: 0.22 });
     }
 
+    // Dedicated sounds for checklist toggle (restored)
+    function checkOn() {
+      // subtle upward chirp
+      tone({ freq: 660, type: 'triangle', attack: 0.003, decay: 0.08, gain: 0.20 });
+    }
+    function checkOff() {
+      // soft tick
+      tone({ freq: 380, type: 'triangle', attack: 0.002, decay: 0.06, gain: 0.16 });
+    }
+
     // Drawer "whoosh" — filtered noise with quick rise and smooth fade
     function whoosh() {
       if (!state.enabled) return;
@@ -119,7 +129,6 @@
   window.Sound = Sound;
 
   // --- Auto-mapping rules ---
-  // You can override or extend these at runtime via window.tridentSoundAutoMap
   const defaultMap = {
     error: [
       /(^|[-_ ])(danger|error|delete|remove|trash|destructive|destroy)([-_ ]|$)/i
@@ -161,7 +170,6 @@
   function autoDecorate(root = document) {
     const nodes = root.querySelectorAll('button, [role="button"], a, .btn, .button, input[type="submit"], input[type="button"]');
     nodes.forEach((el) => {
-      // Skip if already has explicit mapping
       if (el.hasAttribute('data-sound')) return;
       const type = computeAutoSound(el);
       if (type) el.setAttribute('data-sound', type);
@@ -201,17 +209,15 @@
     if (!a || a.tagName !== 'A') return false;
     const href = (a.getAttribute('href') || '').trim();
     if (!href) return false;
-    // Consider anything not a pure in-page anchor a navigation
     if (href === '#' || href.startsWith('#')) return false;
     return true;
   }
 
-  // Click binding: capture phase to get the nearest actionable ancestor
+  // Click binding (capture)
   document.addEventListener('click', (e) => {
     const el = e.target.closest('[data-sound], a[href], button, [role="button"], .btn, .button, input[type="submit"], input[type="button"]');
     if (!el) return;
 
-    // Explicit sound takes priority
     const attr = el.getAttribute && el.getAttribute('data-sound');
     if (attr) {
       const type = attr.toLowerCase().trim();
@@ -220,13 +226,11 @@
       return;
     }
 
-    // Links: always play static click for navigational anchors
     if (isNavigationalAnchor(el)) {
       play('static');
       return;
     }
 
-    // Default click for buttons and button-like
     if (
       el.tagName === 'BUTTON' ||
       el.getAttribute?.('role') === 'button' ||
@@ -238,7 +242,7 @@
     }
   }, true);
 
-  // Keyboard activation (Enter/Space on button-like elements)
+  // Keyboard activation
   document.addEventListener('keydown', (e) => {
     if (e.repeat) return;
     const isEnter = e.key === 'Enter';
@@ -247,20 +251,17 @@
     const el = e.target;
     if (!(el instanceof Element)) return;
 
-    // Explicit mapping?
     if (el.hasAttribute('data-sound')) {
       const type = el.getAttribute('data-sound')?.toLowerCase().trim();
       if (type) play(type);
       return;
     }
 
-    // Enter on links counts as navigation
     if (isEnter && el.tagName === 'A' && isNavigationalAnchor(el)) {
       play('static');
       return;
     }
 
-    // Space/Enter on button-like
     if (
       el.tagName === 'BUTTON' ||
       el.getAttribute?.('role') === 'button' ||
@@ -272,7 +273,7 @@
     }
   }, true);
 
-  // New: checklist checkbox sound binding for description checklists
+  // Checklist checkbox sound binding
   document.addEventListener('change', (e) => {
     const cb = e.target && e.target.closest && e.target.closest('.desc-checkbox');
     if (!cb || cb.disabled) return;

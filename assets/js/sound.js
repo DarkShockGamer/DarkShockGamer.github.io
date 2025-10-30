@@ -30,7 +30,6 @@
         const unlock = () => {
           if (state.ctx && state.ctx.state === 'suspended') state.ctx.resume();
         };
-        // Unlock on common user gestures (helps Safari/iOS, keyboard users)
         ['pointerdown', 'touchend', 'keydown'].forEach(evt => {
           document.addEventListener(evt, unlock, { capture: true, once: true });
         });
@@ -80,24 +79,22 @@
       tone({ freq: 520, type: 'triangle', attack: 0.004, decay: 0.12, gain: 0.22 });
     }
 
-    // Dedicated sounds for checklist toggle (restored)
+    // Checklist sounds
     function checkOn() {
-      // subtle upward chirp
       tone({ freq: 660, type: 'triangle', attack: 0.003, decay: 0.08, gain: 0.20 });
     }
     function checkOff() {
-      // soft tick
       tone({ freq: 380, type: 'triangle', attack: 0.002, decay: 0.06, gain: 0.16 });
     }
 
-    // Drawer "whoosh" — filtered noise with quick rise and smooth fade
+    // Drawer "whoosh" — filtered noise
     function whoosh() {
       if (!state.enabled) return;
       ensureCtx();
       if (!state.ctx || !state.master) return;
 
       const t0 = state.ctx.currentTime;
-      const bufferSize = 2 * state.ctx.sampleRate; // ~2s of noise, we'll stop sooner
+      const bufferSize = 2 * state.ctx.sampleRate;
       const noiseBuffer = state.ctx.createBuffer(1, bufferSize, state.ctx.sampleRate);
       const data = noiseBuffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
@@ -119,29 +116,19 @@
       noise.stop(t0 + 0.5);
     }
 
-    // Initialize early so unlock handlers are in place before the first click
     ensureCtx();
 
     return { setEnabled, click, success, warn, error, info, whoosh, checkOn, checkOff };
   })();
 
-  // Expose for optional controls
   window.Sound = Sound;
 
   // --- Auto-mapping rules ---
   const defaultMap = {
-    error: [
-      /(^|[-_ ])(danger|error|delete|remove|trash|destructive|destroy)([-_ ]|$)/i
-    ],
-    success: [
-      /(^|[-_ ])(save|confirm|submit|create|add|ok|done|primary)([-_ ]|$)/i
-    ],
-    warn: [
-      /(^|[-_ ])(warn|warning|caution|amber)([-_ ]|$)/i
-    ],
-    info: [
-      /(^|[-_ ])(info|help|learn|details|more)([-_ ]|$)/i
-    ]
+    error: [/(^|[-_ ])(danger|error|delete|remove|trash|destructive|destroy)([-_ ]|$)/i],
+    success: [/(^|[-_ ])(save|confirm|submit|create|add|ok|done|primary)([-_ ]|$)/i],
+    warn: [/(^|[-_ ])(warn|warning|caution|amber)([-_ ]|$)/i],
+    info: [/(^|[-_ ])(info|help|learn|details|more)([-_ ]|$)/i]
   };
   window.tridentSoundAutoMap = window.tridentSoundAutoMap || defaultMap;
 
@@ -149,24 +136,18 @@
     const s = (el.getAttribute?.('aria-label') || el.value || el.textContent || '').trim().toLowerCase();
     return s.replace(/\s+/g, ' ');
   }
-
   function classIdOf(el) {
     return ((el.className || '') + ' ' + (el.id || '')).toLowerCase();
   }
-
   function computeAutoSound(el) {
-    // Respect explicit data-sound
     const ds = el.getAttribute && el.getAttribute('data-sound');
     if (ds) return null;
-
     const hay = textOf(el) + ' ' + classIdOf(el);
-
     for (const [type, patterns] of Object.entries(window.tridentSoundAutoMap)) {
       if (patterns.some((re) => re.test(hay))) return type;
     }
     return null;
   }
-
   function autoDecorate(root = document) {
     const nodes = root.querySelectorAll('button, [role="button"], a, .btn, .button, input[type="submit"], input[type="button"]');
     nodes.forEach((el) => {
@@ -175,15 +156,11 @@
       if (type) el.setAttribute('data-sound', type);
     });
   }
-
-  // Decorate on start
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => autoDecorate());
   } else {
     autoDecorate();
   }
-
-  // Observe dynamic changes
   const mo = new MutationObserver((mutations) => {
     for (const m of mutations) {
       m.addedNodes.forEach((n) => {
@@ -197,14 +174,12 @@
   // --- Playback binding ---
   let lastPlayAt = 0;
   function play(type) {
-    // alias "static" to "click"
     if (type === 'static') type = 'click';
     const now = performance.now();
-    if (now - lastPlayAt < 40) return; // avoid double-fire on nested elements
+    if (now - lastPlayAt < 40) return;
     lastPlayAt = now;
     (Sound[type] || Sound.click)();
   }
-
   function isNavigationalAnchor(a) {
     if (!a || a.tagName !== 'A') return false;
     const href = (a.getAttribute('href') || '').trim();
@@ -213,7 +188,6 @@
     return true;
   }
 
-  // Click binding (capture)
   document.addEventListener('click', (e) => {
     const el = e.target.closest('[data-sound], a[href], button, [role="button"], .btn, .button, input[type="submit"], input[type="button"]');
     if (!el) return;
@@ -221,8 +195,12 @@
     const attr = el.getAttribute && el.getAttribute('data-sound');
     if (attr) {
       const type = attr.toLowerCase().trim();
-      if (['click', 'static', 'success', 'warn', 'error', 'info'].includes(type)) play(type);
-      else play('click');
+      if (type === 'none') return;                 // explicitly no sound
+      if (['click','static','success','warn','error','info','whoosh'].includes(type)) {
+        play(type);
+      } else {
+        play('click');
+      }
       return;
     }
 
@@ -242,7 +220,6 @@
     }
   }, true);
 
-  // Keyboard activation
   document.addEventListener('keydown', (e) => {
     if (e.repeat) return;
     const isEnter = e.key === 'Enter';
@@ -253,6 +230,7 @@
 
     if (el.hasAttribute('data-sound')) {
       const type = el.getAttribute('data-sound')?.toLowerCase().trim();
+      if (type === 'none') return;
       if (type) play(type);
       return;
     }
@@ -277,13 +255,8 @@
   document.addEventListener('change', (e) => {
     const cb = e.target && e.target.closest && e.target.closest('.desc-checkbox');
     if (!cb || cb.disabled) return;
-    if (cb.checked) {
-      Sound.checkOn();
-    } else {
-      Sound.checkOff();
-    }
+    if (cb.checked) Sound.checkOn(); else Sound.checkOff();
   }, true);
 
-  // Export helper to decorate any container you inject dynamically
   window.tridentDecorateSounds = autoDecorate;
 })();

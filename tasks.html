@@ -288,7 +288,13 @@ userNameInput.value = localStorage.getItem("userName") || "";
 userNameInput.oninput = () => { localStorage.setItem("userName", userNameInput.value); };
 
 /* Drawer toggle */
-menuBtn.onclick = () => { drawer.classList.add("open"); drawerOverlay.classList.add("active"); renderDrawer(); };
+/* Play the whoosh sound on open (from ui-lab.html Sound.whoosh) */
+menuBtn.onclick = () => {
+  drawer.classList.add("open");
+  drawerOverlay.classList.add("active");
+  try { if (window.Sound?.whoosh) Sound.whoosh(); } catch {}
+  renderDrawer();
+};
 closeDrawerBtn.onclick = () => { drawer.classList.remove("open"); drawerOverlay.classList.remove("active"); };
 drawerOverlay.onclick = () => { drawer.classList.remove("open"); drawerOverlay.classList.remove("active"); };
 

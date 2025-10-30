@@ -1050,5 +1050,71 @@
   })();
   </script>
   <script src="/assets/js/sound.js" defer></script>
+
+  <!-- Settings Gear Button (Reusable Snippet) -->
+  <div id="settings-gear-container" style="position: fixed; bottom: 24px; right: 24px; z-index: 1000;">
+    <button id="settings-gear-btn" aria-label="Settings" style="background: transparent; border: none; cursor: pointer; outline: none;">
+      <svg id="settings-gear-svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <g>
+          <circle cx="24" cy="24" r="10" stroke="#555" stroke-width="3" fill="#eee"/>
+          <g id="gear-cogs">
+            <rect x="22" y="4" width="4" height="10" rx="2" fill="#555"/>
+            <rect x="22" y="34" width="4" height="10" rx="2" fill="#555"/>
+            <rect x="4" y="22" width="10" height="4" rx="2" fill="#555"/>
+            <rect x="34" y="22" width="10" height="4" rx="2" fill="#555"/>
+            <rect x="9.8" y="9.8" width="4" height="10" rx="2" transform="rotate(-45 9.8 9.8)" fill="#555"/>
+            <rect x="34.2" y="34.2" width="4" height="10" rx="2" transform="rotate(-45 34.2 34.2)" fill="#555"/>
+            <rect x="9.8" y="34.2" width="4" height="10" rx="2" transform="rotate(45 9.8 34.2)" fill="#555"/>
+            <rect x="34.2" y="9.8" width="4" height="10" rx="2" transform="rotate(45 34.2 9.8)" fill="#555"/>
+          </g>
+        </g>
+      </svg>
+      <audio id="gear-sound" preload="auto" src="https://cdn.pixabay.com/audio/2023/03/29/audio_12f3b7b52f.mp3"></audio>
+    </button>
+  </div>
+
+  <style>
+    #settings-gear-btn:active #settings-gear-svg {
+      filter: brightness(0.9);
+    }
+    @keyframes gear-spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+    .spin-gear {
+      animation: gear-spin 0.7s cubic-bezier(.77,0,.18,1) 1;
+    }
+  </style>
+
+  <script>
+  (function() {
+    // Prevent duplicate initialization
+    if (window.__gearSettingsButtonInit) return;
+    window.__gearSettingsButtonInit = true;
+
+    const btn = document.getElementById('settings-gear-btn');
+    const gear = document.getElementById('gear-cogs');
+    const sound = document.getElementById('gear-sound');
+    const NAV_DELAY = 700; // ms, match animation duration
+
+    btn.addEventListener('click', function(event) {
+      event.preventDefault();
+
+      // Play animation
+      gear.classList.remove('spin-gear'); // Reset if needed
+      void gear.offsetWidth; // Force reflow to restart animation
+      gear.classList.add('spin-gear');
+
+      // Play sound
+      sound.currentTime = 0;
+      sound.play();
+
+      // After animation and sound, navigate
+      setTimeout(function() {
+        window.location.href = 'settings.html';
+      }, NAV_DELAY);
+    });
+  })();
+</script>
 </body>
 </html>

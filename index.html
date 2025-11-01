@@ -19,9 +19,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-    // Helper: storage key for the credential
-    const G_CRED_KEY = 'g_credential_v1';
-
     // Your Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHFWZI",
@@ -204,7 +201,6 @@
     }
   };
   </script>
-
   <style>
     /* ====== Colors ====== */
     :root {
@@ -214,14 +210,12 @@
       --white: #f4f8fb;
       --accent: #ffd700;
     }
-
     @font-face {
       font-family: 'Ethnocentric';
       src: url('/assets/fonts/Ethnocentric Rg.otf') format('opentype');
       font-weight: normal;
       font-style: normal;
     }
-
     /* ====== Global Styles ====== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -230,10 +224,8 @@
       color: var(--white);
     }
     a { text-decoration: none; color: inherit; }
-
     /* Global image reset (content images) */
     img { display: block; max-width: 100%; height: auto; }
-
     /* IMPORTANT: Do not let the global img rule distort the Google Sign-In button */
     #googleSignIn img, #googleSignIn svg {
       display: inline-block !important;
@@ -244,12 +236,10 @@
     }
     /* Keep the Google sign-in container compact */
     #googleSignIn { display: inline-block; }
-
     @media (max-width: 768px) {
       /* Avoid stretching the Google sign-in button on mobile */
       .nav-login #googleSignIn { width: auto; }
     }
-
     /* ====== Header ====== */
     header {
       position: relative;
@@ -292,7 +282,6 @@
       0% { opacity: 0; transform: translateY(25px); }
       100% { opacity: 1; transform: translateY(0); }
     }
-
     /* ====== Google Login in Nav ===== */
     .nav-login { justify-self: end; display: flex; align-items: center; gap: .5rem; }
     .nav-login .google-btn {
@@ -319,7 +308,6 @@
       height: 18px;
       margin-right: 6px;
     }
-
     /* small inline signed-in UI */
     #googleSignedIn {
       display: none;
@@ -328,7 +316,6 @@
     }
     #googleSignedIn img { height: 28px; width: 28px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.08); }
     #googleEmail { font-weight: 600; font-size: 0.95rem; color: var(--white); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
     /* ====== Settings wheel icon ====== */
     .settings-link {
       margin-left: 0.5rem;
@@ -346,7 +333,6 @@
       width: 26px;
       height: 26px;
     }
-
     /* ====== Responsive adjustments ====== */
     @media (max-width: 768px) {
       /* Adjust layout order so sign-in appears left of hamburger */
@@ -354,15 +340,12 @@
         order: 1;
         margin: 0.5rem 0.5rem 0.5rem auto;
       }
-
       .nav-toggle { order: 2; }
-
       .nav-login .google-btn {
         width: 90%;
         justify-content: center;
       }
     }
-
     /* ====== Navigation ===== */
     .site-nav {
       background: var(--medium-blue);
@@ -386,7 +369,6 @@
     .nav-logo { justify-self: start; }
     .nav-logo img { height: 50px; width: auto; }
     .nav-logo img:hover { filter: drop-shadow(0 0 6px var(--accent)); }
-
     .nav-links {
       display: flex;
       justify-content: center;
@@ -406,7 +388,6 @@
       color: var(--accent);
       border-bottom-color: var(--accent);
     }
-
     .nav-toggle {
       justify-self: end;
       display: none;
@@ -434,7 +415,6 @@
     }
     .nav-toggle .hamburger::before { top: -7px; }
     .nav-toggle .hamburger::after { top: 7px; }
-
     /* Hide mobile dropdown on desktop */
     .nav-links-mobile {
       display: none;
@@ -452,12 +432,10 @@
       text-align: center;
       border-bottom: 1px solid rgba(255,255,255,0.1);
     }
-
     @media (max-width: 768px) {
       .nav-links-mobile { display: none; /* hidden by default */ }
       .nav-links-mobile.show { display: flex; /* show when toggled */ }
     }
-
     /* ====== Sections ====== */
     section { padding: 3rem 1.5rem; max-width: 1100px; margin: auto; }
     h2 {
@@ -470,7 +448,6 @@
     }
     p, li { font-size: 1.1rem; margin-bottom: 1rem; }
     ul { list-style: none; padding-left: 0; }
-
     /* ====== Team Grid ====== */
     .team-grid {
       display: grid;
@@ -480,7 +457,6 @@
       gap: 2rem;
       justify-items: center;
     }
-
     .card {
       background: linear-gradient(135deg, #0a1f44, #1f4d7a, #4fa3d1);
       padding: 1.5rem;
@@ -493,9 +469,7 @@
       color: var(--white);
       position: relative;
     }
-
     .card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.35); }
-
     .card-icon {
       position: absolute;
       top: 10px;
@@ -505,11 +479,8 @@
       height: 28px;
       transition: color 0.3s, transform 0.3s;
     }
-
     .card-icon:hover { color: var(--accent); transform: scale(1.15); }
-
     .card-icon svg { width: 100%; height: 100%; }
-
     #team-photo img {
       max-width: 900px;
       width: 100%;
@@ -517,7 +488,6 @@
       border-radius: 15px;
       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
     }
-
     /* ====== Footer ===== */
     footer {
       background: var(--medium-blue);
@@ -530,9 +500,7 @@
       margin: 0 auto;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
     }
-
     footer p { margin: 0.25rem 0; font-weight: 400; font-size: 0.8rem; }
-
     /* ====== Timeline ====== */
     .timeline {
       position: relative;
@@ -541,7 +509,6 @@
       padding: 0 1rem;
       z-index: 1;
     }
-
     .timeline::before {
       content: "";
       position: absolute;
@@ -554,7 +521,6 @@
       border-radius: 2px;
       opacity: 0.6;
     }
-
     .timeline-item {
       position: relative;
       margin: 2.5rem 0;
@@ -568,22 +534,18 @@
       z-index: 2;
       outline: none;
     }
-
     .timeline-item:nth-child(odd) {
       left: 0;
       transform-origin: right center;
     }
-
     .timeline-item:nth-child(even) {
       left: 50%;
       transform-origin: left center;
     }
-
     .timeline-item:hover {
       transform: scale(1.03);
       box-shadow: 0 6px 20px rgba(0,0,0,0.35);
     }
-
     .timeline-item::before {
       content: "";
       position: absolute;
@@ -596,31 +558,25 @@
       box-shadow: 0 0 12px var(--accent);
       z-index: 2;
     }
-
     .timeline-item:nth-child(odd)::before { right: -11px; }
-
     .timeline-item:nth-child(even)::before { left: -11px; }
-
     .timeline-date {
       font-weight: 700;
       color: var(--accent);
       font-size: 1.05rem;
       margin-bottom: 0.4rem;
     }
-
     .timeline-text {
       color: var(--white);
       font-size: 1.05rem;
       opacity: 0.95;
     }
-
     /* Hover bubble for more info (and tap on mobile) */
     .timeline-item:hover,
     .timeline-item.open,
     .timeline-item:focus-within {
       z-index: 10000;
     }
-
     .timeline-item:hover::after,
     .timeline-item.open::after,
     .timeline-item:focus-within::after {
@@ -638,31 +594,26 @@
       width: 220px;
       text-align: center;
       animation: fadeIn 0.3s ease forwards;
-      z-index: 9999 !important; /* fixed invalid !important placement */
+      z-index: 9999 !important;
       white-space: normal;
     }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translate(-50%, 20px); }
       to   { opacity: 1; transform: translate(-50%, 10px); }
     }
-
     /* ====== Mobile Timeline ====== */
     @media (max-width: 768px) {
       .timeline::before {
         left: 15px;
       }
-
       .timeline-item {
         width: 100%;
         left: 0 !important;
         margin-left: 2rem;
       }
-
       .timeline-item::before {
         left: -28px;
       }
-
       .timeline-item:hover::after,
       .timeline-item.open::after,
       .timeline-item:focus-within::after {
@@ -674,7 +625,6 @@
         z-index: 9999 !important;
       }
     }
-
   </style>
 </head>
 <body>
@@ -822,7 +772,7 @@
     </div>
   </section>
 
-  <style>
+    <style>
     .contact-links {
       display: flex;
       justify-content: center;
@@ -929,7 +879,7 @@
         `,
         'Electrical Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7v8l11-14h-8V2z"/></svg>`,
         'Programming Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="m8.59 16.59 4.58-4.59-4.58-4.59L10 6l6 6-6 6-1.41-1.41z"/></svg>`,
-        'Drive Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Drive Team Controller"><path fill="currentColor" d="M7,6H17A4,4 0 0,1 21,10V14A4,4 0 0,1 17,18H16A3,3 0 0,1 13,15H11A3,3 0 0,1 8,18H7A4,4 0 0,1 3,14V10A4,4 0 0,1 7,6M7,9V11H5V13H7V15H9V13H11V11H9V9H7M15.5,9A1.5,1.5 0 1,0 17,10.5A1.5,1.5 0 0,0 15.5,9Z"/></svg>`,
+        'Drive Team': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Drive Team Controller"><path fill="currentColor" d="M7,6H17A4,4 0 0,1 21,10V14A4,4 0 0,1 ..."/></svg>`
       };
       return map[teamName] || map['Design Team'];
     }
@@ -1001,64 +951,24 @@
         if (!item.hasAttribute('tabindex')) item.setAttribute('tabindex', '0');
       });
 
-      // Toggle open on click/tap; ensure only one is open
-      document.addEventListener('click', (e) => {
-        const item = e.target.closest('.timeline-item');
-        const timelineRoot = e.target.closest('.timeline');
-
-        // Click outside any timeline item: close all
-        if (!timelineRoot) {
-          document.querySelectorAll('.timeline-item.open').forEach(i => {
-            i.classList.remove('open');
-            i.setAttribute('aria-expanded', 'false');
-          });
-          return;
-        }
-
-        // Inside timeline: toggle the clicked one, close others
-        if (item) {
-          const alreadyOpen = item.classList.contains('open');
-          timelineRoot.querySelectorAll('.timeline-item.open').forEach(i => {
-            i.classList.remove('open');
-            i.setAttribute('aria-expanded', 'false');
-          });
-          if (!alreadyOpen) {
-            item.classList.add('open');
-            item.setAttribute('aria-expanded', 'true');
+      // Toggle open on click or Enter/Space
+      tl.querySelectorAll('.timeline-item').forEach(item => {
+        item.addEventListener('click', () => {
+          item.classList.toggle('open');
+        });
+        item.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            item.classList.toggle('open');
+            e.preventDefault();
           }
-        }
-      }, { passive: true });
-
-      // Close popups on Escape + keyboard toggle
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          document.querySelectorAll('.timeline-item.open').forEach(i => {
-            i.classList.remove('open');
-            i.setAttribute('aria-expanded', 'false');
-          });
-        }
+        });
       });
     }
 
-    // On page load, fetch data and render dynamic sections
-    document.addEventListener('DOMContentLoaded', async () => {
-      const site = await getSiteData();
+    // Fetch data and render
+    getSiteData().then(site => {
       renderTeams(site);
       renderTimeline(site);
-    });
-
-    // ====== Mobile nav toggle ======
-    document.addEventListener('DOMContentLoaded', function () {
-      const navToggle = document.querySelector('.nav-toggle');
-      const navLinksMobile = document.getElementById('navLinksMobile');
-      navToggle?.addEventListener('click', function () {
-        const expanded = navToggle.getAttribute('aria-expanded') === 'true';
-        navToggle.setAttribute('aria-expanded', (!expanded).toString());
-        navLinksMobile.classList.toggle('show');
-      });
-      document.querySelectorAll('.nav-links-mobile a').forEach(link => {
-        link.addEventListener('click', () => navLinksMobile.classList.remove('show'));
-      });
     });
   </script>
 </body>

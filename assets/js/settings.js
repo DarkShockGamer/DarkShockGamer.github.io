@@ -15,8 +15,8 @@ function setLocalSettings(settings) {
   if(settings.email !== undefined) localStorage.setItem("trident.email", settings.email);
 }
 
-// Example: simulate a login
-const signedInEmail = window.signedInEmail || "darkshockgamer@email.com";
+var signedInEmail = localStorage.getItem('signedInEmail') || "darkshockgamer@email.com";
+document.getElementById("accountEmail").value = signedInEmail;
 
 // Load settings from backend or localStorage
 async function loadSettings() {

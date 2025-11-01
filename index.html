@@ -118,6 +118,7 @@
       const email = data.email;
       // Save credential to localStorage for persistence
       localStorage.setItem(G_CRED_KEY, response.credential);
+      localStorage.setItem('signedInEmail', userEmail);
       // Update UI
       setSignedInUI(data, response.credential);
     } catch (err) {

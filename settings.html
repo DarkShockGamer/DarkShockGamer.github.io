@@ -437,39 +437,17 @@
       });
     });
 
-    // Toggle switches, sound and animated (motion-safe)
-    function setupToggle(id, labelId, onText="On", offText="Off") {
+    // Toggle switches are now managed by settings.js
+    // Only need to setup the sound for original functionality preservation
+    function setupToggleSound(id) {
       const el = document.getElementById(id);
-      const label = document.getElementById(labelId);
-      let state = el.classList.contains('on');
-      function set(stateVal) {
-        state = !!stateVal;
-        el.classList.toggle('on', state);
-        el.setAttribute('aria-checked', state);
-        if (label) label.textContent = state ? onText : offText;
-      }
-      function spring() {
-        set(!state);
-        Sound.toggle();
-        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          el.animate([
-            { transform: 'scale(1)' },
-            { transform: 'scale(1.12)' },
-            { transform: 'scale(1)' }
-          ], { duration: 240, easing: 'cubic-bezier(.7,1.7,.2,1)' });
-        }
-      }
       if (el) {
-        el.addEventListener('click', spring);
-        el.addEventListener('keydown', function(e) {
-          if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); spring(); }
-        });
+        el.addEventListener('click', () => Sound.toggle(), { passive: true });
       }
-      return { set };
     }
-    setupToggle('toggleReminders', 'labelReminders');
-    setupToggle('toggleReduceMotion', 'labelReduceMotion');
-    setupToggle('toggleDataCollection', 'labelDataCollection');
+    setupToggleSound('toggleReminders');
+    setupToggleSound('toggleReduceMotion');
+    setupToggleSound('toggleDataCollection');
 
     // Note: Form handlers are now in settings.js
     // Demo toast

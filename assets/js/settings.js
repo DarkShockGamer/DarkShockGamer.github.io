@@ -446,9 +446,12 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Set initial values
     themeSelect.value = appearanceSettings.theme;
     
-    // Store reduce motion state
+    // Store reduce motion state and update UI
     if (reduceMotionToggle) {
       reduceMotionToggle._enabled = appearanceSettings.reduceMotion;
+      reduceMotionToggle.classList.toggle('on', appearanceSettings.reduceMotion);
+      reduceMotionToggle.setAttribute('aria-checked', appearanceSettings.reduceMotion.toString());
+      if (reduceMotionLabel) reduceMotionLabel.textContent = appearanceSettings.reduceMotion ? "On" : "Off";
       
       // Update toggle to use stored state
       reduceMotionToggle.addEventListener('click', function(e) {
@@ -496,8 +499,11 @@ document.addEventListener("DOMContentLoaded", async function() {
   const dataCollectionLabel = document.getElementById("labelDataCollection");
 
   if (privacyForm && dataCollectionToggle) {
-    // Store data collection state
+    // Store data collection state and update UI
     dataCollectionToggle._enabled = privacySettings.dataCollection;
+    dataCollectionToggle.classList.toggle('on', privacySettings.dataCollection);
+    dataCollectionToggle.setAttribute('aria-checked', privacySettings.dataCollection.toString());
+    if (dataCollectionLabel) dataCollectionLabel.textContent = privacySettings.dataCollection ? "On" : "Off";
     
     // Update toggle to use stored state
     dataCollectionToggle.addEventListener('click', function(e) {

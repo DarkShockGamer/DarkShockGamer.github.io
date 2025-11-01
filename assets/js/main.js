@@ -3,6 +3,20 @@ document.addEventListener('DOMContentLoaded', function() {
   const navLinksMobile = document.getElementById('navLinksMobile');
   const navToggle = document.querySelector('.nav-toggle');
 
+  // Attempt to extract signed in email from Google credential in localStorage
+  try {
+    const G_CRED_KEY = "google.credential"; // <-- Check if your key matches this!
+    const raw = localStorage.getItem(G_CRED_KEY);
+    if (raw && typeof jwt_decode === "function") {
+      const data = jwt_decode(raw);
+      if (data && data.email) {
+        window.signedInEmail = data.email;
+      }
+    }
+  } catch (e) {
+    // fail silently
+  }
+
   // Hide email text in Google signed-in UI to prevent nav overlap
   try {
     const hideEmailStyle = document.createElement('style');

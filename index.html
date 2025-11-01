@@ -325,7 +325,25 @@
     #googleSignedIn img { height: 28px; width: 28px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.08); }
     #googleEmail { font-weight: 600; font-size: 0.95rem; color: var(--white); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* ====== Responsive adjustments ===== */
+    /* ====== Settings wheel icon ====== */
+    .settings-link {
+      margin-left: 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      color: var(--accent);
+      transition: color 0.2s, transform 0.2s;
+    }
+    .settings-link:hover, .settings-link:focus {
+      color: var(--light-blue);
+      transform: rotate(18deg) scale(1.12);
+    }
+    .settings-link svg {
+      display: block;
+      width: 26px;
+      height: 26px;
+    }
+
+    /* ====== Responsive adjustments ====== */
     @media (max-width: 768px) {
       /* Adjust layout order so sign-in appears left of hamburger */
       .nav-login {
@@ -703,6 +721,23 @@
           <span id="googleEmail">Not signed in</span>
           <button id="googleSignOut" class="google-btn" title="Sign out">Sign out</button>
         </div>
+
+        <!-- Settings wheel icon -->
+        <a href="settings.html" class="settings-link" title="Settings" aria-label="Settings">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <g>
+              <path d="M12 2v2"/>
+              <path d="M12 20v2"/>
+              <path d="M4.93 4.93l1.41 1.41"/>
+              <path d="M17.66 17.66l1.41 1.41"/>
+              <path d="M2 12h2"/>
+              <path d="M20 12h2"/>
+              <path d="M4.93 19.07l1.41-1.41"/>
+              <path d="M17.66 6.34l1.41-1.41"/>
+            </g>
+          </svg>
+        </a>
       </div>
 
       <button class="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">
@@ -764,21 +799,21 @@
       <a href="https://www.youtube.com/c/WarrenRobotics" target="_blank" class="contact-icon" aria-label="YouTube">
         <!-- YouTube Icon -->
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M10 15V9l5 3m9-3c0-2.21-1.79-4-4-4H5c-2.21 
-        0-4 1.79-4 4v6c0 2.21 1.79 4 4 4h15c2.21 0 4-1.79 4-4V9z"/></svg>
+         0-4 1.79-4 4v6c0 2.21 1.79 4 4 4h15c2.21 0 4-1.79 4-4V9z"/></svg>
       </a>
       <a href="https://www.instagram.com/trident_robotics" target="_blank" class="contact-icon" aria-label="Instagram">
         <!-- Instagram Icon -->
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 
-        2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm10 2a3 3 0 0 1 3 3v10a3 3 
-        0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h10zm-5 3a5 5 0 1 0 0 
-        10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm4.5-2a1.5 
-        1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
+         2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm10 2a3 3 0 0 1 3 3v10a3 3 
+         0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h10zm-5 3a5 5 0 1 0 0 
+         10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm4.5-2a1.5 
+         1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
       </a>
       <a href="https://www.facebook.com/Team4296/" target="_blank" class="contact-icon" aria-label="Facebook">
         <!-- Facebook Icon -->
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2v-2.3c0-2 
-        1.2-3.1 3-3.1.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 
-        1.2V12h2.3l-.4 3h-1.9v7A10 10 0 0 0 22 12"/></svg>
+         1.2-3.1 3-3.1.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 
+         1.2V12h2.3l-.4 3h-1.9v7A10 10 0 0 0 22 12"/></svg>
       </a>
     </div>
   </section>
@@ -824,7 +859,7 @@
     // ====== Dynamic Content from /data/site.json ======
 
     function escapeHtml(s) {
-      return String(s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+      return String(s || '').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     }
 
     async function getSiteData() {
@@ -942,7 +977,7 @@
       tl.innerHTML = items.map(ev => {
         const date = escapeHtml(ev.date || ev.year || '');
         const title = escapeHtml(ev.title || '');
-        const desc = (ev.description || '').replace(/"/g, '&quot;');
+        const desc = (ev.description || '').replace(/\"/g, '&quot;');
         return `<div class="timeline-item" tabindex="0" role="button" aria-expanded="false" data-info="${desc}">
                   <p class="timeline-date">${date}</p>
                   <p class="timeline-text">${title}</p>
@@ -998,57 +1033,29 @@
             i.setAttribute('aria-expanded', 'false');
           });
         }
-        if ((e.key === 'Enter' || e.key === ' ') && document.activeElement?.classList?.contains('timeline-item')) {
-          e.preventDefault();
-          const item = document.activeElement;
-          const tlRoot = item.closest('.timeline');
-          const already = item.classList.contains('open');
-          tlRoot.querySelectorAll('.timeline-item.open').forEach(i => {
-            i.classList.remove('open');
-            i.setAttribute('aria-expanded', 'false');
-          });
-          if (!already) {
-            item.classList.add('open');
-            item.setAttribute('aria-expanded', 'true');
-          }
-        }
       });
     }
 
-    (async function initDynamicContent(){
+    // On page load, fetch data and render dynamic sections
+    document.addEventListener('DOMContentLoaded', async () => {
       const site = await getSiteData();
-      if (site) {
-        // About content (allowed HTML from site.json)
-        if (site.about) {
-          const aboutSection = document.getElementById('about');
-          const heading = escapeHtml(site.about.heading || 'About Us');
-          const contentHtml = (site.about.content || '').trim();
-          if (contentHtml) {
-            aboutSection.innerHTML = `<h2>${heading}</h2>` + contentHtml;
-          }
-        }
-        // Team and timeline
-        renderTeams(site);
-        renderTimeline(site);
-      }
-    })();
-  </script>
+      renderTeams(site);
+      renderTimeline(site);
+    });
 
-  <!-- Media overrides from site.json: header image and team photo -->
-  <script>
-  (async function(){
-    try {
-      const r = await fetch('/data/site.json?_=' + Date.now());
-      if (!r.ok) return;
-      const site = await r.json();
-      const media = site.media || {};
-      const headerImg = document.querySelector('header img');
-      if (headerImg && media.indexHeader) headerImg.src = media.indexHeader;
-      const teamPhoto = document.querySelector('#team-photo img');
-      if (teamPhoto && media.indexPhoto) teamPhoto.src = media.indexPhoto;
-    } catch(e) { /* ignore */ }
-  })();
+    // ====== Mobile nav toggle ======
+    document.addEventListener('DOMContentLoaded', function () {
+      const navToggle = document.querySelector('.nav-toggle');
+      const navLinksMobile = document.getElementById('navLinksMobile');
+      navToggle?.addEventListener('click', function () {
+        const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+        navToggle.setAttribute('aria-expanded', (!expanded).toString());
+        navLinksMobile.classList.toggle('show');
+      });
+      document.querySelectorAll('.nav-links-mobile a').forEach(link => {
+        link.addEventListener('click', () => navLinksMobile.classList.remove('show'));
+      });
+    });
   </script>
-  <script src="/assets/js/sound.js" defer></script>
 </body>
 </html>

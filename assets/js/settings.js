@@ -6,17 +6,14 @@
 function getLocalSettings() {
   return {
     fullname: localStorage.getItem("trident.fullname") || "",
-    email: localStorage.getItem("trident.email") || "",
+    email: localStorage.getItem("signedInEmail") || "",
   }
 }
 
 function setLocalSettings(settings) {
   if(settings.fullname !== undefined) localStorage.setItem("trident.fullname", settings.fullname);
-  if(settings.email !== undefined) localStorage.setItem("trident.email", settings.email);
+  // Email is readonly - managed by Google login, so we don't save it here
 }
-
-var signedInEmail = localStorage.getItem('signedInEmail') || "darkshockgamer@email.com";
-document.getElementById("accountEmail").value = signedInEmail;
 
 // Load settings from backend or localStorage
 async function loadSettings() {
@@ -31,8 +28,6 @@ async function loadSettings() {
     */
     // Fallback to localStorage:
     const settings = getLocalSettings();
-    // Always prefer signed-in email if available
-    settings.email = signedInEmail;
     return settings;
   } catch (e) {
     // Fallback to localStorage on error
@@ -52,6 +47,8 @@ async function saveSettings(settings) {
     body: JSON.stringify(settings)
   });
   */
+  // Play success sound
+  if(window.Sound) window.Sound.success();
 }
 
 // Populate form fields from settings
@@ -74,9 +71,9 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Save on submit
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
-      const fullname = nameInput.value;
-      const email = emailInput.value;
-      await saveSettings({ fullname, email });
+      const fullname = nameInput.value.trim();
+      // Email is readonly, we don't save it
+      await saveSettings({ fullname });
       if(window.Toast) Toast("Settings saved.", "success");
     });
 
@@ -85,6 +82,7 @@ document.addEventListener("DOMContentLoaded", async function() {
       e.preventDefault();
       const settings = await loadSettings();
       fillAccountForm(settings);
+      if(window.Sound) window.Sound.toggle();
       if(window.Toast) Toast("Changes canceled.", "info");
     });
   }

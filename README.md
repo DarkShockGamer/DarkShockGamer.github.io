@@ -31,6 +31,7 @@ This is a static website hosted using GitHub Pages at [https://darkshockgamer.gi
 ├── projects.html     # (If present) Projects or portfolio
 ├── assets/           # Images, icons, and other media
 ├── css/              # Stylesheets for site appearance
+├── data/             # Data storage
 ├── js/               # JavaScript for interactivity
 └── README.md         # This guide
 ```

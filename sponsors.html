@@ -121,6 +121,24 @@
       box-shadow: 0 6px 15px rgba(0,0,0,0.4);
     }
 
+    /* ====== Settings wheel icon ====== */
+    .settings-link {
+      margin-left: 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      color: var(--light-blue);
+      transition: color 0.2s, transform 0.2s;
+    }
+    .settings-link:hover, .settings-link:focus {
+      color: var(--accent);
+      transform: rotate(18deg) scale(1.12);
+    }
+    .settings-link svg {
+      display: block;
+      width: 26px;
+      height: 26px;
+    }
+    
     /* ====== Navigation ====== */
     .site-nav {
       background: var(--medium-blue);
@@ -441,12 +459,32 @@
       </div>
 
       <div class="nav-login">
+        <!-- Container where Google renders Sign-in button -->
         <div id="googleSignIn"></div>
+
+        <!-- Signed-in UI (hidden by default; shown when signed in) -->
         <div id="googleSignedIn" aria-live="polite">
           <img id="googleAvatar" src="" alt="Avatar">
           <span id="googleEmail">Not signed in</span>
           <button id="googleSignOut" class="google-btn" title="Sign out">Sign out</button>
         </div>
+
+        <!-- Settings wheel icon -->
+        <a href="settings.html" class="settings-link" title="Settings" aria-label="Settings">
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Settings">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33
+                   1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51
+                   1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06
+                   a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09
+                   a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83
+                   l.06.06a1.65 1.65 0 0 0 1.82.33h.09c.68 0 1.29-.39 1.51-1V3a2 2 0 0 1 4 0v.09
+                   c0 .68.39 1.29 1 1.51a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83
+                   l-.06.06a1.65 1.65 0 0 0-.33 1.82c.22.61.83 1 1.51 1H21a2 2 0 0 1 0 4h-.09
+                   a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </a>
       </div>
 
       <button class="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">

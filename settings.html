@@ -111,7 +111,7 @@
       <form id="tabPanel1" class="tab-panel active panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn1" autocomplete="off">
         <div>
           <label class="block font-semibold mb-1" for="accountEmail">Email</label>
-          <input id="accountEmail" name="email" type="email" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="you@email.com" />
+          <input id="accountEmail" name="email" type="email" readonly class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="you@email.com" />
         </div>
         <div>
           <label class="block font-semibold mb-1" for="accountName">Full Name</label>
@@ -367,8 +367,9 @@
     setupToggle('toggleReduceMotion', 'labelReduceMotion');
     setupToggle('toggleDataCollection', 'labelDataCollection');
 
-    // Save/cancel (demo only: show toast)
-    document.querySelectorAll("form").forEach(form=>{
+    // Save/cancel (demo only: show toast) - for non-Account tabs only
+    // Account tab is handled by settings.js
+    document.querySelectorAll("form:not(#tabPanel1)").forEach(form=>{
       form.addEventListener('submit', e=>{
         e.preventDefault();
         Sound.tab();
@@ -387,13 +388,6 @@
       document.body.appendChild(el);
       setTimeout(()=>el.remove(), 2200);
     }
-
-    // --- Autofill email if signed in (simulate) ---
-    document.addEventListener("DOMContentLoaded", function() {
-      // Simulate getting user email from JS variable or backend API
-      var signedInEmail = window.signedInEmail || "darkshockgamer@email.com";
-      document.getElementById("accountEmail").value = signedInEmail;
-    });
   </script>
   <script src="/assets/js/settings.js"></script>
 </body>

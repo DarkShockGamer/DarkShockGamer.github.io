@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>404 Not Found — Trident Robotics</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #f0f9ff, white);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+    .panel {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 1.25rem;
+      box-shadow: 0 1px 2px rgba(2, 6, 23, 0.08);
+      padding: 2.5rem 2rem;
+      margin-top: 3rem;
+      margin-bottom: 3rem;
+      max-width: 480px;
+    }
+    .btn-ripple { position: relative; overflow: hidden; }
+    .ripple {
+      position: absolute; border-radius: 9999px; transform: translate(-50%, -50%) scale(0);
+      pointer-events: none; opacity: 0.22; background: currentColor;
+      animation: ripple 650ms ease-out forwards; mix-blend-mode: multiply;
+    }
+    @keyframes ripple {
+      to { transform: translate(-50%, -50%) scale(6); opacity: 0; }
+    }
+    @media (prefers-color-scheme: dark) {
+      html, body { color-scheme: dark; }
+      body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb;}
+      .panel { background: #0f172a; border-color: #1f2937; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.15);}
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col p-6">
+  <header class="max-w-3xl mx-auto w-full flex flex-col items-center mb-8">
+    <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-12 w-12 mb-2">
+    <h1 class="text-3xl font-extrabold text-sky-800 dark:text-sky-300 text-center">Trident Robotics</h1>
+    <p class="text-sm text-sky-600 dark:text-sky-400">UI Lab & Task Board Family</p>
+  </header>
+  <main class="flex-1 flex flex-col items-center justify-center">
+    <section class="panel mx-auto text-center">
+      <div class="mb-2 flex flex-col items-center">
+        <span class="block text-7xl font-black text-sky-500 dark:text-sky-300 drop-shadow" style="letter-spacing:-2px;">404</span>
+        <span class="block text-base font-semibold text-sky-900 dark:text-sky-200 tracking-tight">Error Code: <span id="errorCode" class="font-mono">404</span></span>
+      </div>
+      <p class="text-slate-600 dark:text-slate-400 my-4 text-lg">Sorry, the page you’re looking for can’t be found.<br>
+        It may have moved, been renamed, or never existed in the first place.</p>
+      <div class="mt-6 flex flex-col gap-2">
+        <a href="/" class="btn-ripple bg-sky-600 hover:bg-sky-700 text-white px-5 py-2 rounded-lg font-semibold shadow-sm transition">Go Home</a>
+        <a href="javascript:history.back()" class="btn-ripple border border-sky-400 text-sky-700 dark:text-sky-300 px-5 py-2 rounded-lg font-semibold transition hover:bg-sky-50 dark:hover:bg-sky-900">Previous Page</a>
+      </div>
+      <div class="mt-6">
+        <span class="text-xs text-slate-400">If you think this is an error, <a class="underline" href="/contact">contact us</a>.</span>
+      </div>
+    </section>
+  </main>
+  <footer class="mx-auto w-full max-w-3xl text-center text-xs text-sky-400 py-4 border-t border-slate-100 dark:border-slate-800 mt-8">
+    &copy; 2025 Trident Robotics • All rights reserved
+  </footer>
+  <script>
+    // Button ripple effect
+    document.querySelectorAll('.btn-ripple').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        const rect = btn.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const span = document.createElement('span');
+        span.className = 'ripple';
+        span.style.width = span.style.height = size + 'px';
+        span.style.left = (e.clientX - rect.left) + 'px';
+        span.style.top = (e.clientY - rect.top) + 'px';
+        btn.appendChild(span);
+        span.addEventListener('animationend', () => span.remove());
+      });
+    });
+    // If error code is passed in URL, display it
+    const params = new URLSearchParams(location.search);
+    if(params.has('code')) {
+      document.getElementById('errorCode').textContent = params.get('code');
+      document.title = params.get('code') + ' Not Found — Trident Robotics';
+      document.querySelector('span.text-7xl').textContent = params.get('code');
+    }
+  </script>
+</body>
+</html>

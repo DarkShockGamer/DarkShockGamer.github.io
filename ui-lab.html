@@ -43,7 +43,7 @@
     }
     /* Modal */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1002; }
-    .modal-panel { width: 92vw; max-width: 480px; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; transform: scale(0.96); opacity: 0; transition: all 180ms cubic-bezier(.45,1.5,.65,1); }
+    .modal-panel { width: 92vw; max-width: 480px; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; transform: scale(0.96); opacity: 0; transition: all 180ms cubic-bezier(.51,1.25,.32,1); }
     .modal-panel.show { transform: scale(1); opacity: 1; }
     @media (prefers-color-scheme: dark) {
       .modal-panel { background: #0f172a; border-color: #1f2937; }
@@ -146,7 +146,27 @@
       80% { transform: rotate(4deg);}
       100% { transform: rotate(0deg);}
     }
-    /* --- REMOVED: Gear Settings Animation --- */
+
+    /* === NEW: Settings Buttons Animations === */
+    .spin-anim { transition: transform 0.6s cubic-bezier(.41,1.2,.4,1.01); }
+    .spin-anim:active { transform: rotate(360deg) scale(1.05); }
+    .bounce-anim { transition: transform 0.18s cubic-bezier(.43,1.5,.41,1.01); }
+    .bounce-anim:active { transform: scale(1.2); }
+    .pulse-anim { animation: pulse 1.2s infinite alternate; }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 #818cf877; }
+      100% { box-shadow: 0 0 0 16px #818cf800; }
+    }
+    .shake-anim:active { animation: shake 0.4s cubic-bezier(.71,1.7,.23,1) both; }
+    @keyframes shake {
+      10%, 90% { transform: translateX(-2px); }
+      20%, 80% { transform: translateX(4px); }
+      30%, 50%, 70% { transform: translateX(-8px); }
+      40%, 60% { transform: translateX(8px); }
+      100% { transform: translateX(0); }
+    }
+    .fade-anim { transition: background 0.4s, color 0.4s, opacity 0.3s; }
+    .fade-anim:active { opacity: 0.6; background: #818cf8; color: white; }
   </style>
 </head>
 <body class="min-h-screen p-6">
@@ -165,11 +185,40 @@
       </div>
     </div>
     <div class="mt-4 panel p-4">
-      <p class="text-sm text-slate-600 dark:text-slate-300">This page showcases reusable micro-interactions you can copy into other pages (click sounds, success/error tones, toasts, modal, drawer, tabs, progress, toggles, and more).</p>
+      <p class="text-sm text-slate-600 dark:text-slate-300">This page showcases reusable micro-interactions you can copy into other pages (click sounds, success/error tones, toasts, modals, drawers, progress, morphing buttons, toggles, tabs, etc).</p>
     </div>
   </header>
   <main class="max-w-7xl mx-auto space-y-6">
     <!-- SETTINGS GEAR BUTTON REMOVED -->
+
+    <!-- === NEW: Settings Buttons Animations Test Section === -->
+    <section class="panel p-5 hover-lift reveal">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Settings Buttons: Animation Showcase</h2>
+      <div class="flex flex-wrap gap-3">
+        <button class="btn-ripple px-4 py-2 rounded-full bg-indigo-500 text-white font-semibold shadow-md spin-anim">
+          <svg class="inline mr-2" width="18" height="18" fill="none" viewBox="0 0 20 20"><path stroke="currentColor" stroke-width="2" d="M10 3v2m4 1.46l1.42-1.42M17 10h-2m-1.46 4l1.42 1.42M10 17v-2m-4-1.46-1.42 1.42M3 10h2m1.46-4L5.04 4.54"/></svg>
+          Spin
+        </button>
+        <button class="btn-ripple px-4 py-2 rounded-full bg-emerald-500 text-white font-semibold shadow-md bounce-anim">
+          <svg class="inline mr-2" width="18" height="18" fill="none" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" d="M10 5v5l3 3"/></svg>
+          Bounce
+        </button>
+        <button class="btn-ripple px-4 py-2 rounded-full bg-amber-500 text-slate-900 font-semibold shadow-md pulse-anim">
+          <svg class="inline mr-2" width="18" height="18" fill="none" viewBox="0 0 20 20"><path stroke="currentColor" stroke-width="2" d="M10 3v2m4 1.46l1.42-1.42M17 10h-2m-1.46 4l1.42 1.42M10 17v-2m-4-1.46-1.42 1.42M3 10h2m1.46-4L5.04 4.54"/></svg>
+          Pulse
+        </button>
+        <button class="btn-ripple px-4 py-2 rounded-full bg-rose-500 text-white font-semibold shadow-md shake-anim">
+          <svg class="inline mr-2" width="18" height="18" fill="none" viewBox="0 0 20 20"><path stroke="currentColor" stroke-width="2" d="M6 10h8M10 6v8"/></svg>
+          Shake
+        </button>
+        <button class="btn-ripple px-4 py-2 rounded-full bg-sky-500 text-white font-semibold shadow-md fade-anim">
+          <svg class="inline mr-2" width="18" height="18" fill="none" viewBox="0 0 20 20"><path stroke="currentColor" stroke-width="2" d="M5 5l10 10M5 15L15 5"/></svg>
+          Fade
+        </button>
+      </div>
+      <p class="mt-3 text-xs text-slate-500 dark:text-slate-400">Try clicking or holding each button to see a different animation effect!</p>
+    </section>
+
     <!-- Buttons + ripple + sound -->
     <section class="panel p-5 hover-lift reveal" style="position:relative;">
       <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Buttons: Ripple + Sonic Feedback</h2>
@@ -243,7 +292,7 @@
       <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Icon Button: Wiggle Motion + Chime</h2>
       <button id="iconBtn" class="btn-ripple px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2">
         <span id="iconWiggle" class="icon-wiggle" aria-hidden="true">
-          <svg width="22" height="22" fill="none" viewBox="0 0 20 20"><path fill="currentColor" d="M10 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm2.15 5.04a.75.75 0 0 0-1.06 0L10 8.13 8.91 7.04a.75.75 0 1 1-1.06 1.06l1.09 1.09-1.09 1.09a.75.75 0 1 0 1.06 1.06l1.09-1.09 1.09 1.09a.75.75 0 1 0 1.06-1.06l-1.09-1.09 1.09-1.09a.75.75 0 0 0 0-1.06Z"/></svg>
+          <svg width="22" height="22" fill="none" viewBox="0 0 20 20"><path fill="currentColor" d="M10 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm2.15 5.04a.75.75 0 0 0-1.06 0L10 8.13 8.91 7.04a.75.75 0 1 0-1.06 1.06l1.09 1.09-1.09 1.09a.75.75 0 1 0 1.06 1.06L10 11.87l1.09 1.09a.75.75 0 1 0 1.06-1.06l-1.09-1.09 1.09-1.09a.75.75 0 0 0 0-1.06Z"/></svg>
         </span>
         <span>Wiggle Me!</span>
       </button>
@@ -334,7 +383,7 @@
       function click() { tone({ freq: 240, type: 'triangle', duration: 0.08, attack: 0.002, decay: 0.06, gain: 0.22 }); }
       function success() { tone({ freq: 660, type: 'sine', attack: 0.004, decay: 0.10, gain: 0.25 }); setTimeout(() => tone({ freq: 880, type: 'sine', attack: 0.004, decay: 0.12, gain: 0.23 }), 90); }
       function warn() { tone({ freq: 320, type: 'square', attack: 0.003, decay: 0.15, gain: 0.2 }); }
-      function error() { tone({ freq: 220, type: 'square', attack: 0.002, decay: 0.2, gain: 0.25 }); setTimeout(() => tone({ freq: 180, type: 'square', attack: 0.002, decay: 0.22, gain: 0.22 }), 100); }
+      function error() { tone({ freq: 220, type: 'square', attack: 0.002, decay: 0.2, gain: 0.25 }); setTimeout(() => tone({ freq: 180, type: 'square', attack: 0.002, decay: 0.22, gain: 0.22 }), 90); }
       function info() { tone({ freq: 520, type: 'triangle', attack: 0.004, decay: 0.12, gain: 0.22 }); }
       function whoosh() {
         if (state.prefersReduced || !state.enabled) return;
@@ -358,10 +407,10 @@
         noise.stop(t0 + 0.5);
       }
       // New sounds
-      function morph() { tone({ freq: 560, type: 'triangle', attack: 0.008, decay: 0.16, gain: 0.22 }); setTimeout(() => tone({ freq: 900, type: 'sine', attack: 0.005, decay: 0.14, gain: 0.19 }), 100); }
+      function morph() { tone({ freq: 560, type: 'triangle', attack: 0.008, decay: 0.16, gain: 0.22 }); setTimeout(() => tone({ freq: 900, type: 'sine', attack: 0.005, decay: 0.14, gain: 0.19 }), 120); }
       function toggle() { tone({ freq: 380, type: 'square', attack: 0.002, decay: 0.10, gain: 0.18 }); }
       function tab() { tone({ freq: 700, type: 'triangle', attack: 0.004, decay: 0.11, gain: 0.19 }); }
-      function iconChime() { tone({ freq: 820, type: 'triangle', attack: 0.004, decay: 0.14, gain: 0.16 }); setTimeout(() => tone({ freq: 1220, type: 'sine', attack: 0.003, decay: 0.12, gain: 0.13 }), 70); }
+      function iconChime() { tone({ freq: 820, type: 'triangle', attack: 0.004, decay: 0.14, gain: 0.16 }); setTimeout(() => tone({ freq: 1220, type: 'sine', attack: 0.003, decay: 0.12, gain: 0.13 }), 80); }
       return { setEnabled, click, success, warn, error, info, whoosh, morph, toggle, tab, iconChime };
     })();
 

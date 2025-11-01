@@ -84,6 +84,110 @@
     @media (prefers-color-scheme: dark) {
       .gear { opacity: 0.20; }
     }
+
+    /* --- Theme Overrides --- */
+    /* Light Theme */
+    html.theme-light body {
+      background: linear-gradient(to bottom, #f0f9ff 60%, #e0e7ef 100%);
+      color: #1e293b;
+    }
+    html.theme-light .panel {
+      background: white;
+      border-color: #e2e8f0;
+      box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05);
+    }
+    html.theme-light .tabs {
+      background: #f1f5f9;
+    }
+    html.theme-light .tab-btn {
+      color: #64748b;
+    }
+    html.theme-light .cancel-btn {
+      border-color: #e2e8f0;
+      color: #64748b;
+    }
+    html.theme-light input, html.theme-light select {
+      background: #f8fafc !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+
+    /* Dark Theme */
+    html.theme-dark body {
+      background: linear-gradient(to bottom, #192132 60%, #0b1220 100%);
+      color: #e5e7eb;
+    }
+    html.theme-dark .panel {
+      background: #0f172a;
+      border-color: #1f2937;
+      box-shadow: 0 1px 2px rgba(2, 6, 23, 0.30);
+    }
+    html.theme-dark .tabs {
+      background: #1e293b;
+    }
+    html.theme-dark .tab-btn {
+      color: #94a3b8;
+    }
+    html.theme-dark .cancel-btn {
+      border-color: #374151;
+      color: #94a3b8;
+    }
+    html.theme-dark input, html.theme-dark select {
+      background: #1e293b !important;
+      border-color: #374151 !important;
+      color: #e5e7eb !important;
+    }
+
+    /* High Contrast Theme */
+    html.theme-high-contrast body {
+      background: #000000;
+      color: #ffffff;
+    }
+    html.theme-high-contrast .panel {
+      background: #1a1a1a;
+      border: 2px solid #ffffff;
+      box-shadow: none;
+    }
+    html.theme-high-contrast .tabs {
+      background: #2a2a2a;
+      border: 1px solid #ffffff;
+    }
+    html.theme-high-contrast .tab-btn {
+      color: #ffffff;
+      border: 1px solid transparent;
+    }
+    html.theme-high-contrast .tab-btn[aria-selected="true"] {
+      background: #ffffff;
+      color: #000000;
+      border: 2px solid #ffff00;
+    }
+    html.theme-high-contrast .cancel-btn {
+      border: 2px solid #ffffff;
+      color: #ffffff;
+    }
+    html.theme-high-contrast .save-btn {
+      background: #ffffff;
+      color: #000000;
+      border: 2px solid #ffff00;
+    }
+    html.theme-high-contrast input, html.theme-high-contrast select {
+      background: #000000 !important;
+      border: 2px solid #ffffff !important;
+      color: #ffffff !important;
+    }
+    html.theme-high-contrast .toggle {
+      border: 2px solid #ffffff;
+    }
+    html.theme-high-contrast .toggle.on {
+      background: #ffff00;
+      border-color: #ffffff;
+    }
+    html.theme-high-contrast .toggle-knob {
+      background: #ffffff;
+    }
+    html.theme-high-contrast .toggle.on .toggle-knob {
+      background: #000000;
+    }
   </style>
 </head>
 <body class="min-h-screen p-6">
@@ -136,7 +240,7 @@
         </div>
         <div>
           <label class="block font-semibold mb-1">Sound on Notification</label>
-          <select class="w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200">
+          <select id="soundSelect" class="w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200">
             <option>Chime</option>
             <option>Ping</option>
             <option>Pop</option>
@@ -152,7 +256,7 @@
       <form id="tabPanel3" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn3" autocomplete="off">
         <div>
           <label class="block font-semibold mb-1">Theme</label>
-          <select class="w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200">
+          <select id="themeSelect" class="w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200">
             <option>System</option>
             <option>Light</option>
             <option>Dark</option>
@@ -333,53 +437,19 @@
       });
     });
 
-    // Toggle switches, sound and animated (motion-safe)
-    function setupToggle(id, labelId, onText="On", offText="Off") {
+    // Toggle switches are now managed by settings.js
+    // Only need to setup the sound for original functionality preservation
+    function setupToggleSound(id) {
       const el = document.getElementById(id);
-      const label = document.getElementById(labelId);
-      let state = el.classList.contains('on');
-      function set(stateVal) {
-        state = !!stateVal;
-        el.classList.toggle('on', state);
-        el.setAttribute('aria-checked', state);
-        if (label) label.textContent = state ? onText : offText;
-      }
-      function spring() {
-        set(!state);
-        Sound.toggle();
-        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          el.animate([
-            { transform: 'scale(1)' },
-            { transform: 'scale(1.12)' },
-            { transform: 'scale(1)' }
-          ], { duration: 240, easing: 'cubic-bezier(.7,1.7,.2,1)' });
-        }
-      }
       if (el) {
-        el.addEventListener('click', spring);
-        el.addEventListener('keydown', function(e) {
-          if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); spring(); }
-        });
+        el.addEventListener('click', () => Sound.toggle(), { passive: true });
       }
-      return { set };
     }
-    setupToggle('toggleReminders', 'labelReminders');
-    setupToggle('toggleReduceMotion', 'labelReduceMotion');
-    setupToggle('toggleDataCollection', 'labelDataCollection');
+    setupToggleSound('toggleReminders');
+    setupToggleSound('toggleReduceMotion');
+    setupToggleSound('toggleDataCollection');
 
-    // Save/cancel (demo only: show toast) - for non-Account tabs only
-    // Account tab is handled by settings.js
-    document.querySelectorAll("form:not(#tabPanel1)").forEach(form=>{
-      form.addEventListener('submit', e=>{
-        e.preventDefault();
-        Sound.tab();
-        if(window.Toast) Toast("Settings saved.", "success");
-      });
-      form.addEventListener('reset', e=>{
-        Sound.toggle();
-        if(window.Toast) Toast("Changes canceled.", "info");
-      });
-    });
+    // Note: Form handlers are now in settings.js
     // Demo toast
     window.Toast = function(msg, type){
       let el = document.createElement("div");

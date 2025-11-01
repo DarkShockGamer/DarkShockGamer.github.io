@@ -184,7 +184,6 @@
     </div>
 
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-      <input id="userNameInput" placeholder="Your name..." class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
       <input id="filterInput" placeholder="Search or filter by assignee..." class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
       <!-- Added data-sound="whoosh" so only the whoosh plays (no default click) -->
       <button id="menuBtn" data-sound="whoosh" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Menu</button>
@@ -278,15 +277,10 @@ window.firestoreDB = db;
 const board = document.getElementById("board");
 const filterInput = document.getElementById("filterInput");
 const addBtn = document.getElementById("addTaskBtn");
-const userNameInput = document.getElementById("userNameInput");
 const menuBtn = document.getElementById("menuBtn");
 const drawer = document.getElementById("drawer");
 const drawerOverlay = document.getElementById("drawerOverlay");
 const closeDrawerBtn = document.getElementById("closeDrawerBtn");
-
-/* Persist user name */
-userNameInput.value = localStorage.getItem("userName") || "";
-userNameInput.oninput = () => { localStorage.setItem("userName", userNameInput.value); };
 
 /* Drawer toggle */
 menuBtn.onclick = () => {
@@ -976,7 +970,7 @@ filterInput.oninput = () => { renderBoard(); };
 
 /* Chips util */
 function chipsHTML(tags) { return (tags || []).map(t => `<span class="tag-chip">${t}</span>`).join(""); }
-function getCurrentUserName() { return userNameInput.value.trim() || "Anonymous"; }
+function getCurrentUserName() { return localStorage.getItem('trident.fullname') || 'Anonymous'; }
 
 /* Toasts (Slide-in + Sound hooks) with fade-out and reliable auto-dismiss */
 const toastStack = document.getElementById('toastStack');

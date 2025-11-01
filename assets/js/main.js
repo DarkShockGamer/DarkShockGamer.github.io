@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // ======= Google Sign-In & Tasks link dynamic creation =======
   if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
     google.accounts.id.initialize({
-      client_id: "YOUR_CLIENT_ID",
+      client_id: "635936985251-tj5uq36b5altf4qmk7019r3u504mm1fs.apps.googleusercontent.com",
       callback: (response) => {
         try {
           const data = jwt_decode(response.credential);

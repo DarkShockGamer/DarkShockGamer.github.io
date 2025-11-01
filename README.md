@@ -1,6 +1,6 @@
 # DarkShockGamer.github.io
 
-Welcome to the repository for the personal website of **DarkShockGamer**! This site is built primarily with **HTML** (92.7%) and **JavaScript** (7.3%). This README is intended for new contributors who have been asked to help modify or maintain the site. Below you'll find an overview of the repository structure, a summary of what each part does, and guidelines for making changes.
+Welcome to the repository for the personal website of **DarkShockGamer**! This site is built primarily with **HTML** (88.6%) and **JavaScript** (11.4%). This README is intended for new contributors who have been asked to help modify or maintain the site. Below you'll find an overview of the repository structure, a summary of what each part does, and guidelines for making changes.
 
 ---
 

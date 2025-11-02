@@ -342,15 +342,17 @@
     if (!currentTarget) return config.defaultMenuItems;
     
     // Check if target is an image
-    if (currentTarget.tagName === 'IMG' || currentTarget.dataset.contextType === 'image') {
+    if (currentTarget.tagName === 'IMG' || (currentTarget.dataset && currentTarget.dataset.contextType === 'image')) {
       return config.imageMenuItems;
     }
     
     // Check if target is a link
-    if (currentTarget.tagName === 'A' || currentTarget.closest('a')) {
-      const linkElement = currentTarget.tagName === 'A' ? currentTarget : currentTarget.closest('a');
-      currentTarget = linkElement;
-      return config.linkMenuItems;
+    if (currentTarget.tagName === 'A' || (currentTarget.closest && currentTarget.closest('a'))) {
+      const linkElement = currentTarget.tagName === 'A' ? currentTarget : (currentTarget.closest ? currentTarget.closest('a') : null);
+      if (linkElement) {
+        currentTarget = linkElement;
+        return config.linkMenuItems;
+      }
     }
     
     // Check if there's text selection
@@ -381,7 +383,7 @@
    */
   function closeMenu(e) {
     // Don't close if clicking inside the menu
-    if (e && e.target && menuElement.contains(e.target)) {
+    if (e && e.target && menuElement && menuElement.contains(e.target)) {
       return;
     }
     

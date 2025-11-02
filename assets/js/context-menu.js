@@ -103,8 +103,23 @@
         label: 'Copy',
         icon: '📋',
         action: () => {
-          document.execCommand('copy');
-          showToast('Text copied!');
+          const selection = window.getSelection().toString().trim();
+          if (selection) {
+            // Use modern Clipboard API with fallback
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(selection).then(() => {
+                showToast('Text copied!');
+              }).catch(err => {
+                // Fallback to deprecated method if modern API fails
+                document.execCommand('copy');
+                showToast('Text copied!');
+              });
+            } else {
+              // Fallback for older browsers
+              document.execCommand('copy');
+              showToast('Text copied!');
+            }
+          }
         }
       },
       {
@@ -436,7 +451,9 @@
   }
 
   /**
-   * Show a toast notification
+   * Show a toast notification to provide user feedback
+   * @param {string} message - The message to display in the toast
+   * @param {number} [duration=2000] - How long to show the toast in milliseconds
    */
   function showToast(message, duration = 2000) {
     // Remove any existing toast

@@ -197,6 +197,7 @@
   
   .context-menu-item {
     transition: none;
+    animation: none !important;
   }
 }
 
@@ -266,5 +267,5 @@
 }
 
 .context-menu-item:focus {
-  animation: focusRing 2s infinite;
+  animation: focusRing 2s ease-in-out 3;
 }

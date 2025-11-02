@@ -1,0 +1,46 @@
+<!-- 
+  INTEGRATION EXAMPLE: How to add the Custom Context Menu to your pages
+  
+  Simply add these two lines to the <head> section of any HTML page:
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Page Title</title>
+  
+  <!-- Your existing CSS and scripts -->
+  <link rel="stylesheet" href="your-styles.css">
+  
+  <!-- ADD THESE TWO LINES FOR CUSTOM CONTEXT MENU -->
+  <link rel="stylesheet" href="/assets/css/context-menu.css">
+  <script src="/assets/js/context-menu.js"></script>
+  <!-- END OF CUSTOM CONTEXT MENU -->
+  
+</head>
+<body>
+  <!-- Your page content -->
+  <h1>Your Page</h1>
+  
+  <!-- The context menu will work on all elements automatically -->
+  <img src="/assets/logo.png" alt="Example image">
+  <a href="/">Example link</a>
+  <p>Select this text and right-click!</p>
+  
+  <!-- Optional: Customize the menu items -->
+  <script>
+    // Example: Add a custom menu item
+    window.addEventListener('load', function() {
+      ContextMenu.config.defaultMenuItems.push({
+        label: 'Custom Action',
+        icon: '⚙️',
+        action: () => {
+          alert('Custom action executed!');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

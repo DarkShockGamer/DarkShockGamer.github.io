@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Context Menu - Demo</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  
+  <!-- Include the Custom Context Menu CSS -->
+  <link rel="stylesheet" href="/assets/css/context-menu.css">
+  
+  <style>
+    /* Demo page styles matching site theme */
+    :root {
+      --dark-blue: #0a1f44;
+      --medium-blue: #1f4d7a;
+      --light-blue: #4fa3d1;
+      --white: #f4f8fb;
+      --accent: #ffd700;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(-45deg, #050c24, #0a1f44);
+      color: var(--white);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 20px;
+      border-bottom: 3px solid var(--light-blue);
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: var(--light-blue);
+      margin-bottom: 10px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: rgba(244, 248, 251, 0.8);
+    }
+
+    .section {
+      background: linear-gradient(135deg, rgba(10, 31, 68, 0.6), rgba(31, 77, 122, 0.4));
+      border: 2px solid var(--light-blue);
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+      color: var(--light-blue);
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--light-blue);
+      padding-bottom: 10px;
+      display: inline-block;
+    }
+
+    h3 {
+      color: var(--accent);
+      font-size: 1.3rem;
+      margin: 25px 0 15px;
+    }
+
+    p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      font-size: 1.05rem;
+    }
+
+    .demo-area {
+      background: rgba(31, 77, 122, 0.3);
+      border: 2px dashed var(--light-blue);
+      border-radius: 8px;
+      padding: 40px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .demo-image {
+      max-width: 300px;
+      height: auto;
+      border-radius: 8px;
+      border: 3px solid var(--accent);
+      margin: 20px auto;
+      display: block;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .demo-image:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .demo-text {
+      background: rgba(79, 163, 209, 0.1);
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid var(--accent);
+    }
+
+    .demo-link {
+      color: var(--light-blue);
+      text-decoration: underline;
+      font-weight: bold;
+      transition: color 0.2s;
+    }
+
+    .demo-link:hover {
+      color: var(--accent);
+    }
+
+    .instruction {
+      background: rgba(255, 215, 0, 0.1);
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      font-weight: 500;
+    }
+
+    .instruction strong {
+      color: var(--accent);
+    }
+
+    code {
+      background: rgba(10, 31, 68, 0.8);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      color: var(--accent);
+      border: 1px solid var(--light-blue);
+    }
+
+    .code-block {
+      background: rgba(10, 31, 68, 0.9);
+      border: 2px solid var(--light-blue);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .code-block code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--white);
+    }
+
+    .feature-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .feature-list li {
+      padding: 10px 0;
+      padding-left: 30px;
+      position: relative;
+    }
+
+    .feature-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .back-button {
+      display: inline-block;
+      background: var(--medium-blue);
+      color: var(--white);
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      border: 2px solid var(--light-blue);
+      transition: all 0.3s;
+      margin-top: 20px;
+    }
+
+    .back-button:hover {
+      background: var(--light-blue);
+      color: var(--dark-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(79, 163, 209, 0.4);
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .section {
+        padding: 20px;
+      }
+      
+      .demo-area {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎯 Custom Context Menu</h1>
+      <p class="subtitle">Reusable context menu component for desktop and mobile</p>
+    </header>
+
+    <div class="section">
+      <h2>Overview</h2>
+      <p>
+        This custom context menu component replaces the default browser context menu with a 
+        styled, context-aware menu that works on both desktop (right-click) and mobile (long-press).
+      </p>
+      
+      <h3>Features</h3>
+      <ul class="feature-list">
+        <li>Context-aware menu items (different options for images, links, and text)</li>
+        <li>Desktop right-click support</li>
+        <li>Mobile long-press detection with haptic feedback</li>
+        <li>Keyboard navigation (Arrow keys, Enter, Escape)</li>
+        <li>ARIA attributes for accessibility</li>
+        <li>Matches site's design using CSS variables</li>
+        <li>Easy to extend with custom menu items</li>
+        <li>Toast notifications for user feedback</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Try It Out!</h2>
+      
+      <div class="instruction">
+        <strong>Desktop:</strong> Right-click on any of the elements below<br>
+        <strong>Mobile:</strong> Long-press (hold for 0.5 seconds) on any element
+      </div>
+
+      <h3>1. Right-click on this Image</h3>
+      <div class="demo-area">
+        <img src="/assets/logo.png" alt="Trident Robotics Logo" class="demo-image">
+        <p>Try: Open Image in New Tab, Copy Image Address, Download Image</p>
+      </div>
+
+      <h3>2. Right-click on this Link</h3>
+      <div class="demo-area">
+        <p>
+          Visit the <a href="/" class="demo-link">Trident Robotics Homepage</a>
+        </p>
+        <p>Try: Open Link in New Tab, Copy Link Address</p>
+      </div>
+
+      <h3>3. Select this Text and Right-click</h3>
+      <div class="demo-area">
+        <div class="demo-text">
+          <p>
+            <strong>Trident Robotics Team 4296</strong> is a FIRST Robotics Competition team 
+            based in Southern California. We design, build, and program robots to compete 
+            in annual challenges. Select this text and right-click to see text-specific options!
+          </p>
+        </div>
+        <p>Try: Copy, Search Selection</p>
+      </div>
+
+      <h3>4. Right-click Anywhere Else</h3>
+      <div class="demo-area">
+        <p>Right-click in this area to see default menu options</p>
+        <p>Try: Refresh Page, Back</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Integration</h2>
+      
+      <h3>Step 1: Include the Files</h3>
+      <p>Add these lines to your HTML <code>&lt;head&gt;</code> section:</p>
+      <div class="code-block"><code>&lt;!-- Custom Context Menu --&gt;
+&lt;link rel="stylesheet" href="/assets/css/context-menu.css"&gt;
+&lt;script src="/assets/js/context-menu.js"&gt;&lt;/script&gt;</code></div>
+
+      <h3>Step 2: That's It!</h3>
+      <p>
+        The context menu automatically initializes when the page loads. No additional 
+        configuration is needed for basic usage.
+      </p>
+
+      <h3>Step 3: Customize (Optional)</h3>
+      <p>You can customize the menu items by modifying the configuration:</p>
+      <div class="code-block"><code>&lt;script&gt;
+  // Wait for the component to load
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add custom menu item for images
+    ContextMenu.config.imageMenuItems.push({
+      label: 'Set as Background',
+      icon: '🖼️',
+      action: (target) => {
+        document.body.style.backgroundImage = `url(${target.src})`;
+        ContextMenu.showToast('Background updated!');
+      }
+    });
+
+    // Add custom menu item for text
+    ContextMenu.config.textMenuItems.push({
+      label: 'Translate',
+      icon: '🌐',
+      action: () => {
+        const text = window.getSelection().toString();
+        window.open(`https://translate.google.com/?text=${encodeURIComponent(text)}`, '_blank');
+      }
+    });
+  });
+&lt;/script&gt;</code></div>
+    </div>
+
+    <div class="section">
+      <h2>API Reference</h2>
+      
+      <h3>ContextMenu.config</h3>
+      <p>Configuration object with the following properties:</p>
+      <ul class="feature-list">
+        <li><code>longPressDuration</code> - Duration in ms for long-press detection (default: 500)</li>
+        <li><code>preventDefaultContextMenu</code> - Prevent browser's default context menu (default: true)</li>
+        <li><code>imageMenuItems</code> - Array of menu items for images</li>
+        <li><code>linkMenuItems</code> - Array of menu items for links</li>
+        <li><code>textMenuItems</code> - Array of menu items for text selection</li>
+        <li><code>defaultMenuItems</code> - Array of default menu items</li>
+      </ul>
+
+      <h3>ContextMenu.showToast(message, duration)</h3>
+      <p>Display a toast notification:</p>
+      <div class="code-block"><code>ContextMenu.showToast('Action completed!', 2000);</code></div>
+
+      <h3>ContextMenu.close()</h3>
+      <p>Programmatically close the context menu:</p>
+      <div class="code-block"><code>ContextMenu.close();</code></div>
+
+      <h3>Menu Item Structure</h3>
+      <p>Each menu item is an object with these properties:</p>
+      <div class="code-block"><code>{
+  label: 'Menu Item Label',    // Required: Text to display
+  icon: '📋',                   // Optional: Emoji or text icon
+  action: (target) => {         // Required: Function to execute
+    // target is the element that was clicked/long-pressed
+    console.log('Action executed', target);
+  }
+}</code></div>
+    </div>
+
+    <div class="section">
+      <h2>Accessibility</h2>
+      <ul class="feature-list">
+        <li>Keyboard navigation with Arrow keys</li>
+        <li>Enter or Space to select menu item</li>
+        <li>Escape to close menu</li>
+        <li>ARIA roles and attributes for screen readers</li>
+        <li>Focus indicators for keyboard users</li>
+        <li>Respects prefers-reduced-motion</li>
+        <li>High contrast mode support</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Browser Support</h2>
+      <p>
+        The context menu works on all modern browsers including:
+      </p>
+      <ul class="feature-list">
+        <li>Chrome/Edge (latest)</li>
+        <li>Firefox (latest)</li>
+        <li>Safari (latest)</li>
+        <li>Mobile browsers (iOS Safari, Chrome Mobile)</li>
+      </ul>
+      <p>
+        <strong>Note:</strong> Some features like clipboard API require HTTPS or localhost.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>Troubleshooting</h2>
+      
+      <h3>Menu not appearing on mobile</h3>
+      <p>
+        Make sure you're holding your press for at least 0.5 seconds. The device may vibrate 
+        when the long-press is detected (if vibration is supported).
+      </p>
+
+      <h3>Clipboard operations not working</h3>
+      <p>
+        The Clipboard API requires a secure context (HTTPS or localhost). If you're testing 
+        on HTTP, these features won't work.
+      </p>
+
+      <h3>Custom menu items not showing</h3>
+      <p>
+        Make sure your custom configuration is applied after the DOM is loaded and before 
+        the first context menu interaction.
+      </p>
+    </div>
+
+    <a href="/" class="back-button">← Back to Home</a>
+  </div>
+
+  <!-- Include the Custom Context Menu JavaScript -->
+  <script src="/assets/js/context-menu.js"></script>
+
+  <!-- Optional: Example of customization -->
+  <script>
+    // Example: Add a custom menu item after page loads
+    window.addEventListener('load', function() {
+      // Add a custom item to show coordinates
+      ContextMenu.config.defaultMenuItems.push({
+        label: 'Show Page Info',
+        icon: 'ℹ️',
+        action: () => {
+          const info = `Page: ${document.title}\nURL: ${window.location.href}\nSize: ${window.innerWidth}x${window.innerHeight}`;
+          alert(info);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

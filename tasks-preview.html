@@ -3,570 +3,618 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>UI Lab — Task Board Preview</title>
+  <title>Atlas Preview v2 — Task Board</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root {
-      --ease-spring: cubic-bezier(.22, .9, .33, 1);
-      --ease-soft-out: cubic-bezier(.18, .72, .42, 1);
-      --ease-soft-in: cubic-bezier(.6, .04, .98, .34);
-      --dur-fast: 120ms;
+    :root{
+      --ease-spring: cubic-bezier(.22,.9,.33,1);
+      --ease-soft-out: cubic-bezier(.18,.72,.42,1);
+      --ease-soft-in: cubic-bezier(.6,.04,.98,.34);
+      --dur-xfast: 90ms;
+      --dur-fast: 150ms;
       --dur-medium: 260ms;
       --dur-slow: 520ms;
-      --card-radius: 0.75rem;
-    }
-    body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    @media (prefers-color-scheme: dark) {
-      html, body { color-scheme: dark; }
-      body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; }
+      --card-radius: 16px;
+      --accent: #0ea5e9; /* sky-500 */
+      --accent-2: #38bdf8; /* sky-400 */
+      --glass-alpha: .55;
     }
 
-    /* Column styling (glassy) */
-    @media (prefers-color-scheme: dark) {
-      :root { --glass-bg: rgba(15,23,42,0.55); --glass-border: rgba(255,255,255,0.08); }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, sans-serif;
+      min-height: 100vh;
+      background:
+        radial-gradient(1200px 600px at 15% -10%, rgba(14,165,233,.18), transparent 60%),
+        radial-gradient(900px 600px at 100% 0%, rgba(56,189,248,.15), transparent 60%),
+        linear-gradient(to bottom, #f0f9ff, #ffffff 45%, #f8fafc);
     }
+    @media (prefers-color-scheme: dark) {
+      html, body { color-scheme: dark; }
+      body {
+        background:
+          radial-gradient(1200px 600px at -10% -10%, rgba(14,165,233,.18), transparent 60%),
+        radial-gradient(1000px 700px at 110% -10%, rgba(56,189,248,.12), transparent 60%),
+        linear-gradient(to bottom, #0b1220, #0a0f1a 45%, #0b1220);
+        color: #e5e7eb;
+      }
+    }
+
+    /* Glass columns with more personality */
     @media (prefers-color-scheme: light) {
-      :root { --glass-bg: rgba(255,255,255,0.55); --glass-border: rgba(0,0,0,0.06); }
+      .column-section {
+        --glass-bg: rgba(255,255,255,var(--glass-alpha));
+        --glass-stroke: rgba(0,0,0,.06);
+      }
+    }
+    @media (prefers-color-scheme: dark) {
+      .column-section {
+        --glass-bg: rgba(15,23,42,var(--glass-alpha));
+        --glass-stroke: rgba(255,255,255,.08);
+      }
     }
     .column-section {
       position: relative;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--glass-stroke);
+      background: var(--glass-bg);
       backdrop-filter: saturate(160%) blur(18px);
       -webkit-backdrop-filter: saturate(160%) blur(18px);
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 1rem;
-      box-shadow: 0 1px 2px rgba(2, 6, 23, 0.10);
-      transition: border-color var(--dur-fast) var(--ease-soft-out),
-                  background-color var(--dur-medium) var(--ease-soft-out);
-      padding: 1rem;
-    }
-    .column-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 0.75rem;
-      background: rgba(241,245,249,0.6);
-      border: 1px solid #e2e8f0;
-      border-radius: 0.75rem;
-      padding: 0.5rem 0.75rem;
-    }
-    @media (prefers-color-scheme: dark) {
-      .column-header { background: rgba(15,23,42,0.6); border-color: #1f2937; }
-    }
-    .column-count {
-      color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd;
-      border-radius: 9999px; padding: 0 0.5rem; font-size: 0.75rem; line-height: 1.25rem;
-    }
-    @media (prefers-color-scheme: dark) {
-      .column-count { color: #7dd3fc; background: #083344; border-color: #075985; }
+      box-shadow:
+        0 6px 28px rgba(2,6,23,.08),
+        0 1px 0 rgba(255,255,255,.08) inset;
+      transition:
+        box-shadow var(--dur-medium) var(--ease-soft-out),
+        border-color var(--dur-fast) linear,
+        background-color var(--dur-fast) linear;
     }
     .column-section.drag-target {
-      border-color: #0ea5e9;
-      box-shadow: 0 0 0 3px rgba(14,165,233,0.15);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgb(14 165 233 / .18), 0 10px 40px rgb(2 132 199 / .2);
     }
 
-    /* Task cards */
+    .column-header {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:.75rem;
+      border:1px solid rgba(148,163,184,.25);
+      border-radius:14px;
+      padding:.5rem .75rem;
+      background: linear-gradient(180deg, rgba(241,245,249,.8), rgba(241,245,249,.55));
+    }
+    .column-title {
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .column-count {
+      font-size: .75rem; line-height: 1.25rem;
+      padding: 0 .5rem;
+      border-radius: 999px;
+      border:1px solid #bae6fd;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    @media (prefers-color-scheme: dark) {
+      .column-header { border-color: #1f2937; background: linear-gradient(180deg, rgba(15,23,42,.7), rgba(15,23,42,.55)); }
+      .column-title { color: #e2e8f0; }
+      .column-count { background:#083344; color:#7dd3fc; border-color:#075985; }
+    }
+
+    .task-list { min-height: 120px; display:grid; gap: .85rem; }
+
+    /* Card with stronger personality */
     .task-card {
       position: relative;
-      background: white;
-      border: 1px solid #e2e8f0;
       border-radius: var(--card-radius);
-      padding: 0.75rem;
-      box-shadow: 0 1px 1px rgba(2, 6, 23, 0.04);
+      border:1px solid #e2e8f0;
+      background: linear-gradient(180deg, #ffffff, #fbfdff);
+      padding: 12px;
+      box-shadow: 0 1px 1px rgba(2,6,23,.04);
       transition:
         transform var(--dur-medium) var(--ease-spring),
         box-shadow var(--dur-medium) var(--ease-soft-out),
-        background-color var(--dur-fast) linear,
         border-color var(--dur-fast) linear,
-        opacity var(--dur-fast) linear;
+        opacity var(--dur-fast) linear,
+        background-color var(--dur-fast) linear;
       will-change: transform, box-shadow;
       transform-origin: 50% 50%;
       touch-action: none;
     }
-    .task-card:not(.dragging):hover {
-      transform: translateY(-2px) scale(1.015);
-      box-shadow: 0 12px 32px -8px rgba(2,132,199,0.25), 0 4px 12px rgba(0,0,0,0.06);
+    .task-card:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 14px 40px -10px rgba(2,132,199,.28), 0 6px 20px rgba(2,6,23,.08);
       border-color: #93c5fd;
     }
     @media (prefers-color-scheme: dark) {
-      .task-card { background: #0b1220; border-color: #1f2937; box-shadow: 0 1px 1px rgba(2, 6, 23, 0.6); }
-      .task-card:not(.dragging):hover { border-color: #0ea5e9; box-shadow: 0 6px 16px rgba(14,165,233,0.18); }
+      .task-card { border-color:#1f2937; background: linear-gradient(180deg, #0b1220, #0d1424); box-shadow: 0 1px 1px rgba(2,6,23,.6); }
+      .task-card:hover { border-color: var(--accent); box-shadow: 0 14px 40px -10px rgba(14,165,233,.28), 0 8px 24px rgba(0,0,0,.35); }
     }
 
+    /* Drag handle (only this starts drag -> everything else stays clickable) */
+    .drag-handle {
+      display:flex; align-items:center; justify-content:center;
+      width: 28px; height: 28px;
+      border:1px solid rgba(148,163,184,.35);
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(248,250,252,.9), rgba(248,250,252,.7));
+      cursor: grab;
+      transition: transform var(--dur-fast) var(--ease-soft-out), border-color var(--dur-fast), background-color var(--dur-fast);
+    }
+    .drag-handle:hover { transform: scale(1.06); border-color: #93c5fd; }
+    .drag-handle:active { cursor: grabbing; }
+    @media (prefers-color-scheme: dark) {
+      .drag-handle { border-color:#334155; background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(15,23,42,.7)); }
+      .drag-handle:hover { border-color: var(--accent); }
+    }
+    .grip {
+      width:14px; height:14px; opacity:.7;
+      background:
+        radial-gradient(currentColor 2px, transparent 3px) 0 0/7px 7px,
+        radial-gradient(currentColor 2px, transparent 3px) 7px 7px/7px 7px;
+      color:#64748b;
+    }
+    @media (prefers-color-scheme: dark){ .grip { color:#94a3b8; } }
+
+    /* Card while dragging */
     .task-card.dragging {
       pointer-events: none;
       z-index: 1000;
-      box-shadow: 0 20px 44px -12px rgba(2,132,199,0.35), 0 6px 18px rgba(0,0,0,0.3);
       transform: scale(1.045) rotateX(3deg) rotateY(2deg);
-      opacity: 0.92;
-      border-color: #0ea5e9;
+      opacity: .96;
+      border-color: var(--accent);
+      box-shadow: 0 22px 58px -16px rgba(2,132,199,.38), 0 10px 26px rgba(0,0,0,.35);
     }
     .task-card.dragging::after {
-      content: "";
-      position: absolute; inset: 0; border-radius: inherit; padding: 2px;
-      background: linear-gradient(135deg,#0ea5e9,#38bdf8,#0369a1);
+      content:"";
+      position:absolute; inset:0; border-radius:inherit; padding:2px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2), #0369a1);
       -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
       mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
       -webkit-mask-composite: xor; mask-composite: exclude;
-      opacity: .55;
+      opacity:.55;
       animation: ringFlow 3s linear infinite;
     }
-    @keyframes ringFlow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+    @keyframes ringFlow { 0%{ filter:hue-rotate(0deg) } 100%{ filter:hue-rotate(360deg) } }
 
     /* Placeholder */
-    .task-placeholder {
-      height: var(--ph-height, 72px);
-      border: 2px dashed #0ea5e9;
+    .task-placeholder{
+      height: var(--ph-h, 72px);
+      border:2px dashed var(--accent);
       border-radius: var(--card-radius);
-      background: rgba(14,165,233,0.06);
-      animation: pulsePlaceholder 1.8s ease-in-out infinite;
+      background: rgba(14,165,233,.07);
+      animation: pulsePlaceholder 1.6s ease-in-out infinite;
     }
     @keyframes pulsePlaceholder {
-      0%, 100% { background: rgba(14,165,233,0.06); }
-      50% { background: rgba(14,165,233,0.12); }
-    }
-    .task-list { min-height: 120px; display: grid; gap: 0.75rem; }
-
-    /* FLIP helper */
-    .task-card.flipping {
-      transition: transform var(--dur-medium) var(--ease-spring);
+      0%,100%{ background: rgba(14,165,233,.07) }
+      50%{ background: rgba(14,165,233,.13) }
     }
 
-    /* Comments expand */
-    .comments-section {
-      border-top: 1px solid #e2e8f0;
-      margin-top: 0.5rem; padding-top: 0.5rem;
-      transition: opacity var(--dur-fast) var(--ease-soft-out),
-                  transform var(--dur-fast) var(--ease-soft-out);
-      transform-origin: top;
-    }
-    .comments-section.entering { opacity: 0; transform: scaleY(.92); }
-    .comments-section.open { opacity: 1; transform: scaleY(1); }
-    @media (prefers-color-scheme: dark) {
-      .comments-section { border-color: #1f2937; }
-    }
+    /* FLIP */
+    .task-card.flipping { transition: transform var(--dur-medium) var(--ease-spring); }
 
     /* Tags */
     .tag-chip {
-      display: inline-block; background: #e0f2fe; color: #0369a1; padding: 0.125rem 0.5rem; border-radius: 9999px; margin-right: 0.25rem; margin-bottom: 0.25rem;
-      font-size: 0.75rem; line-height: 1.25rem; white-space: nowrap; border: 1px solid #bae6fd;
+      display:inline-block; background:#e0f2fe; color:#0369a1;
+      padding: 2px 8px; border-radius:999px; border:1px solid #bae6fd;
+      font-size:.75rem; line-height:1.25rem;
       animation: chipIn var(--dur-fast) var(--ease-soft-out);
     }
-    @media (prefers-color-scheme: dark) {
-      .tag-chip { background: #0c4a6e; color: #e0f2fe; border-color: #075985; }
-    }
-    @keyframes chipIn { from { transform: translateY(4px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @media (prefers-color-scheme: dark){ .tag-chip{ background:#0c4a6e; color:#e0f2fe; border-color:#075985; } }
+    @keyframes chipIn{ from{ transform: translateY(4px); opacity:0 } to{ transform:none; opacity:1 } }
 
-    /* Due date colors */
-    .due-overdue { color: #dc2626; }
-    .due-soon { color: #d97706; }
+    /* Comments expand/collapse */
+    .comments-section {
+      border-top:1px solid #e2e8f0;
+      margin-top:.5rem; padding-top:.5rem;
+      transition: opacity var(--dur-fast) var(--ease-soft-out), transform var(--dur-fast) var(--ease-soft-out);
+      transform-origin: top;
+    }
+    @media (prefers-color-scheme: dark){ .comments-section{ border-color:#1f2937 } }
+    .comments-section.entering { opacity:0; transform: scaleY(.92) }
+    .comments-section.open { opacity:1; transform: scaleY(1) }
+
+    /* Due colors */
+    .due-overdue { color:#dc2626 }
+    .due-soon { color:#d97706 }
 
     /* Reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      .task-card, .comments-section, .tag-chip { animation: none !important; transition: none !important; }
-      .task-placeholder { animation: none !important; }
+    @media (prefers-reduced-motion: reduce){
+      .task-card, .comments-section, .tag-chip { animation:none !important; transition:none !important; }
+      .task-placeholder { animation:none !important; }
     }
   </style>
 </head>
-<body class="min-h-screen p-6">
+<body class="p-6">
   <header class="max-w-7xl mx-auto mb-6 px-2">
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
       <div class="flex flex-col gap-1">
-        <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">UI Lab — Task Board Preview</h1>
-        <p class="text-sm text-sky-600 dark:text-sky-400">Previewing smooth drag, glass columns, and modern motion</p>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">Atlas Preview v2 — Task Board</h1>
+        <p class="text-sm text-sky-600 dark:text-sky-400">Glass columns, springy motion, FLIP reorder, handle-only drag</p>
       </div>
-      <div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-        <span>prefers-color-scheme respected • pointer-based drag • FLIP reorder</span>
-      </div>
+      <div class="text-sm text-slate-600 dark:text-slate-300">Drag from grip handle • Everything else is clickable</div>
     </div>
   </header>
 
   <main class="max-w-7xl mx-auto">
     <div id="board" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
     <footer class="mt-12 text-center py-4 border-t border-slate-100 dark:border-slate-800">
-      <span class="text-sky-600 dark:text-sky-400 text-sm">This is a local UI lab; no data is saved.</span>
+      <span class="text-sky-600 dark:text-sky-400 text-sm">Preview only • No data saved</span>
     </footer>
   </main>
 
   <script>
-    // Sample data (no backend)
+    // ------- Sample Data (local-only) -------
     const state = {
       order: ['backlog', 'todo', 'inprogress', 'done'],
       columns: {
-        backlog: {
-          title: 'Backlog',
-          tasks: [
-            makeTask('Design chassis layout', 'Sam', daysFromNow(14), ['Mechanical','Design'], '- [ ] Gather specs\n- [ ] First draft\nRemember mounting points.'),
-            makeTask('Research motor options', 'Alex', daysFromNow(5), ['Electrical'], 'Brushless vs brushed.\n- [ ] Compare torque\n- [x] Gather vendor quotes')
-          ]
-        },
-        todo: {
-          title: 'To Do',
-          tasks: [
-            makeTask('Set up firmware repo', 'Jordan', daysFromNow(2), ['Programming'], '- [ ] Repo scaffolding\n- [ ] CI checks'),
-            makeTask('Website landing copy', 'Taylor', daysFromNow(1), ['Business','Website'], 'Punchy headline.\n- [ ] Draft 1\n- [ ] Review')
-          ]
-        },
-        inprogress: {
-          title: 'In Progress',
-          tasks: [
-            makeTask('Assemble prototype v1', 'Riley', daysFromNow(3), ['Mechanical'], '- [ ] Frame\n- [ ] Wiring\n- [ ] Smoke test')
-          ]
-        },
-        done: {
-          title: 'Done',
-          tasks: [
-            makeTask('Procure dev kits', 'Casey', daysFromNow(-2), ['Misc'], '- [x] Ordered\n- [x] Received')
-          ]
-        }
+        backlog: { title: 'Backlog', tasks: [
+          t('Design chassis layout','Sam', daysFromNow(14), ['Mechanical','Design'], '- [ ] Gather specs\\n- [ ] First draft\\nRemember mounting points.'),
+          t('Research motor options','Alex', daysFromNow(5), ['Electrical'], 'Brushless vs brushed.\\n- [ ] Compare torque\\n- [x] Gather vendor quotes'),
+          t('Evaluation matrix','Sam', daysFromNow(9), ['Business'], '- [ ] Scoring\\n- [ ] Stakeholder review')
+        ]},
+        todo: { title: 'To Do', tasks: [
+          t('Set up firmware repo', 'Jordan', daysFromNow(2), ['Programming'], '- [ ] Repo scaffolding\\n- [ ] CI checks'),
+          t('Website landing copy', 'Taylor', daysFromNow(1), ['Website'], 'Punchy headline.\\n- [ ] Draft 1\\n- [ ] Review')
+        ]},
+        inprogress: { title: 'In Progress', tasks: [
+          t('Assemble prototype v1', 'Riley', daysFromNow(3), ['Mechanical'], '- [ ] Frame\\n- [ ] Wiring\\n- [ ] Smoke test'),
+          t('Sensor bring-up', 'Alex', daysFromNow(4), ['Electrical','Programming'], '- [ ] SPI test\\n- [ ] ADC tune')
+        ]},
+        done: { title: 'Done', tasks: [
+          t('Procure dev kits', 'Casey', daysFromNow(-2), ['Misc'], '- [x] Ordered\\n- [x] Received')
+        ]}
       }
     };
-    function makeTask(title, assignee, dueStr, tags, description) {
-      return {
-        id: crypto.randomUUID(),
-        title, assignee, due: dueStr, tags, description,
-        comments: [
-          { author: 'System', text: 'Sample note for preview', timestamp: Date.now() - 3600_000 }
-        ],
-        order: 0
-      };
+    function t(title, assignee, due, tags, description){
+      return { id: crypto.randomUUID(), title, assignee, due, tags, description, comments:[
+        { author:'System', text:'Sample note for preview', timestamp: Date.now()-3600_000 }
+      ], order:0 };
     }
-    function daysFromNow(n) {
-      const d = new Date(Date.now() + n*24*3600*1000);
-      return d.toISOString().slice(0,10);
+    function daysFromNow(n){ const d=new Date(Date.now()+n*864e5); return d.toISOString().slice(0,10); }
+
+    function escHtml(str){
+      return String(str ?? '')
+        .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+        .replaceAll('"','&quot;').replaceAll("'",'&quot;').replaceAll('`','&#39;');
     }
-    function formatDueDate(dueStr) {
-      if (!dueStr) return '<span class="text-xs text-slate-500 dark:text-slate-400">no due</span>';
+    function formatDueDate(dueStr){
+      if(!dueStr) return '<span class="text-xs text-slate-500 dark:text-slate-400">no due</span>';
       const dueDate = new Date(dueStr + 'T23:59:59');
-      const now = new Date();
-      const diffMs = dueDate - now;
-      const diffHours = diffMs / 36e5;
+      const diffMs = dueDate - new Date();
+      const diffH = diffMs / 36e5;
       let cls = 'text-xs text-slate-500 dark:text-slate-400';
       if (diffMs < 0) cls = 'text-xs due-overdue';
-      else if (diffHours <= 24) cls = 'text-xs due-soon';
-      return `<span class="${cls}">${dueStr}</span>`;
+      else if (diffH <= 24) cls = 'text-xs due-soon';
+      return '<span class="'+cls+'">'+escHtml(dueStr)+'</span>';
     }
-    function escHtml(str) {
-      return String(str ?? '')
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll("'",'&quot;')
-        .replaceAll('"','&quot;')
-        .replaceAll('`','&#39;');
-    }
-    function renderDescriptionHTML(desc, taskId) {
-      const text = String(desc || '');
-      if (!text.trim()) return '';
-      const lines = text.split(/\r?\n/);
-      return lines.map((line, idx) => {
-        const m = line.match(/^\s*-\s*\[([ xX])\]\s*(.*)$/);
-        if (m) {
-          const checked = m[1].toLowerCase() === 'x';
+    function renderDescriptionHTML(desc, taskId){
+      const text = String(desc||''); if(!text.trim()) return '';
+      const lines = text.split(/\\r?\\n/);
+      return lines.map((line, idx)=>{
+        const m = line.match(/^\\s*-\\s*\\[([ xX])\\]\\s*(.*)$/);
+        if(m){
+          const checked = m[1].toLowerCase()==='x';
           const item = m[2] || '';
-          return `
+          return \`
             <label class="flex items-start gap-2 py-0.5 select-none">
-              <input type="checkbox" class="desc-checkbox mt-0.5" data-task-id="${escHtml(taskId)}" data-line-index="${idx}" ${checked ? 'checked' : ''} />
-              <span class="leading-tight whitespace-pre-wrap break-words">${escHtml(item)}</span>
-            </label>
-          `;
+              <input type="checkbox" class="desc-checkbox mt-0.5" data-task-id="\${escHtml(taskId)}" data-line-index="\${idx}" \${checked?'checked':''} />
+              <span class="leading-tight whitespace-pre-wrap break-words">\${escHtml(item)}</span>
+            </label>\`;
         }
-        return `<div class="leading-tight py-0.5 whitespace-pre-wrap break-words">${escHtml(line)}</div>`;
+        return '<div class="leading-tight py-0.5 whitespace-pre-wrap break-words">'+escHtml(line)+'</div>';
       }).join('');
     }
 
     const board = document.getElementById('board');
 
-    function renderBoard() {
+    function renderBoard(){
       board.innerHTML = '';
-      state.order.forEach(colId => {
+      state.order.forEach(colId=>{
         const col = state.columns[colId];
-        col.tasks.forEach((t, i) => t.order = i);
+        col.tasks.forEach((t,i)=>t.order=i);
         const section = document.createElement('section');
         section.className = 'column-section';
-        section.innerHTML = `
+        section.innerHTML = \`
           <div class="column-header">
-            <h2 class="text-base font-semibold text-slate-700 dark:text-slate-200">${col.title}</h2>
-            <div class="column-count">${col.tasks.length}</div>
+            <h2 class="column-title text-base">\${escHtml(col.title)}</h2>
+            <div class="column-count">\${col.tasks.length}</div>
           </div>
-          <div class="task-list" data-col="${colId}"></div>
-        `;
+          <div class="task-list" data-col="\${colId}"></div>\`;
         board.appendChild(section);
 
         const list = section.querySelector('.task-list');
-        col.tasks.sort((a,b) => (a.order ?? 0) - (b.order ?? 0)).forEach(task => {
+        col.tasks.sort((a,b)=>(a.order??0)-(b.order??0)).forEach(task=>{
           list.appendChild(createTaskEl(task, colId));
         });
       });
-      initPointerDnD();
+      bindPointerDnD();
     }
 
-    function createTaskEl(task, colId) {
-      const div = document.createElement('div');
-      div.className = 'task-card';
-      div.dataset.id = task.id;
-      div.dataset.col = colId;
+    function createTaskEl(task, colId){
+      const el = document.createElement('div');
+      el.className = 'task-card';
+      el.dataset.id = task.id;
+      el.dataset.col = colId;
 
-      const descHtml = renderDescriptionHTML(task.description || '', task.id);
-      const tagsHtml = (task.tags || []).map(t => `<span class="tag-chip">${escHtml(t)}</span>`).join('');
+      const descHtml = renderDescriptionHTML(task.description||'', task.id);
+      const tagsHtml = (task.tags||[]).map(tag=>'<span class="tag-chip">'+escHtml(tag)+'</span>').join('');
 
-      div.innerHTML = `
+      el.innerHTML = \`
         <div class="flex items-start justify-between gap-2">
-          <div>
-            <h3 class="font-medium text-slate-800 dark:text-slate-200">${escHtml(task.title)}</h3>
-            <div class="text-xs text-slate-500 dark:text-slate-400">${escHtml(task.assignee || 'Unassigned')} • ${formatDueDate(task.due || '')}</div>
+          <div class="min-w-0">
+            <h3 class="font-semibold text-slate-800 dark:text-slate-100 truncate">\${escHtml(task.title)}</h3>
+            <div class="text-xs text-slate-500 dark:text-slate-400">
+              \${escHtml(task.assignee||'Unassigned')} • \${formatDueDate(task.due||'')}
+            </div>
           </div>
-          <div class="shrink-0">
-            <button class="text-xs px-2 py-1 border border-slate-300 rounded-md hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">⋯</button>
-          </div>
+          <button class="drag-handle shrink-0" aria-label="Drag task" title="Drag task">
+            <span class="grip"></span>
+          </button>
         </div>
 
-        <div class="mt-2 flex gap-2 flex-wrap">${tagsHtml}</div>
+        \${tagsHtml ? '<div class="mt-2 flex gap-2 flex-wrap">'+tagsHtml+'</div>' : ''}
 
-        ${descHtml ? `
+        \${descHtml ? \`
           <div class="mt-3 border border-slate-100 dark:border-slate-800 rounded-md p-2 bg-slate-50 dark:bg-slate-900" data-role="description">
-            ${descHtml}
-          </div>
-        ` : ''}
+            \${descHtml}
+          </div>\` : ''}
 
         <div class="mt-3">
           <button class="text-xs text-sky-600 dark:text-sky-400 underline toggle-comments">Show Notes</button>
           <div class="comments-section hidden">
             <div class="text-sm text-slate-800 dark:text-slate-200 space-y-2 mt-2">
-              ${(task.comments || []).map(c => {
-                const dateStr = c.timestamp ? new Date(c.timestamp).toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'}) : '';
-                return `
+              \${(task.comments||[]).map(c=>{
+                const dateStr = c.timestamp ? new Date(c.timestamp).toLocaleString([], {month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
+                return \`
                   <div class="border border-slate-100 dark:border-slate-800 rounded-md p-2 bg-slate-50 dark:bg-slate-900">
-                    <div class="mb-1">${escHtml(c.text || '')}</div>
-                    <div class="text-xs text-slate-400">${escHtml(c.author || 'Anonymous')} • ${dateStr}</div>
-                  </div>
-                `;
+                    <div class="mb-1">\${escHtml(c.text||'')}</div>
+                    <div class="text-xs text-slate-400">\${escHtml(c.author||'Anonymous')} • \${dateStr}</div>
+                  </div>\`;
               }).join('')}
             </div>
           </div>
-        </div>
-      `;
+        </div>\`;
 
-      // Comments expand/collapse animation
-      div.querySelector('.toggle-comments').onclick = (e) => {
-        const section = div.querySelector('.comments-section');
-        if (section.classList.contains('hidden')) {
+      // Comments animation
+      el.querySelector('.toggle-comments').onclick = (e)=>{
+        const section = el.querySelector('.comments-section');
+        if(section.classList.contains('hidden')){
           section.classList.remove('hidden');
           section.classList.add('entering');
-          requestAnimationFrame(() => {
-            section.classList.add('open');
-            section.classList.remove('entering');
-          });
+          requestAnimationFrame(()=>{ section.classList.add('open'); section.classList.remove('entering'); });
           e.target.textContent = 'Hide Notes';
         } else {
           section.classList.remove('open');
-          section.addEventListener('transitionend', () => {
-            section.classList.add('hidden');
-          }, { once: true });
+          section.addEventListener('transitionend', ()=>section.classList.add('hidden'), {once:true});
           e.target.textContent = 'Show Notes';
         }
       };
 
-      // Checklist toggle (local only)
-      div.addEventListener('change', (e) => {
+      // Checklist toggles (local)
+      el.addEventListener('change', (e)=>{
         const cb = e.target.closest('.desc-checkbox');
-        if (!cb) return;
-        const lineIndex = parseInt(cb.getAttribute('data-line-index'), 10);
-        const lines = String(task.description || '').split(/\r?\n/);
-        if (lineIndex < 0 || lineIndex >= lines.length) return;
-        const line = lines[lineIndex];
-        const m = line.match(/^(\s*-\s*\[)([ xX])(\]\s*)(.*)$/);
-        if (!m) return;
-        const newMark = m[2].toLowerCase() === 'x' ? ' ' : 'x';
-        lines[lineIndex] = `${m[1]}${newMark}${m[3]}${m[4]}`;
-        task.description = lines.join('\n');
-        const container = div.querySelector('[data-role="description"]');
-        if (container) container.innerHTML = renderDescriptionHTML(task.description, task.id);
+        if(!cb) return;
+        const idx = parseInt(cb.getAttribute('data-line-index'),10);
+        const lines = String(task.description||'').split(/\\r?\\n/);
+        if(Number.isNaN(idx) || idx<0 || idx>=lines.length) return;
+        const line = lines[idx];
+        const m = line.match(/^(\\s*-\\s*\\[)([ xX])(\\]\\s*)(.*)$/);
+        if(!m) return;
+        const mark = m[2].toLowerCase()==='x' ? ' ' : 'x';
+        lines[idx] = \`\${m[1]}\${mark}\${m[3]}\${m[4]}\`;
+        task.description = lines.join('\\n');
+        const container = el.querySelector('[data-role="description"]');
+        if(container) container.innerHTML = renderDescriptionHTML(task.description, task.id);
       });
 
-      return div;
+      return el;
     }
 
-    // FLIP animation helper
-    function flipAnimate(elements) {
+    // ------- FLIP helper -------
+    function flipAnimate(elements){
       const first = new Map();
-      elements.forEach(el => first.set(el, el.getBoundingClientRect()));
-      requestAnimationFrame(() => {
-        elements.forEach(el => {
+      elements.forEach(el=>first.set(el, el.getBoundingClientRect()));
+      requestAnimationFrame(()=>{
+        elements.forEach(el=>{
           const last = el.getBoundingClientRect();
-          const f = first.get(el); if (!f) return;
+          const f = first.get(el); if(!f) return;
           const dx = f.left - last.left;
           const dy = f.top - last.top;
-          if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+          if(Math.abs(dx)>0.5 || Math.abs(dy)>0.5){
             el.classList.add('flipping');
-            el.style.transform = `translate(${dx}px, ${dy}px)`;
+            el.style.transform = \`translate(\${dx}px,\${dy}px)\`;
             el.style.willChange = 'transform';
-            requestAnimationFrame(() => {
+            requestAnimationFrame(()=>{
               el.style.transform = '';
-              el.addEventListener('transitionend', () => {
+              el.addEventListener('transitionend', ()=>{
                 el.classList.remove('flipping');
                 el.style.willChange = '';
-              }, { once: true });
+              }, {once:true});
             });
           }
         });
       });
     }
 
-    // Pointer-based drag
-    let activeDrag = null;
+    // ------- Pointer-based drag with HANDLE + threshold -------
+    let drag = null;
+    const MOVE_THRESHOLD = 6;   // px before we consider it a drag
+    const LIFT_DELAY = 90;      // ms small delay feels more “real”
 
-    function enablePointerDrag(cardEl) {
-      cardEl.addEventListener('pointerdown', (e) => {
-        if (e.button !== 0) return;
-        const rect = cardEl.getBoundingClientRect();
-        activeDrag = {
-          el: cardEl,
-          startX: e.clientX,
-          startY: e.clientY,
-          rect,
-          originCol: cardEl.dataset.col,
-          currentCol: cardEl.dataset.col
-        };
-
-        // Lift
-        cardEl.classList.add('dragging');
-        cardEl.style.position = 'fixed';
-        cardEl.style.left = rect.left + 'px';
-        cardEl.style.top = rect.top + 'px';
-        cardEl.style.width = rect.width + 'px';
-        cardEl.style.height = rect.height + 'px';
-        cardEl.style.pointerEvents = 'none';
-
-        // Placeholder
-        const ph = document.createElement('div');
-        ph.className = 'task-placeholder';
-        ph.style.setProperty('--ph-height', rect.height + 'px');
-        activeDrag.placeholder = ph;
-        cardEl.parentElement.insertBefore(ph, cardEl.nextSibling);
-
-        cardEl.setPointerCapture(e.pointerId);
-        document.addEventListener('pointermove', onPointerMove);
-        document.addEventListener('pointerup', onPointerUp, { once: true });
+    function bindPointerDnD(){
+      document.querySelectorAll('.task-card .drag-handle').forEach(handle=>{
+        if(handle.dataset.bound) return;
+        handle.dataset.bound = '1';
+        handle.addEventListener('pointerdown', onPointerDown);
       });
     }
 
-    function onPointerMove(e) {
-      if (!activeDrag) return;
-      const dx = e.clientX - activeDrag.startX;
-      const dy = e.clientY - activeDrag.startY;
-      activeDrag.el.style.transform = `translate(${dx}px, ${dy}px)`;
+    function onPointerDown(e){
+      if(e.button!==0) return;
+      const card = e.currentTarget.closest('.task-card');
+      const rect = card.getBoundingClientRect();
+      drag = {
+        card,
+        handle: e.currentTarget,
+        startX: e.clientX,
+        startY: e.clientY,
+        rect,
+        started: false,
+        originCol: card.dataset.col,
+        currentCol: card.dataset.col,
+        currentList: card.closest('.task-list'),
+        pointerId: e.pointerId,
+        timeout: setTimeout(()=>maybeStart(e), LIFT_DELAY)
+      };
+      card.setPointerCapture(e.pointerId);
+      document.addEventListener('pointermove', onPointerMove);
+      document.addEventListener('pointerup', onPointerUp, {once:true});
+    }
 
-      // Column under pointer
+    function maybeStart(e){
+      if(!drag || drag.started) return;
+      // don’t start until user moves at least threshold OR timer fired and moved slightly
+      const moved = Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY);
+      if(moved < MOVE_THRESHOLD) return;
+
+      drag.started = true;
+      liftCard(drag.card, drag.rect);
+      createPlaceholder(drag.card, drag.rect);
+    }
+
+    function liftCard(card, rect){
+      card.classList.add('dragging');
+      // use fixed so it doesn't jump when columns scroll
+      Object.assign(card.style, {
+        position:'fixed',
+        left: rect.left+'px',
+        top: rect.top+'px',
+        width: rect.width+'px',
+        height: rect.height+'px',
+        pointerEvents:'none'
+      });
+    }
+
+    function createPlaceholder(card, rect){
+      const ph = document.createElement('div');
+      ph.className = 'task-placeholder';
+      ph.style.setProperty('--ph-h', rect.height+'px');
+      drag.placeholder = ph;
+      card.parentElement.insertBefore(ph, card.nextSibling);
+    }
+
+    function onPointerMove(e){
+      if(!drag) return;
+      const dx = e.clientX - drag.startX;
+      const dy = e.clientY - drag.startY;
+      // Start if user moved enough and we haven’t started via timer yet
+      if(!drag.started && Math.hypot(dx,dy) >= MOVE_THRESHOLD){
+        clearTimeout(drag.timeout);
+        drag.started = true;
+        liftCard(drag.card, drag.rect);
+        createPlaceholder(drag.card, drag.rect);
+      }
+      if(!drag.started) return;
+
+      drag.card.style.transform = \`translate(\${dx}px, \${dy}px)\`;
+
+      // detect list under pointer
       const lists = [...document.querySelectorAll('.task-list')];
-      let overList = null;
-      for (const l of lists) {
+      let over = null;
+      for(const l of lists){
         const r = l.getBoundingClientRect();
-        if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) {
-          overList = l; break;
+        if(e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom){
+          over = l; break;
         }
       }
-      document.querySelectorAll('.column-section').forEach(sec => sec.classList.remove('drag-target'));
-      if (overList) overList.closest('.column-section').classList.add('drag-target');
+      document.querySelectorAll('.column-section').forEach(s=>s.classList.remove('drag-target'));
+      if(over) over.closest('.column-section').classList.add('drag-target');
 
-      // Reorder placeholder inside the hovered list
-      if (overList) {
-        const cards = [...overList.querySelectorAll('.task-card:not(.dragging)')];
+      if(over){
+        const cards = [...over.querySelectorAll('.task-card:not(.dragging)')];
         let inserted = false;
-        for (const c of cards) {
+        for(const c of cards){
           const cr = c.getBoundingClientRect();
-          if (e.clientY < cr.top + cr.height / 2) {
-            overList.insertBefore(activeDrag.placeholder, c);
+          if(e.clientY < cr.top + cr.height/2){
+            over.insertBefore(drag.placeholder, c);
             inserted = true; break;
           }
         }
-        if (!inserted) overList.appendChild(activeDrag.placeholder);
-        activeDrag.currentCol = overList.dataset.col;
-        activeDrag.currentList = overList;
-      } else {
-        activeDrag.currentCol = activeDrag.originCol;
-        activeDrag.currentList = activeDrag.el.closest('.task-list');
+        if(!inserted) over.appendChild(drag.placeholder);
+        drag.currentCol = over.dataset.col;
+        drag.currentList = over;
       }
     }
 
-    function pulseCard(el) {
-      try {
-        el.animate([{ transform: 'scale(1.045)' }, { transform: 'scale(1)' }], { duration: 220, easing: 'cubic-bezier(.22,.9,.33,1)' });
-      } catch {}
+    function pulse(el){
+      try{ el.animate([{transform:'scale(1.045)'},{transform:'scale(1)'}], {duration:220, easing:'cubic-bezier(.22,.9,.33,1)'}); }catch{}
     }
 
-    function updateCounts() {
-      document.querySelectorAll('.task-list').forEach(list => {
+    function resyncModelFromDOM(){
+      document.querySelectorAll('.task-list').forEach(list=>{
         const colId = list.dataset.col;
-        const count = list.querySelectorAll('.task-card').length;
-        const headerCount = list.parentElement.querySelector('.column-count');
-        if (headerCount) headerCount.textContent = count;
-        // Sync model orders
-        if (state.columns[colId]) {
-          const ids = [...list.querySelectorAll('.task-card')].map(n => n.dataset.id);
-          state.columns[colId].tasks.sort((a,b) => ids.indexOf(a.id) - ids.indexOf(b.id));
-          state.columns[colId].tasks.forEach((t,i) => t.order = i);
-        }
+        const ids = [...list.querySelectorAll('.task-card')].map(n=>n.dataset.id);
+        const arr = state.columns[colId].tasks;
+        arr.sort((a,b)=> ids.indexOf(a.id) - ids.indexOf(b.id));
+        arr.forEach((t,i)=> t.order=i);
+        const countEl = list.parentElement.querySelector('.column-count');
+        if(countEl) countEl.textContent = arr.length;
       });
     }
 
-    async function onPointerUp() {
-      if (!activeDrag) return;
-      const { el, placeholder, currentCol, originCol } = activeDrag;
+    function onPointerUp(){
+      if(!drag) return;
+      clearTimeout(drag.timeout);
 
-      const srcList = el.closest('.task-list');
-      const dstList = placeholder.closest('.task-list');
+      const {card, placeholder, currentCol, originCol, currentList} = drag;
 
-      // Elements to FLIP before DOM change
+      if(!drag.started){
+        // It was a click on the handle; do nothing special
+        cleanupDrag();
+        return;
+      }
+
+      // FLIP animate affected siblings before DOM change
+      const srcList = card.closest('.task-list');
+      const dstList = currentList || srcList;
       const affected = new Set([
         ...srcList.querySelectorAll('.task-card:not(.dragging)'),
         ...dstList.querySelectorAll('.task-card:not(.dragging)')
       ]);
       flipAnimate([...affected]);
 
-      // Place card into placeholder
-      dstList.insertBefore(el, placeholder);
+      // Drop: insert card where placeholder is
+      dstList.insertBefore(card, placeholder);
       placeholder.remove();
 
-      // Reset lifted styles
-      el.classList.remove('dragging');
-      Object.assign(el.style, { position:'', left:'', top:'', width:'', height:'', transform:'', pointerEvents:'' });
+      // reset lifted styles
+      card.classList.remove('dragging');
+      Object.assign(card.style, { position:'', left:'', top:'', width:'', height:'', transform:'', pointerEvents:'' });
+      document.querySelectorAll('.column-section').forEach(s=>s.classList.remove('drag-target'));
 
-      // Update dataset and model
-      el.dataset.col = currentCol;
+      // Update dataset + model
+      card.dataset.col = currentCol;
+      const fromArr = state.columns[originCol].tasks;
+      const toArr = state.columns[currentCol].tasks;
+      const movedIdx = fromArr.findIndex(t=>t.id===card.dataset.id);
+      const moved = fromArr.splice(movedIdx,1)[0];
+      const ids = [...dstList.querySelectorAll('.task-card')].map(n=>n.dataset.id);
+      const newIndex = ids.indexOf(card.dataset.id);
+      toArr.splice(newIndex, 0, moved);
 
-      // Update model arrays
-      const findById = (arr, id) => arr.findIndex(t => t.id === id);
-      const srcArr = state.columns[originCol].tasks;
-      const dstArr = state.columns[currentCol].tasks;
+      resyncModelFromDOM();
+      pulse(card);
 
-      const srcIdx = findById(srcArr, el.dataset.id);
-      const moving = srcArr.splice(srcIdx, 1)[0];
-      moving && (moving.order = 0);
+      cleanupDrag();
+    }
 
-      const dstIds = [...dstList.querySelectorAll('.task-card')].map(n => n.dataset.id);
-      const newIndex = dstIds.indexOf(el.dataset.id);
-      dstArr.splice(newIndex, 0, moving);
-
-      // Reindex orders and update counts
-      updateCounts();
-
-      // Visual feedback
-      document.querySelectorAll('.column-section').forEach(sec => sec.classList.remove('drag-target'));
-      pulseCard(el);
-
-      activeDrag = null;
+    function cleanupDrag(){
+      if(!drag) return;
+      try{ drag.card.releasePointerCapture(drag.pointerId); }catch{}
       document.removeEventListener('pointermove', onPointerMove);
+      drag = null;
     }
 
-    function initPointerDnD() {
-      document.querySelectorAll('.task-card').forEach(card => {
-        if (!card.dataset.pointerBound) {
-          enablePointerDrag(card);
-          card.dataset.pointerBound = '1';
-        }
-      });
-    }
-
-    // Kick off
+    // Boot
     renderBoard();
   </script>
 </body>

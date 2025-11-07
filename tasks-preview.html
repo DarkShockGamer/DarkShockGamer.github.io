@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Atlas Preview v2 — Task Board</title>
+  <title>Atlas Preview v3 — Task Board</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root{
@@ -15,8 +15,8 @@
       --dur-medium: 260ms;
       --dur-slow: 520ms;
       --card-radius: 16px;
-      --accent: #0ea5e9; /* sky-500 */
-      --accent-2: #38bdf8; /* sky-400 */
+      --accent: #0ea5e9;
+      --accent-2: #38bdf8;
       --glass-alpha: .55;
     }
 
@@ -33,24 +33,17 @@
       body {
         background:
           radial-gradient(1200px 600px at -10% -10%, rgba(14,165,233,.18), transparent 60%),
-        radial-gradient(1000px 700px at 110% -10%, rgba(56,189,248,.12), transparent 60%),
-        linear-gradient(to bottom, #0b1220, #0a0f1a 45%, #0b1220);
+          radial-gradient(1000px 700px at 110% -10%, rgba(56,189,248,.12), transparent 60%),
+          linear-gradient(to bottom, #0b1220, #0a0f1a 45%, #0b1220);
         color: #e5e7eb;
       }
     }
 
-    /* Glass columns with more personality */
     @media (prefers-color-scheme: light) {
-      .column-section {
-        --glass-bg: rgba(255,255,255,var(--glass-alpha));
-        --glass-stroke: rgba(0,0,0,.06);
-      }
+      .column-section { --glass-bg: rgba(255,255,255,var(--glass-alpha)); --glass-stroke: rgba(0,0,0,.06); }
     }
     @media (prefers-color-scheme: dark) {
-      .column-section {
-        --glass-bg: rgba(15,23,42,var(--glass-alpha));
-        --glass-stroke: rgba(255,255,255,.08);
-      }
+      .column-section { --glass-bg: rgba(15,23,42,var(--glass-alpha)); --glass-stroke: rgba(255,255,255,.08); }
     }
     .column-section {
       position: relative;
@@ -60,48 +53,27 @@
       background: var(--glass-bg);
       backdrop-filter: saturate(160%) blur(18px);
       -webkit-backdrop-filter: saturate(160%) blur(18px);
-      box-shadow:
-        0 6px 28px rgba(2,6,23,.08),
-        0 1px 0 rgba(255,255,255,.08) inset;
-      transition:
-        box-shadow var(--dur-medium) var(--ease-soft-out),
-        border-color var(--dur-fast) linear,
-        background-color var(--dur-fast) linear;
+      box-shadow: 0 6px 28px rgba(2,6,23,.08), 0 1px 0 rgba(255,255,255,.08) inset;
+      transition: box-shadow var(--dur-medium) var(--ease-soft-out), border-color var(--dur-fast) linear, background-color var(--dur-fast) linear;
     }
-    .column-section.drag-target {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgb(14 165 233 / .18), 0 10px 40px rgb(2 132 199 / .2);
-    }
+    .column-section.drag-target { border-color: var(--accent); box-shadow: 0 0 0 3px rgb(14 165 233 / .18), 0 10px 40px rgb(2 132 199 / .2); }
 
     .column-header {
       display:flex; align-items:center; justify-content:space-between;
-      margin-bottom:.75rem;
-      border:1px solid rgba(148,163,184,.25);
-      border-radius:14px;
-      padding:.5rem .75rem;
+      margin-bottom:.75rem; border:1px solid rgba(148,163,184,.25);
+      border-radius:14px; padding:.5rem .75rem;
       background: linear-gradient(180deg, rgba(241,245,249,.8), rgba(241,245,249,.55));
     }
-    .column-title {
-      font-weight: 700;
-      color: #0f172a;
-    }
-    .column-count {
-      font-size: .75rem; line-height: 1.25rem;
-      padding: 0 .5rem;
-      border-radius: 999px;
-      border:1px solid #bae6fd;
-      background: #e0f2fe;
-      color: #0369a1;
-    }
+    .column-title { font-weight: 700; color: #0f172a; }
+    .column-count { font-size:.75rem; line-height:1.25rem; padding:0 .5rem; border-radius:999px; border:1px solid #bae6fd; background:#e0f2fe; color:#0369a1; }
     @media (prefers-color-scheme: dark) {
-      .column-header { border-color: #1f2937; background: linear-gradient(180deg, rgba(15,23,42,.7), rgba(15,23,42,.55)); }
-      .column-title { color: #e2e8f0; }
+      .column-header { border-color:#1f2937; background: linear-gradient(180deg, rgba(15,23,42,.7), rgba(15,23,42,.55)); }
+      .column-title { color:#e2e8f0; }
       .column-count { background:#083344; color:#7dd3fc; border-color:#075985; }
     }
 
-    .task-list { min-height: 120px; display:grid; gap: .85rem; }
+    .task-list { min-height: 120px; display:grid; gap:.85rem; }
 
-    /* Card with stronger personality */
     .task-card {
       position: relative;
       border-radius: var(--card-radius);
@@ -109,27 +81,18 @@
       background: linear-gradient(180deg, #ffffff, #fbfdff);
       padding: 12px;
       box-shadow: 0 1px 1px rgba(2,6,23,.04);
-      transition:
-        transform var(--dur-medium) var(--ease-spring),
-        box-shadow var(--dur-medium) var(--ease-soft-out),
-        border-color var(--dur-fast) linear,
-        opacity var(--dur-fast) linear,
-        background-color var(--dur-fast) linear;
+      transition: transform var(--dur-medium) var(--ease-spring), box-shadow var(--dur-medium) var(--ease-soft-out), border-color var(--dur-fast) linear, opacity var(--dur-fast) linear, background-color var(--dur-fast) linear;
       will-change: transform, box-shadow;
       transform-origin: 50% 50%;
-      touch-action: none;
+      /* Important: keep interactions inside the card working */
+      cursor: default;
     }
-    .task-card:hover {
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 14px 40px -10px rgba(2,132,199,.28), 0 6px 20px rgba(2,6,23,.08);
-      border-color: #93c5fd;
-    }
+    .task-card:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 14px 40px -10px rgba(2,132,199,.28), 0 6px 20px rgba(2,6,23,.08); border-color: #93c5fd; }
     @media (prefers-color-scheme: dark) {
       .task-card { border-color:#1f2937; background: linear-gradient(180deg, #0b1220, #0d1424); box-shadow: 0 1px 1px rgba(2,6,23,.6); }
       .task-card:hover { border-color: var(--accent); box-shadow: 0 14px 40px -10px rgba(14,165,233,.28), 0 8px 24px rgba(0,0,0,.35); }
     }
 
-    /* Drag handle (only this starts drag -> everything else stays clickable) */
     .drag-handle {
       display:flex; align-items:center; justify-content:center;
       width: 28px; height: 28px;
@@ -138,23 +101,15 @@
       background: linear-gradient(180deg, rgba(248,250,252,.9), rgba(248,250,252,.7));
       cursor: grab;
       transition: transform var(--dur-fast) var(--ease-soft-out), border-color var(--dur-fast), background-color var(--dur-fast);
+      /* Move touch-action to handle so the card remains scroll/selectable */
+      touch-action: none;
     }
     .drag-handle:hover { transform: scale(1.06); border-color: #93c5fd; }
     .drag-handle:active { cursor: grabbing; }
-    @media (prefers-color-scheme: dark) {
-      .drag-handle { border-color:#334155; background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(15,23,42,.7)); }
-      .drag-handle:hover { border-color: var(--accent); }
-    }
-    .grip {
-      width:14px; height:14px; opacity:.7;
-      background:
-        radial-gradient(currentColor 2px, transparent 3px) 0 0/7px 7px,
-        radial-gradient(currentColor 2px, transparent 3px) 7px 7px/7px 7px;
-      color:#64748b;
-    }
+    @media (prefers-color-scheme: dark) { .drag-handle { border-color:#334155; background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(15,23,42,.7)); } .drag-handle:hover { border-color: var(--accent); } }
+    .grip { width:14px; height:14px; opacity:.7; background: radial-gradient(currentColor 2px, transparent 3px) 0 0/7px 7px, radial-gradient(currentColor 2px, transparent 3px) 7px 7px/7px 7px; color:#64748b; }
     @media (prefers-color-scheme: dark){ .grip { color:#94a3b8; } }
 
-    /* Card while dragging */
     .task-card.dragging {
       pointer-events: none;
       z-index: 1000;
@@ -164,18 +119,15 @@
       box-shadow: 0 22px 58px -16px rgba(2,132,199,.38), 0 10px 26px rgba(0,0,0,.35);
     }
     .task-card.dragging::after {
-      content:"";
-      position:absolute; inset:0; border-radius:inherit; padding:2px;
+      content:""; position:absolute; inset:0; border-radius:inherit; padding:2px;
       background: linear-gradient(135deg, var(--accent), var(--accent-2), #0369a1);
       -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
       mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
       -webkit-mask-composite: xor; mask-composite: exclude;
-      opacity:.55;
-      animation: ringFlow 3s linear infinite;
+      opacity:.55; animation: ringFlow 3s linear infinite;
     }
     @keyframes ringFlow { 0%{ filter:hue-rotate(0deg) } 100%{ filter:hue-rotate(360deg) } }
 
-    /* Placeholder */
     .task-placeholder{
       height: var(--ph-h, 72px);
       border:2px dashed var(--accent);
@@ -183,15 +135,10 @@
       background: rgba(14,165,233,.07);
       animation: pulsePlaceholder 1.6s ease-in-out infinite;
     }
-    @keyframes pulsePlaceholder {
-      0%,100%{ background: rgba(14,165,233,.07) }
-      50%{ background: rgba(14,165,233,.13) }
-    }
+    @keyframes pulsePlaceholder { 0%,100%{ background: rgba(14,165,233,.07) } 50%{ background: rgba(14,165,233,.13) } }
 
-    /* FLIP */
     .task-card.flipping { transition: transform var(--dur-medium) var(--ease-spring); }
 
-    /* Tags */
     .tag-chip {
       display:inline-block; background:#e0f2fe; color:#0369a1;
       padding: 2px 8px; border-radius:999px; border:1px solid #bae6fd;
@@ -201,7 +148,6 @@
     @media (prefers-color-scheme: dark){ .tag-chip{ background:#0c4a6e; color:#e0f2fe; border-color:#075985; } }
     @keyframes chipIn{ from{ transform: translateY(4px); opacity:0 } to{ transform:none; opacity:1 } }
 
-    /* Comments expand/collapse */
     .comments-section {
       border-top:1px solid #e2e8f0;
       margin-top:.5rem; padding-top:.5rem;
@@ -212,11 +158,9 @@
     .comments-section.entering { opacity:0; transform: scaleY(.92) }
     .comments-section.open { opacity:1; transform: scaleY(1) }
 
-    /* Due colors */
     .due-overdue { color:#dc2626 }
     .due-soon { color:#d97706 }
 
-    /* Reduced motion */
     @media (prefers-reduced-motion: reduce){
       .task-card, .comments-section, .tag-chip { animation:none !important; transition:none !important; }
       .task-placeholder { animation:none !important; }
@@ -227,10 +171,10 @@
   <header class="max-w-7xl mx-auto mb-6 px-2">
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
       <div class="flex flex-col gap-1">
-        <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">Atlas Preview v2 — Task Board</h1>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">Atlas Preview v3 — Task Board</h1>
         <p class="text-sm text-sky-600 dark:text-sky-400">Glass columns, springy motion, FLIP reorder, handle-only drag</p>
       </div>
-      <div class="text-sm text-slate-600 dark:text-slate-300">Drag from grip handle • Everything else is clickable</div>
+      <div class="text-sm text-slate-600 dark:text-slate-300">Drag from the grip; everything else is clickable</div>
     </div>
   </header>
 
@@ -242,7 +186,7 @@
   </main>
 
   <script>
-    // ------- Sample Data (local-only) -------
+    // Sample model (local only)
     const state = {
       order: ['backlog', 'todo', 'inprogress', 'done'],
       columns: {
@@ -288,17 +232,19 @@
     }
     function renderDescriptionHTML(desc, taskId){
       const text = String(desc||''); if(!text.trim()) return '';
-      const lines = text.split(/\\r?\\n/);
+      const lines = text.split(/\r?\n/);
+      // IMPORTANT: Use regex literal (not RegExp constructor with slashes)
+      const checkboxRe = /^\s*-\s*\[([ xX])\]\s*(.*)$/;
       return lines.map((line, idx)=>{
-        const m = line.match(/^\\s*-\\s*\\[([ xX])\\]\\s*(.*)$/);
+        const m = line.match(checkboxRe);
         if(m){
           const checked = m[1].toLowerCase()==='x';
           const item = m[2] || '';
-          return \`
+          return `
             <label class="flex items-start gap-2 py-0.5 select-none">
-              <input type="checkbox" class="desc-checkbox mt-0.5" data-task-id="\${escHtml(taskId)}" data-line-index="\${idx}" \${checked?'checked':''} />
-              <span class="leading-tight whitespace-pre-wrap break-words">\${escHtml(item)}</span>
-            </label>\`;
+              <input type="checkbox" class="desc-checkbox mt-0.5" data-task-id="${escHtml(taskId)}" data-line-index="${idx}" ${checked?'checked':''} />
+              <span class="leading-tight whitespace-pre-wrap break-words">${escHtml(item)}</span>
+            </label>`;
         }
         return '<div class="leading-tight py-0.5 whitespace-pre-wrap break-words">'+escHtml(line)+'</div>';
       }).join('');
@@ -313,12 +259,12 @@
         col.tasks.forEach((t,i)=>t.order=i);
         const section = document.createElement('section');
         section.className = 'column-section';
-        section.innerHTML = \`
+        section.innerHTML = `
           <div class="column-header">
-            <h2 class="column-title text-base">\${escHtml(col.title)}</h2>
-            <div class="column-count">\${col.tasks.length}</div>
+            <h2 class="column-title text-base">${escHtml(col.title)}</h2>
+            <div class="column-count">${col.tasks.length}</div>
           </div>
-          <div class="task-list" data-col="\${colId}"></div>\`;
+          <div class="task-list" data-col="${colId}"></div>`;
         board.appendChild(section);
 
         const list = section.querySelector('.task-list');
@@ -338,12 +284,12 @@
       const descHtml = renderDescriptionHTML(task.description||'', task.id);
       const tagsHtml = (task.tags||[]).map(tag=>'<span class="tag-chip">'+escHtml(tag)+'</span>').join('');
 
-      el.innerHTML = \`
+      el.innerHTML = `
         <div class="flex items-start justify-between gap-2">
           <div class="min-w-0">
-            <h3 class="font-semibold text-slate-800 dark:text-slate-100 truncate">\${escHtml(task.title)}</h3>
+            <h3 class="font-semibold text-slate-800 dark:text-slate-100 truncate">${escHtml(task.title)}</h3>
             <div class="text-xs text-slate-500 dark:text-slate-400">
-              \${escHtml(task.assignee||'Unassigned')} • \${formatDueDate(task.due||'')}
+              ${escHtml(task.assignee||'Unassigned')} • ${formatDueDate(task.due||'')}
             </div>
           </div>
           <button class="drag-handle shrink-0" aria-label="Drag task" title="Drag task">
@@ -351,30 +297,29 @@
           </button>
         </div>
 
-        \${tagsHtml ? '<div class="mt-2 flex gap-2 flex-wrap">'+tagsHtml+'</div>' : ''}
+        ${tagsHtml ? '<div class="mt-2 flex gap-2 flex-wrap">'+tagsHtml+'</div>' : ''}
 
-        \${descHtml ? \`
+        ${descHtml ? `
           <div class="mt-3 border border-slate-100 dark:border-slate-800 rounded-md p-2 bg-slate-50 dark:bg-slate-900" data-role="description">
-            \${descHtml}
-          </div>\` : ''}
+            ${descHtml}
+          </div>` : ''}
 
         <div class="mt-3">
           <button class="text-xs text-sky-600 dark:text-sky-400 underline toggle-comments">Show Notes</button>
           <div class="comments-section hidden">
             <div class="text-sm text-slate-800 dark:text-slate-200 space-y-2 mt-2">
-              \${(task.comments||[]).map(c=>{
+              ${(task.comments||[]).map(c=>{
                 const dateStr = c.timestamp ? new Date(c.timestamp).toLocaleString([], {month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
-                return \`
+                return `
                   <div class="border border-slate-100 dark:border-slate-800 rounded-md p-2 bg-slate-50 dark:bg-slate-900">
-                    <div class="mb-1">\${escHtml(c.text||'')}</div>
-                    <div class="text-xs text-slate-400">\${escHtml(c.author||'Anonymous')} • \${dateStr}</div>
-                  </div>\`;
+                    <div class="mb-1">${escHtml(c.text||'')}</div>
+                    <div class="text-xs text-slate-400">${escHtml(c.author||'Anonymous')} • ${dateStr}</div>
+                  </div>`;
               }).join('')}
             </div>
           </div>
-        </div>\`;
+        </div>`;
 
-      // Comments animation
       el.querySelector('.toggle-comments').onclick = (e)=>{
         const section = el.querySelector('.comments-section');
         if(section.classList.contains('hidden')){
@@ -389,19 +334,19 @@
         }
       };
 
-      // Checklist toggles (local)
       el.addEventListener('change', (e)=>{
         const cb = e.target.closest('.desc-checkbox');
         if(!cb) return;
         const idx = parseInt(cb.getAttribute('data-line-index'),10);
-        const lines = String(task.description||'').split(/\\r?\\n/);
-        if(Number.isNaN(idx) || idx<0 || idx>=lines.length) return;
+        const lines = String(task.description||'').split(/\r?\n/);
         const line = lines[idx];
-        const m = line.match(/^(\\s*-\\s*\\[)([ xX])(\\]\\s*)(.*)$/);
+        if (typeof line !== 'string') return;
+        // IMPORTANT: regex literal (no constructor)
+        const m = line.match(/^(\s*-\s*\[)([ xX])(\]\s*)(.*)$/);
         if(!m) return;
         const mark = m[2].toLowerCase()==='x' ? ' ' : 'x';
-        lines[idx] = \`\${m[1]}\${mark}\${m[3]}\${m[4]}\`;
-        task.description = lines.join('\\n');
+        lines[idx] = `${m[1]}${mark}${m[3]}${m[4]}`;
+        task.description = lines.join('\n');
         const container = el.querySelector('[data-role="description"]');
         if(container) container.innerHTML = renderDescriptionHTML(task.description, task.id);
       });
@@ -409,7 +354,7 @@
       return el;
     }
 
-    // ------- FLIP helper -------
+    // FLIP helper
     function flipAnimate(elements){
       const first = new Map();
       elements.forEach(el=>first.set(el, el.getBoundingClientRect()));
@@ -421,7 +366,7 @@
           const dy = f.top - last.top;
           if(Math.abs(dx)>0.5 || Math.abs(dy)>0.5){
             el.classList.add('flipping');
-            el.style.transform = \`translate(\${dx}px,\${dy}px)\`;
+            el.style.transform = `translate(${dx}px, ${dy}px)`;
             el.style.willChange = 'transform';
             requestAnimationFrame(()=>{
               el.style.transform = '';
@@ -435,10 +380,10 @@
       });
     }
 
-    // ------- Pointer-based drag with HANDLE + threshold -------
+    // Pointer-based drag with handle + threshold
     let drag = null;
-    const MOVE_THRESHOLD = 6;   // px before we consider it a drag
-    const LIFT_DELAY = 90;      // ms small delay feels more “real”
+    const MOVE_THRESHOLD = 6;
+    const LIFT_DELAY = 90;
 
     function bindPointerDnD(){
       document.querySelectorAll('.task-card .drag-handle').forEach(handle=>{
@@ -450,32 +395,27 @@
 
     function onPointerDown(e){
       if(e.button!==0) return;
-      const card = e.currentTarget.closest('.task-card');
+      const handle = e.currentTarget;
+      const card = handle.closest('.task-card');
       const rect = card.getBoundingClientRect();
       drag = {
-        card,
-        handle: e.currentTarget,
-        startX: e.clientX,
-        startY: e.clientY,
-        rect,
-        started: false,
-        originCol: card.dataset.col,
-        currentCol: card.dataset.col,
+        card, handle,
+        startX: e.clientX, startY: e.clientY,
+        rect, started: false,
+        originCol: card.dataset.col, currentCol: card.dataset.col,
         currentList: card.closest('.task-list'),
         pointerId: e.pointerId,
         timeout: setTimeout(()=>maybeStart(e), LIFT_DELAY)
       };
-      card.setPointerCapture(e.pointerId);
+      handle.setPointerCapture(e.pointerId);
       document.addEventListener('pointermove', onPointerMove);
       document.addEventListener('pointerup', onPointerUp, {once:true});
     }
 
     function maybeStart(e){
       if(!drag || drag.started) return;
-      // don’t start until user moves at least threshold OR timer fired and moved slightly
       const moved = Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY);
       if(moved < MOVE_THRESHOLD) return;
-
       drag.started = true;
       liftCard(drag.card, drag.rect);
       createPlaceholder(drag.card, drag.rect);
@@ -483,7 +423,6 @@
 
     function liftCard(card, rect){
       card.classList.add('dragging');
-      // use fixed so it doesn't jump when columns scroll
       Object.assign(card.style, {
         position:'fixed',
         left: rect.left+'px',
@@ -506,7 +445,7 @@
       if(!drag) return;
       const dx = e.clientX - drag.startX;
       const dy = e.clientY - drag.startY;
-      // Start if user moved enough and we haven’t started via timer yet
+
       if(!drag.started && Math.hypot(dx,dy) >= MOVE_THRESHOLD){
         clearTimeout(drag.timeout);
         drag.started = true;
@@ -515,16 +454,13 @@
       }
       if(!drag.started) return;
 
-      drag.card.style.transform = \`translate(\${dx}px, \${dy}px)\`;
+      drag.card.style.transform = `translate(${dx}px, ${dy}px)`;
 
-      // detect list under pointer
       const lists = [...document.querySelectorAll('.task-list')];
       let over = null;
       for(const l of lists){
         const r = l.getBoundingClientRect();
-        if(e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom){
-          over = l; break;
-        }
+        if(e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom){ over = l; break; }
       }
       document.querySelectorAll('.column-section').forEach(s=>s.classList.remove('drag-target'));
       if(over) over.closest('.column-section').classList.add('drag-target');
@@ -534,10 +470,7 @@
         let inserted = false;
         for(const c of cards){
           const cr = c.getBoundingClientRect();
-          if(e.clientY < cr.top + cr.height/2){
-            over.insertBefore(drag.placeholder, c);
-            inserted = true; break;
-          }
+          if(e.clientY < cr.top + cr.height/2){ over.insertBefore(drag.placeholder, c); inserted = true; break; }
         }
         if(!inserted) over.appendChild(drag.placeholder);
         drag.currentCol = over.dataset.col;
@@ -568,12 +501,10 @@
       const {card, placeholder, currentCol, originCol, currentList} = drag;
 
       if(!drag.started){
-        // It was a click on the handle; do nothing special
         cleanupDrag();
         return;
       }
 
-      // FLIP animate affected siblings before DOM change
       const srcList = card.closest('.task-list');
       const dstList = currentList || srcList;
       const affected = new Set([
@@ -582,17 +513,15 @@
       ]);
       flipAnimate([...affected]);
 
-      // Drop: insert card where placeholder is
       dstList.insertBefore(card, placeholder);
       placeholder.remove();
 
-      // reset lifted styles
       card.classList.remove('dragging');
       Object.assign(card.style, { position:'', left:'', top:'', width:'', height:'', transform:'', pointerEvents:'' });
       document.querySelectorAll('.column-section').forEach(s=>s.classList.remove('drag-target'));
 
-      // Update dataset + model
       card.dataset.col = currentCol;
+
       const fromArr = state.columns[originCol].tasks;
       const toArr = state.columns[currentCol].tasks;
       const movedIdx = fromArr.findIndex(t=>t.id===card.dataset.id);
@@ -609,12 +538,12 @@
 
     function cleanupDrag(){
       if(!drag) return;
-      try{ drag.card.releasePointerCapture(drag.pointerId); }catch{}
+      try{ drag.handle.releasePointerCapture(drag.pointerId); }catch{}
       document.removeEventListener('pointermove', onPointerMove);
       drag = null;
     }
 
-    // Boot
+    // Go
     renderBoard();
   </script>
 </body>

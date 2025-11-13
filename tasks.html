@@ -184,7 +184,7 @@
     </div>
 
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-      <input id="filterInput" placeholder="Search or filter by assignee..." class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
+      <input id="filterInput" placeholder="Search tasks..." class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
       <!-- Added data-sound="whoosh" so only the whoosh plays (no default click) -->
       <button id="menuBtn" data-sound="whoosh" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Menu</button>
     </div>
@@ -451,7 +451,8 @@ async function renderBoard() {
         return !f
           || (t.title || "").toLowerCase().includes(f)
           || (t.assignee || "").toLowerCase().includes(f)
-          || (t.tags || []).join(" ").toLowerCase().includes(f);
+          || (t.description || "").toLowerCase().includes(f)
+          || (t.tags || []).some(tag => tag.toLowerCase().includes(f));
       })
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .forEach(task => list.appendChild(createTaskEl(task, colId)));

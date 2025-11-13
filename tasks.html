@@ -141,7 +141,11 @@
       right: 1rem;
       top: 1rem;
       display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
       gap: 0.5rem;
+      padding: 0.625rem 0.75rem;
+      border-radius: 0.5rem;
       z-index: 1003;
     }
     .toast {
@@ -975,18 +979,21 @@ function getCurrentUserName() { return localStorage.getItem('trident.fullname') 
 
 /* Toasts (Slide-in + Sound hooks) with fade-out and reliable auto-dismiss */
 const toastStack = document.getElementById('toastStack');
+
 function showToast(type, message, timeout = 10000) {
   if (!toastStack) return;
+
   const el = document.createElement('div');
   el.className = `toast ${type}`;
   el.setAttribute('role', 'status');
   el.innerHTML = `
     <span aria-hidden="true">
-      ${type === 'success' ? '✔' : type === 'info' ? 'ℹ️' : type === 'warn' ? '⚠️' : '✖'}
+      ${type === 'success' ? '✔️' : type === 'info' ? 'ℹ️' : type === 'warn' ? '⚠️' : '✖️'}
     </span>
     <div class="text-sm">${message}</div>
-    <button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Dismiss">✖</button>
+    <button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Dismiss">✖️</button>
   `;
+
   toastStack.appendChild(el);
   requestAnimationFrame(() => el.classList.add('show'));
 
@@ -1016,21 +1023,17 @@ function showToast(type, message, timeout = 10000) {
   let remaining = timeout;
   let timer = setTimeout(removeAfterTransition, remaining);
 
-  const pause = () => {
-    clearTimeout(timer);
-    remaining -= (Date.now() - start);
-  };
-  const resume = () => {
-    start = Date.now();
-    clearTimeout(timer);
-    timer = setTimeout(removeAfterTransition, Math.max(0, remaining));
-  };
+  const pause = () => { clearTimeout(timer); remaining -= (Date.now() - start); };
+  const resume = () => { start = Date.now(); clearTimeout(timer); timer = setTimeout(removeAfterTransition, Math.max(0, remaining)); };
 
   el.addEventListener('mouseenter', pause);
   el.addEventListener('mouseleave', resume);
-
-  window.showToast = showToast;
 }
+
+// Keep existing calls working: Toast(message, type) -> showToast(type, message)
+window.Toast = (message, type, timeout) => showToast(type || 'info', message, timeout);
+// Also expose showToast for direct use, same as tasks.html
+window.showToast = showToast;
 
 /* Initial render */
 renderBoard();

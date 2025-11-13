@@ -85,6 +85,48 @@
       .gear { opacity: 0.20; }
     }
 
+    /* Toasts: Slide-in + Sound-ready */
+    .toast-stack {
+      position: fixed;
+      right: 1rem;
+      top: 1rem;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 0.75rem;
+      border-radius: 0.5rem;
+      z-index: 1003;
+    }
+    .toast {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 0.75rem;
+      border-radius: 0.5rem;
+      min-width: 240px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      transform: translateX(16px);
+      opacity: 0;
+      transition: all 200ms ease;
+      box-shadow: 0 10px 24px rgba(2,132,199,0.08);
+      will-change: opacity, transform;
+    }
+    .toast.show { transform: translateX(0); opacity: 1; }
+    .toast.success { border-color: #bbf7d0; background: #f0fdf4; color: #065f46; }
+    .toast.info    { border-color: #bae6fd; background: #eff6ff; color: #075985; }
+    .toast.warn    { border-color: #fde68a; background: #fffbea; color: #92400e; }
+    .toast.error   { border-color: #fecaca; background: #fef2f2; color: #7f1d1d; }
+    @media (prefers-color-scheme: dark) {
+      .toast { background: #0f172a; border-color: #1f2937; color: #e5e7eb; box-shadow: 0 10px 24px rgba(14,165,233,.18); }
+      .toast.success { border-color: #064e3b; background: #052e2b; color: #bbf7d0; }
+      .toast.info    { border-color: #0c4a6e; background: #052335; color: #bae6fd; }
+      .toast.warn    { border-color: #78350f; background: #2f1f05; color: #fde68a; }
+      .toast.error   { border-color: #7f1d1d; background: #2b0b0b; color: #fecaca; }
+    }
+    
     /* --- Theme Overrides --- */
     /* Light Theme */
     html.theme-light body {
@@ -296,6 +338,7 @@
       </form>
     </div>
   </main>
+  <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
   <script>
     // --- Floating Gears Background Animation ---
     // Generates multiple SVG gears with random movement/rotation
@@ -449,15 +492,65 @@
     setupToggleSound('toggleReduceMotion');
     setupToggleSound('toggleDataCollection');
 
-    // Note: Form handlers are now in settings.js
-    // Demo toast
-    window.Toast = function(msg, type){
-      let el = document.createElement("div");
-      el.className = "fixed right-6 top-6 z-50 px-4 py-2 rounded bg-sky-600 text-white font-semibold shadow-lg fadein";
-      el.textContent = msg;
-      document.body.appendChild(el);
-      setTimeout(()=>el.remove(), 2200);
+  </script>
+  <script>
+    const toastStack = document.getElementById('toastStack');
+
+    function showToast(type, message, timeout = 10000) {
+      if (!toastStack) return;
+
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.setAttribute('role', 'status');
+      el.innerHTML = `
+        <span aria-hidden="true">
+          ${type === 'success' ? '✔️' : type === 'info' ? 'ℹ️' : type === 'warn' ? '⚠️' : '✖️'}
+        </span>
+        <div class="text-sm">${message}</div>
+        <button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Dismiss">✖️</button>
+      `;
+
+      toastStack.appendChild(el);
+      requestAnimationFrame(() => el.classList.add('show'));
+
+      // Optional: play a sound based on type, if your Sound helper exists
+      try {
+        if (window.Sound) {
+          if (type === 'success' && Sound.success) Sound.success();
+          else if (type === 'info' && Sound.info) Sound.info();
+          else if (type === 'warn' && Sound.warn) Sound.warn();
+          else if (type === 'error' && Sound.error) Sound.error();
+        }
+      } catch {}
+
+      const removeAfterTransition = () => {
+        const onEnd = (e) => {
+          if (e.target === el) {
+            el.removeEventListener('transitionend', onEnd);
+            el.remove();
+          }
+        };
+        el.addEventListener('transitionend', onEnd);
+        el.classList.remove('show');
+      };
+
+      el.querySelector('button')?.addEventListener('click', removeAfterTransition);
+
+      let start = Date.now();
+      let remaining = timeout;
+      let timer = setTimeout(removeAfterTransition, remaining);
+
+      const pause = () => { clearTimeout(timer); remaining -= (Date.now() - start); };
+      const resume = () => { start = Date.now(); clearTimeout(timer); timer = setTimeout(removeAfterTransition, Math.max(0, remaining)); };
+
+      el.addEventListener('mouseenter', pause);
+      el.addEventListener('mouseleave', resume);
     }
+
+    // Keep existing calls working: Toast(message, type) -> showToast(type, message)
+    window.Toast = (message, type, timeout) => showToast(type || 'info', message, timeout);
+    // Also expose showToast for direct use, same as tasks.html
+    window.showToast = showToast;
   </script>
   <script src="/assets/js/settings.js"></script>
 </body>

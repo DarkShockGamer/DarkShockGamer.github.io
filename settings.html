@@ -493,65 +493,7 @@
     setupToggleSound('toggleDataCollection');
 
   </script>
-  <script>
-    const toastStack = document.getElementById('toastStack');
-
-    function showToast(type, message, timeout = 10000) {
-      if (!toastStack) return;
-
-      const el = document.createElement('div');
-      el.className = `toast ${type}`;
-      el.setAttribute('role', 'status');
-      el.innerHTML = `
-        <span aria-hidden="true">
-          ${type === 'success' ? '✔️' : type === 'info' ? 'ℹ️' : type === 'warn' ? '⚠️' : '✖️'}
-        </span>
-        <div class="text-sm">${message}</div>
-        <button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Dismiss">✖️</button>
-      `;
-
-      toastStack.appendChild(el);
-      requestAnimationFrame(() => el.classList.add('show'));
-
-      // Optional: play a sound based on type, if your Sound helper exists
-      try {
-        if (window.Sound) {
-          if (type === 'success' && Sound.success) Sound.success();
-          else if (type === 'info' && Sound.info) Sound.info();
-          else if (type === 'warn' && Sound.warn) Sound.warn();
-          else if (type === 'error' && Sound.error) Sound.error();
-        }
-      } catch {}
-
-      const removeAfterTransition = () => {
-        const onEnd = (e) => {
-          if (e.target === el) {
-            el.removeEventListener('transitionend', onEnd);
-            el.remove();
-          }
-        };
-        el.addEventListener('transitionend', onEnd);
-        el.classList.remove('show');
-      };
-
-      el.querySelector('button')?.addEventListener('click', removeAfterTransition);
-
-      let start = Date.now();
-      let remaining = timeout;
-      let timer = setTimeout(removeAfterTransition, remaining);
-
-      const pause = () => { clearTimeout(timer); remaining -= (Date.now() - start); };
-      const resume = () => { start = Date.now(); clearTimeout(timer); timer = setTimeout(removeAfterTransition, Math.max(0, remaining)); };
-
-      el.addEventListener('mouseenter', pause);
-      el.addEventListener('mouseleave', resume);
-    }
-
-    // Keep existing calls working: Toast(message, type) -> showToast(type, message)
-    window.Toast = (message, type, timeout) => showToast(type || 'info', message, timeout);
-    // Also expose showToast for direct use, same as tasks.html
-    window.showToast = showToast;
-  </script>
+  <script src="/assets/js/toast.js" defer></script>
   <script src="/assets/js/settings.js"></script>
 </body>
 </html>

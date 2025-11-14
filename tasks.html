@@ -135,6 +135,141 @@
       }
     }
 
+    /* Description styling utilities */
+    .desc-hl { background-color: #fef08a; padding: 0 0.125rem; border-radius: 0.125rem; }
+    .desc-color-red { color: #dc2626; }
+    .desc-color-orange { color: #ea580c; }
+    .desc-color-yellow { color: #ca8a04; }
+    .desc-color-green { color: #16a34a; }
+    .desc-color-blue { color: #2563eb; }
+    .desc-color-purple { color: #9333ea; }
+    .desc-color-slate { color: #475569; }
+    .desc-underline { text-decoration: underline; }
+    .desc-size-xs { font-size: 0.75rem; line-height: 1rem; }
+    .desc-size-sm { font-size: 0.875rem; line-height: 1.25rem; }
+    .desc-size-base { font-size: 1rem; line-height: 1.5rem; }
+    .desc-size-lg { font-size: 1.125rem; line-height: 1.75rem; }
+
+    /* Dark mode for description styling */
+    @media (prefers-color-scheme: dark) {
+      .desc-hl { background-color: #854d0e; color: #fef08a; }
+      .desc-color-red { color: #f87171; }
+      .desc-color-orange { color: #fb923c; }
+      .desc-color-yellow { color: #facc15; }
+      .desc-color-green { color: #4ade80; }
+      .desc-color-blue { color: #60a5fa; }
+      .desc-color-purple { color: #c084fc; }
+      .desc-color-slate { color: #94a3b8; }
+    }
+
+    /* Formatting toolbar */
+    .format-toolbar {
+      display: flex;
+      gap: 0.25rem;
+      padding: 0.5rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .format-btn {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.25rem;
+      background: white;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 150ms;
+      min-width: 2rem;
+      text-align: center;
+    }
+    .format-btn:hover {
+      background: #e0f2fe;
+      border-color: #38bdf8;
+    }
+    .format-btn.active {
+      background: #0ea5e9;
+      color: white;
+      border-color: #0284c7;
+    }
+    .format-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    .format-dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: white;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.375rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 1000;
+      display: none;
+      margin-top: 0.25rem;
+      min-width: 8rem;
+    }
+    .format-dropdown-menu.show {
+      display: block;
+    }
+    .format-dropdown-item {
+      padding: 0.375rem 0.75rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: background 150ms;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .format-dropdown-item:last-child {
+      border-bottom: none;
+    }
+    .format-dropdown-item:hover {
+      background: #e0f2fe;
+    }
+    .color-swatch {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border-radius: 0.125rem;
+      border: 1px solid #cbd5e1;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+
+    /* Dark mode for formatting toolbar */
+    @media (prefers-color-scheme: dark) {
+      .format-toolbar {
+        background: #1e293b;
+        border-color: #334155;
+      }
+      .format-btn {
+        background: #0f172a;
+        border-color: #475569;
+        color: #e5e7eb;
+      }
+      .format-btn:hover {
+        background: #334155;
+        border-color: #0ea5e9;
+      }
+      .format-btn.active {
+        background: #0ea5e9;
+        color: white;
+        border-color: #0284c7;
+      }
+      .format-dropdown-menu {
+        background: #0f172a;
+        border-color: #475569;
+      }
+      .format-dropdown-item {
+        color: #e5e7eb;
+        border-bottom-color: #334155;
+      }
+      .format-dropdown-item:hover {
+        background: #334155;
+      }
+    }
+
     /* Toasts: Slide-in + Sound-ready */
     .toast-stack {
       position: fixed;
@@ -238,10 +373,43 @@
         </div>
       </div>
 
-      <!-- New: Description (supports - [ ] and - [x] checklist lines) -->
-      <textarea id="newDescription" rows="3" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="- [ ] Subtask 1
+      <!-- New: Description with formatting toolbar (supports - [ ] and - [x] checklist lines) -->
+      <div class="w-full">
+        <div class="format-toolbar" id="newDescToolbar">
+          <button class="format-btn" data-format="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+          <button class="format-btn" data-format="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+          <button class="format-btn" data-format="underline" title="Underline (Ctrl+U)">U̲</button>
+          <button class="format-btn" data-format="highlight" title="Highlight">⬛</button>
+          
+          <div class="format-dropdown">
+            <button class="format-btn" data-format="color" title="Text Color">A</button>
+            <div class="format-dropdown-menu" id="newDescColorMenu">
+              <div class="format-dropdown-item" data-color="red"><span class="color-swatch" style="background-color: #dc2626;"></span>Red</div>
+              <div class="format-dropdown-item" data-color="orange"><span class="color-swatch" style="background-color: #ea580c;"></span>Orange</div>
+              <div class="format-dropdown-item" data-color="yellow"><span class="color-swatch" style="background-color: #ca8a04;"></span>Yellow</div>
+              <div class="format-dropdown-item" data-color="green"><span class="color-swatch" style="background-color: #16a34a;"></span>Green</div>
+              <div class="format-dropdown-item" data-color="blue"><span class="color-swatch" style="background-color: #2563eb;"></span>Blue</div>
+              <div class="format-dropdown-item" data-color="purple"><span class="color-swatch" style="background-color: #9333ea;"></span>Purple</div>
+              <div class="format-dropdown-item" data-color="slate"><span class="color-swatch" style="background-color: #475569;"></span>Slate</div>
+            </div>
+          </div>
+          
+          <div class="format-dropdown">
+            <button class="format-btn" data-format="size" title="Font Size">Size</button>
+            <div class="format-dropdown-menu" id="newDescSizeMenu">
+              <div class="format-dropdown-item" data-size="xs">Extra Small</div>
+              <div class="format-dropdown-item" data-size="sm">Small</div>
+              <div class="format-dropdown-item" data-size="base">Normal</div>
+              <div class="format-dropdown-item" data-size="lg">Large</div>
+            </div>
+          </div>
+          
+          <span class="text-xs text-slate-500 dark:text-slate-400 ml-2" title="Select text and apply formatting">ℹ️ Select text to format</span>
+        </div>
+        <textarea id="newDescription" rows="3" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="- [ ] Subtask 1
 - [ ] Subtask 2
 Notes line without a checkbox"></textarea>
+      </div>
 
       <button id="addTaskBtn" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Add Task</button>
     </div>
@@ -354,16 +522,61 @@ dropdownList.querySelectorAll("input[type=checkbox]").forEach(cb => {
   });
 });
 
-/* Description helpers (Markdown-style checklist) */
+/* Description helpers (Markdown-style checklist with styled HTML support) */
 function escHtml(str) {
   return String(str ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
-    .replaceAll("'", "&quot;")
+    .replaceAll("'", "&#39;")
     .replaceAll('"', "&quot;")
-    .replaceAll("`", "&#39;");
+    .replaceAll("`", "&#96;");
 }
+
+/* Sanitize HTML - only allow whitelisted inline tags and classes */
+function sanitizeHTML(html) {
+  const text = String(html || "");
+  // Create a temporary container
+  const temp = document.createElement('div');
+  temp.innerHTML = text;
+  
+  // Whitelist: span, b, i, u tags
+  const allowedTags = ['SPAN', 'B', 'I', 'U'];
+  const allowedClasses = [
+    'desc-hl', 'desc-color-red', 'desc-color-orange', 'desc-color-yellow',
+    'desc-color-green', 'desc-color-blue', 'desc-color-purple', 'desc-color-slate',
+    'desc-underline', 'desc-size-xs', 'desc-size-sm', 'desc-size-base', 'desc-size-lg'
+  ];
+  
+  function sanitizeNode(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return node.textContent;
+    }
+    
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const tagName = node.tagName.toUpperCase();
+      
+      // If tag not allowed, just return its text content
+      if (!allowedTags.includes(tagName)) {
+        return Array.from(node.childNodes).map(sanitizeNode).join('');
+      }
+      
+      // Filter classes to only allowed ones
+      const classList = Array.from(node.classList || []).filter(cls => allowedClasses.includes(cls));
+      const classAttr = classList.length > 0 ? ` class="${classList.join(' ')}"` : '';
+      
+      // Recursively sanitize children
+      const content = Array.from(node.childNodes).map(sanitizeNode).join('');
+      
+      return `<${tagName.toLowerCase()}${classAttr}>${content}</${tagName.toLowerCase()}>`;
+    }
+    
+    return '';
+  }
+  
+  return Array.from(temp.childNodes).map(sanitizeNode).join('');
+}
+
 function renderDescriptionHTML(desc, taskId) {
   const text = String(desc || "");
   if (!text.trim()) return "";
@@ -372,16 +585,20 @@ function renderDescriptionHTML(desc, taskId) {
     const m = line.match(/^\s*-\s*\[([ xX])\]\s*(.*)$/);
     if (m) {
       const checked = m[1].toLowerCase() === "x";
-      const item = m[2] || ""
+      const item = m[2] || "";
+      // Sanitize the item content to allow styled HTML
+      const sanitizedItem = sanitizeHTML(item);
       return `
         <label class="flex items-start gap-2 py-0.5 select-none cursor-pointer">
           <input type="checkbox" class="desc-checkbox mt-0.5"
             data-task-id="${escHtml(taskId)}" data-line-index="${idx}" ${checked ? "checked" : ""} />
-          <span class="leading-tight whitespace-pre-wrap break-words">${escHtml(item)}</span>
+          <span class="leading-tight whitespace-pre-wrap break-words">${sanitizedItem}</span>
         </label>
       `;
     }
-    return `<div class="leading-tight py-0.5 whitespace-pre-wrap break-words">${escHtml(line)}</div>`;
+    // For non-checklist lines, also sanitize to support styled HTML
+    const sanitizedLine = sanitizeHTML(line);
+    return `<div class="leading-tight py-0.5 whitespace-pre-wrap break-words">${sanitizedLine}</div>`;
   }).join("");
 }
 function toggleChecklistLine(desc, lineIndex) {
@@ -709,8 +926,39 @@ function openEditModal(task, colId) {
       <input id="editAssign" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee" />
       <input id="editDue" type="date" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
 
-      <!-- New: Description editor -->
+      <!-- New: Description editor with formatting toolbar -->
       <label class="block text-sm text-slate-600 dark:text-slate-300 mt-1">Description</label>
+      <div class="format-toolbar" id="editDescToolbar">
+        <button class="format-btn" data-format="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+        <button class="format-btn" data-format="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+        <button class="format-btn" data-format="underline" title="Underline (Ctrl+U)">U̲</button>
+        <button class="format-btn" data-format="highlight" title="Highlight">⬛</button>
+        
+        <div class="format-dropdown">
+          <button class="format-btn" data-format="color" title="Text Color">A</button>
+          <div class="format-dropdown-menu" id="editDescColorMenu">
+            <div class="format-dropdown-item" data-color="red"><span class="color-swatch" style="background-color: #dc2626;"></span>Red</div>
+            <div class="format-dropdown-item" data-color="orange"><span class="color-swatch" style="background-color: #ea580c;"></span>Orange</div>
+            <div class="format-dropdown-item" data-color="yellow"><span class="color-swatch" style="background-color: #ca8a04;"></span>Yellow</div>
+            <div class="format-dropdown-item" data-color="green"><span class="color-swatch" style="background-color: #16a34a;"></span>Green</div>
+            <div class="format-dropdown-item" data-color="blue"><span class="color-swatch" style="background-color: #2563eb;"></span>Blue</div>
+            <div class="format-dropdown-item" data-color="purple"><span class="color-swatch" style="background-color: #9333ea;"></span>Purple</div>
+            <div class="format-dropdown-item" data-color="slate"><span class="color-swatch" style="background-color: #475569;"></span>Slate</div>
+          </div>
+        </div>
+        
+        <div class="format-dropdown">
+          <button class="format-btn" data-format="size" title="Font Size">Size</button>
+          <div class="format-dropdown-menu" id="editDescSizeMenu">
+            <div class="format-dropdown-item" data-size="xs">Extra Small</div>
+            <div class="format-dropdown-item" data-size="sm">Small</div>
+            <div class="format-dropdown-item" data-size="base">Normal</div>
+            <div class="format-dropdown-item" data-size="lg">Large</div>
+          </div>
+        </div>
+        
+        <span class="text-xs text-slate-500 dark:text-slate-400 ml-2" title="Select text and apply formatting">ℹ️ Select text to format</span>
+      </div>
       <textarea id="editDescription" rows="6" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="- [ ] Subtask 1
 - [x] Completed item
 Free-form notes line"></textarea>
@@ -1120,7 +1368,209 @@ filterInput.oninput = () => { renderBoard(); };
       bootstrap();
     }
 
+    /* Setup edit modal toolbar - use global function when modal opens */
+    const _originalOpenEditModal = openEditModal;
+    openEditModal = function(task, colId) {
+      _originalOpenEditModal(task, colId);
+      // Setup toolbar after modal is created - use global function
+      setTimeout(() => {
+        if (typeof window.setupFormattingToolbar === 'function') {
+          window.setupFormattingToolbar('editDescToolbar', 'editDescription');
+        }
+        if (typeof window.addKeyboardShortcuts === 'function') {
+          const editDesc = document.getElementById('editDescription');
+          if (editDesc) window.addKeyboardShortcuts(editDesc);
+        }
+      }, 100);
+    };
+
 </script>
+
+<!-- Formatting Toolbar Script (standalone, not requiring Firebase) -->
+<script>
+(function() {
+  'use strict';
+  
+  /* ========== Formatting Toolbar Functionality ========== */
+  
+  // Setup formatting toolbar for a textarea
+  function setupFormattingToolbar(toolbarId, textareaId) {
+    const toolbar = document.getElementById(toolbarId);
+    const textarea = document.getElementById(textareaId);
+    if (!toolbar || !textarea) {
+      console.warn('Toolbar or textarea not found:', toolbarId, textareaId);
+      return;
+    }
+    
+    console.log('Setting up formatting toolbar:', toolbarId, 'for', textareaId);
+    
+    // Handle dropdown menus
+    toolbar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.format-btn');
+      if (!btn) return;
+      
+      const format = btn.getAttribute('data-format');
+      
+      // Toggle dropdowns
+      if (format === 'color' || format === 'size') {
+        e.stopPropagation();
+        const dropdown = btn.closest('.format-dropdown');
+        const menu = dropdown.querySelector('.format-dropdown-menu');
+        const wasOpen = menu.classList.contains('show');
+        
+        // Close all other dropdowns
+        toolbar.querySelectorAll('.format-dropdown-menu').forEach(m => m.classList.remove('show'));
+        
+        if (!wasOpen) {
+          menu.classList.add('show');
+        }
+        return;
+      }
+      
+      // Apply formatting
+      if (['bold', 'italic', 'underline', 'highlight'].includes(format)) {
+        applyFormatting(textarea, format);
+      }
+    });
+    
+    // Handle color selection
+    const colorMenus = toolbar.querySelectorAll('[id$="ColorMenu"]');
+    colorMenus.forEach(menu => {
+      menu.addEventListener('click', (e) => {
+        const item = e.target.closest('.format-dropdown-item');
+        if (!item) return;
+        const color = item.getAttribute('data-color');
+        if (color) {
+          applyFormatting(textarea, 'color', color);
+          menu.classList.remove('show');
+        }
+      });
+    });
+    
+    // Handle size selection
+    const sizeMenus = toolbar.querySelectorAll('[id$="SizeMenu"]');
+    sizeMenus.forEach(menu => {
+      menu.addEventListener('click', (e) => {
+        const item = e.target.closest('.format-dropdown-item');
+        if (!item) return;
+        const size = item.getAttribute('data-size');
+        if (size) {
+          applyFormatting(textarea, 'size', size);
+          menu.classList.remove('show');
+        }
+      });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!toolbar.contains(e.target)) {
+        toolbar.querySelectorAll('.format-dropdown-menu').forEach(m => m.classList.remove('show'));
+      }
+    });
+  }
+  
+  // Apply formatting to selected text in textarea
+  function applyFormatting(textarea, format, value) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    
+    if (start === end) {
+      if (typeof showToast === 'function') {
+        showToast('info', 'Please select text to format');
+      } else {
+        alert('Please select text to format');
+      }
+      return;
+    }
+    
+    const selectedText = text.substring(start, end);
+    let wrappedText = '';
+    
+    switch (format) {
+      case 'bold':
+        wrappedText = `<b>${selectedText}</b>`;
+        break;
+      case 'italic':
+        wrappedText = `<i>${selectedText}</i>`;
+        break;
+      case 'underline':
+        wrappedText = `<u class="desc-underline">${selectedText}</u>`;
+        break;
+      case 'highlight':
+        wrappedText = `<span class="desc-hl">${selectedText}</span>`;
+        break;
+      case 'color':
+        wrappedText = `<span class="desc-color-${value}">${selectedText}</span>`;
+        break;
+      case 'size':
+        wrappedText = `<span class="desc-size-${value}">${selectedText}</span>`;
+        break;
+      default:
+        return;
+    }
+    
+    textarea.value = text.substring(0, start) + wrappedText + text.substring(end);
+    
+    // Restore selection after the formatted text
+    const newEnd = start + wrappedText.length;
+    textarea.setSelectionRange(newEnd, newEnd);
+    textarea.focus();
+    
+    console.log('Applied formatting:', format, value, 'Result:', wrappedText);
+  }
+  
+  // Add keyboard shortcuts for formatting
+  function addKeyboardShortcuts(textarea) {
+    textarea.addEventListener('keydown', (e) => {
+      // Check for Ctrl/Cmd key combinations
+      if (e.ctrlKey || e.metaKey) {
+        let format = null;
+        
+        switch(e.key.toLowerCase()) {
+          case 'b':
+            format = 'bold';
+            break;
+          case 'i':
+            format = 'italic';
+            break;
+          case 'u':
+            format = 'underline';
+            break;
+        }
+        
+        if (format) {
+          e.preventDefault(); // Prevent default browser behavior
+          applyFormatting(textarea, format);
+        }
+      }
+    });
+  }
+  
+  // Setup formatting toolbars on page load
+  function initFormattingToolbars() {
+    console.log('Initializing formatting toolbars...');
+    // New task description toolbar
+    setupFormattingToolbar('newDescToolbar', 'newDescription');
+    
+    // Add keyboard shortcuts to new description textarea
+    const newDesc = document.getElementById('newDescription');
+    if (newDesc) addKeyboardShortcuts(newDesc);
+  }
+  
+  // Expose to global scope for edit modal
+  window.setupFormattingToolbar = setupFormattingToolbar;
+  window.addKeyboardShortcuts = addKeyboardShortcuts;
+  
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFormattingToolbars);
+  } else {
+    initFormattingToolbars();
+  }
+})();
+</script>
+
 <script src="/assets/js/sound.js" defer></script>
 <script src="/assets/js/toast.js" defer></script>
 </body>

@@ -1003,7 +1003,6 @@ function getCurrentUserName() { return localStorage.getItem('trident.fullname') 
 (function() {
   const stack = document.getElementById('toastStack');
   if (!stack) {
-    // nothing to do
     window.showToast = () => {};
     window.Toast = () => {};
     return;
@@ -1018,7 +1017,6 @@ function getCurrentUserName() { return localStorage.getItem('trident.fullname') 
 
   function removeWithTransition(el) {
     if (!el) return;
-    // remove via transition
     el.classList.remove('show');
     const onEnd = (ev) => {
       if (ev.target === el) {
@@ -1027,7 +1025,7 @@ function getCurrentUserName() { return localStorage.getItem('trident.fullname') 
       }
     };
     el.addEventListener('transitionend', onEnd);
-    // fallback remove if transitionend never fires
+    // fallback if transitionend doesn't fire
     setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 400);
   }
 
@@ -1042,15 +1040,13 @@ function getCurrentUserName() { return localStorage.getItem('trident.fullname') 
     `;
     stack.appendChild(el);
 
-    // show (trigger transition)
     requestAnimationFrame(() => el.classList.add('show'));
 
-    // optional sound: try to play a sound matching the type (handled in settings.js)
+    // try to play a matching sound (graceful)
     try {
       if (window.Sound && typeof window.Sound.play === 'function') {
         window.Sound.play(type);
       } else if (window.Sound) {
-        // legacy function names
         if (type === 'success' && typeof window.Sound.success === 'function') window.Sound.success();
         else if (type === 'info' && typeof window.Sound.info === 'function') window.Sound.info();
         else if (type === 'warn' && typeof window.Sound.warn === 'function') window.Sound.warn();
@@ -1058,10 +1054,8 @@ function getCurrentUserName() { return localStorage.getItem('trident.fullname') 
       }
     } catch (e) { console.debug('toast sound error', e); }
 
-    // dismiss button
     el.querySelector('button')?.addEventListener('click', () => removeWithTransition(el));
 
-    // hover to pause timer
     let start = Date.now();
     let remaining = timeout;
     let timer = setTimeout(() => removeWithTransition(el), remaining);
@@ -1073,9 +1067,8 @@ function getCurrentUserName() { return localStorage.getItem('trident.fullname') 
     el.addEventListener('mouseleave', resume);
   }
 
-  // global adapters so existing code keeps working:
   window.showToast = showToast;
-  // settings JS calls: Toast("message", "success") - map to showToast(type, message)
+  // keep existing calls working: Toast("message","success")
   window.Toast = (message = '', type = 'info', timeout) => showToast(type, message, timeout);
 })();
 </script>

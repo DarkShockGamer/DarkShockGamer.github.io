@@ -995,13 +995,130 @@ async function renderDrawer() {
 /* Filter */
 filterInput.oninput = () => { renderBoard(); };
 
-/* Chips util */
-function chipsHTML(tags) {
-  return (tags || []).map(t => `<span class="tag-chip">${t}</span>`).join("");
-}
-function getCurrentUserName() {
-  return localStorage.getItem('trident.fullname') || 'Anonymous';
-}
+    /* Chips util */
+    function chipsHTML(tags) {
+      return (tags || []).map(t => `<span class="tag-chip">${t}</span>`).join("");
+    }
+    function getCurrentUserName() {
+      return localStorage.getItem('trident.fullname') || 'Anonymous';
+    }
+
+    /* Column canonicalization */
+    function canonicalizeColumn(raw) {
+      const s = String(raw || '').trim().toLowerCase();
+      if (!s) return 'backlog';
+      // remove spaces/dashes for mapping
+      const compact = s.replace(/[\s-]+/g, '');
+      switch (compact) {
+        case 'backlog': return 'backlog';
+        case 'todo':
+        case 'todolist':
+        case 'to':
+        case 'todo:': return 'todo';
+        case 'inprogress':
+        case 'inprog':
+        case 'progress':
+        case 'working':
+        case 'doing': return 'inprogress';
+        case 'done':
+        case 'complete':
+        case 'completed': return 'done';
+        default: return s; // fallback (will render if added to order dynamically)
+      }
+    }
+
+    /* Override loadTasks to normalize columns */
+    const _originalLoadTasks = loadTasks;
+    loadTasks = async function() {
+      const snapshot = await getDocs(collection(db, "tasks"));
+      console.log('[TaskBoard] Snapshot size:', snapshot.size);
+      const data = {
+        columns: {
+          backlog: { title: "Backlog", tasks: [] },
+          todo: { title: "To Do", tasks: [] },
+          inprogress: { title: "In Progress", tasks: [] },
+          done: { title: "Done", tasks: [] }
+        },
+        order: ["backlog", "todo", "inprogress", "done"]
+      };
+      snapshot.forEach(docSnap => {
+        const t = docSnap.data();
+        if (t.deleted || t.archived) return;
+        const normalized = canonicalizeColumn(t.column || 'backlog');
+        console.log('[TaskBoard] Doc', docSnap.id, 'raw column:', t.column, 'normalized:', normalized);
+        (data.columns[normalized] ??= { title: normalized, tasks: [] })
+          .tasks.push({ id: docSnap.id, ...t, column: normalized });
+      });
+      await checkAutoArchive(data);
+      return data;
+    };
+
+    /* Optional one-time migration to fix column values in Firestore */
+    async function fixColumns() {
+      const snapshot = await getDocs(collection(db, "tasks"));
+      const batch = writeBatch(db);
+      let changed = 0;
+      snapshot.forEach(docSnap => {
+        const t = docSnap.data();
+        const canonical = canonicalizeColumn(t.column || 'backlog');
+        if (canonical !== t.column) {
+          batch.update(doc(db, "tasks", docSnap.id), { column: canonical });
+          changed++;
+        }
+      });
+      if (changed) {
+        await batch.commit();
+        console.log(`[TaskBoard] Column migration updated ${changed} task(s).`);
+      } else {
+        console.log('[TaskBoard] Column migration: nothing to change.');
+      }
+    }
+
+    /* Enhance renderBoard to show empty state per column */
+    const _renderBoardOriginal = renderBoard;
+    renderBoard = async function() {
+      await _renderBoardOriginal();
+      document.querySelectorAll(".task-list").forEach(list => {
+        if (!list.children.length) {
+          list.innerHTML = `<div class="p-3 text-xs rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400">
+            No tasks
+          </div>`;
+        }
+      });
+    };
+
+    /* Bootstrap */
+    async function bootstrap() {
+      try {
+        // Uncomment next line ONCE if you need to normalize existing column values:
+        // await fixColumns();
+
+        await renderBoard();
+
+        // Ensure tag dropdown starts hidden
+        const dropdownList = document.getElementById("dropdownList");
+        if (dropdownList) dropdownList.style.display = "none";
+
+        console.log('[TaskBoard] Bootstrap complete');
+      } catch (e) {
+        console.error('Bootstrap failed:', e);
+        const board = document.getElementById("board");
+        if (board) {
+          board.innerHTML = `<div class="col-span-4 p-6 border border-red-200 bg-red-50 rounded-xl text-red-700 text-sm">
+            Failed to load tasks: ${e.message || e}
+          </div>`;
+        }
+        if (typeof showToast === 'function') {
+          showToast('error', `Load failed: ${e.message || e}`);
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', bootstrap);
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+      // DOM already ready if script injected late
+      bootstrap();
+    }
 
 </script>
 <script src="/assets/js/sound.js" defer></script>

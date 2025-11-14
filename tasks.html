@@ -141,40 +141,62 @@
       right: 1rem;
       top: 1rem;
       display: grid;
-      grid-template-columns: auto 1fr auto;
-      align-items: center;
       gap: 0.5rem;
-      padding: 0.625rem 0.75rem;
-      border-radius: 0.5rem;
-      z-index: 1003;
+      z-index: 10050;
+      pointer-events: none;
     }
     .toast {
+      pointer-events: auto;
       display: grid;
       grid-template-columns: auto 1fr auto;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.625rem;
       padding: 0.625rem 0.75rem;
-      border-radius: 0.5rem;
       min-width: 240px;
-      background: white;
-      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+      background: #ffffff;
+      border: 1px solid #e6eef7;
+      color: #073047;
       transform: translateX(16px);
       opacity: 0;
-      transition: all 200ms ease;
+      transition: transform 200ms ease, opacity 200ms ease;
       box-shadow: 0 10px 24px rgba(2,132,199,0.08);
-      will-change: opacity, transform;
+      will-change: transform, opacity;
     }
     .toast.show { transform: translateX(0); opacity: 1; }
-    .toast.success { border-color: #bbf7d0; background: #f0fdf4; color: #065f46; }
-    .toast.info    { border-color: #bae6fd; background: #eff6ff; color: #075985; }
-    .toast.warn    { border-color: #fde68a; background: #fffbea; color: #92400e; }
-    .toast.error   { border-color: #fecaca; background: #fef2f2; color: #7f1d1d; }
+
+    /* icon sizing */
+    .toast-icon { width: 20px; height: 20px; flex: 0 0 20px; }
+
+    /* variant color tokens */
+    .toast.success { background: #f0fdf4; border-color: #bbf7d0; color: #065f46; }
+    .toast.info    { background: #eff6ff; border-color: #bae6fd; color: #075985; }
+    .toast.warn    { background: #fff7ed; border-color: #fde68a; color: #92400e; }
+    .toast.error   { background: #fff1f2; border-color: #fecaca; color: #7f1d1d; }
+
+    /* dismiss button */
+    .toast button {
+      background: transparent;
+      border: none;
+      padding: 0.25rem;
+      cursor: pointer;
+      color: inherit;
+      opacity: 0.9;
+    }
+    .toast button:hover { opacity: 1; background: rgba(0,0,0,0.03); border-radius: 4px; }
+
+    /* Dark theme */
     @media (prefers-color-scheme: dark) {
-      .toast { background: #0f172a; border-color: #1f2937; color: #e5e7eb; box-shadow: 0 10px 24px rgba(14,165,233,.18); }
-      .toast.success { border-color: #064e3b; background: #052e2b; color: #bbf7d0; }
-      .toast.info    { border-color: #0c4a6e; background: #052335; color: #bae6fd; }
-      .toast.warn    { border-color: #78350f; background: #2f1f05; color: #fde68a; }
-      .toast.error   { border-color: #7f1d1d; background: #2b0b0b; color: #fecaca; }
+      .toast {
+        background: #0b1220;
+        border-color: #1f2937;
+        color: #e6eef6;
+        box-shadow: 0 10px 24px rgba(14,165,233,0.18);
+      }
+      .toast.success { background: #052e2b; border-color: #064e3b; color: #bbf7d0; }
+      .toast.info    { background: #052335; border-color: #0c4a6e; color: #bae6fd; }
+      .toast.warn    { background: #281a05; border-color: #78350f; color: #fde68a; }
+      .toast.error   { background: #2b0b0b; border-color: #7f1d1d; color: #fecaca; }
     }
   </style>
 </head>
@@ -977,66 +999,85 @@ filterInput.oninput = () => { renderBoard(); };
 function chipsHTML(tags) { return (tags || []).map(t => `<span class="tag-chip">${t}</span>`).join(""); }
 function getCurrentUserName() { return localStorage.getItem('trident.fullname') || 'Anonymous'; }
 
-/* Toasts (Slide-in + Sound hooks) with fade-out and reliable auto-dismiss */
-const toastStack = document.getElementById('toastStack');
+<script>
+(function() {
+  const stack = document.getElementById('toastStack');
+  if (!stack) {
+    // nothing to do
+    window.showToast = () => {};
+    window.Toast = () => {};
+    return;
+  }
 
-function showToast(type, message, timeout = 10000) {
-  if (!toastStack) return;
+  const ICONS = {
+    success: '<svg class="toast-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M7.629 13.314l-3.39-3.39a1 1 0 10-1.414 1.414l4.097 4.098a1 1 0 001.414 0l8.485-8.485a1 1 0 00-1.414-1.414L7.63 13.314z"/></svg>',
+    info:    '<svg class="toast-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9 9h1v4H9V9zm0-3h1v1H9V6z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16z" clip-rule="evenodd"/></svg>',
+    warn:    '<svg class="toast-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M8.257 3.099c.765-1.36 2.72-1.36 3.485 0l6.518 11.582A1.75 1.75 0 0116.518 17H3.482A1.75 1.75 0 011.74 14.681L8.257 3.1zM11 13a1 1 0 10-2 0 1 1 0 002 0zm-1-6a.75.75 0 00-.75.75v3.5c0 .414.336.75.75.75s.75-.336.75-.75v-3.5A.75.75 0 0010 7z"/></svg>',
+    error:   '<svg class="toast-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 011.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>'
+  };
 
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.setAttribute('role', 'status');
-  el.innerHTML = `
-    <span aria-hidden="true">
-      ${type === 'success' ? '✔️' : type === 'info' ? 'ℹ️' : type === 'warn' ? '⚠️' : '✖️'}
-    </span>
-    <div class="text-sm">${message}</div>
-    <button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Dismiss">✖️</button>
-  `;
-
-  toastStack.appendChild(el);
-  requestAnimationFrame(() => el.classList.add('show'));
-
-  try {
-    if (window.Sound) {
-      if (type === 'success' && Sound.success) Sound.success();
-      else if (type === 'info' && Sound.info) Sound.info();
-      else if (type === 'warn' && Sound.warn) Sound.warn();
-      else if (type === 'error' && Sound.error) Sound.error();
-    }
-  } catch {}
-
-  const removeAfterTransition = () => {
-    const onEnd = (e) => {
-      if (e.target === el) {
+  function removeWithTransition(el) {
+    if (!el) return;
+    // remove via transition
+    el.classList.remove('show');
+    const onEnd = (ev) => {
+      if (ev.target === el) {
         el.removeEventListener('transitionend', onEnd);
-        el.remove();
+        if (el.parentNode) el.parentNode.removeChild(el);
       }
     };
     el.addEventListener('transitionend', onEnd);
-    el.classList.remove('show');
-  };
+    // fallback remove if transitionend never fires
+    setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 400);
+  }
 
-  el.querySelector('button')?.addEventListener('click', removeAfterTransition);
+  function showToast(type = 'info', message = '', timeout = 10000) {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.setAttribute('role', 'status');
+    el.innerHTML = `
+      <span class="toast-icon-wrapper">${ICONS[type] || ICONS.info}</span>
+      <div class="toast-message text-sm">${message}</div>
+      <button aria-label="Dismiss">&times;</button>
+    `;
+    stack.appendChild(el);
 
-  let start = Date.now();
-  let remaining = timeout;
-  let timer = setTimeout(removeAfterTransition, remaining);
+    // show (trigger transition)
+    requestAnimationFrame(() => el.classList.add('show'));
 
-  const pause = () => { clearTimeout(timer); remaining -= (Date.now() - start); };
-  const resume = () => { start = Date.now(); clearTimeout(timer); timer = setTimeout(removeAfterTransition, Math.max(0, remaining)); };
+    // optional sound: try to play a sound matching the type (handled in settings.js)
+    try {
+      if (window.Sound && typeof window.Sound.play === 'function') {
+        window.Sound.play(type);
+      } else if (window.Sound) {
+        // legacy function names
+        if (type === 'success' && typeof window.Sound.success === 'function') window.Sound.success();
+        else if (type === 'info' && typeof window.Sound.info === 'function') window.Sound.info();
+        else if (type === 'warn' && typeof window.Sound.warn === 'function') window.Sound.warn();
+        else if (type === 'error' && typeof window.Sound.error === 'function') window.Sound.error();
+      }
+    } catch (e) { console.debug('toast sound error', e); }
 
-  el.addEventListener('mouseenter', pause);
-  el.addEventListener('mouseleave', resume);
-}
+    // dismiss button
+    el.querySelector('button')?.addEventListener('click', () => removeWithTransition(el));
 
-// Keep existing calls working: Toast(message, type) -> showToast(type, message)
-window.Toast = (message, type, timeout) => showToast(type || 'info', message, timeout);
-// Also expose showToast for direct use, same as tasks.html
-window.showToast = showToast;
+    // hover to pause timer
+    let start = Date.now();
+    let remaining = timeout;
+    let timer = setTimeout(() => removeWithTransition(el), remaining);
 
-/* Initial render */
-renderBoard();
+    const pause = () => { clearTimeout(timer); remaining -= (Date.now() - start); };
+    const resume = () => { start = Date.now(); clearTimeout(timer); timer = setTimeout(() => removeWithTransition(el), Math.max(0, remaining)); };
+
+    el.addEventListener('mouseenter', pause);
+    el.addEventListener('mouseleave', resume);
+  }
+
+  // global adapters so existing code keeps working:
+  window.showToast = showToast;
+  // settings JS calls: Toast("message", "success") - map to showToast(type, message)
+  window.Toast = (message = '', type = 'info', timeout) => showToast(type, message, timeout);
+})();
 </script>
 <script src="/assets/js/sound.js" defer></script>
 </body>

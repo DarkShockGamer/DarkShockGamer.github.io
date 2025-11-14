@@ -43,6 +43,14 @@
       display: inline-block; background: #e0f2fe; color: #0369a1; padding: 0.125rem 0.5rem; border-radius: 9999px; margin-right: 0.25rem; margin-bottom: 0.25rem;
       font-size: 0.75rem; line-height: 1.25rem; white-space: nowrap; border: 1px solid #bae6fd;
     }
+    /* Per-team tag colors */
+    .tag-chip[data-tag="mechanical"] { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+    .tag-chip[data-tag="design"] { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+    .tag-chip[data-tag="electrical"] { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+    .tag-chip[data-tag="programming"] { background: #f3e8ff; color: #6b21a8; border-color: #e9d5ff; }
+    .tag-chip[data-tag="website"] { background: #cffafe; color: #155e75; border-color: #a5f3fc; }
+    .tag-chip[data-tag="business"] { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+    .tag-chip[data-tag="drive"] { background: #fed7aa; color: #9a3412; border-color: #fdba74; }
     .dropdown-btn .placeholder { color: #94a3b8; }
 
     /* Column styling */
@@ -104,6 +112,14 @@
       .dropdown-btn .placeholder { color: #94a3b8 !important; }
 
       .tag-chip { background: #0c4a6e !important; color: #e0f2fe !important; border-color: #075985 !important; }
+      /* Dark mode per-team tag colors */
+      .tag-chip[data-tag="mechanical"] { background: #7f1d1d !important; color: #fecaca !important; border-color: #991b1b !important; }
+      .tag-chip[data-tag="design"] { background: #1e3a8a !important; color: #bfdbfe !important; border-color: #1e40af !important; }
+      .tag-chip[data-tag="electrical"] { background: #78350f !important; color: #fde68a !important; border-color: #92400e !important; }
+      .tag-chip[data-tag="programming"] { background: #581c87 !important; color: #e9d5ff !important; border-color: #6b21a8 !important; }
+      .tag-chip[data-tag="website"] { background: #0e7490 !important; color: #a5f3fc !important; border-color: #155e75 !important; }
+      .tag-chip[data-tag="business"] { background: #334155 !important; color: #cbd5e1 !important; border-color: #475569 !important; }
+      .tag-chip[data-tag="drive"] { background: #7c2d12 !important; color: #fdba74 !important; border-color: #9a3412 !important; }
       .column-section { background: #0f172a !important; border-color: #1f2937 !important; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.3); }
       .column-header { background: rgba(15,23,42,0.6) !important; border-color: #1f2937 !important; }
       .column-count { color: #7dd3fc !important; background: #083344 !important; border-color: #075985 !important; }
@@ -367,9 +383,8 @@
           <label><input type="checkbox" value="Programming" /> <span>Programming</span></label>
           <label><input type="checkbox" value="Electrical" /> <span>Electrical</span></label>
           <label><input type="checkbox" value="Business" /> <span>Business</span></label>
-          <label><input type="checkbox" value="Misc" /> <span>Misc</span></label>
-          <!-- Added per request -->
-          <label><input type="checkbox" value="Webiste" /> <span>Webiste</span></label>
+          <label><input type="checkbox" value="Website" /> <span>Website</span></label>
+          <label><input type="checkbox" value="Drive" /> <span>Drive</span></label>
         </div>
       </div>
 
@@ -728,7 +743,7 @@ function createTaskEl(task, colId) {
     </div>
 
     <div class="mt-2 flex gap-2 flex-wrap">
-      ${(task.tags || []).map(t => `<span class="tag-chip">${t}</span>`).join("")}
+      ${(task.tags || []).map(t => `<span class="tag-chip" data-tag="${escHtml(String(t).toLowerCase())}">${escHtml(String(t))}</span>`).join("")}
     </div>
 
     ${descHtml ? `
@@ -971,9 +986,8 @@ Free-form notes line"></textarea>
           <label><input type="checkbox" value="Programming" /> <span>Programming</span></label>
           <label><input type="checkbox" value="Electrical" /> <span>Electrical</span></label>
           <label><input type="checkbox" value="Business" /> <span>Business</span></label>
-          <label><input type="checkbox" value="Misc" /> <span>Misc</span></label>
-          <!-- Added per request -->
-          <label><input type="checkbox" value="Webiste" /> <span>Webiste</span></label>
+          <label><input type="checkbox" value="Website" /> <span>Website</span></label>
+          <label><input type="checkbox" value="Drive" /> <span>Drive</span></label>
         </div>
       </div>
 
@@ -1245,7 +1259,7 @@ filterInput.oninput = () => { renderBoard(); };
 
     /* Chips util */
     function chipsHTML(tags) {
-      return (tags || []).map(t => `<span class="tag-chip">${t}</span>`).join("");
+      return (tags || []).map(t => `<span class="tag-chip" data-tag="${escHtml(String(t).toLowerCase())}">${escHtml(String(t))}</span>`).join("");
     }
     function getCurrentUserName() {
       return localStorage.getItem('trident.fullname') || 'Anonymous';

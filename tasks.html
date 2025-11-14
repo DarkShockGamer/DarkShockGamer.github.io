@@ -1377,6 +1377,10 @@ filterInput.oninput = () => { renderBoard(); };
         if (typeof window.setupFormattingToolbar === 'function') {
           window.setupFormattingToolbar('editDescToolbar', 'editDescription');
         }
+        if (typeof window.addKeyboardShortcuts === 'function') {
+          const editDesc = document.getElementById('editDescription');
+          if (editDesc) window.addKeyboardShortcuts(editDesc);
+        }
       }, 100);
     };
 
@@ -1516,15 +1520,47 @@ filterInput.oninput = () => { renderBoard(); };
     console.log('Applied formatting:', format, value, 'Result:', wrappedText);
   }
   
+  // Add keyboard shortcuts for formatting
+  function addKeyboardShortcuts(textarea) {
+    textarea.addEventListener('keydown', (e) => {
+      // Check for Ctrl/Cmd key combinations
+      if (e.ctrlKey || e.metaKey) {
+        let format = null;
+        
+        switch(e.key.toLowerCase()) {
+          case 'b':
+            format = 'bold';
+            break;
+          case 'i':
+            format = 'italic';
+            break;
+          case 'u':
+            format = 'underline';
+            break;
+        }
+        
+        if (format) {
+          e.preventDefault(); // Prevent default browser behavior
+          applyFormatting(textarea, format);
+        }
+      }
+    });
+  }
+  
   // Setup formatting toolbars on page load
   function initFormattingToolbars() {
     console.log('Initializing formatting toolbars...');
     // New task description toolbar
     setupFormattingToolbar('newDescToolbar', 'newDescription');
+    
+    // Add keyboard shortcuts to new description textarea
+    const newDesc = document.getElementById('newDescription');
+    if (newDesc) addKeyboardShortcuts(newDesc);
   }
   
   // Expose to global scope for edit modal
   window.setupFormattingToolbar = setupFormattingToolbar;
+  window.addKeyboardShortcuts = addKeyboardShortcuts;
   
   // Initialize when DOM is ready
   if (document.readyState === 'loading') {

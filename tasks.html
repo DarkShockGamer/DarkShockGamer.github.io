@@ -1368,148 +1368,173 @@ filterInput.oninput = () => { renderBoard(); };
       bootstrap();
     }
 
-    /* ========== Formatting Toolbar Functionality ========== */
-    
-    // Setup formatting toolbar for a textarea
-    function setupFormattingToolbar(toolbarId, textareaId) {
-      const toolbar = document.getElementById(toolbarId);
-      const textarea = document.getElementById(textareaId);
-      if (!toolbar || !textarea) return;
-      
-      // Handle dropdown menus
-      toolbar.addEventListener('click', (e) => {
-        const btn = e.target.closest('.format-btn');
-        if (!btn) return;
-        
-        const format = btn.getAttribute('data-format');
-        
-        // Toggle dropdowns
-        if (format === 'color' || format === 'size') {
-          e.stopPropagation();
-          const dropdown = btn.closest('.format-dropdown');
-          const menu = dropdown.querySelector('.format-dropdown-menu');
-          const wasOpen = menu.classList.contains('show');
-          
-          // Close all other dropdowns
-          toolbar.querySelectorAll('.format-dropdown-menu').forEach(m => m.classList.remove('show'));
-          
-          if (!wasOpen) {
-            menu.classList.add('show');
-          }
-          return;
-        }
-        
-        // Apply formatting
-        if (['bold', 'italic', 'underline', 'highlight'].includes(format)) {
-          applyFormatting(textarea, format);
-        }
-      });
-      
-      // Handle color selection
-      const colorMenus = toolbar.querySelectorAll('[id$="ColorMenu"]');
-      colorMenus.forEach(menu => {
-        menu.addEventListener('click', (e) => {
-          const item = e.target.closest('.format-dropdown-item');
-          if (!item) return;
-          const color = item.getAttribute('data-color');
-          if (color) {
-            applyFormatting(textarea, 'color', color);
-            menu.classList.remove('show');
-          }
-        });
-      });
-      
-      // Handle size selection
-      const sizeMenus = toolbar.querySelectorAll('[id$="SizeMenu"]');
-      sizeMenus.forEach(menu => {
-        menu.addEventListener('click', (e) => {
-          const item = e.target.closest('.format-dropdown-item');
-          if (!item) return;
-          const size = item.getAttribute('data-size');
-          if (size) {
-            applyFormatting(textarea, 'size', size);
-            menu.classList.remove('show');
-          }
-        });
-      });
-      
-      // Close dropdowns when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!toolbar.contains(e.target)) {
-          toolbar.querySelectorAll('.format-dropdown-menu').forEach(m => m.classList.remove('show'));
-        }
-      });
-    }
-    
-    // Apply formatting to selected text in textarea
-    function applyFormatting(textarea, format, value) {
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const text = textarea.value;
-      
-      if (start === end) {
-        showToast('info', 'Please select text to format');
-        return;
-      }
-      
-      const selectedText = text.substring(start, end);
-      let wrappedText = '';
-      
-      switch (format) {
-        case 'bold':
-          wrappedText = `<b>${selectedText}</b>`;
-          break;
-        case 'italic':
-          wrappedText = `<i>${selectedText}</i>`;
-          break;
-        case 'underline':
-          wrappedText = `<u class="desc-underline">${selectedText}</u>`;
-          break;
-        case 'highlight':
-          wrappedText = `<span class="desc-hl">${selectedText}</span>`;
-          break;
-        case 'color':
-          wrappedText = `<span class="desc-color-${value}">${selectedText}</span>`;
-          break;
-        case 'size':
-          wrappedText = `<span class="desc-size-${value}">${selectedText}</span>`;
-          break;
-        default:
-          return;
-      }
-      
-      textarea.value = text.substring(0, start) + wrappedText + text.substring(end);
-      
-      // Restore selection after the formatted text
-      const newEnd = start + wrappedText.length;
-      textarea.setSelectionRange(newEnd, newEnd);
-      textarea.focus();
-    }
-    
-    // Setup formatting toolbars on page load
-    function initFormattingToolbars() {
-      // New task description toolbar
-      setupFormattingToolbar('newDescToolbar', 'newDescription');
-    }
-    
-    // Initialize when DOM is ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initFormattingToolbars);
-    } else {
-      initFormattingToolbars();
-    }
-    
-    // Setup edit modal toolbar when modal is opened (need to override openEditModal)
+    /* Setup edit modal toolbar - use global function when modal opens */
     const _originalOpenEditModal = openEditModal;
     openEditModal = function(task, colId) {
       _originalOpenEditModal(task, colId);
-      // Setup toolbar after modal is created
+      // Setup toolbar after modal is created - use global function
       setTimeout(() => {
-        setupFormattingToolbar('editDescToolbar', 'editDescription');
+        if (typeof window.setupFormattingToolbar === 'function') {
+          window.setupFormattingToolbar('editDescToolbar', 'editDescription');
+        }
       }, 100);
     };
 
 </script>
+
+<!-- Formatting Toolbar Script (standalone, not requiring Firebase) -->
+<script>
+(function() {
+  'use strict';
+  
+  /* ========== Formatting Toolbar Functionality ========== */
+  
+  // Setup formatting toolbar for a textarea
+  function setupFormattingToolbar(toolbarId, textareaId) {
+    const toolbar = document.getElementById(toolbarId);
+    const textarea = document.getElementById(textareaId);
+    if (!toolbar || !textarea) {
+      console.warn('Toolbar or textarea not found:', toolbarId, textareaId);
+      return;
+    }
+    
+    console.log('Setting up formatting toolbar:', toolbarId, 'for', textareaId);
+    
+    // Handle dropdown menus
+    toolbar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.format-btn');
+      if (!btn) return;
+      
+      const format = btn.getAttribute('data-format');
+      
+      // Toggle dropdowns
+      if (format === 'color' || format === 'size') {
+        e.stopPropagation();
+        const dropdown = btn.closest('.format-dropdown');
+        const menu = dropdown.querySelector('.format-dropdown-menu');
+        const wasOpen = menu.classList.contains('show');
+        
+        // Close all other dropdowns
+        toolbar.querySelectorAll('.format-dropdown-menu').forEach(m => m.classList.remove('show'));
+        
+        if (!wasOpen) {
+          menu.classList.add('show');
+        }
+        return;
+      }
+      
+      // Apply formatting
+      if (['bold', 'italic', 'underline', 'highlight'].includes(format)) {
+        applyFormatting(textarea, format);
+      }
+    });
+    
+    // Handle color selection
+    const colorMenus = toolbar.querySelectorAll('[id$="ColorMenu"]');
+    colorMenus.forEach(menu => {
+      menu.addEventListener('click', (e) => {
+        const item = e.target.closest('.format-dropdown-item');
+        if (!item) return;
+        const color = item.getAttribute('data-color');
+        if (color) {
+          applyFormatting(textarea, 'color', color);
+          menu.classList.remove('show');
+        }
+      });
+    });
+    
+    // Handle size selection
+    const sizeMenus = toolbar.querySelectorAll('[id$="SizeMenu"]');
+    sizeMenus.forEach(menu => {
+      menu.addEventListener('click', (e) => {
+        const item = e.target.closest('.format-dropdown-item');
+        if (!item) return;
+        const size = item.getAttribute('data-size');
+        if (size) {
+          applyFormatting(textarea, 'size', size);
+          menu.classList.remove('show');
+        }
+      });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!toolbar.contains(e.target)) {
+        toolbar.querySelectorAll('.format-dropdown-menu').forEach(m => m.classList.remove('show'));
+      }
+    });
+  }
+  
+  // Apply formatting to selected text in textarea
+  function applyFormatting(textarea, format, value) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    
+    if (start === end) {
+      if (typeof showToast === 'function') {
+        showToast('info', 'Please select text to format');
+      } else {
+        alert('Please select text to format');
+      }
+      return;
+    }
+    
+    const selectedText = text.substring(start, end);
+    let wrappedText = '';
+    
+    switch (format) {
+      case 'bold':
+        wrappedText = `<b>${selectedText}</b>`;
+        break;
+      case 'italic':
+        wrappedText = `<i>${selectedText}</i>`;
+        break;
+      case 'underline':
+        wrappedText = `<u class="desc-underline">${selectedText}</u>`;
+        break;
+      case 'highlight':
+        wrappedText = `<span class="desc-hl">${selectedText}</span>`;
+        break;
+      case 'color':
+        wrappedText = `<span class="desc-color-${value}">${selectedText}</span>`;
+        break;
+      case 'size':
+        wrappedText = `<span class="desc-size-${value}">${selectedText}</span>`;
+        break;
+      default:
+        return;
+    }
+    
+    textarea.value = text.substring(0, start) + wrappedText + text.substring(end);
+    
+    // Restore selection after the formatted text
+    const newEnd = start + wrappedText.length;
+    textarea.setSelectionRange(newEnd, newEnd);
+    textarea.focus();
+    
+    console.log('Applied formatting:', format, value, 'Result:', wrappedText);
+  }
+  
+  // Setup formatting toolbars on page load
+  function initFormattingToolbars() {
+    console.log('Initializing formatting toolbars...');
+    // New task description toolbar
+    setupFormattingToolbar('newDescToolbar', 'newDescription');
+  }
+  
+  // Expose to global scope for edit modal
+  window.setupFormattingToolbar = setupFormattingToolbar;
+  
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFormattingToolbars);
+  } else {
+    initFormattingToolbars();
+  }
+})();
+</script>
+
 <script src="/assets/js/sound.js" defer></script>
 <script src="/assets/js/toast.js" defer></script>
 </body>

@@ -945,7 +945,8 @@
             id: docSnap.id,
             title: t.title || "(Untitled)",
             assignee: t.assignee || "Unassigned",
-            due: typeof t.due === "string" ? t.due : ""
+            due: typeof t.due === "string" ? t.due : "",
+            comments: Array.isArray(t.comments) ? t.comments : []
           });
         });
         tasks = arr;
@@ -1011,10 +1012,24 @@
       modalTasksEl.innerHTML = (dayTasks.length
         ? dayTasks.map(t => {
             const who = t.assignee ? ` • ${escapeHtml(t.assignee)}` : "";
+            // Get up to 3 comments with showOnCalendar=true
+            const calendarComments = (t.comments || [])
+              .filter(c => c.showOnCalendar === true)
+              .slice(0, 3);
+            const commentsHtml = calendarComments.length > 0
+              ? `<div class="mt-2 space-y-1">
+                  ${calendarComments.map(c => 
+                    `<div class="text-xs italic text-slate-500 dark:text-slate-400 pl-2 border-l-2 border-slate-300 dark:border-slate-700">
+                      ${escapeHtml(c.text || "")}
+                    </div>`
+                  ).join("")}
+                </div>`
+              : "";
             return `
               <div class="p-2 border border-slate-200 dark:border-slate-800 rounded bg-slate-50 dark:bg-slate-900">
                 <div class="task-pill">${escapeHtml(t.title)}</div>
                 <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">${escapeHtml(t.due)}${who}</div>
+                ${commentsHtml}
               </div>
             `;
           }).join("")

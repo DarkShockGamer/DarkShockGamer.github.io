@@ -352,7 +352,7 @@ document.addEventListener("DOMContentLoaded", async function() {
       e.preventDefault();
       const settings = await loadSettings();
       fillAccountForm(settings);
-      if(window.Sound) window.Sound.toggle();
+      if(window.Sound) window.Sound.click();
       if(window.Toast) Toast("Changes canceled.", "info");
     });
   }
@@ -417,7 +417,7 @@ document.addEventListener("DOMContentLoaded", async function() {
       
       NotificationSettings.save(enabled, sound);
       
-      if(window.Sound) window.Sound.tab();
+      if(window.Sound) window.Sound.click();
       if(window.Toast) Toast("Notification settings saved.", "success");
     });
 
@@ -431,7 +431,7 @@ document.addEventListener("DOMContentLoaded", async function() {
       notificationToggle.setAttribute('aria-checked', settings.enabled.toString());
       if (notificationLabel) notificationLabel.textContent = settings.enabled ? "On" : "Off";
       
-      if(window.Sound) window.Sound.toggle();
+      if(window.Sound) window.Sound.click();
       if(window.Toast) Toast("Notification settings reset.", "info");
     });
   }
@@ -472,7 +472,7 @@ document.addEventListener("DOMContentLoaded", async function() {
       
       AppearanceSettings.save(theme, reduceMotion);
       
-      if(window.Sound) window.Sound.tab();
+      if(window.Sound) window.Sound.click();
       if(window.Toast) Toast("Appearance settings saved.", "success");
     });
 
@@ -488,7 +488,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         if (reduceMotionLabel) reduceMotionLabel.textContent = settings.reduceMotion ? "On" : "Off";
       }
       
-      if(window.Sound) window.Sound.toggle();
+      if(window.Sound) window.Sound.click();
       if(window.Toast) Toast("Appearance settings reset.", "info");
     });
   }
@@ -533,7 +533,7 @@ document.addEventListener("DOMContentLoaded", async function() {
       
       PrivacySettings.save(dataCollection);
       
-      if(window.Sound) window.Sound.tab();
+      if(window.Sound) window.Sound.click();
       if(window.Toast) Toast("Privacy settings saved.", "success");
     });
 
@@ -546,7 +546,7 @@ document.addEventListener("DOMContentLoaded", async function() {
       dataCollectionToggle.setAttribute('aria-checked', settings.dataCollection.toString());
       if (dataCollectionLabel) dataCollectionLabel.textContent = settings.dataCollection ? "On" : "Off";
       
-      if(window.Sound) window.Sound.toggle();
+      if(window.Sound) window.Sound.click();
       if(window.Toast) Toast("Privacy settings reset.", "info");
     });
   }

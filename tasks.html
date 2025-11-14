@@ -996,9 +996,14 @@ async function renderDrawer() {
 filterInput.oninput = () => { renderBoard(); };
 
 /* Chips util */
-function chipsHTML(tags) { return (tags || []).map(t => `<span class="tag-chip">${t}</span>`).join(""); }
-function getCurrentUserName() { return localStorage.getItem('trident.fullname') || 'Anonymous'; }
+function chipsHTML(tags) {
+  return (tags || []).map(t => `<span class="tag-chip">${t}</span>`).join("");
+}
+function getCurrentUserName() {
+  return localStorage.getItem('trident.fullname') || 'Anonymous';
+}
 
+</script>
 <script src="/assets/js/sound.js" defer></script>
 <script src="/assets/js/toast.js" defer></script>
 </body>

@@ -349,6 +349,63 @@
       .toast.warn    { background: #281a05; border-color: #78350f; color: #fde68a; }
       .toast.error   { background: #2b0b0b; border-color: #7f1d1d; color: #fecaca; }
     }
+
+    /* Rich WYSIWYG Editor */
+    .rich-editor {
+      width: 100%;
+      min-height: 4rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.375rem;
+      background: white;
+      color: #0f172a;
+      font-family: system-ui, sans-serif;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      outline: none;
+      transition: border-color 150ms;
+    }
+    .rich-editor:focus {
+      border-color: #7dd3fc;
+      box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.2);
+    }
+    .rich-editor:empty:before {
+      content: attr(data-placeholder);
+      color: #94a3b8;
+      pointer-events: none;
+    }
+    .rich-editor label {
+      display: flex;
+      align-items: start;
+      gap: 0.5rem;
+      padding: 0.125rem 0;
+      cursor: pointer;
+      user-select: none;
+    }
+    .rich-editor label input[type="checkbox"] {
+      margin-top: 0.125rem;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    /* Dark mode for rich editor */
+    @media (prefers-color-scheme: dark) {
+      .rich-editor {
+        background: #0b1220;
+        color: #e5e7eb;
+        border-color: #334155;
+      }
+      .rich-editor:focus {
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+      }
+      .rich-editor:empty:before {
+        color: #94a3b8;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen p-6">
@@ -421,9 +478,10 @@
           
           <span class="text-xs text-slate-500 dark:text-slate-400 ml-2" title="Select text and apply formatting">ℹ️ Select text to format</span>
         </div>
-        <textarea id="newDescription" rows="3" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="- [ ] Subtask 1
-- [ ] Subtask 2
-Notes line without a checkbox"></textarea>
+        <div id="newDescription" 
+             contenteditable="true" 
+             class="rich-editor" 
+             data-placeholder="- [ ] Subtask 1&#10;- [ ] Subtask 2&#10;Notes line without a checkbox"></div>
       </div>
 
       <button id="addTaskBtn" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Add Task</button>
@@ -1021,9 +1079,11 @@ function openEditModal(task, colId) {
         
         <span class="text-xs text-slate-500 dark:text-slate-400 ml-2" title="Select text and apply formatting">ℹ️ Select text to format</span>
       </div>
-      <textarea id="editDescription" rows="6" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="- [ ] Subtask 1
-- [x] Completed item
-Free-form notes line"></textarea>
+      <div id="editDescription" 
+           contenteditable="true" 
+           class="rich-editor" 
+           style="min-height: 9rem;"
+           data-placeholder="- [ ] Subtask 1&#10;- [x] Completed item&#10;Free-form notes line"></div>
 
       <div class="dropdown mt-2" id="editTagDropdown">
         <div class="dropdown-btn" id="editDropdownBtn"><span class="placeholder">Select tags...</span></div>
@@ -1049,7 +1109,13 @@ Free-form notes line"></textarea>
   modal.querySelector("#editTitle").value = task.title || "";
   modal.querySelector("#editAssign").value = task.assignee || "";
   modal.querySelector("#editDue").value = task.due || "";
-  modal.querySelector("#editDescription").value = task.description || "";
+  
+  // Set editor content using the helper function
+  if (typeof window.setEditorContent === 'function') {
+    setTimeout(() => window.setEditorContent("editDescription", task.description || ""), 0);
+  } else {
+    modal.querySelector("#editDescription").innerHTML = task.description || "";
+  }
 
   let editSelectedTags = Array.isArray(task.tags) ? task.tags.slice() : [];
   const editDropdownBtn = modal.querySelector("#editDropdownBtn");
@@ -1081,7 +1147,9 @@ Free-form notes line"></textarea>
       task.title = (modal.querySelector("#editTitle").value || "").trim();
       task.assignee = (modal.querySelector("#editAssign").value || "Unassigned").trim() || "Unassigned";
       task.due = modal.querySelector("#editDue").value || "";
-      task.description = modal.querySelector("#editDescription").value || "";
+      task.description = typeof window.getEditorContent === 'function'
+        ? window.getEditorContent("editDescription")
+        : modal.querySelector("#editDescription").innerHTML || "";
       task.tags = editSelectedTags.slice();
 
       await saveTask(task, colId);
@@ -1190,7 +1258,9 @@ addBtn.onclick = async () => {
 
   const assign = document.getElementById("newAssign").value || "Unassigned";
   const due    = document.getElementById("newDue").value || "";
-  const description = document.getElementById("newDescription").value || "";
+  const description = typeof window.getEditorContent === 'function' 
+    ? window.getEditorContent("newDescription") 
+    : document.getElementById("newDescription").innerHTML || "";
 
   addBtn.disabled = true;
   const originalAddLabel = addBtn.textContent;
@@ -1214,7 +1284,8 @@ addBtn.onclick = async () => {
     document.getElementById("newTitle").value = "";
     document.getElementById("newAssign").value = "";
     document.getElementById("newDue").value = "";
-    document.getElementById("newDescription").value = "";
+    const newDescEditor = document.getElementById("newDescription");
+    if (newDescEditor) newDescEditor.innerHTML = "";
     selectedTags = [];
     document.querySelectorAll("#dropdownList input[type=checkbox]").forEach(cb => cb.checked = false);
     updateDropdownBtn();
@@ -1447,29 +1518,30 @@ filterInput.oninput = () => { renderBoard(); };
 
 </script>
 
-<!-- Formatting Toolbar Script (standalone, not requiring Firebase) -->
+<!-- Formatting Toolbar Script with WYSIWYG Support -->
 <script>
 (function() {
   'use strict';
   
-  /* ========== Formatting Toolbar Functionality ========== */
+  /* ========== WYSIWYG Formatting Toolbar Functionality ========== */
   
-  // Setup formatting toolbar for a textarea
-  function setupFormattingToolbar(toolbarId, textareaId) {
+  // Setup formatting toolbar for a contenteditable element
+  function setupFormattingToolbar(toolbarId, editorId) {
     const toolbar = document.getElementById(toolbarId);
-    const textarea = document.getElementById(textareaId);
-    if (!toolbar || !textarea) {
-      console.warn('Toolbar or textarea not found:', toolbarId, textareaId);
+    const editor = document.getElementById(editorId);
+    if (!toolbar || !editor) {
+      console.warn('Toolbar or editor not found:', toolbarId, editorId);
       return;
     }
     
-    console.log('Setting up formatting toolbar:', toolbarId, 'for', textareaId);
+    console.log('Setting up WYSIWYG formatting toolbar:', toolbarId, 'for', editorId);
     
     // Handle dropdown menus
     toolbar.addEventListener('click', (e) => {
       const btn = e.target.closest('.format-btn');
       if (!btn) return;
       
+      e.preventDefault();
       const format = btn.getAttribute('data-format');
       
       // Toggle dropdowns
@@ -1490,7 +1562,7 @@ filterInput.oninput = () => { renderBoard(); };
       
       // Apply formatting
       if (['bold', 'italic', 'underline', 'highlight'].includes(format)) {
-        applyFormatting(textarea, format);
+        applyFormatting(editor, format);
       }
     });
     
@@ -1502,7 +1574,7 @@ filterInput.oninput = () => { renderBoard(); };
         if (!item) return;
         const color = item.getAttribute('data-color');
         if (color) {
-          applyFormatting(textarea, 'color', color);
+          applyFormatting(editor, 'color', color);
           menu.classList.remove('show');
         }
       });
@@ -1516,7 +1588,7 @@ filterInput.oninput = () => { renderBoard(); };
         if (!item) return;
         const size = item.getAttribute('data-size');
         if (size) {
-          applyFormatting(textarea, 'size', size);
+          applyFormatting(editor, 'size', size);
           menu.classList.remove('show');
         }
       });
@@ -1528,15 +1600,20 @@ filterInput.oninput = () => { renderBoard(); };
         toolbar.querySelectorAll('.format-dropdown-menu').forEach(m => m.classList.remove('show'));
       }
     });
+    
+    // Setup live checklist conversion
+    setupChecklistConversion(editor);
+    
+    // Setup paste sanitization
+    setupPasteSanitization(editor);
   }
   
-  // Apply formatting to selected text in textarea
-  function applyFormatting(textarea, format, value) {
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
+  // Apply formatting to selected text in contenteditable
+  function applyFormatting(editor, format, value) {
+    editor.focus();
+    const selection = window.getSelection();
     
-    if (start === end) {
+    if (!selection.rangeCount || selection.isCollapsed) {
       if (typeof showToast === 'function') {
         showToast('info', 'Please select text to format');
       } else {
@@ -1545,45 +1622,210 @@ filterInput.oninput = () => { renderBoard(); };
       return;
     }
     
-    const selectedText = text.substring(start, end);
-    let wrappedText = '';
+    const range = selection.getRangeAt(0);
+    const selectedText = range.toString();
     
+    if (!selectedText) {
+      if (typeof showToast === 'function') {
+        showToast('info', 'Please select text to format');
+      }
+      return;
+    }
+    
+    // Create the wrapper element
+    let wrapper;
     switch (format) {
       case 'bold':
-        wrappedText = `<b>${selectedText}</b>`;
+        wrapper = document.createElement('b');
         break;
       case 'italic':
-        wrappedText = `<i>${selectedText}</i>`;
+        wrapper = document.createElement('i');
         break;
       case 'underline':
-        wrappedText = `<u class="desc-underline">${selectedText}</u>`;
+        wrapper = document.createElement('u');
+        wrapper.className = 'desc-underline';
         break;
       case 'highlight':
-        wrappedText = `<span class="desc-hl">${selectedText}</span>`;
+        wrapper = document.createElement('span');
+        wrapper.className = 'desc-hl';
         break;
       case 'color':
-        wrappedText = `<span class="desc-color-${value}">${selectedText}</span>`;
+        wrapper = document.createElement('span');
+        wrapper.className = `desc-color-${value}`;
         break;
       case 'size':
-        wrappedText = `<span class="desc-size-${value}">${selectedText}</span>`;
+        wrapper = document.createElement('span');
+        wrapper.className = `desc-size-${value}`;
         break;
       default:
         return;
     }
     
-    textarea.value = text.substring(0, start) + wrappedText + text.substring(end);
+    // Wrap the selected content
+    try {
+      range.surroundContents(wrapper);
+    } catch (e) {
+      // If surroundContents fails (e.g., selection spans multiple elements),
+      // extract contents and wrap them
+      const contents = range.extractContents();
+      wrapper.appendChild(contents);
+      range.insertNode(wrapper);
+    }
     
     // Restore selection after the formatted text
-    const newEnd = start + wrappedText.length;
-    textarea.setSelectionRange(newEnd, newEnd);
-    textarea.focus();
+    selection.removeAllRanges();
+    const newRange = document.createRange();
+    newRange.selectNodeContents(wrapper);
+    newRange.collapse(false);
+    selection.addRange(newRange);
     
-    console.log('Applied formatting:', format, value, 'Result:', wrappedText);
+    console.log('Applied formatting:', format, value);
+  }
+  
+  // Setup live checklist conversion
+  function setupChecklistConversion(editor) {
+    editor.addEventListener('input', (e) => {
+      // Check if we're at the start of a line and typed "- [ ] " or "- [x] "
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return;
+      
+      const range = selection.getRangeAt(0);
+      const node = range.startContainer;
+      
+      // Get the text content before cursor
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent;
+        const offset = range.startOffset;
+        const beforeCursor = text.substring(0, offset);
+        
+        // Check for checklist pattern at start of line
+        const checkboxMatch = beforeCursor.match(/^-\s*\[([ xX])\]\s$/);
+        if (checkboxMatch) {
+          e.preventDefault();
+          
+          const checked = checkboxMatch[1].toLowerCase() === 'x';
+          
+          // Remove the pattern text
+          const textNode = node;
+          textNode.textContent = text.substring(offset);
+          
+          // Create checkbox element
+          const label = document.createElement('label');
+          label.style.display = 'flex';
+          label.style.alignItems = 'start';
+          label.style.gap = '0.5rem';
+          label.style.padding = '0.125rem 0';
+          label.style.cursor = 'pointer';
+          label.style.userSelect = 'none';
+          
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = checked;
+          checkbox.className = 'desc-checkbox';
+          checkbox.style.marginTop = '0.125rem';
+          checkbox.style.flexShrink = '0';
+          checkbox.style.cursor = 'pointer';
+          
+          const span = document.createElement('span');
+          span.contentEditable = 'true';
+          span.textContent = '\u200B'; // Zero-width space to allow typing
+          
+          label.appendChild(checkbox);
+          label.appendChild(span);
+          
+          // Insert before the text node
+          if (textNode.parentNode) {
+            textNode.parentNode.insertBefore(label, textNode);
+            
+            // Remove empty text node if it exists
+            if (!textNode.textContent.trim()) {
+              textNode.remove();
+            }
+            
+            // Place cursor in the span
+            const newRange = document.createRange();
+            newRange.setStart(span, 0);
+            newRange.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+          }
+        }
+      }
+    });
+    
+    // Handle checkbox clicks in editor
+    editor.addEventListener('change', (e) => {
+      if (e.target.type === 'checkbox' && e.target.classList.contains('desc-checkbox')) {
+        // Just let it toggle naturally
+        console.log('Checkbox toggled in editor');
+      }
+    }, true);
+  }
+  
+  // Setup paste sanitization
+  function setupPasteSanitization(editor) {
+    editor.addEventListener('paste', (e) => {
+      e.preventDefault();
+      
+      // Get pasted data
+      const text = e.clipboardData.getData('text/plain');
+      const html = e.clipboardData.getData('text/html');
+      
+      if (html) {
+        // Sanitize HTML paste
+        const sanitized = sanitizePastedHTML(html);
+        document.execCommand('insertHTML', false, sanitized);
+      } else if (text) {
+        // Plain text paste
+        document.execCommand('insertText', false, text);
+      }
+    });
+  }
+  
+  // Sanitize pasted HTML to only allow whitelisted tags and classes
+  function sanitizePastedHTML(html) {
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    
+    const allowedTags = ['B', 'I', 'U', 'SPAN', 'BR'];
+    const allowedClasses = [
+      'desc-hl', 'desc-color-red', 'desc-color-orange', 'desc-color-yellow',
+      'desc-color-green', 'desc-color-blue', 'desc-color-purple', 'desc-color-slate',
+      'desc-underline', 'desc-size-xs', 'desc-size-sm', 'desc-size-base', 'desc-size-lg'
+    ];
+    
+    function sanitizeNode(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return node.textContent;
+      }
+      
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const tagName = node.tagName.toUpperCase();
+        
+        // If tag not allowed, just return its text content
+        if (!allowedTags.includes(tagName)) {
+          return Array.from(node.childNodes).map(sanitizeNode).join('');
+        }
+        
+        // Filter classes to only allowed ones
+        const classList = Array.from(node.classList || []).filter(cls => allowedClasses.includes(cls));
+        const classAttr = classList.length > 0 ? ` class="${classList.join(' ')}"` : '';
+        
+        // Recursively sanitize children
+        const content = Array.from(node.childNodes).map(sanitizeNode).join('');
+        
+        return `<${tagName.toLowerCase()}${classAttr}>${content}</${tagName.toLowerCase()}>`;
+      }
+      
+      return '';
+    }
+    
+    return Array.from(temp.childNodes).map(sanitizeNode).join('');
   }
   
   // Add keyboard shortcuts for formatting
-  function addKeyboardShortcuts(textarea) {
-    textarea.addEventListener('keydown', (e) => {
+  function addKeyboardShortcuts(editor) {
+    editor.addEventListener('keydown', (e) => {
       // Check for Ctrl/Cmd key combinations
       if (e.ctrlKey || e.metaKey) {
         let format = null;
@@ -1602,26 +1844,101 @@ filterInput.oninput = () => { renderBoard(); };
         
         if (format) {
           e.preventDefault(); // Prevent default browser behavior
-          applyFormatting(textarea, format);
+          applyFormatting(editor, format);
         }
       }
     });
   }
   
+  // Get formatted content from editor (for saving)
+  function getEditorContent(editorId) {
+    const editor = document.getElementById(editorId);
+    if (!editor) return '';
+    
+    // Convert HTML back to the text format expected by the backend
+    // For checklist items, convert back to "- [ ] " or "- [x] " format
+    const clone = editor.cloneNode(true);
+    const labels = clone.querySelectorAll('label');
+    
+    labels.forEach(label => {
+      const checkbox = label.querySelector('input[type="checkbox"]');
+      const span = label.querySelector('span');
+      if (checkbox && span) {
+        const checked = checkbox.checked ? 'x' : ' ';
+        const text = span.textContent || '';
+        const replacement = document.createTextNode(`- [${checked}] ${text}\n`);
+        label.parentNode.replaceChild(replacement, label);
+      }
+    });
+    
+    // Get the text content with preserved HTML tags
+    return clone.innerHTML.trim();
+  }
+  
+  // Set editor content (when loading)
+  function setEditorContent(editorId, content) {
+    const editor = document.getElementById(editorId);
+    if (!editor) return;
+    
+    // Parse content and convert "- [ ] " and "- [x] " to checkboxes
+    const lines = String(content || '').split(/\n/);
+    const fragments = [];
+    
+    lines.forEach((line, idx) => {
+      const checkMatch = line.match(/^-\s*\[([ xX])\]\s*(.*)$/);
+      if (checkMatch) {
+        const checked = checkMatch[1].toLowerCase() === 'x';
+        const text = checkMatch[2] || '';
+        
+        const label = document.createElement('label');
+        label.style.display = 'flex';
+        label.style.alignItems = 'start';
+        label.style.gap = '0.5rem';
+        label.style.padding = '0.125rem 0';
+        label.style.cursor = 'pointer';
+        label.style.userSelect = 'none';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = checked;
+        checkbox.className = 'desc-checkbox';
+        checkbox.style.marginTop = '0.125rem';
+        checkbox.style.flexShrink = '0';
+        checkbox.style.cursor = 'pointer';
+        
+        const span = document.createElement('span');
+        span.innerHTML = text; // Allow HTML formatting in the text
+        
+        label.appendChild(checkbox);
+        label.appendChild(span);
+        fragments.push(label);
+      } else {
+        const div = document.createElement('div');
+        div.innerHTML = line || '<br>'; // Preserve empty lines
+        fragments.push(div);
+      }
+    });
+    
+    editor.innerHTML = '';
+    fragments.forEach(frag => editor.appendChild(frag));
+  }
+  
   // Setup formatting toolbars on page load
   function initFormattingToolbars() {
-    console.log('Initializing formatting toolbars...');
+    console.log('Initializing WYSIWYG formatting toolbars...');
     // New task description toolbar
     setupFormattingToolbar('newDescToolbar', 'newDescription');
     
-    // Add keyboard shortcuts to new description textarea
+    // Add keyboard shortcuts to new description editor
     const newDesc = document.getElementById('newDescription');
     if (newDesc) addKeyboardShortcuts(newDesc);
   }
   
-  // Expose to global scope for edit modal
+  // Expose to global scope
   window.setupFormattingToolbar = setupFormattingToolbar;
   window.addKeyboardShortcuts = addKeyboardShortcuts;
+  window.getEditorContent = getEditorContent;
+  window.setEditorContent = setEditorContent;
   
   // Initialize when DOM is ready
   if (document.readyState === 'loading') {

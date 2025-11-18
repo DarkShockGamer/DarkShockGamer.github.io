@@ -23,9 +23,12 @@ const SETTINGS_KEYS = {
 
 // Utility: get/set settings from localStorage
 function getLocalSettings() {
+  const lsEmail = localStorage.getItem(SETTINGS_KEYS.EMAIL) || "";
+  const runtimeEmail = (typeof window !== 'undefined' && window.signedInEmail) ? window.signedInEmail : "";
+  
   return {
     fullname: localStorage.getItem(SETTINGS_KEYS.FULLNAME) || "",
-    email: localStorage.getItem(SETTINGS_KEYS.EMAIL) || "",
+    email: lsEmail || runtimeEmail,
   }
 }
 

@@ -6,6 +6,17 @@
   <link rel="shortcut icon" type="image/png" href="/assets/logo.png">
   <title>Trident Robotics 4296</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Pre-paint theme application to prevent FOUC -->
+  <script>
+    (function() {
+      const theme = localStorage.getItem('site-theme') || 'system';
+      if (theme !== 'system') {
+        const classes = { 'light': 'theme-light', 'dark': 'theme-dark', 'high-contrast': 'theme-high-contrast' };
+        const className = classes[theme];
+        if (className) document.documentElement.classList.add(className);
+      }
+    })();
+  </script>
 
   <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -1058,5 +1069,6 @@
       });
     });
   </script>
+  <script src="/assets/js/theme.js"></script>
 </body>
 </html>

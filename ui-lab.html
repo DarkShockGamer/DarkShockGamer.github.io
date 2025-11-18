@@ -4,6 +4,17 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/assets/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Pre-paint theme application to prevent FOUC -->
+  <script>
+    (function() {
+      const theme = localStorage.getItem('site-theme') || 'system';
+      if (theme !== 'system') {
+        const classes = { 'light': 'theme-light', 'dark': 'theme-dark', 'high-contrast': 'theme-high-contrast' };
+        const className = classes[theme];
+        if (className) document.documentElement.classList.add(className);
+      }
+    })();
+  </script>
   <title>Trident Robotics — UI Motion & Sound Lab</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -582,5 +593,6 @@
     // --- REMOVED: Settings Gear Animation and Sound ---
     // All code related to #gearBtn, .gear-btn, .gear-svg, and Sound.gear() has been removed from this file.
   </script>
+  <script src="/assets/js/theme.js"></script>
 </body>
 </html>

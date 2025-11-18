@@ -184,47 +184,54 @@ const NotificationSettings = {
 // ==================== APPEARANCE MANAGEMENT ====================
 
 const AppearanceSettings = {
-  // Initialize appearance settings
-  init() {
-    const theme = localStorage.getItem(SETTINGS_KEYS.THEME) || "System";
-    const reduceMotion = localStorage.getItem(SETTINGS_KEYS.REDUCE_MOTION) === "true";
-    
-    this.applyTheme(theme);
-    this.applyReduceMotion(reduceMotion);
-    
-    return { theme, reduceMotion };
+  // Map display values to internal theme.js values
+  _toInternal(displayValue) {
+    const map = {
+      'System': 'system',
+      'Light': 'light',
+      'Dark': 'dark',
+      'High Contrast': 'high-contrast'
+    };
+    return map[displayValue] || 'system';
   },
 
-  // Apply theme to the site
-  applyTheme(theme) {
-    const html = document.documentElement;
-    const body = document.body;
+  // Map internal theme.js values to display values
+  _toDisplay(internalValue) {
+    const map = {
+      'system': 'System',
+      'light': 'Light',
+      'dark': 'Dark',
+      'high-contrast': 'High Contrast'
+    };
+    return map[internalValue] || 'System';
+  },
 
-    // Remove existing theme classes
-    html.classList.remove("theme-light", "theme-dark", "theme-high-contrast");
-    body.classList.remove("theme-light", "theme-dark", "theme-high-contrast");
+  // Initialize appearance settings
+  init() {
+    // Migrate old theme setting to new format if needed
+    const oldTheme = localStorage.getItem(SETTINGS_KEYS.THEME);
+    if (oldTheme && window.Theme) {
+      const internalTheme = this._toInternal(oldTheme);
+      window.Theme.set(internalTheme);
+      localStorage.removeItem(SETTINGS_KEYS.THEME); // Clean up old key
+    }
 
-    switch(theme) {
-      case "Light":
-        html.classList.add("theme-light");
-        body.classList.add("theme-light");
-        html.style.colorScheme = "light";
-        break;
-      case "Dark":
-        html.classList.add("theme-dark");
-        body.classList.add("theme-dark");
-        html.style.colorScheme = "dark";
-        break;
-      case "High Contrast":
-        html.classList.add("theme-high-contrast");
-        body.classList.add("theme-high-contrast");
-        html.style.colorScheme = "dark";
-        break;
-      case "System":
-      default:
-        // Let system preference take over
-        html.style.colorScheme = "";
-        break;
+    const reduceMotion = localStorage.getItem(SETTINGS_KEYS.REDUCE_MOTION) === "true";
+    
+    // Get current theme from Theme API
+    const currentTheme = window.Theme ? window.Theme.get() : 'system';
+    const displayTheme = this._toDisplay(currentTheme);
+    
+    this.applyReduceMotion(reduceMotion);
+    
+    return { theme: displayTheme, reduceMotion };
+  },
+
+  // Apply theme to the site using Theme API
+  applyTheme(displayTheme) {
+    if (window.Theme) {
+      const internalTheme = this._toInternal(displayTheme);
+      window.Theme.set(internalTheme);
     }
   },
 
@@ -257,17 +264,13 @@ const AppearanceSettings = {
   },
 
   // Save appearance settings
-  save(theme, reduceMotion) {
-    localStorage.setItem(SETTINGS_KEYS.THEME, theme);
+  save(displayTheme, reduceMotion) {
     localStorage.setItem(SETTINGS_KEYS.REDUCE_MOTION, reduceMotion.toString());
     
-    this.applyTheme(theme);
+    this.applyTheme(displayTheme);
     this.applyReduceMotion(reduceMotion);
   }
 };
-
-// ==================== PRIVACY & SECURITY MANAGEMENT ====================
-
 const PrivacySettings = {
   // Initialize privacy settings
   init() {

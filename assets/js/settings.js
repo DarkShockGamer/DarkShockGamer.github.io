@@ -184,48 +184,41 @@ const NotificationSettings = {
 // ==================== APPEARANCE MANAGEMENT ====================
 
 const AppearanceSettings = {
-  // Initialize appearance settings
-  init() {
-    const theme = localStorage.getItem(SETTINGS_KEYS.THEME) || "System";
-    const reduceMotion = localStorage.getItem(SETTINGS_KEYS.REDUCE_MOTION) === "true";
-    
-    this.applyTheme(theme);
-    this.applyReduceMotion(reduceMotion);
-    
-    return { theme, reduceMotion };
+  // Map UI values to theme values
+  themeMap: {
+    'System': 'system',
+    'Light': 'light',
+    'Dark': 'dark',
+    'High Contrast': 'high-contrast'
+  },
+  
+  reverseThemeMap: {
+    'system': 'System',
+    'light': 'Light',
+    'dark': 'Dark',
+    'high-contrast': 'High Contrast'
   },
 
-  // Apply theme to the site
-  applyTheme(theme) {
-    const html = document.documentElement;
-    const body = document.body;
-
-    // Remove existing theme classes
-    html.classList.remove("theme-light", "theme-dark", "theme-high-contrast");
-    body.classList.remove("theme-light", "theme-dark", "theme-high-contrast");
-
-    switch(theme) {
-      case "Light":
-        html.classList.add("theme-light");
-        body.classList.add("theme-light");
-        html.style.colorScheme = "light";
-        break;
-      case "Dark":
-        html.classList.add("theme-dark");
-        body.classList.add("theme-dark");
-        html.style.colorScheme = "dark";
-        break;
-      case "High Contrast":
-        html.classList.add("theme-high-contrast");
-        body.classList.add("theme-high-contrast");
-        html.style.colorScheme = "dark";
-        break;
-      case "System":
-      default:
-        // Let system preference take over
-        html.style.colorScheme = "";
-        break;
+  // Initialize appearance settings
+  init() {
+    // Get theme from Theme API if available, otherwise fallback to localStorage
+    let theme = 'system';
+    if (window.Theme) {
+      theme = window.Theme.get();
+    } else {
+      theme = localStorage.getItem('site-theme') || 'system';
     }
+    
+    const reduceMotion = localStorage.getItem(SETTINGS_KEYS.REDUCE_MOTION) === "true";
+    
+    // Apply theme using Theme API if available
+    if (window.Theme) {
+      window.Theme.apply(theme);
+    }
+    this.applyReduceMotion(reduceMotion);
+    
+    // Return UI-friendly theme name
+    return { theme: this.reverseThemeMap[theme] || 'System', reduceMotion };
   },
 
   // Apply reduce motion setting
@@ -257,11 +250,18 @@ const AppearanceSettings = {
   },
 
   // Save appearance settings
-  save(theme, reduceMotion) {
-    localStorage.setItem(SETTINGS_KEYS.THEME, theme);
-    localStorage.setItem(SETTINGS_KEYS.REDUCE_MOTION, reduceMotion.toString());
+  save(themeUI, reduceMotion) {
+    // Convert UI theme name to internal theme value
+    const theme = this.themeMap[themeUI] || 'system';
     
-    this.applyTheme(theme);
+    // Use Theme API if available
+    if (window.Theme) {
+      window.Theme.set(theme);
+    } else {
+      localStorage.setItem('site-theme', theme);
+    }
+    
+    localStorage.setItem(SETTINGS_KEYS.REDUCE_MOTION, reduceMotion.toString());
     this.applyReduceMotion(reduceMotion);
   }
 };

@@ -394,13 +394,16 @@
       align-items: start;
       gap: 0.5rem;
       padding: 0.125rem 0;
-      cursor: pointer;
       user-select: none;
     }
     .rich-editor label input[type="checkbox"] {
       margin-top: 0.125rem;
       flex-shrink: 0;
       cursor: pointer;
+    }
+    .rich-editor label span {
+      cursor: text;
+      user-select: text;
     }
 
     /* Dark mode for rich editor */
@@ -1609,9 +1612,9 @@ filterInput.oninput = () => { renderBoard(); };
         return;
       }
       
-      // Toggle sticky formatting for simple formats
+      // Apply formatting (selection-aware with toggle)
       if (['bold', 'italic', 'underline', 'highlight'].includes(format)) {
-        toggleStickyFormat(editorId, format, btn, toolbar);
+        applyFormatWithToggle(editor, editorId, format, btn, toolbar);
       }
     });
     
@@ -1672,11 +1675,135 @@ filterInput.oninput = () => { renderBoard(); };
     setupStickyFormatting(editor, editorId);
   }
   
-  // Toggle sticky format state
-  function toggleStickyFormat(editorId, format, btn, toolbar) {
+  // Apply format with toggle support (selection-aware)
+  function applyFormatWithToggle(editor, editorId, format, btn, toolbar) {
+    editor.focus();
+    const selection = window.getSelection();
     const sticky = stickyFormats.get(editorId);
+    
+    // Check if there's a selection
+    if (selection && !selection.isCollapsed && selection.rangeCount > 0) {
+      // Apply/remove format to/from selection
+      const range = selection.getRangeAt(0);
+      
+      // Check if the selection already has this format
+      const hasFormat = selectionHasFormat(range, format);
+      
+      if (hasFormat) {
+        // Remove format from selection
+        removeFormatFromRange(range, format);
+      } else {
+        // Apply format to selection
+        applyFormatToRange(range, format);
+      }
+      
+      // Don't change sticky state when applying to selection
+      return;
+    }
+    
+    // No selection: toggle sticky format
     sticky[format] = !sticky[format];
     updateStickyButtonState(toolbar, format, sticky[format]);
+  }
+  
+  // Check if a range has a specific format
+  function selectionHasFormat(range, format) {
+    const container = range.commonAncestorContainer;
+    const element = container.nodeType === Node.TEXT_NODE ? container.parentElement : container;
+    
+    // Check for format in parent hierarchy
+    let current = element;
+    while (current && current.contentEditable !== 'true') {
+      if (format === 'bold' && current.tagName === 'B') return true;
+      if (format === 'italic' && current.tagName === 'I') return true;
+      if (format === 'underline' && (current.tagName === 'U' || current.classList.contains('desc-underline'))) return true;
+      if (format === 'highlight' && current.classList.contains('desc-hl')) return true;
+      current = current.parentElement;
+    }
+    return false;
+  }
+  
+  // Apply format to a range
+  function applyFormatToRange(range, format) {
+    const fragment = range.extractContents();
+    const wrapper = createFormatWrapper(format);
+    wrapper.appendChild(fragment);
+    range.insertNode(wrapper);
+    
+    // Restore selection
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    const newRange = document.createRange();
+    newRange.selectNodeContents(wrapper);
+    selection.addRange(newRange);
+  }
+  
+  // Remove format from a range
+  function removeFormatFromRange(range, format) {
+    const fragment = range.extractContents();
+    
+    // Remove format tags from fragment
+    const temp = document.createElement('div');
+    temp.appendChild(fragment);
+    
+    removeFormatFromElement(temp, format);
+    
+    // Reinsert cleaned content
+    while (temp.firstChild) {
+      range.insertNode(temp.lastChild);
+    }
+  }
+  
+  // Create wrapper element for a format
+  function createFormatWrapper(format) {
+    switch(format) {
+      case 'bold':
+        return document.createElement('b');
+      case 'italic':
+        return document.createElement('i');
+      case 'underline':
+        const u = document.createElement('u');
+        u.className = 'desc-underline';
+        return u;
+      case 'highlight':
+        const span = document.createElement('span');
+        span.className = 'desc-hl';
+        return span;
+      default:
+        return document.createElement('span');
+    }
+  }
+  
+  // Remove specific format from an element and its children
+  function removeFormatFromElement(element, format) {
+    const nodesToRemove = [];
+    
+    // Find all nodes with the format
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT);
+    let node = walker.currentNode;
+    
+    while (node) {
+      let shouldRemove = false;
+      
+      if (format === 'bold' && node.tagName === 'B') shouldRemove = true;
+      if (format === 'italic' && node.tagName === 'I') shouldRemove = true;
+      if (format === 'underline' && (node.tagName === 'U' || node.classList.contains('desc-underline'))) shouldRemove = true;
+      if (format === 'highlight' && node.classList.contains('desc-hl')) shouldRemove = true;
+      
+      if (shouldRemove) {
+        nodesToRemove.push(node);
+      }
+      
+      node = walker.nextNode();
+    }
+    
+    // Remove format nodes by replacing with their content
+    nodesToRemove.forEach(node => {
+      while (node.firstChild) {
+        node.parentNode.insertBefore(node.firstChild, node);
+      }
+      node.parentNode.removeChild(node);
+    });
   }
   
   // Update button visual state
@@ -1869,7 +1996,7 @@ filterInput.oninput = () => { renderBoard(); };
       }
     });
     
-    // Handle Enter key to create new checklist items
+    // Handle Enter key to create new checklist items or line breaks
     editor.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         const selection = window.getSelection();
@@ -1877,6 +2004,19 @@ filterInput.oninput = () => { renderBoard(); };
         
         const range = selection.getRangeAt(0);
         const node = range.startContainer;
+        
+        // Shift+Enter: insert soft break (BR)
+        if (e.shiftKey) {
+          e.preventDefault();
+          const br = document.createElement('br');
+          range.deleteContents();
+          range.insertNode(br);
+          range.setStartAfter(br);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          return;
+        }
         
         // Check if we're inside a checklist label
         const label = node.nodeType === Node.TEXT_NODE 
@@ -1903,6 +2043,17 @@ filterInput.oninput = () => { renderBoard(); };
           newRange.collapse(true);
           selection.removeAllRanges();
           selection.addRange(newRange);
+        } else {
+          // Regular Enter: create new div/paragraph
+          e.preventDefault();
+          const div = document.createElement('div');
+          div.innerHTML = '<br>'; // Empty div with br for cursor placement
+          range.deleteContents();
+          range.insertNode(div);
+          range.setStart(div, 0);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
         }
       }
     });
@@ -1922,7 +2073,6 @@ filterInput.oninput = () => { renderBoard(); };
     label.style.alignItems = 'start';
     label.style.gap = '0.5rem';
     label.style.padding = '0.125rem 0';
-    label.style.cursor = 'pointer';
     label.style.userSelect = 'none';
     
     const checkbox = document.createElement('input');
@@ -1936,6 +2086,25 @@ filterInput.oninput = () => { renderBoard(); };
     const span = document.createElement('span');
     span.contentEditable = 'true';
     span.textContent = '\u200B'; // Zero-width space to allow typing
+    span.style.cursor = 'text';
+    span.style.userSelect = 'text';
+    
+    // Prevent label click from affecting checkbox when clicking on text
+    label.addEventListener('click', (e) => {
+      // Only toggle checkbox if clicking directly on the checkbox itself
+      if (e.target === checkbox) {
+        // Let default behavior happen
+        return;
+      }
+      // Prevent label from toggling checkbox when clicking elsewhere
+      e.preventDefault();
+    });
+    
+    // Make checkbox independently clickable
+    checkbox.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Let default checkbox behavior happen
+    });
     
     label.appendChild(checkbox);
     label.appendChild(span);
@@ -2096,7 +2265,10 @@ filterInput.oninput = () => { renderBoard(); };
           e.preventDefault();
           const btn = toolbar.querySelector(`[data-format="${format}"]`);
           if (btn) {
-            toggleStickyFormat(editorId, format, btn, toolbar);
+            const editor = document.getElementById(editorId);
+            if (editor) {
+              applyFormatWithToggle(editor, editorId, format, btn, toolbar);
+            }
           }
         }
       }
@@ -2109,23 +2281,38 @@ filterInput.oninput = () => { renderBoard(); };
     if (!editor) return '';
     
     // Convert HTML back to the text format expected by the backend
-    // For checklist items, convert back to "- [ ] " or "- [x] " format
+    // For checklist items, convert back to "- [ ] " or "- [x] " format with HTML preserved
     const clone = editor.cloneNode(true);
-    const labels = clone.querySelectorAll('label');
     
-    labels.forEach(label => {
-      const checkbox = label.querySelector('input[type="checkbox"]');
-      const span = label.querySelector('span');
-      if (checkbox && span) {
-        const checked = checkbox.checked ? 'x' : ' ';
-        const text = span.textContent || '';
-        const replacement = document.createTextNode(`- [${checked}] ${text}\n`);
-        label.parentNode.replaceChild(replacement, label);
+    // Process all child nodes
+    const lines = [];
+    Array.from(clone.childNodes).forEach(node => {
+      if (node.tagName === 'LABEL') {
+        const checkbox = node.querySelector('input[type="checkbox"]');
+        const span = node.querySelector('span');
+        if (checkbox && span) {
+          const checked = checkbox.checked ? 'x' : ' ';
+          // Preserve HTML in span
+          const html = span.innerHTML.replace(/\u200B/g, ''); // Remove zero-width spaces
+          lines.push(`- [${checked}] ${html}`);
+        }
+      } else if (node.tagName === 'DIV') {
+        // Regular div content
+        const html = node.innerHTML;
+        if (html === '<br>') {
+          lines.push(''); // Empty line
+        } else {
+          lines.push(html);
+        }
+      } else if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent.trim();
+        if (text) {
+          lines.push(text);
+        }
       }
     });
     
-    // Get the text content with preserved HTML tags
-    return clone.innerHTML.trim();
+    return lines.join('\n').trim();
   }
   
   // Set editor content (when loading)
@@ -2148,7 +2335,6 @@ filterInput.oninput = () => { renderBoard(); };
         label.style.alignItems = 'start';
         label.style.gap = '0.5rem';
         label.style.padding = '0.125rem 0';
-        label.style.cursor = 'pointer';
         label.style.userSelect = 'none';
         
         const checkbox = document.createElement('input');
@@ -2160,7 +2346,23 @@ filterInput.oninput = () => { renderBoard(); };
         checkbox.style.cursor = 'pointer';
         
         const span = document.createElement('span');
-        span.innerHTML = text; // Allow HTML formatting in the text
+        span.contentEditable = 'true';
+        span.innerHTML = text || '\u200B'; // Allow HTML formatting, use zero-width space if empty
+        span.style.cursor = 'text';
+        span.style.userSelect = 'text';
+        
+        // Prevent label click from affecting checkbox when clicking on text
+        label.addEventListener('click', (e) => {
+          if (e.target === checkbox) {
+            return;
+          }
+          e.preventDefault();
+        });
+        
+        // Make checkbox independently clickable
+        checkbox.addEventListener('click', (e) => {
+          e.stopPropagation();
+        });
         
         label.appendChild(checkbox);
         label.appendChild(span);

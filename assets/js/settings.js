@@ -25,7 +25,7 @@ const SETTINGS_KEYS = {
 function getLocalSettings() {
   return {
     fullname: localStorage.getItem(SETTINGS_KEYS.FULLNAME) || "",
-    email: localStorage.getItem(SETTINGS_KEYS.EMAIL) || "",
+    email: localStorage.getItem(SETTINGS_KEYS.EMAIL) || window.signedInEmail || "",
   }
 }
 
@@ -337,6 +337,11 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Load settings and fill form
     const settings = await loadSettings();
     fillAccountForm(settings);
+    
+    // Additional safeguard: if email is still empty but window.signedInEmail exists, use it
+    if (!emailInput.value && window.signedInEmail) {
+      emailInput.value = window.signedInEmail;
+    }
 
     // Save on submit
     accountForm.addEventListener('submit', async function(e) {

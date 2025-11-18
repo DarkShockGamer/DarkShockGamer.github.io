@@ -494,6 +494,62 @@
 
   </script>
   <script src="/assets/js/toast.js" defer></script>
+  <script>
+    // Pre-populate email before settings.js runs
+    // This ensures email is available in localStorage["signedInEmail"] for settings.js
+    (function() {
+      try {
+        let email = null;
+        
+        // 1. Try to get email from window.signedInEmail (if set by auth flow)
+        if (window.signedInEmail) {
+          email = window.signedInEmail;
+        }
+        
+        // 2. If not found, try to decode from Google credential JWT
+        if (!email) {
+          const googleCred = localStorage.getItem("google.credential");
+          if (googleCred && typeof jwt_decode === 'function') {
+            try {
+              // Handle both raw JWT string and JSON with credential property
+              let token = googleCred;
+              try {
+                const parsed = JSON.parse(googleCred);
+                if (parsed.credential) {
+                  token = parsed.credential;
+                }
+              } catch (e) {
+                // Not JSON, assume it's a raw JWT string
+              }
+              
+              const decoded = jwt_decode(token);
+              if (decoded.email) {
+                email = decoded.email;
+              }
+            } catch (e) {
+              // Invalid JWT or decoding error - silently ignore
+              console.debug("Could not decode google.credential:", e.message);
+            }
+          }
+        }
+        
+        // 3. If email found, persist it to localStorage and set window.signedInEmail
+        if (email) {
+          localStorage.setItem("signedInEmail", email);
+          window.signedInEmail = email;
+          
+          // 4. Pre-populate the email input field if it exists
+          const emailInput = document.getElementById("accountEmail");
+          if (emailInput) {
+            emailInput.value = email;
+          }
+        }
+      } catch (error) {
+        // Fail silently - don't break the page
+        console.debug("Error in email pre-population script:", error);
+      }
+    })();
+  </script>
   <script src="/assets/js/settings.js"></script>
 </body>
 </html>

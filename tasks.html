@@ -1897,32 +1897,40 @@ filterInput.oninput = () => { renderBoard(); };
       const parent = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
       if (parent && (parent.tagName === 'LABEL' || parent.closest('label'))) return;
       
-      // Check if we're already in a formatted context that matches all active formats
+      // Check current formatting context
       const currentFormats = getCurrentFormats(node);
-      if (matchesAllStickyFormats(currentFormats, sticky)) return;
       
-      // Prevent default and manually insert formatted text
-      if (e.inputType === 'insertText' && e.data) {
-        e.preventDefault();
-        isApplyingFormat = true;
-        
-        // Create formatted wrapper for the new text
-        const textNode = document.createTextNode(e.data);
-        const wrapper = wrapWithStickyFormats(textNode, sticky);
-        
-        // Insert the formatted text
-        range.deleteContents();
-        range.insertNode(wrapper);
-        
-        // Move cursor after inserted text
-        const newRange = document.createRange();
-        newRange.setStartAfter(wrapper);
-        newRange.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
-        
-        isApplyingFormat = false;
+      // Check if current formats match sticky formats
+      const formatsMatch = matchesAllStickyFormats(currentFormats, sticky);
+      
+      // If formats match and no sticky formats are active, let default behavior
+      if (formatsMatch && !hasActiveFormats) return;
+      
+      // Otherwise, we need to apply sticky formats explicitly
+      e.preventDefault();
+      isApplyingFormat = true;
+      
+      // Insert text with correct sticky formats
+      const textNode = document.createTextNode(e.data);
+      let wrapper = textNode;
+      
+      // Only wrap if we have active sticky formats
+      if (hasActiveFormats) {
+        wrapper = wrapWithStickyFormats(textNode, sticky);
       }
+      
+      range.deleteContents();
+      range.insertNode(wrapper);
+      
+      // Move cursor after inserted text
+      const newRange = document.createRange();
+      newRange.setStartAfter(hasActiveFormats ? wrapper : textNode);
+      newRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+      
+      isApplyingFormat = false;
+
     });
   }
   

@@ -12,9 +12,9 @@
     .droppable-hover { outline: 2px dashed rgba(2,132,199,0.35); outline-offset: 4px; background-color: rgba(2,132,199,0.06) !important; }
 
     /* Drawer styles */
-    .drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 480px; height: 100vh; background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.15); transition: right 0.3s ease-in-out; z-index: 1000; overflow-y: auto; }
+    .drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 480px; height: 100vh; background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.15); transition: right 0.3s ease-in-out; z-index: 1001; overflow-y: auto; }
     .drawer.open { right: 0; }
-    .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
+    .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; }
     .drawer-overlay.active { display: block; }
 
     /* Due date colors */
@@ -225,13 +225,13 @@
 <body class="min-h-screen p-6">
 
 <header class="max-w-7xl mx-auto mb-6 px-2">
-  <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
-    <div class="flex flex-col gap-1 w-full md:w-auto">
+  <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0 min-w-0">
+    <div class="flex flex-col gap-1 w-full md:w-auto min-w-0">
       <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">Trident Robotics — Task Board</h1>
       <p class="text-sm text-sky-600 dark:text-sky-400">A page made to track team tasks</p>
     </div>
 
-    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto min-w-0">
       <input id="filterInput" placeholder="Search tasks..." class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
       <!-- Added data-sound="whoosh" so only the whoosh plays (no default click) -->
       <button id="menuBtn" data-sound="whoosh" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Menu</button>

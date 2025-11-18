@@ -1692,12 +1692,17 @@ filterInput.oninput = () => { renderBoard(); };
       if (hasFormat) {
         // Remove format from selection
         removeFormatFromRange(range, format);
+        // Also turn off sticky state
+        sticky[format] = false;
+        updateStickyButtonState(toolbar, format, false);
       } else {
         // Apply format to selection
         applyFormatToRange(range, format);
+        // Turn on sticky state so new typing continues with this format
+        sticky[format] = true;
+        updateStickyButtonState(toolbar, format, true);
       }
       
-      // Don't change sticky state when applying to selection
       return;
     }
     
@@ -1864,7 +1869,12 @@ filterInput.oninput = () => { renderBoard(); };
   
   // Setup sticky formatting on input
   function setupStickyFormatting(editor, editorId) {
-    editor.addEventListener('input', (e) => {
+    // Track if we're currently applying formats to prevent recursion
+    let isApplyingFormat = false;
+    
+    editor.addEventListener('beforeinput', (e) => {
+      if (isApplyingFormat) return;
+      
       const sticky = stickyFormats.get(editorId);
       if (!sticky) return;
       
@@ -1874,77 +1884,143 @@ filterInput.oninput = () => { renderBoard(); };
       
       if (!hasActiveFormats) return;
       
-      // Get the current selection
+      // Only handle text insertion
+      if (e.inputType !== 'insertText' && e.inputType !== 'insertFromPaste') return;
+      
       const selection = window.getSelection();
       if (!selection.rangeCount) return;
       
       const range = selection.getRangeAt(0);
       const node = range.startContainer;
       
-      // Only apply to newly typed text nodes
-      if (node.nodeType === Node.TEXT_NODE && node.textContent.length === 1) {
-        const parent = node.parentNode;
-        
-        // Don't apply to checkbox labels or if already formatted
-        if (parent.tagName === 'LABEL' || parent.closest('label')) return;
-        
-        // Build wrapper with active sticky formats
-        let wrapper = node;
-        
-        if (sticky.bold) {
-          const b = document.createElement('b');
-          parent.replaceChild(b, wrapper);
-          b.appendChild(wrapper);
-          wrapper = b;
-        }
-        
-        if (sticky.italic) {
-          const i = document.createElement('i');
-          wrapper.parentNode.replaceChild(i, wrapper);
-          i.appendChild(wrapper);
-          wrapper = i;
-        }
-        
-        if (sticky.underline) {
-          const u = document.createElement('u');
-          u.className = 'desc-underline';
-          wrapper.parentNode.replaceChild(u, wrapper);
-          u.appendChild(wrapper);
-          wrapper = u;
-        }
-        
-        if (sticky.highlight) {
-          const span = document.createElement('span');
-          span.className = 'desc-hl';
-          wrapper.parentNode.replaceChild(span, wrapper);
-          span.appendChild(wrapper);
-          wrapper = span;
-        }
-        
-        if (sticky.color) {
-          const span = document.createElement('span');
-          span.className = `desc-color-${sticky.color}`;
-          wrapper.parentNode.replaceChild(span, wrapper);
-          span.appendChild(wrapper);
-          wrapper = span;
-        }
-        
-        if (sticky.size) {
-          const span = document.createElement('span');
-          span.className = `desc-size-${sticky.size}`;
-          wrapper.parentNode.replaceChild(span, wrapper);
-          span.appendChild(wrapper);
-          wrapper = span;
-        }
-        
-        // Restore cursor position
-        const newRange = document.createRange();
-        newRange.setStartAfter(node);
-        newRange.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
+      // Don't apply to checkbox labels
+      const parent = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+      if (parent && (parent.tagName === 'LABEL' || parent.closest('label'))) return;
+      
+      // Check current formatting context
+      const currentFormats = getCurrentFormats(node);
+      
+      // Check if current formats match sticky formats
+      const formatsMatch = matchesAllStickyFormats(currentFormats, sticky);
+      
+      // If formats match and no sticky formats are active, let default behavior
+      if (formatsMatch && !hasActiveFormats) return;
+      
+      // Otherwise, we need to apply sticky formats explicitly
+      e.preventDefault();
+      isApplyingFormat = true;
+      
+      // Insert text with correct sticky formats
+      const textNode = document.createTextNode(e.data);
+      let wrapper = textNode;
+      
+      // Only wrap if we have active sticky formats
+      if (hasActiveFormats) {
+        wrapper = wrapWithStickyFormats(textNode, sticky);
       }
+      
+      range.deleteContents();
+      range.insertNode(wrapper);
+      
+      // Move cursor after inserted text
+      const newRange = document.createRange();
+      newRange.setStartAfter(hasActiveFormats ? wrapper : textNode);
+      newRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+      
+      isApplyingFormat = false;
+
     });
+  }
+  
+  // Helper to get current formats at cursor position
+  function getCurrentFormats(node) {
+    const formats = {
+      bold: false,
+      italic: false,
+      underline: false,
+      highlight: false,
+      color: null,
+      size: null
+    };
+    
+    let current = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+    while (current && current.contentEditable !== 'true') {
+      if (current.tagName === 'B') formats.bold = true;
+      if (current.tagName === 'I') formats.italic = true;
+      if (current.tagName === 'U' || current.classList.contains('desc-underline')) formats.underline = true;
+      if (current.classList.contains('desc-hl')) formats.highlight = true;
+      
+      // Check for color classes
+      const colorMatch = Array.from(current.classList).find(cls => cls.startsWith('desc-color-'));
+      if (colorMatch) formats.color = colorMatch.replace('desc-color-', '');
+      
+      // Check for size classes
+      const sizeMatch = Array.from(current.classList).find(cls => cls.startsWith('desc-size-'));
+      if (sizeMatch) formats.size = sizeMatch.replace('desc-size-', '');
+      
+      current = current.parentElement;
+    }
+    
+    return formats;
+  }
+  
+  // Helper to check if current formats match sticky formats
+  function matchesAllStickyFormats(current, sticky) {
+    return current.bold === sticky.bold &&
+           current.italic === sticky.italic &&
+           current.underline === sticky.underline &&
+           current.highlight === sticky.highlight &&
+           current.color === sticky.color &&
+           current.size === sticky.size;
+  }
+  
+  // Helper to wrap text node with sticky formats
+  function wrapWithStickyFormats(textNode, sticky) {
+    let wrapper = textNode;
+    
+    if (sticky.size) {
+      const span = document.createElement('span');
+      span.className = `desc-size-${sticky.size}`;
+      span.appendChild(wrapper);
+      wrapper = span;
+    }
+    
+    if (sticky.color) {
+      const span = document.createElement('span');
+      span.className = `desc-color-${sticky.color}`;
+      span.appendChild(wrapper);
+      wrapper = span;
+    }
+    
+    if (sticky.highlight) {
+      const span = document.createElement('span');
+      span.className = 'desc-hl';
+      span.appendChild(wrapper);
+      wrapper = span;
+    }
+    
+    if (sticky.underline) {
+      const u = document.createElement('u');
+      u.className = 'desc-underline';
+      u.appendChild(wrapper);
+      wrapper = u;
+    }
+    
+    if (sticky.italic) {
+      const i = document.createElement('i');
+      i.appendChild(wrapper);
+      wrapper = i;
+    }
+    
+    if (sticky.bold) {
+      const b = document.createElement('b');
+      b.appendChild(wrapper);
+      wrapper = b;
+    }
+    
+    return wrapper;
   }
 
   
@@ -2044,16 +2120,42 @@ filterInput.oninput = () => { renderBoard(); };
           selection.removeAllRanges();
           selection.addRange(newRange);
         } else {
-          // Regular Enter: create new div/paragraph
+          // Regular Enter: create new line (new div)
           e.preventDefault();
-          const div = document.createElement('div');
-          div.innerHTML = '<br>'; // Empty div with br for cursor placement
-          range.deleteContents();
-          range.insertNode(div);
-          range.setStart(div, 0);
-          range.collapse(true);
+          
+          // Split the current line at cursor
+          const currentNode = range.startContainer;
+          const currentElement = currentNode.nodeType === Node.TEXT_NODE 
+            ? currentNode.parentElement 
+            : currentNode;
+          
+          // Extract content after cursor
+          const afterRange = range.cloneRange();
+          afterRange.selectNodeContents(currentElement);
+          afterRange.setStart(range.endContainer, range.endOffset);
+          const afterContent = afterRange.extractContents();
+          
+          // Create new div with the after content
+          const newDiv = document.createElement('div');
+          if (afterContent.textContent.trim()) {
+            newDiv.appendChild(afterContent);
+          } else {
+            newDiv.innerHTML = '<br>'; // Empty line
+          }
+          
+          // Insert the new div after current element
+          if (currentElement.nextSibling) {
+            currentElement.parentNode.insertBefore(newDiv, currentElement.nextSibling);
+          } else {
+            currentElement.parentNode.appendChild(newDiv);
+          }
+          
+          // Move cursor to start of new div
+          const newRange = document.createRange();
+          newRange.setStart(newDiv, 0);
+          newRange.collapse(true);
           selection.removeAllRanges();
-          selection.addRange(range);
+          selection.addRange(newRange);
         }
       }
     });
@@ -2090,18 +2192,30 @@ filterInput.oninput = () => { renderBoard(); };
     span.style.userSelect = 'text';
     
     // Prevent label click from affecting checkbox when clicking on text
-    label.addEventListener('click', (e) => {
+    label.addEventListener('mousedown', (e) => {
       // Only toggle checkbox if clicking directly on the checkbox itself
       if (e.target === checkbox) {
         // Let default behavior happen
         return;
       }
-      // Prevent label from toggling checkbox when clicking elsewhere
+      // Prevent label from toggling checkbox when clicking on text
       e.preventDefault();
+      
+      // If clicking on text span, focus it to allow text editing
+      if (e.target === span || span.contains(e.target)) {
+        span.focus();
+        // Try to place cursor at click position
+        const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+        if (range) {
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+      }
     });
     
     // Make checkbox independently clickable
-    checkbox.addEventListener('click', (e) => {
+    checkbox.addEventListener('mousedown', (e) => {
       e.stopPropagation();
       // Let default checkbox behavior happen
     });
@@ -2352,15 +2466,27 @@ filterInput.oninput = () => { renderBoard(); };
         span.style.userSelect = 'text';
         
         // Prevent label click from affecting checkbox when clicking on text
-        label.addEventListener('click', (e) => {
+        label.addEventListener('mousedown', (e) => {
           if (e.target === checkbox) {
             return;
           }
           e.preventDefault();
+          
+          // If clicking on text span, focus it to allow text editing
+          if (e.target === span || span.contains(e.target)) {
+            span.focus();
+            // Try to place cursor at click position
+            const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+            if (range) {
+              const selection = window.getSelection();
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+          }
         });
         
         // Make checkbox independently clickable
-        checkbox.addEventListener('click', (e) => {
+        checkbox.addEventListener('mousedown', (e) => {
           e.stopPropagation();
         });
         

@@ -500,6 +500,9 @@
           <button class="format-btn" data-format="clear" title="Clear Sticky Formats">Clear</button>
           <button class="format-btn" data-format="remove" title="Remove Format from Selection">Remove</button>
           
+          <button class="format-btn" data-format="checklist-add" title="Add Checklist Item">☑ Add</button>
+          <button class="format-btn" data-format="checklist-toggle" title="Toggle Checklist on Current Line">☑ Toggle</button>
+          
           <span class="text-xs text-slate-500 dark:text-slate-400 ml-2" title="Sticky formatting active">💡 Toggles stay active</span>
         </div>
         <div id="newDescription" 
@@ -708,6 +711,8 @@ function toggleChecklistLine(desc, lineIndex) {
   lines[lineIndex] = `${m[1]}${newMark}${m[3]}${m[4]}`;
   return lines.join("\n");
 }
+// Expose to window for use by tasks-checklist.js
+window.toggleChecklistLine = toggleChecklistLine;
 
 /* Data loading */
 async function loadTasks() {
@@ -2534,6 +2539,7 @@ filterInput.oninput = () => { renderBoard(); };
 })();
 </script>
 
+<script type="module" src="/tasks-checklist.js"></script>
 <script src="/assets/js/sound.js" defer></script>
 <script src="/assets/js/toast.js" defer></script>
 </body>

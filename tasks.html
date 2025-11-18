@@ -151,152 +151,8 @@
       }
     }
 
-    /* Description styling utilities */
-    .desc-hl { background-color: #fef08a; padding: 0 0.125rem; border-radius: 0.125rem; }
-    .desc-color-red { color: #dc2626; }
-    .desc-color-orange { color: #ea580c; }
-    .desc-color-yellow { color: #ca8a04; }
-    .desc-color-green { color: #16a34a; }
-    .desc-color-blue { color: #2563eb; }
-    .desc-color-purple { color: #9333ea; }
-    .desc-color-slate { color: #475569; }
-    .desc-underline { text-decoration: underline; }
-    .desc-size-xs { font-size: 0.75rem; line-height: 1rem; }
-    .desc-size-sm { font-size: 0.875rem; line-height: 1.25rem; }
-    .desc-size-base { font-size: 1rem; line-height: 1.5rem; }
-    .desc-size-lg { font-size: 1.125rem; line-height: 1.75rem; }
-
-    /* Dark mode for description styling */
-    @media (prefers-color-scheme: dark) {
-      .desc-hl { background-color: #854d0e; color: #fef08a; }
-      .desc-color-red { color: #f87171; }
-      .desc-color-orange { color: #fb923c; }
-      .desc-color-yellow { color: #facc15; }
-      .desc-color-green { color: #4ade80; }
-      .desc-color-blue { color: #60a5fa; }
-      .desc-color-purple { color: #c084fc; }
-      .desc-color-slate { color: #94a3b8; }
-    }
-
-    /* Formatting toolbar */
-    .format-toolbar {
-      display: flex;
-      gap: 0.25rem;
-      padding: 0.5rem;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 0.5rem;
-      margin-bottom: 0.5rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .format-btn {
-      padding: 0.25rem 0.5rem;
-      border: 1px solid #cbd5e1;
-      border-radius: 0.25rem;
-      background: white;
-      cursor: pointer;
-      font-size: 0.75rem;
-      transition: all 150ms;
-      min-width: 2rem;
-      text-align: center;
-    }
-    .format-btn:hover {
-      background: #e0f2fe;
-      border-color: #38bdf8;
-    }
-    .format-btn.active {
-      background: #0ea5e9;
-      color: white;
-      border-color: #0284c7;
-    }
-    .format-btn.sticky-active {
-      background: #0ea5e9;
-      color: white;
-      border-color: #0284c7;
-      box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.3);
-    }
-    .format-dropdown {
-      position: relative;
-      display: inline-block;
-    }
-    .format-dropdown-menu {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background: white;
-      border: 1px solid #cbd5e1;
-      border-radius: 0.375rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      z-index: 1000;
-      display: none;
-      margin-top: 0.25rem;
-      min-width: 8rem;
-    }
-    .format-dropdown-menu.show {
-      display: block;
-    }
-    .format-dropdown-item {
-      padding: 0.375rem 0.75rem;
-      cursor: pointer;
-      font-size: 0.875rem;
-      transition: background 150ms;
-      border-bottom: 1px solid #f1f5f9;
-    }
-    .format-dropdown-item:last-child {
-      border-bottom: none;
-    }
-    .format-dropdown-item:hover {
-      background: #e0f2fe;
-    }
-    .color-swatch {
-      display: inline-block;
-      width: 1rem;
-      height: 1rem;
-      border-radius: 0.125rem;
-      border: 1px solid #cbd5e1;
-      margin-right: 0.5rem;
-      vertical-align: middle;
-    }
-
-    /* Dark mode for formatting toolbar */
-    @media (prefers-color-scheme: dark) {
-      .format-toolbar {
-        background: #1e293b;
-        border-color: #334155;
-      }
-      .format-btn {
-        background: #0f172a;
-        border-color: #475569;
-        color: #e5e7eb;
-      }
-      .format-btn:hover {
-        background: #334155;
-        border-color: #0ea5e9;
-      }
-      .format-btn.active {
-        background: #0ea5e9;
-        color: white;
-        border-color: #0284c7;
-      }
-      .format-btn.sticky-active {
-        background: #0ea5e9;
-        color: white;
-        border-color: #0284c7;
-        box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.3);
-      }
-      .format-dropdown-menu {
-        background: #0f172a;
-        border-color: #475569;
-      }
-      .format-dropdown-item {
-        color: #e5e7eb;
-        border-bottom-color: #334155;
-      }
-      .format-dropdown-item:hover {
-        background: #334155;
-      }
-    }
+    /* Old description styling utilities - No longer used but kept for backwards compatibility */
+    /* These are no longer needed as the new system uses plain text only */
 
     /* Toasts: Slide-in + Sound-ready */
     .toast-stack {
@@ -362,69 +218,8 @@
       .toast.error   { background: #2b0b0b; border-color: #7f1d1d; color: #fecaca; }
     }
 
-    /* Rich WYSIWYG Editor */
-    .rich-editor {
-      width: 100%;
-      min-height: 4rem;
-      padding: 0.5rem 0.75rem;
-      border: 1px solid #cbd5e1;
-      border-radius: 0.375rem;
-      background: white;
-      color: #0f172a;
-      font-family: system-ui, sans-serif;
-      font-size: 0.875rem;
-      line-height: 1.5;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      outline: none;
-      transition: border-color 150ms;
-    }
-    .rich-editor:focus {
-      border-color: #7dd3fc;
-      box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.2);
-    }
-    .rich-editor:empty:before {
-      content: attr(data-placeholder);
-      color: #94a3b8;
-      pointer-events: none;
-    }
-    .rich-editor label {
-      display: flex;
-      align-items: start;
-      gap: 0.5rem;
-      padding: 0.125rem 0;
-      user-select: none;
-    }
-    .rich-editor label input[type="checkbox"] {
-      margin-top: 0.125rem;
-      flex-shrink: 0;
-      cursor: pointer;
-    }
-    .rich-editor label span {
-      cursor: text;
-      user-select: text;
-    }
-    .rich-editor div {
-      display: block;
-      min-height: 1.5em;
-    }
-
-    /* Dark mode for rich editor */
-    @media (prefers-color-scheme: dark) {
-      .rich-editor {
-        background: #0b1220;
-        color: #e5e7eb;
-        border-color: #334155;
-      }
-      .rich-editor:focus {
-        border-color: #0ea5e9;
-        box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
-      }
-      .rich-editor:empty:before {
-        color: #94a3b8;
-      }
-    }
+    /* Old Rich WYSIWYG Editor CSS - No longer used */
+    /* Replaced by simpler Checklist + Notes system */
   </style>
 </head>
 <body class="min-h-screen p-6">
@@ -464,51 +259,20 @@
         </div>
       </div>
 
-      <!-- New: Description with formatting toolbar (supports - [ ] and - [x] checklist lines) -->
+      <!-- New: Checklist + Notes Editor -->
       <div class="w-full">
-        <div class="format-toolbar" id="newDescToolbar">
-          <button class="format-btn" data-format="bold" title="Bold (Ctrl+B)"><b>B</b></button>
-          <button class="format-btn" data-format="italic" title="Italic (Ctrl+I)"><i>I</i></button>
-          <button class="format-btn" data-format="underline" title="Underline (Ctrl+U)">U̲</button>
-          <button class="format-btn" data-format="highlight" title="Highlight">⬛</button>
-          
-          <div class="format-dropdown">
-            <button class="format-btn" data-format="color" title="Text Color">A</button>
-            <div class="format-dropdown-menu" id="newDescColorMenu">
-              <div class="format-dropdown-item" data-color="default"><span class="color-swatch" style="background-color: transparent; border-color: #94a3b8;"></span>Default</div>
-              <div class="format-dropdown-item" data-color="red"><span class="color-swatch" style="background-color: #dc2626;"></span>Red</div>
-              <div class="format-dropdown-item" data-color="orange"><span class="color-swatch" style="background-color: #ea580c;"></span>Orange</div>
-              <div class="format-dropdown-item" data-color="yellow"><span class="color-swatch" style="background-color: #ca8a04;"></span>Yellow</div>
-              <div class="format-dropdown-item" data-color="green"><span class="color-swatch" style="background-color: #16a34a;"></span>Green</div>
-              <div class="format-dropdown-item" data-color="blue"><span class="color-swatch" style="background-color: #2563eb;"></span>Blue</div>
-              <div class="format-dropdown-item" data-color="purple"><span class="color-swatch" style="background-color: #9333ea;"></span>Purple</div>
-              <div class="format-dropdown-item" data-color="slate"><span class="color-swatch" style="background-color: #475569;"></span>Slate</div>
-            </div>
-          </div>
-          
-          <div class="format-dropdown">
-            <button class="format-btn" data-format="size" title="Font Size">Size</button>
-            <div class="format-dropdown-menu" id="newDescSizeMenu">
-              <div class="format-dropdown-item" data-size="normal">Normal</div>
-              <div class="format-dropdown-item" data-size="xs">Extra Small</div>
-              <div class="format-dropdown-item" data-size="sm">Small</div>
-              <div class="format-dropdown-item" data-size="base">Base</div>
-              <div class="format-dropdown-item" data-size="lg">Large</div>
-            </div>
-          </div>
-          
-          <button class="format-btn" data-format="clear" title="Clear Sticky Formats">Clear</button>
-          <button class="format-btn" data-format="remove" title="Remove Format from Selection">Remove</button>
-          
-          <button class="format-btn" data-format="checklist-add" title="Add Checklist Item">☑ Add</button>
-          <button class="format-btn" data-format="checklist-toggle" title="Toggle Checklist on Current Line">☑ Toggle</button>
-          
-          <span class="text-xs text-slate-500 dark:text-slate-400 ml-2" title="Sticky formatting active">💡 Toggles stay active</span>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Checklist</label>
+        <div id="checklistItems" class="space-y-2 mb-3">
+          <!-- Checklist items will be added here -->
         </div>
-        <div id="newDescription" 
-             contenteditable="true" 
-             class="rich-editor" 
-             data-placeholder="- [ ] Subtask 1&#10;- [ ] Subtask 2&#10;Notes line without a checkbox"></div>
+        <button id="addChecklistItemBtn" class="text-sm px-3 py-1.5 bg-sky-100 hover:bg-sky-200 text-sky-700 rounded-md dark:bg-sky-900 dark:text-sky-300 dark:hover:bg-sky-800">
+          + Add Item
+        </button>
+        
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mt-4 mb-2">Notes (optional)</label>
+        <textarea id="newNotes" 
+                  class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" 
+                  placeholder="Add any additional notes here..."></textarea>
       </div>
 
       <button id="addTaskBtn" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Add Task</button>
@@ -622,7 +386,7 @@ dropdownList.querySelectorAll("input[type=checkbox]").forEach(cb => {
   });
 });
 
-/* Description helpers (Markdown-style checklist with styled HTML support) */
+/* Description helpers - New Checklist + Notes Model */
 function escHtml(str) {
   return String(str ?? "")
     .replaceAll("&", "&amp;")
@@ -633,51 +397,116 @@ function escHtml(str) {
     .replaceAll("`", "&#96;");
 }
 
-/* Sanitize HTML - only allow whitelisted inline tags and classes */
-function sanitizeHTML(html) {
-  const text = String(html || "");
-  // Create a temporary container
-  const temp = document.createElement('div');
-  temp.innerHTML = text;
-  
-  // Whitelist: span, b, i, u tags
-  const allowedTags = ['SPAN', 'B', 'I', 'U'];
-  const allowedClasses = [
-    'desc-hl', 'desc-color-red', 'desc-color-orange', 'desc-color-yellow',
-    'desc-color-green', 'desc-color-blue', 'desc-color-purple', 'desc-color-slate',
-    'desc-underline', 'desc-size-xs', 'desc-size-sm', 'desc-size-base', 'desc-size-lg'
-  ];
-  
-  function sanitizeNode(node) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      return node.textContent;
-    }
-    
-    if (node.nodeType === Node.ELEMENT_NODE) {
-      const tagName = node.tagName.toUpperCase();
-      
-      // If tag not allowed, just return its text content
-      if (!allowedTags.includes(tagName)) {
-        return Array.from(node.childNodes).map(sanitizeNode).join('');
-      }
-      
-      // Filter classes to only allowed ones
-      const classList = Array.from(node.classList || []).filter(cls => allowedClasses.includes(cls));
-      const classAttr = classList.length > 0 ? ` class="${classList.join(' ')}"` : '';
-      
-      // Recursively sanitize children
-      const content = Array.from(node.childNodes).map(sanitizeNode).join('');
-      
-      return `<${tagName.toLowerCase()}${classAttr}>${content}</${tagName.toLowerCase()}>`;
-    }
-    
-    return '';
-  }
-  
-  return Array.from(temp.childNodes).map(sanitizeNode).join('');
+/* Create descModel from checklist items and notes */
+function createDescModel(items, notes) {
+  return {
+    items: items || [],
+    notes: notes || ""
+  };
 }
 
-function renderDescriptionHTML(desc, taskId) {
+/* Generate HTML from descModel for card display */
+function generateDescHtml(descModel, taskId) {
+  if (!descModel || (!descModel.items?.length && !descModel.notes)) return "";
+  
+  let html = "";
+  
+  // Render checklist items
+  if (descModel.items && descModel.items.length > 0) {
+    descModel.items.forEach((item, idx) => {
+      const checked = item.checked ? "checked" : "";
+      const text = escHtml(item.text || "");
+      html += `
+        <label class="flex items-start gap-2 py-0.5 select-none cursor-pointer">
+          <input type="checkbox" class="desc-checkbox mt-0.5"
+            data-task-id="${escHtml(taskId)}" data-item-index="${idx}" ${checked} />
+          <span class="leading-tight whitespace-pre-wrap break-words">${text}</span>
+        </label>
+      `;
+    });
+  }
+  
+  // Render notes
+  if (descModel.notes) {
+    const notesHtml = escHtml(descModel.notes).replace(/\n/g, "<br>");
+    html += `<div class="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700 text-sm">${notesHtml}</div>`;
+  }
+  
+  return html;
+}
+
+/* Generate plain text from descModel for search/filter */
+function generateDescText(descModel) {
+  if (!descModel) return "";
+  
+  let text = "";
+  
+  // Add checklist items
+  if (descModel.items && descModel.items.length > 0) {
+    text += descModel.items.map(item => item.text || "").join(" ");
+  }
+  
+  // Add notes
+  if (descModel.notes) {
+    text += " " + descModel.notes;
+  }
+  
+  return text.trim();
+}
+
+/* Parse old description string to descModel for migration */
+function parseOldDescription(description) {
+  if (!description) return { items: [], notes: "" };
+  
+  const lines = String(description).split(/\r?\n/);
+  const items = [];
+  const noteLines = [];
+  
+  lines.forEach(line => {
+    const match = line.match(/^\s*-\s*\[([ xX])\]\s*(.*)$/);
+    if (match) {
+      const checked = match[1].toLowerCase() === "x";
+      const text = match[2] || "";
+      items.push({ text, checked });
+    } else if (line.trim()) {
+      noteLines.push(line);
+    }
+  });
+  
+  return {
+    items,
+    notes: noteLines.join("\n")
+  };
+}
+
+/* Toggle checkbox in descModel */
+function toggleCheckboxInModel(descModel, itemIndex) {
+  if (!descModel || !descModel.items || itemIndex < 0 || itemIndex >= descModel.items.length) {
+    return descModel;
+  }
+  
+  const newModel = {
+    items: descModel.items.map((item, idx) => {
+      if (idx === itemIndex) {
+        return { ...item, checked: !item.checked };
+      }
+      return item;
+    }),
+    notes: descModel.notes
+  };
+  
+  return newModel;
+}
+
+/* Old sanitizeHTML function - No longer needed with plain text system */
+
+function renderDescriptionHTML(desc, taskId, descModel) {
+  // Use new model if available
+  if (descModel && (descModel.items?.length || descModel.notes)) {
+    return generateDescHtml(descModel, taskId);
+  }
+  
+  // Fall back to old format for backwards compatibility
   const text = String(desc || "");
   if (!text.trim()) return "";
   const lines = text.split(/\r?\n/);
@@ -686,8 +515,7 @@ function renderDescriptionHTML(desc, taskId) {
     if (m) {
       const checked = m[1].toLowerCase() === "x";
       const item = m[2] || "";
-      // Sanitize the item content to allow styled HTML
-      const sanitizedItem = sanitizeHTML(item);
+      const sanitizedItem = escHtml(item);
       return `
         <label class="flex items-start gap-2 py-0.5 select-none cursor-pointer">
           <input type="checkbox" class="desc-checkbox mt-0.5"
@@ -696,8 +524,7 @@ function renderDescriptionHTML(desc, taskId) {
         </label>
       `;
     }
-    // For non-checklist lines, also sanitize to support styled HTML
-    const sanitizedLine = sanitizeHTML(line);
+    const sanitizedLine = escHtml(line);
     return `<div class="leading-tight py-0.5 whitespace-pre-wrap break-words">${sanitizedLine}</div>`;
   }).join("");
 }
@@ -763,9 +590,19 @@ async function saveTask(task, col) {
     due: task.due || "",
     tags: Array.isArray(task.tags) ? task.tags : [],
     order: typeof task.order === "number" ? task.order : 0,
-    column: col,
-    description: task.description || ""
+    column: col
   };
+  
+  // Include new model fields if present
+  if (task.descModel) {
+    payload.descModel = task.descModel;
+    payload.descHtml = generateDescHtml(task.descModel, task.id);
+    payload.descText = generateDescText(task.descModel);
+  } else {
+    // Keep old description for backwards compatibility
+    payload.description = task.description || "";
+  }
+  
   if (Array.isArray(task.comments) && task.comments.length > 0) payload.comments = task.comments;
   await setDoc(doc(db, "tasks", task.id), payload, { merge: true });
 }
@@ -796,7 +633,7 @@ async function renderBoard() {
         return !f
           || (t.title || "").toLowerCase().includes(f)
           || (t.assignee || "").toLowerCase().includes(f)
-          || (t.description || "").toLowerCase().includes(f)
+          || (t.descText || t.description || "").toLowerCase().includes(f)
           || (t.tags || []).some(tag => tag.toLowerCase().includes(f));
       })
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
@@ -815,7 +652,12 @@ function createTaskEl(task, colId) {
   div.dataset.col = colId;
 
   const assignee = task.assignee || "Unassigned";
-  const descHtml = renderDescriptionHTML(task.description || "", task.id);
+  
+  // Use descHtml if available, otherwise generate from model or fall back to old format
+  let descHtml = task.descHtml || "";
+  if (!descHtml) {
+    descHtml = renderDescriptionHTML(task.description || "", task.id, task.descModel);
+  }
 
   div.innerHTML = `
     <div class="flex items-start justify-between gap-2">
@@ -1044,6 +886,35 @@ function createTaskEl(task, colId) {
   div.addEventListener("change", async (e) => {
     const cb = e.target.closest(".desc-checkbox");
     if (!cb) return;
+    
+    // Check if using new model
+    const itemIndex = parseInt(cb.getAttribute("data-item-index"), 10);
+    if (!Number.isNaN(itemIndex) && task.descModel) {
+      // New model path
+      try {
+        const newModel = toggleCheckboxInModel(task.descModel, itemIndex);
+        const updatePayload = {
+          descModel: newModel,
+          descHtml: generateDescHtml(newModel, task.id),
+          descText: generateDescText(newModel)
+        };
+        
+        await setDoc(doc(db, "tasks", task.id), updatePayload, { merge: true });
+        task.descModel = newModel;
+        task.descHtml = updatePayload.descHtml;
+        task.descText = updatePayload.descText;
+        
+        const container = div.querySelector('[data-role="description"]');
+        if (container) container.innerHTML = updatePayload.descHtml;
+      } catch (err) {
+        console.error("Failed to update description:", err);
+        alert(`Failed to update description: ${err.message || err}`);
+        cb.checked = !cb.checked;
+      }
+      return;
+    }
+    
+    // Old format fallback (for backwards compatibility)
     const lineIndex = parseInt(cb.getAttribute("data-line-index"), 10);
     if (Number.isNaN(lineIndex)) return;
 
@@ -1075,49 +946,19 @@ function openEditModal(task, colId) {
       <input id="editAssign" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee" />
       <input id="editDue" type="date" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
 
-      <!-- New: Description editor with formatting toolbar -->
-      <label class="block text-sm text-slate-600 dark:text-slate-300 mt-1">Description</label>
-      <div class="format-toolbar" id="editDescToolbar">
-        <button class="format-btn" data-format="bold" title="Bold (Ctrl+B)"><b>B</b></button>
-        <button class="format-btn" data-format="italic" title="Italic (Ctrl+I)"><i>I</i></button>
-        <button class="format-btn" data-format="underline" title="Underline (Ctrl+U)">U̲</button>
-        <button class="format-btn" data-format="highlight" title="Highlight">⬛</button>
-        
-        <div class="format-dropdown">
-          <button class="format-btn" data-format="color" title="Text Color">A</button>
-          <div class="format-dropdown-menu" id="editDescColorMenu">
-            <div class="format-dropdown-item" data-color="default"><span class="color-swatch" style="background-color: transparent; border-color: #94a3b8;"></span>Default</div>
-            <div class="format-dropdown-item" data-color="red"><span class="color-swatch" style="background-color: #dc2626;"></span>Red</div>
-            <div class="format-dropdown-item" data-color="orange"><span class="color-swatch" style="background-color: #ea580c;"></span>Orange</div>
-            <div class="format-dropdown-item" data-color="yellow"><span class="color-swatch" style="background-color: #ca8a04;"></span>Yellow</div>
-            <div class="format-dropdown-item" data-color="green"><span class="color-swatch" style="background-color: #16a34a;"></span>Green</div>
-            <div class="format-dropdown-item" data-color="blue"><span class="color-swatch" style="background-color: #2563eb;"></span>Blue</div>
-            <div class="format-dropdown-item" data-color="purple"><span class="color-swatch" style="background-color: #9333ea;"></span>Purple</div>
-            <div class="format-dropdown-item" data-color="slate"><span class="color-swatch" style="background-color: #475569;"></span>Slate</div>
-          </div>
-        </div>
-        
-        <div class="format-dropdown">
-          <button class="format-btn" data-format="size" title="Font Size">Size</button>
-          <div class="format-dropdown-menu" id="editDescSizeMenu">
-            <div class="format-dropdown-item" data-size="normal">Normal</div>
-            <div class="format-dropdown-item" data-size="xs">Extra Small</div>
-            <div class="format-dropdown-item" data-size="sm">Small</div>
-            <div class="format-dropdown-item" data-size="base">Base</div>
-            <div class="format-dropdown-item" data-size="lg">Large</div>
-          </div>
-        </div>
-        
-        <button class="format-btn" data-format="clear" title="Clear Sticky Formats">Clear</button>
-        <button class="format-btn" data-format="remove" title="Remove Format from Selection">Remove</button>
-        
-        <span class="text-xs text-slate-500 dark:text-slate-400 ml-2" title="Sticky formatting active">💡 Toggles stay active</span>
+      <!-- Checklist + Notes Editor -->
+      <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Checklist</label>
+      <div id="editChecklistItems" class="space-y-2 mb-3">
+        <!-- Checklist items will be added here -->
       </div>
-      <div id="editDescription" 
-           contenteditable="true" 
-           class="rich-editor" 
-           style="min-height: 9rem;"
-           data-placeholder="- [ ] Subtask 1&#10;- [x] Completed item&#10;Free-form notes line"></div>
+      <button id="editAddChecklistItemBtn" class="text-sm px-3 py-1.5 bg-sky-100 hover:bg-sky-200 text-sky-700 rounded-md dark:bg-sky-900 dark:text-sky-300 dark:hover:bg-sky-800">
+        + Add Item
+      </button>
+      
+      <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mt-3 mb-2">Notes (optional)</label>
+      <textarea id="editNotes" 
+                class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" 
+                placeholder="Add any additional notes here..."></textarea>
 
       <div class="dropdown mt-2" id="editTagDropdown">
         <div class="dropdown-btn" id="editDropdownBtn"><span class="placeholder">Select tags...</span></div>
@@ -1144,12 +985,29 @@ function openEditModal(task, colId) {
   modal.querySelector("#editAssign").value = task.assignee || "";
   modal.querySelector("#editDue").value = task.due || "";
   
-  // Set editor content using the helper function
-  if (typeof window.setEditorContent === 'function') {
-    setTimeout(() => window.setEditorContent("editDescription", task.description || ""), 0);
-  } else {
-    modal.querySelector("#editDescription").innerHTML = task.description || "";
+  // Populate checklist and notes
+  let descModelToEdit = task.descModel;
+  
+  // If no descModel exists, migrate from old description
+  if (!descModelToEdit && task.description) {
+    descModelToEdit = parseOldDescription(task.description);
   }
+  
+  // Populate checklist items
+  if (descModelToEdit && descModelToEdit.items) {
+    populateChecklistUI(descModelToEdit.items, "editChecklistItems");
+  }
+  
+  // Populate notes
+  modal.querySelector("#editNotes").value = (descModelToEdit && descModelToEdit.notes) || "";
+  
+  // Setup Add Item button for edit modal
+  setTimeout(() => {
+    const addItemBtn = modal.querySelector("#editAddChecklistItemBtn");
+    if (addItemBtn) {
+      addItemBtn.onclick = () => createChecklistItemUI("", false, "editChecklistItems");
+    }
+  }, 0);
 
   let editSelectedTags = Array.isArray(task.tags) ? task.tags.slice() : [];
   const editDropdownBtn = modal.querySelector("#editDropdownBtn");
@@ -1181,10 +1039,16 @@ function openEditModal(task, colId) {
       task.title = (modal.querySelector("#editTitle").value || "").trim();
       task.assignee = (modal.querySelector("#editAssign").value || "Unassigned").trim() || "Unassigned";
       task.due = modal.querySelector("#editDue").value || "";
-      task.description = typeof window.getEditorContent === 'function'
-        ? window.getEditorContent("editDescription")
-        : modal.querySelector("#editDescription").innerHTML || "";
       task.tags = editSelectedTags.slice();
+      
+      // Get checklist items and notes
+      const checklistItems = getChecklistItems("editChecklistItems");
+      const notes = (modal.querySelector("#editNotes").value || "").trim();
+      
+      // Create new descModel
+      task.descModel = createDescModel(checklistItems, notes);
+      task.descHtml = generateDescHtml(task.descModel, task.id);
+      task.descText = generateDescText(task.descModel);
 
       await saveTask(task, colId);
 
@@ -1285,17 +1149,92 @@ function getDragAfterElement(container, y) {
   }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
+/* Checklist UI Management */
+function createChecklistItemUI(text = "", checked = false, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  const itemDiv = document.createElement("div");
+  itemDiv.className = "flex items-center gap-2";
+  itemDiv.innerHTML = `
+    <input type="checkbox" class="w-4 h-4 rounded border-slate-300 dark:border-slate-600" ${checked ? "checked" : ""} />
+    <input type="text" 
+           class="flex-1 rounded-md border border-slate-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" 
+           placeholder="Item text..." 
+           value="${escHtml(text)}" />
+    <button class="delete-item text-red-600 hover:text-red-700 dark:text-red-400 px-2 py-1 text-sm">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  `;
+  
+  // Delete button handler
+  itemDiv.querySelector(".delete-item").onclick = () => {
+    itemDiv.remove();
+  };
+  
+  container.appendChild(itemDiv);
+  return itemDiv;
+}
+
+function getChecklistItems(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return [];
+  
+  const items = [];
+  container.querySelectorAll(":scope > div").forEach(itemDiv => {
+    const checkbox = itemDiv.querySelector('input[type="checkbox"]');
+    const textInput = itemDiv.querySelector('input[type="text"]');
+    if (checkbox && textInput) {
+      const text = textInput.value.trim();
+      if (text) { // Only include non-empty items
+        items.push({
+          text: text,
+          checked: checkbox.checked
+        });
+      }
+    }
+  });
+  
+  return items;
+}
+
+function clearChecklistUI(containerId) {
+  const container = document.getElementById(containerId);
+  if (container) container.innerHTML = "";
+}
+
+function populateChecklistUI(items, containerId) {
+  clearChecklistUI(containerId);
+  if (items && items.length > 0) {
+    items.forEach(item => {
+      createChecklistItemUI(item.text || "", item.checked || false, containerId);
+    });
+  }
+}
+
+// Setup Add Item buttons
+document.getElementById("addChecklistItemBtn")?.addEventListener("click", () => {
+  createChecklistItemUI("", false, "checklistItems");
+});
+
+document.getElementById("editAddChecklistItemBtn")?.addEventListener("click", () => {
+  createChecklistItemUI("", false, "editChecklistItems");
+});
+
 /* Add Task */
 addBtn.onclick = async () => {
   const title = (document.getElementById("newTitle").value || "").trim();
   if (!title) return;
 
   const assign = document.getElementById("newAssign").value || "Unassigned";
-  const due    = document.getElementById("newDue").value || "";
-  const description = typeof window.getEditorContent === 'function' 
-    ? window.getEditorContent("newDescription") 
-    : document.getElementById("newDescription").innerHTML || "";
-
+  const due = document.getElementById("newDue").value || "";
+  
+  // Get checklist items and notes
+  const checklistItems = getChecklistItems("checklistItems");
+  const notes = (document.getElementById("newNotes").value || "").trim();
+  
   addBtn.disabled = true;
   const originalAddLabel = addBtn.textContent;
   addBtn.textContent = "Adding...";
@@ -1303,23 +1242,37 @@ addBtn.onclick = async () => {
   try {
     const snapshot = await getDocs(collection(db, "tasks"));
     const count = snapshot.size;
+    
+    // Create descModel
+    const descModel = createDescModel(checklistItems, notes);
+    
     const task = {
       title,
       assignee: assign,
       due,
-      description,
+      descModel: descModel,
+      descHtml: generateDescHtml(descModel, "temp"), // ID will be assigned by Firestore
+      descText: generateDescText(descModel),
       tags: selectedTags.slice(),
       column: "backlog",
       order: count
     };
 
-    await addDoc(collection(db, "tasks"), task);
+    const docRef = await addDoc(collection(db, "tasks"), task);
+    
+    // Update descHtml with actual ID
+    if (checklistItems.length > 0) {
+      await setDoc(doc(db, "tasks", docRef.id), {
+        descHtml: generateDescHtml(descModel, docRef.id)
+      }, { merge: true });
+    }
 
+    // Clear form
     document.getElementById("newTitle").value = "";
     document.getElementById("newAssign").value = "";
     document.getElementById("newDue").value = "";
-    const newDescEditor = document.getElementById("newDescription");
-    if (newDescEditor) newDescEditor.innerHTML = "";
+    document.getElementById("newNotes").value = "";
+    clearChecklistUI("checklistItems");
     selectedTags = [];
     document.querySelectorAll("#dropdownList input[type=checkbox]").forEach(cb => cb.checked = false);
     updateDropdownBtn();
@@ -1487,6 +1440,44 @@ filterInput.oninput = () => { renderBoard(); };
         console.log('[TaskBoard] Column migration: nothing to change.');
       }
     }
+    
+    /* Migrate old description format to new descModel */
+    async function migrateDescriptions() {
+      const snapshot = await getDocs(collection(db, "tasks"));
+      const batch = writeBatch(db);
+      let migrated = 0;
+      
+      snapshot.forEach(docSnap => {
+        const t = docSnap.data();
+        const taskId = docSnap.id;
+        
+        // Skip if already has descModel
+        if (t.descModel) return;
+        
+        // Skip if no description
+        if (!t.description) return;
+        
+        // Parse old description into new model
+        const descModel = parseOldDescription(t.description);
+        
+        // Only migrate if we found something to migrate
+        if (descModel.items.length > 0 || descModel.notes) {
+          batch.update(doc(db, "tasks", taskId), {
+            descModel: descModel,
+            descHtml: generateDescHtml(descModel, taskId),
+            descText: generateDescText(descModel)
+          });
+          migrated++;
+        }
+      });
+      
+      if (migrated > 0) {
+        await batch.commit();
+        console.log(`[TaskBoard] Description migration updated ${migrated} task(s).`);
+      } else {
+        console.log('[TaskBoard] Description migration: nothing to migrate.');
+      }
+    }
 
     /* Enhance renderBoard to show empty state per column */
     const _renderBoardOriginal = renderBoard;
@@ -1506,6 +1497,9 @@ filterInput.oninput = () => { renderBoard(); };
       try {
         // Uncomment next line ONCE if you need to normalize existing column values:
         // await fixColumns();
+        
+        // Run description migration (safe to run multiple times)
+        await migrateDescriptions();
 
         await renderBoard();
 
@@ -1534,28 +1528,15 @@ filterInput.oninput = () => { renderBoard(); };
       bootstrap();
     }
 
-    /* Setup edit modal toolbar - use global function when modal opens */
-    const _originalOpenEditModal = openEditModal;
-    openEditModal = function(task, colId) {
-      _originalOpenEditModal(task, colId);
-      // Setup toolbar after modal is created - use global function
-      setTimeout(() => {
-        if (typeof window.setupFormattingToolbar === 'function') {
-          window.setupFormattingToolbar('editDescToolbar', 'editDescription');
-        }
-        if (typeof window.addKeyboardShortcuts === 'function') {
-          const editDesc = document.getElementById('editDescription');
-          if (editDesc) window.addKeyboardShortcuts(editDesc);
-        }
-      }, 100);
-    };
 
 </script>
 
-<!-- Formatting Toolbar Script with WYSIWYG Support -->
+<!-- Old Formatting Toolbar Script - No longer needed -->
 <script>
 (function() {
   'use strict';
+  // This script has been replaced by the new Checklist + Notes system
+  // Keeping the script tag structure for reference but functionality is removed
   
   /* ========== WYSIWYG Formatting Toolbar Functionality ========== */
   

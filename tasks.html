@@ -405,6 +405,14 @@
       cursor: text;
       user-select: text;
     }
+    .rich-editor div {
+      display: block;
+      min-height: 1.5em;
+    }
+    .rich-editor div:empty::after {
+      content: '\00a0';
+      display: inline;
+    }
 
     /* Dark mode for rich editor */
     @media (prefers-color-scheme: dark) {

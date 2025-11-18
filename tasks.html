@@ -4,6 +4,17 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/assets/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Pre-paint theme application to prevent FOUC -->
+  <script>
+    (function() {
+      const theme = localStorage.getItem('site-theme') || 'system';
+      if (theme !== 'system') {
+        const classes = { 'light': 'theme-light', 'dark': 'theme-dark', 'high-contrast': 'theme-high-contrast' };
+        const className = classes[theme];
+        if (className) document.documentElement.classList.add(className);
+      }
+    })();
+  </script>
   <title>Trident Robotics — Task Board</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -220,6 +231,132 @@
 
     /* Old Rich WYSIWYG Editor CSS - No longer used */
     /* Replaced by simpler Checklist + Notes system */
+
+    /* --- Theme Overrides --- */
+    /* Light Theme */
+    html.theme-light body {
+      background: linear-gradient(to bottom, #f0f9ff, white);
+      color: #1e293b;
+    }
+    html.theme-light .column-section {
+      background: white !important;
+      border-color: #e2e8f0 !important;
+      box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05);
+    }
+    html.theme-light .task-card {
+      background: white !important;
+      border-color: #e2e8f0 !important;
+    }
+    html.theme-light .drawer {
+      background: white !important;
+    }
+    html.theme-light input[type="text"], html.theme-light input[type="date"], 
+    html.theme-light input:not([type]), html.theme-light .comment-input, html.theme-light textarea {
+      background: white !important;
+      color: #1e293b !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    /* Dark Theme */
+    html.theme-dark body {
+      background: linear-gradient(to bottom, #0b1220, #0a0f1a);
+      color: #e5e7eb;
+    }
+    html.theme-dark .dropdown-btn {
+      background: #0b1220 !important;
+      border-color: #334155 !important;
+      color: #e5e7eb !important;
+    }
+    html.theme-dark .dropdown-btn:hover {
+      border-color: #0ea5e9 !important;
+    }
+    html.theme-dark .dropdown-list {
+      background: #0b1220 !important;
+      border-color: #334155 !important;
+    }
+    html.theme-dark .dropdown-list label:hover {
+      background-color: rgba(14,165,233,0.1) !important;
+    }
+    html.theme-dark .tag-chip {
+      background: #0c4a6e !important;
+      color: #e0f2fe !important;
+      border-color: #075985 !important;
+    }
+    html.theme-dark .column-section {
+      background: #0f172a !important;
+      border-color: #1f2937 !important;
+      box-shadow: 0 1px 2px rgba(2, 6, 23, 0.3);
+    }
+    html.theme-dark .task-card {
+      background: #0b1220 !important;
+      border-color: #1f2937 !important;
+    }
+    html.theme-dark .task-card:hover {
+      border-color: #0ea5e9 !important;
+    }
+    html.theme-dark .drawer {
+      background: #0f172a !important;
+      border-left: 1px solid #1f2937 !important;
+    }
+    html.theme-dark input[type="text"], html.theme-dark input[type="date"],
+    html.theme-dark input:not([type]), html.theme-dark .comment-input, html.theme-dark textarea {
+      background: #0b1220 !important;
+      color: #e5e7eb !important;
+      border-color: #334155 !important;
+    }
+    html.theme-dark .desc-checkbox {
+      background-color: #0b1220 !important;
+      border-color: #475569 !important;
+    }
+
+    /* High Contrast Theme */
+    html.theme-high-contrast body {
+      background: #000000;
+      color: #ffffff;
+    }
+    html.theme-high-contrast .column-section {
+      background: #1a1a1a !important;
+      border: 2px solid #ffffff !important;
+      box-shadow: none;
+    }
+    html.theme-high-contrast .column-header {
+      background: #2a2a2a !important;
+      border: 1px solid #ffffff !important;
+    }
+    html.theme-high-contrast .task-card {
+      background: #0a0a0a !important;
+      border: 2px solid #ffffff !important;
+    }
+    html.theme-high-contrast .task-card:hover {
+      border-color: #ffff00 !important;
+    }
+    html.theme-high-contrast .drawer {
+      background: #1a1a1a !important;
+      border: 2px solid #ffffff !important;
+    }
+    html.theme-high-contrast input, html.theme-high-contrast textarea,
+    html.theme-high-contrast select {
+      background: #000000 !important;
+      border: 2px solid #ffffff !important;
+      color: #ffffff !important;
+    }
+    html.theme-high-contrast .tag-chip {
+      background: #ffff00 !important;
+      color: #000000 !important;
+      border: 2px solid #ffffff !important;
+    }
+    html.theme-high-contrast .dropdown-btn {
+      background: #000000 !important;
+      border: 2px solid #ffffff !important;
+      color: #ffffff !important;
+    }
+    html.theme-high-contrast .dropdown-list {
+      background: #1a1a1a !important;
+      border: 2px solid #ffffff !important;
+    }
+    html.theme-high-contrast button {
+      border: 2px solid #ffffff !important;
+    }
   </style>
 </head>
 <body class="min-h-screen p-6">
@@ -2497,6 +2634,7 @@ filterInput.oninput = () => { renderBoard(); };
 })();
 </script>
 
+<script src="/assets/js/theme.js"></script>
 <script type="module" src="/tasks-checklist.js"></script>
 <script src="/assets/js/sound.js" defer></script>
 <script src="/assets/js/toast.js" defer></script>

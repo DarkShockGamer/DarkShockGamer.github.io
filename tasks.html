@@ -1214,15 +1214,6 @@ function populateChecklistUI(items, containerId) {
   }
 }
 
-// Setup Add Item buttons
-document.getElementById("addChecklistItemBtn")?.addEventListener("click", () => {
-  createChecklistItemUI("", false, "checklistItems");
-});
-
-document.getElementById("editAddChecklistItemBtn")?.addEventListener("click", () => {
-  createChecklistItemUI("", false, "editChecklistItems");
-});
-
 /* Add Task */
 addBtn.onclick = async () => {
   const title = (document.getElementById("newTitle").value || "").trim();
@@ -1506,6 +1497,14 @@ filterInput.oninput = () => { renderBoard(); };
         // Ensure tag dropdown starts hidden
         const dropdownList = document.getElementById("dropdownList");
         if (dropdownList) dropdownList.style.display = "none";
+        
+        // Setup Add Item buttons for checklist UI
+        const addItemBtn = document.getElementById("addChecklistItemBtn");
+        if (addItemBtn) {
+          addItemBtn.addEventListener("click", () => {
+            createChecklistItemUI("", false, "checklistItems");
+          });
+        }
 
         console.log('[TaskBoard] Bootstrap complete');
       } catch (e) {
@@ -2494,29 +2493,7 @@ filterInput.oninput = () => { renderBoard(); };
     fragments.forEach(frag => editor.appendChild(frag));
   }
   
-  // Setup formatting toolbars on page load
-  function initFormattingToolbars() {
-    console.log('Initializing WYSIWYG formatting toolbars...');
-    // New task description toolbar
-    setupFormattingToolbar('newDescToolbar', 'newDescription');
-    
-    // Add keyboard shortcuts to new description editor
-    const newDesc = document.getElementById('newDescription');
-    if (newDesc) addKeyboardShortcuts(newDesc);
-  }
-  
-  // Expose to global scope
-  window.setupFormattingToolbar = setupFormattingToolbar;
-  window.addKeyboardShortcuts = addKeyboardShortcuts;
-  window.getEditorContent = getEditorContent;
-  window.setEditorContent = setEditorContent;
-  
-  // Initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initFormattingToolbars);
-  } else {
-    initFormattingToolbars();
-  }
+  // Old formatting toolbar code removed - no longer needed with Checklist + Notes system
 })();
 </script>
 

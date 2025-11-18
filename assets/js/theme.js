@@ -1,123 +1,31 @@
-/**
- * Theme Manager for DarkShockGamer.github.io
- * 
- * Manages persistent site theme across settings.html, tasks.html, and calendar.html
- * Supports: system, light, dark, and high-contrast themes
- */
-
-(function() {
-  'use strict';
-
+(function () {
   const STORAGE_KEY = 'site-theme';
-  const VALID_THEMES = ['system', 'light', 'dark', 'high-contrast'];
-  const HTML_CLASSES = {
-    'light': 'theme-light',
-    'dark': 'theme-dark',
-    'high-contrast': 'theme-high-contrast'
-  };
+  const MEDIA = '(prefers-color-scheme: dark)';
+  const mql = window.matchMedia ? window.matchMedia(MEDIA) : null;
 
-  /**
-   * Get the current theme preference from localStorage
-   * @returns {string} The theme preference ('system', 'light', 'dark', 'high-contrast')
-   */
-  function getTheme() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return VALID_THEMES.includes(stored) ? stored : 'system';
-  }
+  function get() { try { return localStorage.getItem(STORAGE_KEY) || 'system'; } catch { return 'system'; } }
 
-  /**
-   * Set the theme preference and apply it
-   * @param {string} theme - The theme to set ('system', 'light', 'dark', 'high-contrast')
-   */
-  function setTheme(theme) {
-    if (!VALID_THEMES.includes(theme)) {
-      console.warn(`Invalid theme: ${theme}. Using 'system' instead.`);
-      theme = 'system';
-    }
-    
-    localStorage.setItem(STORAGE_KEY, theme);
-    applyTheme();
-  }
-
-  /**
-   * Apply the current theme to the HTML element
-   */
-  function applyTheme() {
-    const theme = getTheme();
+  function apply(pref = get()) {
     const html = document.documentElement;
-    
-    // Remove all theme classes first
-    Object.values(HTML_CLASSES).forEach(className => {
-      html.classList.remove(className);
-    });
-    
-    // For 'system', don't add any class - let @media (prefers-color-scheme) handle it
-    if (theme === 'system') {
-      return;
-    }
-    
-    // For specific themes, add the corresponding class
-    const className = HTML_CLASSES[theme];
-    if (className) {
-      html.classList.add(className);
-    }
+    html.classList.remove('theme-light','theme-dark','theme-high-contrast');
+    if (pref === 'light' || pref === 'dark' || pref === 'high-contrast') html.classList.add('theme-' + pref);
+    if (pref === 'dark' || pref === 'high-contrast') html.style.colorScheme = 'dark';
+    else if (pref === 'light') html.style.colorScheme = 'light';
+    else html.style.colorScheme = '';
   }
 
-  /**
-   * Listen for system color scheme changes when in 'system' mode
-   */
-  function watchSystemTheme() {
-    if (!window.matchMedia) return;
-    
-    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    const handleChange = () => {
-      // Only react if we're in system mode
-      if (getTheme() === 'system') {
-        applyTheme();
-      }
-    };
-    
-    // Modern browsers
-    if (darkModeQuery.addEventListener) {
-      darkModeQuery.addEventListener('change', handleChange);
-    } else if (darkModeQuery.addListener) {
-      // Legacy browsers
-      darkModeQuery.addListener(handleChange);
-    }
+  function set(pref) { try { localStorage.setItem(STORAGE_KEY, pref); } catch {} apply(pref); try { window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: pref } })); } catch {} }
+
+  // Initialize immediately so pages get the correct class as soon as the script runs (deferred load will still set up listeners)
+  apply(get());
+
+  if (mql && mql.addEventListener) {
+    mql.addEventListener('change', () => { if (get() === 'system') apply('system'); });
+  } else if (mql && mql.addListener) {
+    mql.addListener(() => { if (get() === 'system') apply('system'); });
   }
 
-  /**
-   * Sync theme changes across tabs via storage events
-   */
-  function syncAcrossTabs() {
-    window.addEventListener('storage', (e) => {
-      if (e.key === STORAGE_KEY) {
-        applyTheme();
-      }
-    });
-  }
+  window.addEventListener('storage', (e) => { if (e.key === STORAGE_KEY) apply(e.newValue || 'system'); });
 
-  /**
-   * Initialize the theme system
-   */
-  function init() {
-    applyTheme();
-    watchSystemTheme();
-    syncAcrossTabs();
-  }
-
-  // Public API
-  window.Theme = {
-    get: getTheme,
-    set: setTheme,
-    apply: applyTheme
-  };
-
-  // Auto-initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  window.Theme = { get, set, apply };
 })();

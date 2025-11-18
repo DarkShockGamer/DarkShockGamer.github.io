@@ -3,6 +3,17 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <!-- Pre-paint theme application to prevent FOUC -->
+  <script>
+    (function() {
+      const theme = localStorage.getItem('site-theme') || 'system';
+      if (theme !== 'system') {
+        const classes = { 'light': 'theme-light', 'dark': 'theme-dark', 'high-contrast': 'theme-high-contrast' };
+        const className = classes[theme];
+        if (className) document.documentElement.classList.add(className);
+      }
+    })();
+  </script>
   <link rel="icon" type="image/png" href="/assets/logo.png">
   <title>Developer - Edit Site Content</title>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -1174,5 +1185,6 @@
     loadExisting();
   </script>
   <script src="/assets/js/sound.js" defer></script>
+  <script src="/assets/js/theme.js"></script>
 </body>
 </html>

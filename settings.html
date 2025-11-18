@@ -512,27 +512,33 @@
         
         // 2. If not found, try to decode from Google credential JWT
         if (!email) {
-          const googleCred = localStorage.getItem("google.credential");
-          if (googleCred && typeof jwt_decode === 'function') {
-            try {
-              // Handle both raw JWT string and JSON with credential property
-              let token = googleCred;
+          // Try both "google.credential" and "g_idp.credential" keys
+          const credentialKeys = ["google.credential", "g_idp.credential"];
+          
+          for (const key of credentialKeys) {
+            const googleCred = localStorage.getItem(key);
+            if (googleCred && typeof jwt_decode === 'function') {
               try {
-                const parsed = JSON.parse(googleCred);
-                if (parsed.credential) {
-                  token = parsed.credential;
+                // Handle both raw JWT string and JSON with credential property
+                let token = googleCred;
+                try {
+                  const parsed = JSON.parse(googleCred);
+                  if (parsed.credential) {
+                    token = parsed.credential;
+                  }
+                } catch (e) {
+                  // Not JSON, assume it's a raw JWT string
+                }
+                
+                const decoded = jwt_decode(token);
+                if (decoded.email) {
+                  email = decoded.email;
+                  break; // Found a valid email, stop searching
                 }
               } catch (e) {
-                // Not JSON, assume it's a raw JWT string
+                // Invalid JWT or decoding error - try next key
+                console.debug(`Could not decode ${key}:`, e.message);
               }
-              
-              const decoded = jwt_decode(token);
-              if (decoded.email) {
-                email = decoded.email;
-              }
-            } catch (e) {
-              // Invalid JWT or decoding error - silently ignore
-              console.debug("Could not decode google.credential:", e.message);
             }
           }
         }

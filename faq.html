@@ -4,11 +4,22 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/assets/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Pre-paint theme application to prevent FOUC -->
+  <script>
+    (function() {
+      const theme = localStorage.getItem('site-theme') || 'system';
+      if (theme !== 'system') {
+        const classes = { 'light': 'theme-light', 'dark': 'theme-dark', 'high-contrast': 'theme-high-contrast' };
+        const className = classes[theme];
+        if (className) document.documentElement.classList.add(className);
+      }
+    })();
+  </script>
   <title>Trident Robotics — FAQ</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, sans-serif; }
-    .faq-card { transition: box-shadow 150ms, border-color 150ms; }
+    .faq-card { background: white; border: 1px solid #e2e8f0; transition: box-shadow 150ms, border-color 150ms; }
     .faq-card:hover { box-shadow: 0 6px 16px rgba(2,132,199,0.12); border-color: #93c5fd; }
     @media (prefers-color-scheme: dark) {
       html, body { color-scheme: dark; }
@@ -16,6 +27,20 @@
       .faq-card { background: #0b1220 !important; border-color: #1f2937 !important; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.6); }
       .faq-card:hover { border-color: #0ea5e9 !important; box-shadow: 0 6px 16px rgba(14,165,233,0.18); }
     }
+    /* Light Theme */
+    html.theme-light body { background: linear-gradient(to bottom, #f0f9ff, white); color: #1e293b; }
+    html.theme-light .faq-card { background: white !important; border-color: #e2e8f0 !important; }
+    html.theme-light .faq-card:hover { border-color: #93c5fd !important; }
+    /* Dark Theme */
+    html.theme-dark body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; }
+    html.theme-dark .faq-card { background: #0b1220 !important; border-color: #1f2937 !important; }
+    html.theme-dark .faq-card:hover { border-color: #0ea5e9 !important; }
+    /* High Contrast Theme */
+    html.theme-high-contrast body { background: #000000; color: #ffffff; }
+    html.theme-high-contrast .faq-card { background: #1a1a1a !important; border: 2px solid #ffffff !important; }
+    html.theme-high-contrast .faq-card:hover { border-color: #ffff00 !important; box-shadow: 0 0 12px rgba(255,255,0,0.5); }
+    html.theme-high-contrast .bg-sky-600 { background: #ffff00 !important; color: #000000 !important; }
+    html.theme-high-contrast .text-sky-800, html.theme-high-contrast .text-sky-200 { color: #ffffff !important; }
   </style>
 </head>
 <body class="min-h-screen p-6">
@@ -151,6 +176,7 @@
     </footer>
   </main>
 
+  <script src="/assets/js/theme.js"></script>
   <script>
     // Toggle FAQ answers
     function toggleFaq(button) {

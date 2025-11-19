@@ -274,6 +274,72 @@
     html.theme-high-contrast button {
       border: 2px solid #ffffff !important;
     }
+
+    /* Light Theme Overrides - Take precedence over dark: media queries when user selects Light */
+    /* This ensures Light theme works correctly even when OS is in dark mode */
+    
+    /* Normalize backgrounds */
+    html.theme-light .dark\:bg-slate-900 {
+      background-color: white !important;
+    }
+    html.theme-light .dark\:bg-slate-950 {
+      background-color: white !important;
+    }
+    html.theme-light .dark\:bg-\[#0c4a6e\] {
+      background-color: #e0f2fe !important;
+    }
+    html.theme-light .dark\:bg-\[#052e2b\] {
+      background-color: #f0fdf4 !important;
+    }
+    
+    /* Normalize borders */
+    html.theme-light .dark\:border-slate-700 {
+      border-color: #cbd5e1 !important;
+    }
+    html.theme-light .dark\:border-slate-800 {
+      border-color: #e2e8f0 !important;
+    }
+    html.theme-light .dark\:border-sky-700 {
+      border-color: #bae6fd !important;
+    }
+    html.theme-light .dark\:border-\[#075985\] {
+      border-color: #bae6fd !important;
+    }
+    html.theme-light .dark\:border-\[#065f46\] {
+      border-color: #bbf7d0 !important;
+    }
+    
+    /* Normalize text colors - improve contrast */
+    html.theme-light .dark\:text-slate-200 {
+      color: #1e293b !important;
+    }
+    html.theme-light .dark\:text-slate-300 {
+      color: #475569 !important;
+    }
+    html.theme-light .dark\:text-slate-400 {
+      color: #64748b !important;
+    }
+    
+    /* Normalize link/button colors */
+    html.theme-light .dark\:text-sky-300 {
+      color: #0369a1 !important;
+    }
+    html.theme-light .dark\:text-sky-400 {
+      color: #0284c7 !important;
+    }
+    
+    /* Normalize hover states */
+    html.theme-light .dark\:hover\:bg-slate-800:hover {
+      background-color: #f1f5f9 !important;
+    }
+    html.theme-light .dark\:hover\:bg-red-950:hover {
+      background-color: #fee2e2 !important;
+    }
+    
+    /* Ring colors */
+    html.theme-light .dark\:ring-slate-900\/10 {
+      --tw-ring-color: rgb(241 245 249 / 0.1) !important;
+    }
   </style>
 </head>
 <body class="min-h-screen p-6">

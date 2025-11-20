@@ -920,17 +920,28 @@ async function loadTasks() {
   return data;
 }
 
-/* Auto-archive done > 7 days */
+/* Auto-archive done tasks based on due status */
 async function checkAutoArchive(data) {
   const now = Date.now();
+  const oneDay = 1 * 24 * 60 * 60 * 1000;
   const sevenDays = 7 * 24 * 60 * 60 * 1000;
   const batch = writeBatch(db);
   let needsUpdate = false;
 
   for (const task of (data.columns.done?.tasks || [])) {
-    if (task.completedAt && (now - task.completedAt) > sevenDays && !task.archived) {
-      batch.update(doc(db, "tasks", task.id), { archived: true, archivedAt: now });
-      needsUpdate = true;
+    if (task.completedAt && !task.archived) {
+      // Determine archive threshold based on whether task was overdue when completed
+      let archiveThreshold = sevenDays; // Default: 7 days for tasks completed on time
+      
+      if (task.wasOverdueWhenCompleted) {
+        // Task was overdue: archive after 1 day
+        archiveThreshold = oneDay;
+      }
+      
+      if ((now - task.completedAt) > archiveThreshold) {
+        batch.update(doc(db, "tasks", task.id), { archived: true, archivedAt: now });
+        needsUpdate = true;
+      }
     }
   }
   if (needsUpdate) await batch.commit();
@@ -1293,9 +1304,9 @@ function createTaskEl(task, colId) {
 /* Edit modal */
 function openEditModal(task, colId) {
   const modal = document.createElement("div");
-  modal.className = "fixed inset-0 bg-black/30 flex items-center justify-center z-50";
+  modal.className = "fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4";
   modal.innerHTML = `
-    <div class="bg-white p-6 rounded-xl shadow-xl w-80 space-y-3 border border-slate-200 ring-1 ring-slate-100 modal-panel dark:bg-slate-900 dark:border-slate-800">
+    <div class="bg-white p-6 rounded-xl shadow-xl w-80 max-h-[90vh] overflow-y-auto space-y-3 border border-slate-200 ring-1 ring-slate-100 modal-panel dark:bg-slate-900 dark:border-slate-800">
       <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">Edit Task</h3>
       <input id="editTitle" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Title" />
       <input id="editAssign" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee" />
@@ -1473,8 +1484,19 @@ function makeDroppable(el) {
     const updates = { column: to };
     if (to === "done" && !taskData.completedAt) {
       updates.completedAt = Date.now();
+      
+      // Check if task was overdue when completed
+      if (taskData.due) {
+        const dueDate = new Date(taskData.due + "T23:59:59");
+        const now = new Date();
+        updates.wasOverdueWhenCompleted = now > dueDate;
+      } else {
+        // No due date means not overdue
+        updates.wasOverdueWhenCompleted = false;
+      }
     } else if (from === "done" && to !== "done") {
       updates.completedAt = null;
+      updates.wasOverdueWhenCompleted = null;
     }
 
     await setDoc(taskDocRef, updates, { merge: true });

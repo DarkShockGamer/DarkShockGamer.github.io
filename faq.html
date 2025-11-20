@@ -41,6 +41,26 @@
     html.theme-high-contrast .faq-card:hover { border-color: #ffff00 !important; box-shadow: 0 0 12px rgba(255,255,0,0.5); }
     html.theme-high-contrast .bg-sky-600 { background: #ffff00 !important; color: #000000 !important; }
     html.theme-high-contrast .text-sky-800, html.theme-high-contrast .text-sky-200 { color: #ffffff !important; }
+
+    /* ===== FIX 4: Light theme text contrast improvements ===== */
+    /* Strengthen question heading colors in light theme */
+    html.theme-light .faq-card .text-sky-800 {
+      color: #075985 !important; /* stronger sky-900 for better contrast */
+    }
+    html.theme-light .faq-card .dark\:text-sky-200 {
+      color: #075985 !important;
+    }
+    /* Strengthen answer text in light theme */
+    html.theme-light .faq-card .text-slate-700 {
+      color: #334155 !important; /* stronger slate-700 for better readability */
+    }
+    html.theme-light .faq-card .dark\:text-slate-300 {
+      color: #334155 !important;
+    }
+    /* Strengthen chevron icon in light theme */
+    html.theme-light .faq-card .text-sky-400 {
+      color: #0284c7 !important; /* stronger sky-600 for better visibility */
+    }
   </style>
 </head>
 <body class="min-h-screen p-6">

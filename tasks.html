@@ -160,10 +160,38 @@
         background-color: #10b981 !important;
         border-color: #10b981 !important;
       }
+      
+      /* Light theme definitive tag chip overrides inside dark media query */
+      html.theme-light body .tag-chip {
+        background: #e0f2fe !important;
+        color: #0369a1 !important;
+        border-color: #bae6fd !important;
+      }
+      html.theme-light body .tag-chip[data-tag="mechanical"] { background:#fee2e2 !important; color:#991b1b !important; border-color:#fecaca !important; }
+      html.theme-light body .tag-chip[data-tag="design"]     { background:#dbeafe !important; color:#1e40af !important; border-color:#bfdbfe !important; }
+      html.theme-light body .tag-chip[data-tag="electrical"] { background:#fef3c7 !important; color:#92400e !important; border-color:#fde68a !important; }
+      html.theme-light body .tag-chip[data-tag="programming"]{ background:#f3e8ff !important; color:#6b21a8 !important; border-color:#e9d5ff !important; }
+      html.theme-light body .tag-chip[data-tag="website"]    { background:#cffafe !important; color:#155e75 !important; border-color:#a5f3fc !important; }
+      html.theme-light body .tag-chip[data-tag="business"]   { background:#f1f5f9 !important; color:#475569 !important; border-color:#cbd5e1 !important; }
+      html.theme-light body .tag-chip[data-tag="drive"]      { background:#fed7aa !important; color:#9a3412 !important; border-color:#fdba74 !important; }
     }
 
     /* Old description styling utilities - No longer used but kept for backwards compatibility */
     /* These are no longer needed as the new system uses plain text only */
+
+    /* Light theme definitive tag chip palette overrides (placed after dark media query) */
+    html.theme-light body .tag-chip {
+      background: #e0f2fe !important;
+      color: #0369a1 !important;
+      border-color: #bae6fd !important;
+    }
+    html.theme-light body .tag-chip[data-tag="mechanical"] { background:#fee2e2 !important; color:#991b1b !important; border-color:#fecaca !important; }
+    html.theme-light body .tag-chip[data-tag="design"]     { background:#dbeafe !important; color:#1e40af !important; border-color:#bfdbfe !important; }
+    html.theme-light body .tag-chip[data-tag="electrical"] { background:#fef3c7 !important; color:#92400e !important; border-color:#fde68a !important; }
+    html.theme-light body .tag-chip[data-tag="programming"]{ background:#f3e8ff !important; color:#6b21a8 !important; border-color:#e9d5ff !important; }
+    html.theme-light body .tag-chip[data-tag="website"]    { background:#cffafe !important; color:#155e75 !important; border-color:#a5f3fc !important; }
+    html.theme-light body .tag-chip[data-tag="business"]   { background:#f1f5f9 !important; color:#475569 !important; border-color:#cbd5e1 !important; }
+    html.theme-light body .tag-chip[data-tag="drive"]      { background:#fed7aa !important; color:#9a3412 !important; border-color:#fdba74 !important; }
 
     /* Toasts: Slide-in + Sound-ready */
     .toast-stack {

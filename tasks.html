@@ -411,6 +411,102 @@
     html.theme-light .dark\:ring-slate-900\/10 {
       --tw-ring-color: rgb(241 245 249 / 0.1) !important;
     }
+
+    /* ===== FIX 1: Light theme tag chip colors - explicit overrides ===== */
+    /* Base light theme tag chip */
+    html.theme-light .tag-chip {
+      background: #e0f2fe !important;
+      color: #0369a1 !important;
+      border-color: #bae6fd !important;
+    }
+    /* Per-team light theme tag colors */
+    html.theme-light .tag-chip[data-tag="mechanical"] {
+      background: #fee2e2 !important;
+      color: #991b1b !important;
+      border-color: #fecaca !important;
+    }
+    html.theme-light .tag-chip[data-tag="design"] {
+      background: #dbeafe !important;
+      color: #1e40af !important;
+      border-color: #bfdbfe !important;
+    }
+    html.theme-light .tag-chip[data-tag="electrical"] {
+      background: #fef3c7 !important;
+      color: #92400e !important;
+      border-color: #fde68a !important;
+    }
+    html.theme-light .tag-chip[data-tag="programming"] {
+      background: #f3e8ff !important;
+      color: #6b21a8 !important;
+      border-color: #e9d5ff !important;
+    }
+    html.theme-light .tag-chip[data-tag="website"] {
+      background: #cffafe !important;
+      color: #155e75 !important;
+      border-color: #a5f3fc !important;
+    }
+    html.theme-light .tag-chip[data-tag="business"] {
+      background: #f1f5f9 !important;
+      color: #475569 !important;
+      border-color: #cbd5e1 !important;
+    }
+    html.theme-light .tag-chip[data-tag="drive"] {
+      background: #fed7aa !important;
+      color: #9a3412 !important;
+      border-color: #fdba74 !important;
+    }
+
+    /* ===== FIX 2: Calendar controls visibility ===== */
+    /* Per-comment calendar toggle button - strengthen icon color in light mode */
+    html.theme-light .comment-toggle-calendar svg {
+      color: #0369a1 !important;
+    }
+    html.theme-light .comment-toggle-calendar svg.text-amber-500 {
+      color: #d97706 !important; /* stronger amber for pinned state */
+    }
+    html.theme-light .comment-toggle-calendar svg.text-slate-400 {
+      color: #64748b !important; /* stronger slate for unpinned state */
+    }
+    /* Visible hover background for calendar toggle in both themes */
+    html.theme-light .comment-toggle-calendar:hover {
+      background-color: #e0f2fe !important;
+    }
+    html.theme-dark .comment-toggle-calendar:hover {
+      background-color: rgba(14, 165, 233, 0.15) !important;
+    }
+    @media (prefers-color-scheme: dark) {
+      .comment-toggle-calendar:hover {
+        background-color: rgba(14, 165, 233, 0.15) !important;
+      }
+    }
+    
+    /* Native date input calendar picker icon - dark theme visibility */
+    html.theme-dark input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      cursor: pointer;
+    }
+    @media (prefers-color-scheme: dark) {
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+      }
+    }
+
+    /* ===== FIX 3: Comments input layout - prevent overflow on small screens ===== */
+    .comments-section .flex.gap-2 {
+      flex-wrap: wrap;
+    }
+    @media (max-width: 640px) {
+      .comments-section .flex.gap-2 {
+        flex-direction: column;
+      }
+      .comments-section .comment-input {
+        width: 100%;
+      }
+      .comments-section .add-comment {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen p-6">

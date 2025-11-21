@@ -178,6 +178,17 @@ const NotificationSettings = {
   save(enabled, sound) {
     localStorage.setItem(SETTINGS_KEYS.NOTIFICATIONS_ENABLED, enabled.toString());
     localStorage.setItem(SETTINGS_KEYS.NOTIFICATION_SOUND, sound);
+  },
+
+  // Get notification settings
+  get() {
+    const enabled = localStorage.getItem(SETTINGS_KEYS.NOTIFICATIONS_ENABLED);
+    const sound = localStorage.getItem(SETTINGS_KEYS.NOTIFICATION_SOUND) || 'Chime';
+    
+    return {
+      enabled: enabled !== 'false',
+      sound: sound
+    };
   }
 };
 
@@ -421,7 +432,17 @@ document.addEventListener("DOMContentLoaded", async function() {
       NotificationSettings.save(enabled, sound);
       
       if(window.Sound) window.Sound.click();
-      if(window.Toast) Toast("Notification settings saved.", "success");
+      
+      // Show toast notification as confirmation
+      if (window.Toast && window.Toast.create) {
+        Toast.create({
+          type: 'success',
+          message: 'Notification settings saved.',
+          ttl: 5000
+        });
+      } else if (window.Toast) {
+        Toast("Notification settings saved.", "success");
+      }
     });
 
     // Reset handler
@@ -554,3 +575,13 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   }
 });
+
+// ==================== GLOBAL API ====================
+
+/**
+ * Get notification settings (for use by notification system)
+ * @returns {Object} Object with enabled and sound properties
+ */
+window.getNotificationSettings = function() {
+  return NotificationSettings.get();
+};

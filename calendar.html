@@ -1097,6 +1097,8 @@
             endTime: e.endTime || "",
             location: e.location || "",
             isPublic: e.isPublic !== false,
+            private: e.isPublic === false, // Add private flag for notifications
+            creator: e.createdBy || "",    // Add creator for notifications
             color: sanitizeEventColor(e.color || DEFAULT_EVENT_COLOR),
             createdBy: e.createdBy || "",
             createdAt: e.createdAt || 0,
@@ -1104,9 +1106,13 @@
           });
         });
         events = arr;
+        
+        // Expose events globally for notification system
+        window.currentEvents = arr;
       } catch (err) {
         console.warn("Failed to load events:", err);
         events = [];
+        window.currentEvents = [];
       }
     }
 
@@ -1732,8 +1738,19 @@
 
     // Initial render
     await render();
+    
+    // Initialize notification system after events are loaded
+    if (window.Notifications && typeof window.Notifications.scanOnce === 'function') {
+      // Wait a bit to ensure all scripts are loaded
+      setTimeout(() => {
+        window.Notifications.scanOnce();
+        console.log('[Calendar] Notifications scan triggered');
+      }, 1000);
+    }
   </script>
   <script src="/assets/js/theme.js"></script>
   <script src="/assets/js/sound.js" defer></script>
+  <script src="/assets/js/toast.js" defer></script>
+  <script src="/assets/js/notifications.js" defer></script>
 </body>
 </html>

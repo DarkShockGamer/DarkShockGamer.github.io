@@ -4,13 +4,15 @@
 (function() {
   'use strict';
 
-  // Find or bail if no stack
-  const stack = document.getElementById('toastStack');
+  // Auto-inject toast stack if missing
+  let stack = document.getElementById('toastStack');
   if (!stack) {
-    // Graceful fallback if no toast stack element exists
-    window.showToast = function() {};
-    window.Toast = function() {};
-    return;
+    stack = document.createElement('div');
+    stack.id = 'toastStack';
+    stack.className = 'toast-stack';
+    stack.setAttribute('aria-live', 'polite');
+    stack.setAttribute('aria-atomic', 'true');
+    document.body.appendChild(stack);
   }
 
   // Icon SVGs for each toast type
@@ -22,11 +24,32 @@
   };
 
   /**
+   * Check if reduce motion is enabled
+   * @returns {boolean} True if reduce motion is enabled
+   */
+  function isReduceMotionEnabled() {
+    // Check localStorage setting
+    const lsValue = localStorage.getItem('trident.appearance.reduceMotion');
+    if (lsValue === 'true') return true;
+    
+    // Check media query
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    return mediaQuery.matches;
+  }
+
+  /**
    * Remove a toast element with transition
    * @param {HTMLElement} el - The toast element to remove
    */
   function removeWithTransition(el) {
     if (!el) return;
+    
+    // If reduce motion is enabled, remove immediately
+    if (isReduceMotionEnabled()) {
+      if (el.parentNode) el.parentNode.removeChild(el);
+      return;
+    }
+    
     el.classList.remove('show');
     const onEnd = (ev) => {
       if (ev.target === el) {
@@ -40,15 +63,82 @@
   }
 
   /**
+   * Check if sound should be played
+   * @returns {boolean} True if sound should be played
+   */
+  function isSoundEnabled() {
+    const soundSetting = localStorage.getItem('trident.notifications.sound') || 'Chime';
+    return soundSetting !== 'Off';
+  }
+
+  /**
+   * Play sound for toast type based on settings
+   * @param {string} type - Toast type
+   * @param {string|boolean} sound - Sound setting or boolean
+   */
+  function playToastSound(type, sound) {
+    // Check if sound is explicitly disabled for this toast
+    if (sound === false) return;
+    
+    // Check global sound setting
+    if (!isSoundEnabled()) return;
+    
+    // If sound is a specific type string, use it
+    if (typeof sound === 'string' && sound !== 'default') {
+      type = sound;
+    }
+    
+    // Play appropriate sound if Sound engine is available
+    try {
+      if (window.Sound && typeof window.Sound === 'object') {
+        // Map notification sound settings to Sound methods
+        const soundSetting = localStorage.getItem('trident.notifications.sound') || 'Chime';
+        let soundMethod = null;
+        
+        if (soundSetting === 'Chime') {
+          // Chime -> success for success/info, default Sound method for others
+          soundMethod = (type === 'success' || type === 'info') ? 'success' : type;
+        } else if (soundSetting === 'Ping') {
+          // Ping -> info
+          soundMethod = 'info';
+        } else if (soundSetting === 'Pop') {
+          // Pop -> click
+          soundMethod = 'click';
+        } else {
+          // Default mapping
+          soundMethod = type;
+        }
+        
+        // Play the sound
+        if (window.Sound[soundMethod] && typeof window.Sound[soundMethod] === 'function') {
+          window.Sound[soundMethod]();
+        }
+      }
+    } catch (e) {
+      console.debug('toast sound error', e);
+    }
+  }
+
+  /**
    * Display a toast notification
    * @param {string} type - Toast type: 'success', 'info', 'warn', 'error'
    * @param {string} message - Message to display
    * @param {number} timeout - Auto-dismiss timeout in milliseconds (default: 10000)
+   * @param {string|boolean} sound - Sound to play or false to disable sound
    */
-  function showToast(type = 'info', message = '', timeout = 10000) {
+  function showToast(type = 'info', message = '', timeout = 10000, sound = 'default') {
     const el = document.createElement('div');
     el.className = `toast ${type}`;
-    el.setAttribute('role', 'status');
+    
+    // Set appropriate ARIA role based on type
+    if (type === 'error' || type === 'warn') {
+      el.setAttribute('role', 'alert');
+      el.setAttribute('aria-live', 'assertive');
+    } else {
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+    }
+    
     el.innerHTML = `
       <span class="toast-icon-wrapper">${ICONS[type] || ICONS.info}</span>
       <div class="toast-message text-sm">${message}</div>
@@ -56,26 +146,16 @@
     `;
     stack.appendChild(el);
 
-    // Trigger show animation on next frame
-    requestAnimationFrame(() => el.classList.add('show'));
-
-    // Play appropriate sound if Sound engine is available
-    try {
-      if (window.Sound && typeof window.Sound === 'object') {
-        // Try new unified play method first
-        if (typeof window.Sound.play === 'function') {
-          window.Sound.play(type);
-        } else {
-          // Fallback to individual methods
-          const soundMethod = window.Sound[type];
-          if (typeof soundMethod === 'function') {
-            soundMethod.call(window.Sound);
-          }
-        }
-      }
-    } catch (e) {
-      console.debug('toast sound error', e);
+    // Trigger show animation on next frame (skip if reduce motion)
+    const reduceMotion = isReduceMotionEnabled();
+    if (reduceMotion) {
+      el.classList.add('show');
+    } else {
+      requestAnimationFrame(() => el.classList.add('show'));
     }
+
+    // Play appropriate sound
+    playToastSound(type, sound);
 
     // Wire up dismiss button
     const dismissBtn = el.querySelector('button');
@@ -109,4 +189,41 @@
   window.Toast = function(message = '', type = 'info', timeout) {
     showToast(type, message, timeout);
   };
+
+  /**
+   * Modern Toast API with object parameter
+   * @param {Object} options - Toast options
+   * @param {string} options.type - Toast type: 'success', 'info', 'warn', 'error'
+   * @param {string} options.title - Optional title (not used in current design, included for future compatibility)
+   * @param {string} options.message - Message to display
+   * @param {number} options.ttl - Time to live in milliseconds (default: 10000)
+   * @param {string|boolean} options.sound - Sound to play ('default', 'success', 'info', 'warn', 'error', 'click') or false to disable
+   * @returns {void}
+   */
+  Toast.create = function(options) {
+    if (typeof options === 'string') {
+      // Shorthand: Toast.create('success', 'Message')
+      const type = options;
+      const message = arguments[1] || '';
+      const ttl = arguments[2] || 10000;
+      showToast(type, message, ttl);
+      return;
+    }
+    
+    const {
+      type = 'info',
+      title = '',
+      message = '',
+      ttl = 10000,
+      sound = 'default'
+    } = options || {};
+    
+    // Combine title and message if both present
+    const fullMessage = title ? `<strong>${title}</strong><br>${message}` : message;
+    
+    showToast(type, fullMessage, ttl, sound);
+  };
+
+  // Also expose as window.Toast.create for convenience
+  window.Toast.create = Toast.create;
 })();

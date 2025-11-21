@@ -1776,14 +1776,27 @@ filterInput.oninput = () => { renderBoard(); };
         },
         order: ["backlog", "todo", "inprogress", "done"]
       };
+      
+      // Collect all tasks for notifications
+      const allTasks = [];
+      
       snapshot.forEach(docSnap => {
         const t = docSnap.data();
+        const taskWithId = { id: docSnap.id, ...t };
+        
+        // Add to allTasks array (including deleted/archived for complete view)
+        allTasks.push(taskWithId);
+        
         if (t.deleted || t.archived) return;
         const normalized = canonicalizeColumn(t.column || 'backlog');
         console.log('[TaskBoard] Doc', docSnap.id, 'raw column:', t.column, 'normalized:', normalized);
         (data.columns[normalized] ??= { title: normalized, tasks: [] })
-          .tasks.push({ id: docSnap.id, ...t, column: normalized });
+          .tasks.push({ ...taskWithId, column: normalized });
       });
+      
+      // Expose all tasks globally for notification system
+      window.currentTasks = allTasks;
+      
       await checkAutoArchive(data);
       return data;
     };
@@ -1884,6 +1897,15 @@ filterInput.oninput = () => { renderBoard(); };
         }
 
         console.log('[TaskBoard] Bootstrap complete');
+        
+        // Initialize notification system after tasks are loaded
+        if (window.Notifications && typeof window.Notifications.initNotifications === 'function') {
+          // Wait a bit to ensure all scripts are loaded
+          setTimeout(() => {
+            window.Notifications.initNotifications();
+            console.log('[TaskBoard] Notifications initialized');
+          }, 1000);
+        }
       } catch (e) {
         console.error('Bootstrap failed:', e);
         const board = document.getElementById("board");
@@ -2878,5 +2900,6 @@ filterInput.oninput = () => { renderBoard(); };
 <script type="module" src="/tasks-checklist.js"></script>
 <script src="/assets/js/sound.js" defer></script>
 <script src="/assets/js/toast.js" defer></script>
+<script src="/assets/js/notifications.js" defer></script>
 </body>
 </html>

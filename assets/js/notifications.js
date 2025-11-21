@@ -17,13 +17,19 @@
 
   // ==================== UTILITY FUNCTIONS ====================
 
+  // Settings keys - should match settings.js
+  const SETTINGS_KEYS = {
+    NOTIFICATIONS_ENABLED: 'trident.notifications.enabled',
+    NOTIFICATION_SOUND: 'trident.notifications.sound'
+  };
+
   /**
    * Get notification settings from localStorage
    * @returns {Object} Settings object with enabled and sound properties
    */
   function getNotificationSettings() {
-    const enabled = localStorage.getItem('trident.notifications.enabled');
-    const sound = localStorage.getItem('trident.notifications.sound') || 'Chime';
+    const enabled = localStorage.getItem(SETTINGS_KEYS.NOTIFICATIONS_ENABLED);
+    const sound = localStorage.getItem(SETTINGS_KEYS.NOTIFICATION_SOUND) || 'Chime';
     
     return {
       enabled: enabled !== 'false', // Default to true if not set
@@ -216,8 +222,8 @@
     
     events.forEach(event => {
       // Skip private events if they don't belong to current user
-      // (This logic could be enhanced with actual user checking)
-      if (event.private && event.creator !== getCurrentUserEmail()) {
+      // Use createdBy as the canonical field (matches Firestore data)
+      if (event.private && event.createdBy !== getCurrentUserEmail()) {
         return;
       }
       
@@ -315,95 +321,53 @@
 
   /**
    * Perform a single scan of tasks and events
+   * 
+   * This function scans window.currentTasks and window.currentEvents which should
+   * be populated by the page's existing data loading logic.
    */
   function scanOnce() {
     if (!shouldShowNotifications()) {
       return;
     }
     
-    // Try to get tasks from window.currentTasks if available
+    // Scan tasks from window.currentTasks if available
     if (window.currentTasks && Array.isArray(window.currentTasks)) {
       scanTasks(window.currentTasks);
     }
     
-    // Try to get events from window.currentEvents if available
+    // Scan events from window.currentEvents if available
     if (window.currentEvents && Array.isArray(window.currentEvents)) {
       scanEvents(window.currentEvents);
-    }
-    
-    // Fallback: try to load from Firestore if available
-    if (window.firestoreDB && typeof window.firestoreDB === 'object') {
-      // Task loading from Firestore
-      loadTasksFromFirestore().then(tasks => {
-        if (tasks && tasks.length > 0) {
-          scanTasks(tasks);
-        }
-      }).catch(err => {
-        console.debug('Failed to load tasks from Firestore:', err);
-      });
-      
-      // Event loading from Firestore
-      loadEventsFromFirestore().then(events => {
-        if (events && events.length > 0) {
-          scanEvents(events);
-        }
-      }).catch(err => {
-        console.debug('Failed to load events from Firestore:', err);
-      });
     }
   }
 
   /**
    * Load tasks from Firestore
    * @returns {Promise<Array>} Array of task objects
+   * 
+   * Note: This is a fallback. The preferred method is to use window.currentTasks
+   * which is populated by the page's existing data loading logic.
    */
   async function loadTasksFromFirestore() {
-    if (!window.firestoreDB) return [];
-    
-    try {
-      // Check if Firebase functions are available
-      if (typeof window.getDocs === 'undefined') {
-        // Try to import from Firebase
-        const { getDocs, collection } = await import('https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js');
-        const snapshot = await getDocs(collection(window.firestoreDB, 'tasks'));
-        const tasks = [];
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          tasks.push({ id: doc.id, ...data });
-        });
-        return tasks;
-      }
-    } catch (e) {
-      console.debug('Failed to load tasks from Firestore:', e);
-    }
-    
+    // This function is intentionally minimal as pages should expose window.currentTasks
+    // Firestore access would require importing Firebase modules which are already
+    // loaded by the page scripts. This fallback does nothing to avoid security
+    // concerns with dynamic imports and duplicate Firebase instances.
     return [];
   }
 
   /**
    * Load events from Firestore
    * @returns {Promise<Array>} Array of event objects
+   * 
+   * Note: This is a fallback. The preferred method is to use window.currentEvents
+   * which is populated by the page's existing data loading logic.
    */
   async function loadEventsFromFirestore() {
-    if (!window.firestoreDB) return [];
-    
-    try {
-      // Check if Firebase functions are available
-      if (typeof window.getDocs === 'undefined') {
-        // Try to import from Firebase
-        const { getDocs, collection } = await import('https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js');
-        const snapshot = await getDocs(collection(window.firestoreDB, 'calendar-events'));
-        const events = [];
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          events.push({ id: doc.id, ...data });
-        });
-        return events;
-      }
-    } catch (e) {
-      console.debug('Failed to load events from Firestore:', e);
-    }
-    
+    // This function is intentionally minimal as pages should expose window.currentEvents
+    // Firestore access would require importing Firebase modules which are already
+    // loaded by the page scripts. This fallback does nothing to avoid security
+    // concerns with dynamic imports and duplicate Firebase instances.
     return [];
   }
 
@@ -466,7 +430,7 @@
     getNotificationSettings
   };
 
-  // Also expose getNotificationSettings globally for settings.js
-  window.getNotificationSettings = getNotificationSettings;
+  // Note: settings.js also exposes window.getNotificationSettings
+  // This provides a fallback if settings.js is not loaded
 
 })();

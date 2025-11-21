@@ -192,36 +192,33 @@
 
   /**
    * Modern Toast API with object parameter
-   * @param {Object} options - Toast options
-   * @param {string} options.type - Toast type: 'success', 'info', 'warn', 'error'
-   * @param {string} options.title - Optional title (not used in current design, included for future compatibility)
-   * @param {string} options.message - Message to display
-   * @param {number} options.ttl - Time to live in milliseconds (default: 10000)
-   * @param {string|boolean} options.sound - Sound to play ('default', 'success', 'info', 'warn', 'error', 'click') or false to disable
+   * @param {Object|string} options - Toast options object or type string for shorthand
+   * @param {string} message - Message (when using shorthand)
+   * @param {number} ttl - TTL (when using shorthand)
    * @returns {void}
    */
-  Toast.create = function(options) {
+  Toast.create = function(options, message, ttl) {
     if (typeof options === 'string') {
-      // Shorthand: Toast.create('success', 'Message')
+      // Shorthand: Toast.create('success', 'Message', 10000)
       const type = options;
-      const message = arguments[1] || '';
-      const ttl = arguments[2] || 10000;
-      showToast(type, message, ttl);
+      const msg = message || '';
+      const timeout = ttl || 10000;
+      showToast(type, msg, timeout);
       return;
     }
     
     const {
       type = 'info',
       title = '',
-      message = '',
-      ttl = 10000,
+      message: msg = '',
+      ttl: timeout = 10000,
       sound = 'default'
     } = options || {};
     
     // Combine title and message if both present
-    const fullMessage = title ? `<strong>${title}</strong><br>${message}` : message;
+    const fullMessage = title ? `<strong>${title}</strong><br>${msg}` : msg;
     
-    showToast(type, fullMessage, ttl, sound);
+    showToast(type, fullMessage, timeout, sound);
   };
 
   // Also expose as window.Toast.create for convenience

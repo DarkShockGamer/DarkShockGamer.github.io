@@ -588,6 +588,17 @@
 
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto min-w-0">
       <input id="filterInput" placeholder="Search tasks..." class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
+      <!-- Subteam filter dropdown -->
+      <select id="subteamFilter" class="px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+        <option value="">All Subteams</option>
+        <option value="Design">Design</option>
+        <option value="Mechanical">Mechanical</option>
+        <option value="Programming">Programming</option>
+        <option value="Electrical">Electrical</option>
+        <option value="Business">Business</option>
+        <option value="Website">Website</option>
+        <option value="Drive">Drive</option>
+      </select>
       <!-- Added data-sound="whoosh" so only the whoosh plays (no default click) -->
       <button id="menuBtn" data-sound="whoosh" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Menu</button>
     </div>
@@ -689,6 +700,7 @@ window.firestoreDB = db;
 /* DOM refs */
 const board = document.getElementById("board");
 const filterInput = document.getElementById("filterInput");
+const subteamFilter = document.getElementById("subteamFilter");
 const addBtn = document.getElementById("addTaskBtn");
 const menuBtn = document.getElementById("menuBtn");
 const drawer = document.getElementById("drawer");
@@ -995,12 +1007,21 @@ async function renderBoard() {
     const list = colEl.querySelector(".task-list");
     col.tasks
       .filter(t => {
+        // Text search filter
         const f = (filterInput.value || "").toLowerCase();
-        return !f
+        const matchesText = !f
           || (t.title || "").toLowerCase().includes(f)
           || (t.assignee || "").toLowerCase().includes(f)
           || (t.descText || t.description || "").toLowerCase().includes(f)
           || (t.tags || []).some(tag => tag.toLowerCase().includes(f));
+        
+        // Subteam filter - check if task has any tag matching the selected subteam
+        const selectedSubteam = (subteamFilter.value || "").toLowerCase();
+        const matchesSubteam = !selectedSubteam
+          || (t.tags || []).some(tag => tag.toLowerCase() === selectedSubteam);
+        
+        // Both filters must pass (AND logic)
+        return matchesText && matchesSubteam;
       })
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .forEach(task => list.appendChild(createTaskEl(task, colId)));
@@ -1728,7 +1749,13 @@ async function renderDrawer() {
 }
 
 /* Filter */
+// Text search filter - triggers on input
 filterInput.oninput = () => { renderBoard(); };
+
+// Subteam filter - triggers on change
+// When a subteam is selected, only tasks with that subteam tag are shown
+// When "All Subteams" is selected, all tasks are shown (no subteam filtering)
+subteamFilter.onchange = () => { renderBoard(); };
 
     /* Chips util */
     function chipsHTML(tags) {

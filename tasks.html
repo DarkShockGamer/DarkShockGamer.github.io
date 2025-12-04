@@ -48,6 +48,7 @@
     }
     .dropdown-list label:hover { background-color: #e0f2fe; }
     .dropdown-list input[type="checkbox"] { margin: 0; }
+    .dropdown-list input[type="radio"] { margin: 0; }
 
     /* Tag chips */
     .tag-chip {
@@ -120,6 +121,7 @@
       .dropdown-list { background: #0b1220 !important; border-color: #334155 !important; box-shadow: 0 8px 24px rgba(14, 165, 233, 0.12); }
       .dropdown-list label:hover { background-color: rgba(14,165,233,0.1) !important; }
       .dropdown-list input[type="checkbox"] { accent-color: #0ea5e9; }
+      .dropdown-list input[type="radio"] { accent-color: #0ea5e9; }
       .dropdown-btn .placeholder { color: #94a3b8 !important; }
 
       .tag-chip { background: #0c4a6e !important; color: #e0f2fe !important; border-color: #075985 !important; }
@@ -588,17 +590,20 @@
 
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto min-w-0">
       <input id="filterInput" placeholder="Search tasks..." class="flex-1 sm:flex-none px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
-      <!-- Subteam filter dropdown -->
-      <select id="subteamFilter" class="px-3 py-2 rounded-lg border border-slate-300 shadow-sm text-sm w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-        <option value="">All Subteams</option>
-        <option value="Design">Design</option>
-        <option value="Mechanical">Mechanical</option>
-        <option value="Programming">Programming</option>
-        <option value="Electrical">Electrical</option>
-        <option value="Business">Business</option>
-        <option value="Website">Website</option>
-        <option value="Drive">Drive</option>
-      </select>
+      <!-- Subteam filter dropdown - custom single-select dropdown styled like tag dropdown -->
+      <div class="dropdown w-full sm:w-48" id="subteamDropdown">
+        <div class="dropdown-btn" id="subteamDropdownBtn"><span class="placeholder">All Subteams</span></div>
+        <div class="dropdown-list" id="subteamDropdownList">
+          <label><input type="radio" name="subteam" value="" checked /> <span>All Subteams</span></label>
+          <label><input type="radio" name="subteam" value="Design" /> <span>Design</span></label>
+          <label><input type="radio" name="subteam" value="Mechanical" /> <span>Mechanical</span></label>
+          <label><input type="radio" name="subteam" value="Programming" /> <span>Programming</span></label>
+          <label><input type="radio" name="subteam" value="Electrical" /> <span>Electrical</span></label>
+          <label><input type="radio" name="subteam" value="Business" /> <span>Business</span></label>
+          <label><input type="radio" name="subteam" value="Website" /> <span>Website</span></label>
+          <label><input type="radio" name="subteam" value="Drive" /> <span>Drive</span></label>
+        </div>
+      </div>
       <!-- Added data-sound="whoosh" so only the whoosh plays (no default click) -->
       <button id="menuBtn" data-sound="whoosh" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Menu</button>
     </div>
@@ -700,7 +705,6 @@ window.firestoreDB = db;
 /* DOM refs */
 const board = document.getElementById("board");
 const filterInput = document.getElementById("filterInput");
-const subteamFilter = document.getElementById("subteamFilter");
 const addBtn = document.getElementById("addTaskBtn");
 const menuBtn = document.getElementById("menuBtn");
 const drawer = document.getElementById("drawer");
@@ -750,6 +754,41 @@ dropdownList.querySelectorAll("input[type=checkbox]").forEach(cb => {
   cb.addEventListener("change", () => {
     selectedTags = Array.from(dropdownList.querySelectorAll("input:checked")).map(c => c.value);
     updateDropdownBtn();
+  });
+});
+
+/* Subteam filter dropdown - single-select behavior */
+const subteamDropdownBtn = document.getElementById("subteamDropdownBtn");
+const subteamDropdownList = document.getElementById("subteamDropdownList");
+let selectedSubteam = ""; // "" means "All Subteams"
+
+// Toggle dropdown visibility on button click
+subteamDropdownBtn.addEventListener("click", () => {
+  subteamDropdownList.style.display = subteamDropdownList.style.display === "block" ? "none" : "block";
+});
+
+// Close dropdown when clicking outside
+document.addEventListener("click", e => {
+  const root = document.getElementById("subteamDropdown");
+  if (!root.contains(e.target)) {
+    subteamDropdownList.style.display = "none";
+  }
+});
+
+// Update button text when radio selection changes
+function updateSubteamDropdownBtn() {
+  const checkedRadio = subteamDropdownList.querySelector("input[type=radio]:checked");
+  const label = checkedRadio ? checkedRadio.nextElementSibling.textContent : "All Subteams";
+  subteamDropdownBtn.innerHTML = `<span>${escHtml(label)}</span>`;
+}
+
+// Handle radio button changes
+subteamDropdownList.querySelectorAll("input[type=radio]").forEach(radio => {
+  radio.addEventListener("change", () => {
+    selectedSubteam = radio.value;
+    updateSubteamDropdownBtn();
+    renderBoard(); // Re-render board with new filter
+    subteamDropdownList.style.display = "none"; // Close dropdown after selection
   });
 });
 
@@ -1016,9 +1055,9 @@ async function renderBoard() {
           || (t.tags || []).some(tag => tag.toLowerCase().includes(f));
         
         // Subteam filter - check if task has any tag matching the selected subteam
-        const selectedSubteam = (subteamFilter.value || "").toLowerCase();
+        // selectedSubteam is now a global variable set by the custom dropdown
         const matchesSubteam = !selectedSubteam
-          || (t.tags || []).some(tag => tag.toLowerCase() === selectedSubteam);
+          || (t.tags || []).some(tag => tag.toLowerCase() === selectedSubteam.toLowerCase());
         
         // Both filters must pass (AND logic)
         return matchesText && matchesSubteam;
@@ -1752,10 +1791,10 @@ async function renderDrawer() {
 // Text search filter - triggers on input
 filterInput.oninput = () => { renderBoard(); };
 
-// Subteam filter - triggers on change
+// Note: Subteam filter event handling is now done in the custom dropdown code above
+// The subteam filter uses a custom dropdown with radio buttons (single-select)
 // When a subteam is selected, only tasks with that subteam tag are shown
-// When "All Subteams" is selected, all tasks are shown (no subteam filtering)
-subteamFilter.onchange = () => { renderBoard(); };
+// When "All Subteams" is selected (empty value), all tasks are shown
 
     /* Chips util */
     function chipsHTML(tags) {

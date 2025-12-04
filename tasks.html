@@ -778,7 +778,9 @@ document.addEventListener("click", e => {
 // Update button text when radio selection changes
 function updateSubteamDropdownBtn() {
   const checkedRadio = subteamDropdownList.querySelector("input[type=radio]:checked");
-  const label = checkedRadio ? checkedRadio.parentElement.querySelector('span').textContent : "All Subteams";
+  // Get label text from the span next to the radio button
+  const labelSpan = checkedRadio ? checkedRadio.nextElementSibling : null;
+  const label = labelSpan ? labelSpan.textContent : "All Subteams";
   subteamDropdownBtn.innerHTML = `<span>${escHtml(label)}</span>`;
 }
 

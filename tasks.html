@@ -577,6 +577,146 @@
         width: 100%;
       }
     }
+
+    /* Global Task Completion Bar */
+    .completion-bar-container {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05);
+    }
+    .completion-bar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .completion-bar-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    .completion-bar-percentage {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: #0369a1;
+    }
+    .completion-bar-track {
+      width: 100%;
+      height: 0.75rem;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      overflow: hidden;
+      position: relative;
+    }
+    .completion-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%);
+      border-radius: 9999px;
+      transition: width 0.5s ease-in-out;
+      box-shadow: 0 1px 3px rgba(14, 165, 233, 0.3);
+    }
+    .completion-bar-stats {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+    .completion-bar-stat {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .completion-bar-stat-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 9999px;
+    }
+    .stat-dot-done { background: #10b981; }
+    .stat-dot-progress { background: #f59e0b; }
+    .stat-dot-todo { background: #6366f1; }
+    .stat-dot-backlog { background: #94a3b8; }
+
+    /* Dark theme for completion bar */
+    @media (prefers-color-scheme: dark) {
+      .completion-bar-container {
+        background: #0f172a !important;
+        border-color: #1f2937 !important;
+      }
+      .completion-bar-label {
+        color: #e5e7eb !important;
+      }
+      .completion-bar-percentage {
+        color: #7dd3fc !important;
+      }
+      .completion-bar-track {
+        background: #1e293b !important;
+      }
+      .completion-bar-stats {
+        color: #94a3b8 !important;
+      }
+    }
+
+    /* Light theme overrides */
+    html.theme-light .completion-bar-container {
+      background: white !important;
+      border-color: #e2e8f0 !important;
+    }
+    html.theme-light .completion-bar-label {
+      color: #0f172a !important;
+    }
+    html.theme-light .completion-bar-percentage {
+      color: #0369a1 !important;
+    }
+    html.theme-light .completion-bar-track {
+      background: #e2e8f0 !important;
+    }
+    html.theme-light .completion-bar-stats {
+      color: #64748b !important;
+    }
+
+    /* Dark theme overrides */
+    html.theme-dark .completion-bar-container {
+      background: #0f172a !important;
+      border-color: #1f2937 !important;
+    }
+    html.theme-dark .completion-bar-label {
+      color: #e5e7eb !important;
+    }
+    html.theme-dark .completion-bar-percentage {
+      color: #7dd3fc !important;
+    }
+    html.theme-dark .completion-bar-track {
+      background: #1e293b !important;
+    }
+    html.theme-dark .completion-bar-stats {
+      color: #94a3b8 !important;
+    }
+
+    /* High contrast theme */
+    html.theme-high-contrast .completion-bar-container {
+      background: #1a1a1a !important;
+      border: 2px solid #ffffff !important;
+    }
+    html.theme-high-contrast .completion-bar-label {
+      color: #ffffff !important;
+    }
+    html.theme-high-contrast .completion-bar-percentage {
+      color: #ffff00 !important;
+    }
+    html.theme-high-contrast .completion-bar-track {
+      background: #000000 !important;
+      border: 2px solid #ffffff !important;
+    }
+    html.theme-high-contrast .completion-bar-fill {
+      background: #ffff00 !important;
+    }
+    html.theme-high-contrast .completion-bar-stats {
+      color: #ffffff !important;
+    }
   </style>
 </head>
 <body class="min-h-screen p-6">
@@ -606,6 +746,35 @@
       </div>
       <!-- Added data-sound="whoosh" so only the whoosh plays (no default click) -->
       <button id="menuBtn" data-sound="whoosh" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Menu</button>
+    </div>
+  </div>
+
+  <!-- Global Task Completion Bar -->
+  <div class="completion-bar-container">
+    <div class="completion-bar-header">
+      <span class="completion-bar-label">Overall Progress</span>
+      <span class="completion-bar-percentage" id="completionPercentage">0%</span>
+    </div>
+    <div class="completion-bar-track">
+      <div class="completion-bar-fill" id="completionBarFill" style="width: 0%;"></div>
+    </div>
+    <div class="completion-bar-stats">
+      <div class="completion-bar-stat">
+        <span class="completion-bar-stat-dot stat-dot-done"></span>
+        <span id="statDone">0 Done</span>
+      </div>
+      <div class="completion-bar-stat">
+        <span class="completion-bar-stat-dot stat-dot-progress"></span>
+        <span id="statProgress">0 In Progress</span>
+      </div>
+      <div class="completion-bar-stat">
+        <span class="completion-bar-stat-dot stat-dot-todo"></span>
+        <span id="statTodo">0 To Do</span>
+      </div>
+      <div class="completion-bar-stat">
+        <span class="completion-bar-stat-dot stat-dot-backlog"></span>
+        <span id="statBacklog">0 Backlog</span>
+      </div>
     </div>
   </div>
 
@@ -1028,9 +1197,51 @@ async function saveTask(task, col) {
 
 async function deleteTaskFirestore(taskId) { await deleteDoc(doc(db, "tasks", taskId)); }
 
+/* Update global completion bar */
+function updateCompletionBar(data) {
+  // Calculate task counts by column
+  const counts = {
+    backlog: data.columns.backlog?.tasks.length || 0,
+    todo: data.columns.todo?.tasks.length || 0,
+    inprogress: data.columns.inprogress?.tasks.length || 0,
+    done: data.columns.done?.tasks.length || 0
+  };
+  
+  const totalTasks = counts.backlog + counts.todo + counts.inprogress + counts.done;
+  const completedTasks = counts.done;
+  const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  
+  // Update percentage display
+  const percentageEl = document.getElementById('completionPercentage');
+  if (percentageEl) {
+    percentageEl.textContent = `${percentage}%`;
+  }
+  
+  // Update progress bar fill
+  const fillEl = document.getElementById('completionBarFill');
+  if (fillEl) {
+    fillEl.style.width = `${percentage}%`;
+  }
+  
+  // Update statistics
+  const statDone = document.getElementById('statDone');
+  const statProgress = document.getElementById('statProgress');
+  const statTodo = document.getElementById('statTodo');
+  const statBacklog = document.getElementById('statBacklog');
+  
+  if (statDone) statDone.textContent = `${counts.done} Done`;
+  if (statProgress) statProgress.textContent = `${counts.inprogress} In Progress`;
+  if (statTodo) statTodo.textContent = `${counts.todo} To Do`;
+  if (statBacklog) statBacklog.textContent = `${counts.backlog} Backlog`;
+}
+
 /* Render board */
 async function renderBoard() {
   const data = await loadTasks();
+  
+  // Update completion bar with loaded data
+  updateCompletionBar(data);
+  
   board.innerHTML = "";
   data.order.forEach(colId => {
     const col = data.columns[colId];

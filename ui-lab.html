@@ -33,21 +33,24 @@
     }
     .hover-lift { transition: transform 200ms cubic-bezier(.23,1.14,.81,1.03), box-shadow 200ms cubic-bezier(.23,1.14,.81,1.03), border-color 200ms; will-change: transform; }
     .hover-lift:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 12px 28px rgba(2,132,199,0.15); border-color: #93c5fd; }
+
     /* Drawer */
-    .drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 420px; height: 100vh; background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.15); transition: right 300ms cubic-bezier(.4,0,.2,1); z-index: 1001; }
+    .drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 420px; height: 100vh; background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.15); transition: right 300ms cubic-bezier(.4,0,.2,1); z-index:1001; }
     .drawer.open { right: 0; }
     .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
     .drawer-overlay.active { display: block; }
     @media (prefers-color-scheme: dark) {
       .drawer { background: #0f172a; border-left: 1px solid #1f2937; }
     }
+
     /* Modal */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1002; }
-    .modal-panel { width: 92vw; max-width: 480px; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; transform: scale(0.96); opacity: 0; transition: all 180ms cubic-bezier(.2,1,.25,1); }
+    .modal-panel { width: 92vw; max-width: 480px; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; transform: scale(0.96); opacity: 0; transition: all 180ms cubic-bezier(.4,0,.2,1); }
     .modal-panel.show { transform: scale(1); opacity: 1; }
     @media (prefers-color-scheme: dark) {
       .modal-panel { background: #0f172a; border-color: #1f2937; }
     }
+
     /* Toasts */
     .toast-stack { position: fixed; right: 1rem; top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 1003; }
     .toast {
@@ -68,15 +71,18 @@
       .toast.warn    { border-color: #78350f; background: #2f1f05; color: #fde68a; }
       .toast.error   { border-color: #7f1d1d; background: #2b0b0b; color: #fecaca; }
     }
+
     /* Scroll reveal */
     .reveal { opacity: 0; transform: translateY(10px); transition: all 400ms cubic-bezier(.45,1.5,.65,1); }
     .reveal.in { opacity: 1; transform: translateY(0); }
+
     /* Progress demo */
     .progress-wrap { height: 10px; background: #e5e7eb; border-radius: 9999px; overflow: hidden; border: 1px solid #e5e7eb; }
     .progress-bar { height: 100%; background: linear-gradient(90deg, #0ea5e9, #22d3ee); width: 0%; transition: width 120ms linear; }
     @media (prefers-color-scheme: dark) {
       .progress-wrap { background: #111827; border-color: #1f2937; }
     }
+
     /* Morphing button */
     .morph-btn {
       transition: background 400ms cubic-bezier(.7,1.7,.2,1), box-shadow 400ms cubic-bezier(.7,1.7,.2,1), transform 220ms cubic-bezier(.7,1.7,.2,1);
@@ -90,6 +96,7 @@
       box-shadow: 0 16px 48px rgba(129,140,248,0.17), 0 3px 8px rgba(56,189,248,0.16);
       transform: scale(1.08) rotate(-1deg);
     }
+
     /* Animated toggle switch */
     .toggle-wrap { display: flex; align-items: center; gap: 0.5rem; }
     .toggle {
@@ -104,6 +111,7 @@
       transition: left 240ms cubic-bezier(.7,1.7,.2,1);
     }
     .toggle.on .toggle-knob { left: 22px; background: #818cf8; }
+
     /* Animated tabs */
     .tabs { display: flex; gap: 2px; background: #f1f5f9; border-radius: 0.5rem; padding: 4px; }
     .tab-btn {
@@ -135,6 +143,7 @@
       z-index: 1;
       position: relative;
     }
+
     /* Icon button micro-interaction */
     .icon-wiggle { display: inline-block; transition: transform 180ms cubic-bezier(.9,2.5,.5,1.01); }
     .icon-wiggle.wiggled { animation: wiggle 480ms cubic-bezier(.8,2.1,.5,1.09) both; }
@@ -146,6 +155,145 @@
       80% { transform: rotate(4deg);}
       100% { transform: rotate(0deg);}
     }
+
+    /* --- NEW UI LAB ELEMENTS --- */
+
+    /* Command palette */
+    .cmd-overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.55);
+      display: none; align-items: flex-start; justify-content: center;
+      padding-top: 10vh; z-index: 1100;
+    }
+    .cmd-overlay.open { display: flex; }
+    .cmd-panel {
+      width: 100%; max-width: 640px;
+      background: rgba(15,23,42,0.92);
+      border-radius: 0.75rem;
+      border: 1px solid rgba(148,163,184,0.5);
+      box-shadow: 0 24px 70px rgba(15,23,42,0.8);
+      backdrop-filter: blur(16px);
+      color: #e5e7eb;
+      overflow: hidden;
+      transform: translateY(8px) scale(0.98);
+      opacity: 0;
+      transition: all 180ms cubic-bezier(.4,0,.2,1);
+    }
+    .cmd-panel.show {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    .cmd-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: inherit;
+    }
+    .cmd-input::placeholder {
+      color: rgba(148,163,184,0.8);
+    }
+    .cmd-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.45rem 0.75rem; border-radius: 0.5rem; cursor: pointer; }
+    .cmd-item:hover, .cmd-item[aria-selected="true"] {
+      background: linear-gradient(90deg, rgba(56,189,248,0.18), rgba(129,140,248,0.18));
+    }
+    .badge-key {
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      padding: 0.1rem 0.45rem;
+      font-size: 0.675rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #cbd5f5;
+    }
+
+    /* Stats row */
+    .stat-card {
+      border-radius: 0.9rem;
+      border: 1px solid rgba(148,163,184,0.55);
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.18), transparent 50%), rgba(15,23,42,0.98);
+      color: #e5e7eb;
+      box-shadow: 0 14px 40px rgba(15,23,42,0.9);
+      transform-origin: center;
+      transition: transform 160ms cubic-bezier(.2,0.9,.3,1.3), box-shadow 160ms cubic-bezier(.2,0.9,.3,1.3);
+    }
+    .stat-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 20px 55px rgba(15,23,42,0.95);
+    }
+    .stat-spark {
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg,#38bdf8,#22c55e,#eab308);
+      opacity: 0.9;
+    }
+
+    /* Keyboard hint bar */
+    .kbd-bar {
+      position: sticky;
+      bottom: 0;
+      z-index: 900;
+      backdrop-filter: blur(18px);
+      background: linear-gradient(to right, rgba(15,23,42,0.92), rgba(15,23,42,0.94));
+      border-radius: 999px;
+      border: 1px solid rgba(51,65,85,0.8);
+      box-shadow: 0 16px 45px rgba(15,23,42,0.85);
+      color: #cbd5f5;
+    }
+    .kbd-chip {
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      padding: 0.16rem 0.6rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* Slider styles */
+    .setting-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .setting-row input[type="range"] {
+      flex: 1;
+      accent-color: #38bdf8;
+    }
+    .setting-value {
+      min-width: 2ch;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Now playing media card */
+    .media-card {
+      border-radius: 0.9rem;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.2), transparent 55%), rgba(15,23,42,0.98);
+      color: #e5e7eb;
+      box-shadow: 0 18px 50px rgba(15,23,42,0.95);
+      position: relative;
+      overflow: hidden;
+    }
+    .media-ring {
+      position: absolute;
+      inset: -40%;
+      border-radius: 999px;
+      background: conic-gradient(from 180deg, rgba(56,189,248,0.5), rgba(129,140,248,0.2), transparent 60%);
+      opacity: 0.22;
+      filter: blur(10px);
+      transform: translateX(-20%);
+    }
+    .media-card-inner {
+      position: relative;
+    }
+    .media-play-pulse {
+      box-shadow: 0 0 0 0 rgba(56,189,248,0.55);
+      transition: box-shadow 220ms ease-out, transform 180ms ease-out;
+    }
+    .media-play-pulse.playing {
+      box-shadow: 0 0 0 8px rgba(56,189,248,0);
+      transform: scale(1.05);
+    }
+
   </style>
 </head>
 <body class="min-h-screen">
@@ -159,13 +307,48 @@
           Micro-interactions with motion and Web Audio feedback.
         </p>
       </div>
-      <button id="toggleSound" class="text-xs px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60">
-        Sound: On
-      </button>
+      <div class="flex items-center gap-2">
+        <button id="openCmdPalette" class="hidden sm:inline-flex items-center gap-1 text-[11px] px-2.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 bg-white/70 dark:bg-slate-900/70">
+          <span class="text-slate-500 dark:text-slate-400">⌘</span>
+          <span class="font-medium">K</span>
+          <span class="text-slate-400 dark:text-slate-500">Command Palette</span>
+        </button>
+        <button id="toggleSound" class="text-xs px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60">
+          Sound: On
+        </button>
+      </div>
     </div>
   </header>
 
   <main class="max-w-5xl mx-auto px-4 py-6 space-y-4">
+    <!-- Quick actions row -->
+    <section class="panel p-4 hover-lift reveal">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-semibold text-slate-800 dark:text-slate-200">Quick Lab Actions</h2>
+        <span class="inline-flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500">
+          <span class="hidden sm:inline">Press</span>
+          <span class="px-1.5 py-0.5 rounded border border-slate-300/70 dark:border-slate-600/70 text-[10px] uppercase tracking-[0.14em]">Cmd</span>
+          <span class="px-1.5 py-0.5 rounded border border-slate-300/70 dark:border-slate-600/70 text-[10px] uppercase tracking-[0.14em]">K</span>
+          <span class="hidden sm:inline">to open palette</span>
+        </span>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button class="btn-ripple px-3 py-1.5 rounded-full bg-sky-600/90 hover:bg-sky-700 text-white text-xs flex items-center gap-1.5" data-sound="click" data-qa="primary">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>
+          Run all demos
+        </button>
+        <button class="btn-ripple px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-200" data-sound="info" data-qa="open-drawer">
+          Open drawer
+        </button>
+        <button class="btn-ripple px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-200" data-sound="info" data-qa="open-modal">
+          Launch modal
+        </button>
+        <button class="btn-ripple px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-200" data-sound="success" data-qa="show-toast">
+          Show success toast
+        </button>
+      </div>
+    </section>
+
     <!-- Buttons + ripple + sound -->
     <section class="panel p-5 hover-lift reveal" style="position:relative;">
       <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Buttons: Ripple + Sonic Feedback</h2>
@@ -251,7 +434,7 @@
       <button id="iconBtn" class="btn-ripple px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2">
         <span id="iconWiggle" class="icon-wiggle" aria-hidden="true">
           <svg width="22" height="22" fill="none" viewBox="0 0 20 20">
-            <path fill="currentColor" d="M10 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm2.15 5.04a.75.75 0 0 0-1.06 0L10 8.13 8.91 7.04a.75.75 0 1 0-1.06 1.06L8.94 9.2 7.85 10.3a.75.75 0 1 0 1.06 1.06L10 10.27l1.09 1.09a.75.75 0 1 0 1.06-1.06L11.06 9.2l1.09-1.09a.75.75 0 0 0 0-1.06Z"/>
+            <path fill="currentColor" d="M10 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm2.15 5.04a.75.75 0 0 0-1.06 0L10 8.13 8.91 7.04a.75.75 0 1 0-1.06 1.06L8.94 9.2 7.85 10.3a.75.75 0 1 0 1.06 1.06L10 10.26l1.09 1.1a.75.75 0 1 0 1.06-1.06L11.06 9.2l1.09-1.1a.75.75 0 0 0 0-1.06Z"/>
           </svg>
         </span>
         <span>Wiggle Me!</span>
@@ -268,6 +451,121 @@
       <div class="mt-3 flex gap-2">
         <button class="btn-ripple px-3 py-2 rounded-md bg-sky-600 hover:bg-sky-700 text-white" onclick="startProgress()">Start</button>
         <button class="btn-ripple px-3 py-2 rounded-md border border-slate-300 dark:border-slate-700" onclick="resetProgress()">Reset</button>
+      </div>
+    </section>
+
+    <!-- Stats row (for full-site dashboard use) -->
+    <section class="panel p-5 hover-lift reveal">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Telemetry Snapshots</h2>
+        <span class="text-[11px] text-slate-400 dark:text-slate-500">Hover cards for depth</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="info">
+          <p class="text-[11px] uppercase tracking-[0.16em] text-sky-300/80">Live Sessions</p>
+          <p class="text-2xl font-semibold mt-1">128</p>
+          <p class="text-[11px] text-slate-400 mt-1">+18% vs. last hour</p>
+          <div class="stat-spark mt-2"></div>
+        </button>
+        <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="success">
+          <p class="text-[11px] uppercase tracking-[0.16em] text-emerald-300/80">Task Success</p>
+          <p class="text-2xl font-semibold mt-1">96%</p>
+          <p class="text-[11px] text-slate-400 mt-1">Stable</p>
+          <div class="stat-spark mt-2"></div>
+        </button>
+        <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="warn">
+          <p class="text-[11px] uppercase tracking-[0.16em] text-amber-300/80">Queue Load</p>
+          <p class="text-2xl font-semibold mt-1">7</p>
+          <p class="text-[11px] text-slate-400 mt-1">Slightly elevated</p>
+          <div class="stat-spark mt-2"></div>
+        </button>
+      </div>
+    </section>
+
+    <!-- Notification / event timeline -->
+    <section class="panel p-5 hover-lift reveal">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Notification Stream</h2>
+        <button id="demoTimelineToast" class="btn-ripple text-xs px-2.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-700">Ping Latest</button>
+      </div>
+      <ol class="relative border-l border-slate-200 dark:border-slate-700 pl-4 space-y-3 text-sm">
+        <li class="flex gap-3 items-start">
+          <span class="mt-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(16,185,129,0.18)]"></span>
+          <div>
+            <p class="text-slate-800 dark:text-slate-100 font-medium">Build #248 deployed</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Autoscaled robotics fleet controllers in region us-west.</p>
+          </div>
+          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">2m</span>
+        </li>
+        <li class="flex gap-3 items-start">
+          <span class="mt-1 w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_0_3px_rgba(56,189,248,0.18)]"></span>
+          <div>
+            <p class="text-slate-800 dark:text-slate-100 font-medium">Sensor packet burst</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Live stream switched to high-fidelity mode.</p>
+          </div>
+          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">8m</span>
+        </li>
+        <li class="flex gap-3 items-start">
+          <span class="mt-1 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_0_3px_rgba(251,191,36,0.2)]"></span>
+          <div>
+            <p class="text-slate-800 dark:text-slate-100 font-medium">Latency spike</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Route optimizer briefly rerouted jobs.</p>
+          </div>
+          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">21m</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Mini settings sliders -->
+    <section class="panel p-5 hover-lift reveal">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Live Tuning Controls</h2>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">These don’t wire into real systems — they’re just motion &amp; sound explorations for future control panels.</p>
+      <div class="space-y-3 text-sm">
+        <div class="setting-row">
+          <span class="w-32 text-slate-700 dark:text-slate-200">Alert Volume</span>
+          <input id="sliderVolume" type="range" min="0" max="100" value="60" />
+          <span id="sliderVolumeVal" class="setting-value text-slate-600 dark:text-slate-300">60</span>
+        </div>
+        <div class="setting-row">
+          <span class="w-32 text-slate-700 dark:text-slate-200">Motion Intensity</span>
+          <input id="sliderMotion" type="range" min="0" max="100" value="70" />
+          <span id="sliderMotionVal" class="setting-value text-slate-600 dark:text-slate-300">70</span>
+        </div>
+        <div class="setting-row">
+          <span class="w-32 text-slate-700 dark:text-slate-200">UI Density</span>
+          <input id="sliderDensity" type="range" min="0" max="100" value="40" />
+          <span id="sliderDensityVal" class="setting-value text-slate-600 dark:text-slate-300">40</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Now playing media-style card -->
+    <section class="panel p-5 hover-lift reveal">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Now Playing: System Soundscape</h2>
+        <span class="text-[11px] text-slate-400 dark:text-slate-500">Preview of a media widget</span>
+      </div>
+      <div class="media-card p-3 sm:p-4">
+        <div class="media-ring"></div>
+        <div class="media-card-inner flex items-center gap-3 sm:gap-4">
+          <div class="relative">
+            <div class="h-12 w-12 sm:h-14 sm:w-14 rounded-xl bg-gradient-to-tr from-sky-400 via-indigo-500 to-emerald-400 shadow-lg flex items-center justify-center text-white text-xl font-semibold">
+              TR
+            </div>
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-300/80 mb-0.5">Trident Robotics</p>
+            <p class="text-sm sm:text-base font-semibold">UI Motion Suite — Preview Loop</p>
+            <div class="mt-1 h-1.5 w-full rounded-full bg-slate-700/80 overflow-hidden">
+              <div id="mediaProgress" class="h-full w-2/5 bg-gradient-to-r from-sky-400 via-cyan-300 to-emerald-300"></div>
+            </div>
+          </div>
+          <button id="mediaPlayBtn" class="btn-ripple media-play-pulse h-9 w-9 rounded-full bg-sky-500 flex items-center justify-center text-white shrink-0" aria-label="Play preview">
+            <svg id="mediaPlayIcon" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M6.5 4.75a.75.75 0 0 1 1.127-.624l6 3.75a.75.75 0 0 1 0 1.248l-6 3.75A.75.75 0 0 1 6.5 12.25v-7.5Z"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </section>
   </main>
@@ -293,13 +591,78 @@
           <li>Drawer for navigation</li>
           <li>Progress for uploads/tasks</li>
           <li>Morphing buttons, toggles, tabs, icon animations</li>
+          <li>Command palette and keyboard hint bar</li>
+          <li>Stats row &amp; media widget for dashboards</li>
         </ul>
       </div>
     </div>
   </aside>
 
+  <!-- Command palette -->
+  <div id="cmdOverlay" class="cmd-overlay" aria-hidden="true">
+    <div class="cmd-panel" role="dialog" aria-modal="true" aria-labelledby="cmdTitle">
+      <div class="border-b border-slate-700/60 px-3.5 py-2.5 flex items-center gap-2">
+        <span class="text-slate-400">
+          <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none">
+            <path d="M9.5 3.5a6 6 0 1 1-4.243 10.243A6 6 0 0 1 9.5 3.5Z" stroke="currentColor" stroke-width="1.3"/>
+            <path d="m13.5 13.5 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <input id="cmdInput" class="cmd-input text-sm" placeholder="Search commands… (type to filter)" autocomplete="off" />
+        <span class="badge-key">esc</span>
+      </div>
+      <div class="px-2.5 py-2 text-[11px] uppercase tracking-[0.16em] text-slate-500" id="cmdTitle">Lab commands</div>
+      <div class="px-2.5 pb-2.5 space-y-0.5 text-sm max-h-72 overflow-auto">
+        <button class="cmd-item w-full text-left" data-cmd="open-modal" aria-selected="true">
+          <span class="badge-key">↵</span>
+          <div>
+            <p>Open confirmation modal</p>
+            <p class="text-[11px] text-slate-400">Preview motion-safe confirmation pattern</p>
+          </div>
+        </button>
+        <button class="cmd-item w-full text-left" data-cmd="open-drawer">
+          <span class="badge-key">⇧ D</span>
+          <div>
+            <p>Toggle navigation drawer</p>
+            <p class="text-[11px] text-slate-400">Slide-in side navigation for app layouts</p>
+          </div>
+        </button>
+        <button class="cmd-item w-full text-left" data-cmd="success-toast">
+          <span class="badge-key">T</span>
+          <div>
+            <p>Show success toast</p>
+            <p class="text-[11px] text-slate-400">High-signal feedback with sonic accent</p>
+          </div>
+        </button>
+        <button class="cmd-item w-full text-left" data-cmd="morph-button">
+          <span class="badge-key">M</span>
+          <div>
+            <p>Pulse morphing button</p>
+            <p class="text-[11px] text-slate-400">Accent primary call-to-action</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast stack -->
   <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Keyboard hint bar -->
+  <div class="px-4 pb-4">
+    <div class="kbd-bar max-w-5xl mx-auto px-3 py-2 flex items-center justify-between gap-3 text-xs">
+      <div class="flex items-center gap-2">
+        <span class="kbd-chip">Lab</span>
+        <span class="text-slate-300/80">Experiment playground — nothing here triggers real robots.</span>
+      </div>
+      <div class="hidden sm:flex items-center gap-1.5 text-slate-300/80">
+        <span class="kbd-chip">⌘ K</span>
+        <span class="kbd-chip">G</span>
+        <span class="kbd-chip">T</span>
+        <span class="text-slate-400/80">Try keyboard shortcuts</span>
+      </div>
+    </div>
+  </div>
 
   <script>
     // Sound Engine: lightweight Web Audio synth (no asset files)
@@ -349,7 +712,7 @@
       function click() { tone({ freq: 240, type: 'triangle', duration: 0.08, attack: 0.002, decay: 0.06, gain: 0.22 }); }
       function success() { tone({ freq: 660, type: 'sine', attack: 0.004, decay: 0.10, gain: 0.25 }); setTimeout(() => tone({ freq: 880, type: 'sine', attack: 0.004, decay: 0.12, gain: 0.23 }), 90); }
       function warn() { tone({ freq: 320, type: 'square', attack: 0.003, decay: 0.15, gain: 0.2 }); }
-      function error() { tone({ freq: 220, type: 'square', attack: 0.002, decay: 0.2, gain: 0.25 }); setTimeout(() => tone({ freq: 180, type: 'square', attack: 0.002, decay: 0.22, gain: 0.22 }), 120); }
+      function error() { tone({ freq: 220, type: 'square', attack: 0.002, decay: 0.2, gain: 0.25 }); setTimeout(() => tone({ freq: 180, type: 'square', attack: 0.002, decay: 0.22, gain: 0.22 }), 90); }
       function info() { tone({ freq: 520, type: 'triangle', attack: 0.004, decay: 0.12, gain: 0.22 }); }
       function whoosh() {
         if (state.prefersReduced || !state.enabled) return;
@@ -375,7 +738,7 @@
       function morph() { tone({ freq: 560, type: 'triangle', attack: 0.008, decay: 0.16, gain: 0.22 }); setTimeout(() => tone({ freq: 900, type: 'sine', attack: 0.005, decay: 0.14, gain: 0.19 }), 100); }
       function toggle() { tone({ freq: 380, type: 'square', attack: 0.002, decay: 0.10, gain: 0.18 }); }
       function tab() { tone({ freq: 700, type: 'triangle', attack: 0.004, decay: 0.11, gain: 0.19 }); }
-      function iconChime() { tone({ freq: 820, type: 'triangle', attack: 0.004, decay: 0.14, gain: 0.16 }); setTimeout(() => tone({ freq: 1220, type: 'sine', attack: 0.003, decay: 0.12, gain: 0.14 }), 110); }
+      function iconChime() { tone({ freq: 820, type: 'triangle', attack: 0.004, decay: 0.14, gain: 0.16 }); setTimeout(() => tone({ freq: 1220, type: 'sine', attack: 0.003, decay: 0.12, gain: 0.12 }), 100); }
       return { setEnabled, click, success, warn, error, info, whoosh, morph, toggle, tab, iconChime };
     })();
 
@@ -401,6 +764,7 @@
           if (soundType === 'success') Sound.success();
           if (soundType === 'warn') Sound.warn();
           if (soundType === 'error') Sound.error();
+          if (soundType === 'info') Sound.info();
         });
       }
     });
@@ -456,7 +820,8 @@
     };
 
     // Modal
-    document.getElementById('openModal').addEventListener('click', () => {
+    document.getElementById('openModal').addEventListener('click', openExampleModal);
+    function openExampleModal() {
       Sound.whoosh();
       const overlay = document.createElement('div');
       overlay.className = 'modal-overlay';
@@ -486,7 +851,7 @@
         setTimeout(() => overlay.remove(), 160);
       }
       overlay.querySelectorAll('.btn-ripple').forEach(b => b.addEventListener('click', addRipple));
-    });
+    }
 
     // Drawer
     const drawer = document.getElementById('drawer');
@@ -496,15 +861,15 @@
       drawerOverlay.classList.add('active');
       Sound.whoosh();
     }
-    window.openAppDrawer = openAppDrawer;
-    document.getElementById('openDrawer').addEventListener('click', openAppDrawer);
-    document.getElementById('closeDrawer').addEventListener('click', closeDrawer);
-    drawerOverlay.addEventListener('click', closeDrawer);
     function closeDrawer() {
       drawer.classList.remove('open');
       drawerOverlay.classList.remove('active');
       Sound.click();
     }
+    window.openAppDrawer = openAppDrawer;
+    document.getElementById('openDrawer').addEventListener('click', openAppDrawer);
+    document.getElementById('closeDrawer').addEventListener('click', closeDrawer);
+    drawerOverlay.addEventListener('click', closeDrawer);
 
     // Scroll reveal
     const observer = new IntersectionObserver((entries) => {
@@ -613,6 +978,200 @@
       Sound.iconChime();
     });
     iconWiggle.addEventListener('animationend', () => iconWiggle.classList.remove('wiggled'));
+
+    // Timeline demo button -> toast
+    const tlBtn = document.getElementById('demoTimelineToast');
+    tlBtn.addEventListener('click', () => {
+      showToast('info', 'Simulated event stream ping.');
+    });
+
+    // Mini slider interactions
+    function wireSlider(id, valId, soundFn) {
+      const el = document.getElementById(id);
+      const label = document.getElementById(valId);
+      if (!el || !label) return;
+      const update = () => {
+        label.textContent = el.value;
+      };
+      el.addEventListener('input', () => {
+        update();
+        soundFn && soundFn();
+      });
+      update();
+    }
+    wireSlider('sliderVolume', 'sliderVolumeVal', () => Sound.click());
+    wireSlider('sliderMotion', 'sliderMotionVal', () => Sound.info());
+    wireSlider('sliderDensity', 'sliderDensityVal', () => Sound.warn());
+
+    // Media card play pulse (looped UI sound preview)
+    const mediaPlayBtn = document.getElementById('mediaPlayBtn');
+    const mediaPlayIcon = document.getElementById('mediaPlayIcon');
+    const mediaProgress = document.getElementById('mediaProgress');
+    let mediaPlaying = false;
+    let mediaInterval = null;
+
+    mediaPlayBtn.addEventListener('click', () => {
+      mediaPlaying = !mediaPlaying;
+      if (mediaPlaying) {
+        mediaPlayBtn.classList.add('playing');
+        Sound.morph();
+        mediaPlayIcon.innerHTML = '<path d="M7.25 5.5A.75.75 0 0 1 8 4.75h1.5a.75.75 0 0 1 .75.75v8a.75.75 0 0 1-.75.75H8a.75.75 0 0 1-.75-.75v-8Zm4 0A.75.75 0 0 1 12 4.75h1.5a.75.75 0 0 1 .75.75v8a.75.75 0 0 1-.75.75H12a.75.75 0 0 1-.75-.75v-8Z"/>';
+        let pos = 0;
+        clearInterval(mediaInterval);
+        mediaInterval = setInterval(() => {
+          pos += 4;
+          if (pos > 100) pos = 0;
+          mediaProgress.style.width = pos + '%';
+        }, 200);
+      } else {
+        mediaPlayBtn.classList.remove('playing');
+        Sound.click();
+        mediaPlayIcon.innerHTML = '<path d="M6.5 4.75a.75.75 0 0 1 1.127-.624l6 3.75a.75.75 0 0 1 0 1.248l-6 3.75A.75.75 0 0 1 6.5 12.25v-7.5Z"/>';
+        clearInterval(mediaInterval);
+      }
+    });
+
+    // Command palette
+    const cmdOverlay = document.getElementById('cmdOverlay');
+    const cmdPanel = cmdOverlay.querySelector('.cmd-panel');
+    const cmdInput = document.getElementById('cmdInput');
+    const openCmdBtn = document.getElementById('openCmdPalette');
+    let cmdOpen = false;
+    let cmdItems = Array.from(cmdOverlay.querySelectorAll('.cmd-item'));
+    let cmdActiveIdx = 0;
+
+    function openCmdPalette() {
+      if (cmdOpen) return;
+      cmdOpen = true;
+      cmdOverlay.style.display = 'flex';
+      requestAnimationFrame(() => {
+        cmdOverlay.classList.add('open');
+        cmdPanel.classList.add('show');
+      });
+      cmdOverlay.setAttribute('aria-hidden', 'false');
+      cmdInput.value = '';
+      filterCmdItems('');
+      setTimeout(() => cmdInput.focus(), 30);
+      Sound.whoosh();
+    }
+    function closeCmdPalette() {
+      if (!cmdOpen) return;
+      cmdOpen = false;
+      cmdPanel.classList.remove('show');
+      cmdOverlay.classList.remove('open');
+      cmdOverlay.setAttribute('aria-hidden', 'true');
+      Sound.click();
+      setTimeout(() => {
+        if (!cmdOpen) cmdOverlay.style.display = 'none';
+      }, 160);
+    }
+
+    function filterCmdItems(query) {
+      query = query.toLowerCase();
+      cmdItems.forEach((item, idx) => {
+        const text = item.textContent.toLowerCase();
+        const match = text.includes(query);
+        item.style.display = match ? '' : 'none';
+        if (idx === 0) {
+          cmdActiveIdx = 0;
+          item.setAttribute('aria-selected', 'true');
+        }
+      });
+      // Reset first visible as active
+      const visible = cmdItems.filter(i => i.style.display !== 'none');
+      cmdItems.forEach(i => i.setAttribute('aria-selected', 'false'));
+      if (visible.length) {
+        visible[0].setAttribute('aria-selected', 'true');
+        cmdActiveIdx = cmdItems.indexOf(visible[0]);
+      }
+    }
+
+    function moveCmdSelection(delta) {
+      const visible = cmdItems.filter(i => i.style.display !== 'none');
+      if (!visible.length) return;
+      let currentVisibleIdx = visible.indexOf(cmdItems[cmdActiveIdx]);
+      if (currentVisibleIdx === -1) currentVisibleIdx = 0;
+      let nextVisibleIdx = (currentVisibleIdx + delta + visible.length) % visible.length;
+      const nextEl = visible[nextVisibleIdx];
+      cmdItems.forEach(i => i.setAttribute('aria-selected', 'false'));
+      nextEl.setAttribute('aria-selected', 'true');
+      cmdActiveIdx = cmdItems.indexOf(nextEl);
+      nextEl.scrollIntoView({ block: 'nearest' });
+      Sound.tab();
+    }
+
+    function runCmdItem(item) {
+      const cmd = item.getAttribute('data-cmd');
+      if (cmd === 'open-modal') openExampleModal();
+      if (cmd === 'open-drawer') openAppDrawer();
+      if (cmd === 'success-toast') showToast('success', 'Command palette success!');
+      if (cmd === 'morph-button') {
+        morphBtn.classList.add('morphing');
+        Sound.morph();
+        setTimeout(() => morphBtn.classList.remove('morphing'), 400);
+      }
+      closeCmdPalette();
+    }
+
+    openCmdBtn?.addEventListener('click', openCmdPalette);
+    cmdOverlay.addEventListener('click', (e) => {
+      if (e.target === cmdOverlay) closeCmdPalette();
+    });
+    cmdInput.addEventListener('input', (e) => filterCmdItems(e.target.value));
+    cmdItems.forEach((item) => {
+      item.addEventListener('click', () => runCmdItem(item));
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const metaK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k';
+      if (metaK) {
+        e.preventDefault();
+        cmdOpen ? closeCmdPalette() : openCmdPalette();
+      }
+
+      if (!cmdOpen) {
+        // Global shortcuts only when palette closed
+        if (e.key.toLowerCase() === 'g') {
+          // Focus quick actions primary
+          const qa = document.querySelector('[data-qa="primary"]');
+          if (qa) {
+            qa.focus();
+            Sound.info();
+          }
+        }
+        if (e.key.toLowerCase() === 't') {
+          showToast('info', 'Keyboard shortcut triggered a toast.');
+        }
+        return;
+      }
+
+      // When palette is open
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeCmdPalette();
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        moveCmdSelection(1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        moveCmdSelection(-1);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const active = cmdItems.find(i => i.getAttribute('aria-selected') === 'true' && i.style.display !== 'none');
+        if (active) runCmdItem(active);
+      }
+    });
+
+    // Quick actions wire-up
+    document.querySelector('[data-qa="open-drawer"]')?.addEventListener('click', openAppDrawer);
+    document.querySelector('[data-qa="open-modal"]')?.addEventListener('click', openExampleModal);
+    document.querySelector('[data-qa="show-toast"]')?.addEventListener('click', () => demoToast('success'));
+    document.querySelector('[data-qa="primary"]')?.addEventListener('click', () => {
+      demoToast('success');
+      openExampleModal();
+      openAppDrawer();
+      startProgress();
+    });
   </script>
 </body>
 </html>

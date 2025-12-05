@@ -34,16 +34,16 @@
     .hover-lift { transition: transform 200ms cubic-bezier(.23,1.14,.81,1.03), box-shadow 200ms cubic-bezier(.23,1.14,.81,1.03), border-color 200ms; will-change: transform; }
     .hover-lift:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 12px 28px rgba(2,132,199,0.15); border-color: #93c5fd; }
     /* Drawer */
-    .drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 420px; height: 100vh; background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.15); transition: right 300ms cubic-bezier(.7,1.7,.2,1); z-index: 1001;}
+    .drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 420px; height: 100vh; background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.15); transition: right 300ms cubic-bezier(.4,0,.2,1); z-index: 1001; }
     .drawer.open { right: 0; }
     .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
     .drawer-overlay.active { display: block; }
     @media (prefers-color-scheme: dark) {
-      .drawer { background: #0f172a; border-left: 1f2937; }
+      .drawer { background: #0f172a; border-left: 1px solid #1f2937; }
     }
     /* Modal */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1002; }
-    .modal-panel { width: 92vw; max-width: 480px; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; transform: scale(0.96); opacity: 0; transition: all 180ms cubic-bezier(.51,1.25,.32,1); }
+    .modal-panel { width: 92vw; max-width: 480px; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; transform: scale(0.96); opacity: 0; transition: all 180ms cubic-bezier(.2,1,.25,1); }
     .modal-panel.show { transform: scale(1); opacity: 1; }
     @media (prefers-color-scheme: dark) {
       .modal-panel { background: #0f172a; border-color: #1f2937; }
@@ -146,7 +146,26 @@
       80% { transform: rotate(4deg);}
       100% { transform: rotate(0deg);}
     }
+  </style>
+</head>
+<body class="min-h-screen">
+  <header class="border-b border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-950/70 backdrop-blur-sm">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div>
+        <h1 class="text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+          UI Motion &amp; Sound Lab
+        </h1>
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          Micro-interactions with motion and Web Audio feedback.
+        </p>
+      </div>
+      <button id="toggleSound" class="text-xs px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60">
+        Sound: On
+      </button>
+    </div>
+  </header>
 
+  <main class="max-w-5xl mx-auto px-4 py-6 space-y-4">
     <!-- Buttons + ripple + sound -->
     <section class="panel p-5 hover-lift reveal" style="position:relative;">
       <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Buttons: Ripple + Sonic Feedback</h2>
@@ -157,6 +176,7 @@
         <button data-sound="error" class="btn-ripple px-4 py-2 rounded-md bg-rose-600 hover:bg-rose-700 text-white shadow-sm">Danger</button>
       </div>
     </section>
+
     <!-- Toasts -->
     <section class="panel p-5 hover-lift reveal">
       <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Toasts: Slide-in + Sound</h2>
@@ -168,23 +188,31 @@
       </div>
       <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Toasts auto-dismiss and are ARIA-live polite.</p>
     </section>
+
     <!-- Modal -->
     <section class="panel p-5 hover-lift reveal">
       <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Modal: Scale-in + Whoosh</h2>
       <button id="openModal" class="btn-ripple px-4 py-2 rounded-md bg-sky-600 hover:bg-sky-700 text-white shadow-sm">Open Modal</button>
     </section>
+
     <!-- Drawer -->
     <section class="panel p-5 hover-lift reveal">
-      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Drawer: Slide-in + Whoosh</h2>
-      <button class="btn-ripple border border-slate-300 dark:border-slate-700 px-3 py-2 rounded-md" onclick="openAppDrawer()">Open Drawer</button>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Drawer: Slide-in + Whoosh</h2>
+        <button id="openDrawer" class="btn-ripple px-3 py-2 rounded-md border border-slate-300 dark:border-slate-700">
+          Open Drawer
+        </button>
+      </div>
     </section>
-    <!-- NEW: Morphing Button -->
+
+    <!-- Morphing Button -->
     <section class="panel p-5 hover-lift reveal">
       <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Morphing Button: Animated Gradient + Sonic</h2>
       <button id="morphBtn" class="morph-btn px-8 py-3 text-white font-bold shadow-lg text-lg">Morph Me</button>
       <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Press to animate color/shape and play a unique synth sound.</p>
     </section>
-    <!-- NEW: Toggle Switch with Sound -->
+
+    <!-- Toggle Switch with Sound -->
     <section class="panel p-5 hover-lift reveal">
       <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Toggle Switch: Spring Motion + Click Sound</h2>
       <div class="toggle-wrap">
@@ -195,7 +223,8 @@
       </div>
       <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Click or tap the switch (motion-safe).</p>
     </section>
-    <!-- NEW: Animated Tabs with Sound -->
+
+    <!-- Animated Tabs with Sound -->
     <section class="panel p-5 hover-lift reveal" style="overflow:visible;">
       <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Tabs: Animated Panel + Sound</h2>
       <div class="tabs" role="tablist" aria-label="Demo Tabs">
@@ -215,17 +244,21 @@
         </div>
       </div>
     </section>
-    <!-- NEW: Icon Button Micro-interaction -->
+
+    <!-- Icon Button Micro-interaction -->
     <section class="panel p-5 hover-lift reveal">
       <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Icon Button: Wiggle Motion + Chime</h2>
       <button id="iconBtn" class="btn-ripple px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2">
         <span id="iconWiggle" class="icon-wiggle" aria-hidden="true">
-          <svg width="22" height="22" fill="none" viewBox="0 0 20 20"><path fill="currentColor" d="M10 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm2.15 5.04a.75.75 0 0 0-1.06 0L10 8.13 8.91 7.04a.75.75 0 1 0-1.06 1.06l1.09 1.09-1.09 1.09a.75.75 0 1 0 1.06 1.06L10 11.87l1.09 1.09a.75.75 0 1 0 1.06-1.06l-1.09-1.09 1.09-1.09a.75.75 0 0 0 0-1.06Z"/></svg>
+          <svg width="22" height="22" fill="none" viewBox="0 0 20 20">
+            <path fill="currentColor" d="M10 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm2.15 5.04a.75.75 0 0 0-1.06 0L10 8.13 8.91 7.04a.75.75 0 1 0-1.06 1.06L8.94 9.2 7.85 10.3a.75.75 0 1 0 1.06 1.06L10 10.27l1.09 1.09a.75.75 0 1 0 1.06-1.06L11.06 9.2l1.09-1.09a.75.75 0 0 0 0-1.06Z"/>
+          </svg>
         </span>
         <span>Wiggle Me!</span>
       </button>
       <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Click for a wiggle animation and chime sound.</p>
     </section>
+
     <!-- Progress / Loader -->
     <section class="panel p-5 hover-lift reveal">
       <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Progress: Smooth Fill + Success Chime</h2>
@@ -238,6 +271,7 @@
       </div>
     </section>
   </main>
+
   <!-- Drawer -->
   <div id="drawerOverlay" class="drawer-overlay"></div>
   <aside id="drawer" class="drawer">
@@ -245,7 +279,9 @@
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Menu</h3>
         <button id="closeDrawer" class="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Close">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
         </button>
       </div>
       <div class="space-y-2 text-sm text-slate-600 dark:text-slate-300">
@@ -261,9 +297,9 @@
       </div>
     </div>
   </aside>
+
   <!-- Toast stack -->
   <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
-  <!-- Modal (dynamic via JS) -->
 
   <script>
     // Sound Engine: lightweight Web Audio synth (no asset files)
@@ -283,8 +319,10 @@
           master.connect(ctx.destination);
           state.ctx = ctx;
           state.master = master;
-          // Resume on first user gesture if needed
-          const resume = () => { if (ctx.state === 'suspended') ctx.resume(); document.removeEventListener('pointerdown', resume, true); };
+          const resume = () => {
+            if (ctx.state === 'suspended') ctx.resume();
+            document.removeEventListener('pointerdown', resume, true);
+          };
           document.addEventListener('pointerdown', resume, true);
         }
       }
@@ -311,7 +349,7 @@
       function click() { tone({ freq: 240, type: 'triangle', duration: 0.08, attack: 0.002, decay: 0.06, gain: 0.22 }); }
       function success() { tone({ freq: 660, type: 'sine', attack: 0.004, decay: 0.10, gain: 0.25 }); setTimeout(() => tone({ freq: 880, type: 'sine', attack: 0.004, decay: 0.12, gain: 0.23 }), 90); }
       function warn() { tone({ freq: 320, type: 'square', attack: 0.003, decay: 0.15, gain: 0.2 }); }
-      function error() { tone({ freq: 220, type: 'square', attack: 0.002, decay: 0.2, gain: 0.25 }); setTimeout(() => tone({ freq: 180, type: 'square', attack: 0.002, decay: 0.22, gain: 0.22 }), 90); }
+      function error() { tone({ freq: 220, type: 'square', attack: 0.002, decay: 0.2, gain: 0.25 }); setTimeout(() => tone({ freq: 180, type: 'square', attack: 0.002, decay: 0.22, gain: 0.22 }), 120); }
       function info() { tone({ freq: 520, type: 'triangle', attack: 0.004, decay: 0.12, gain: 0.22 }); }
       function whoosh() {
         if (state.prefersReduced || !state.enabled) return;
@@ -320,7 +358,7 @@
         const bufferSize = 2 * state.ctx.sampleRate;
         const noiseBuffer = state.ctx.createBuffer(1, bufferSize, state.ctx.sampleRate);
         const data = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize); // tail off
+        for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
         const noise = state.ctx.createBufferSource();
         noise.buffer = noiseBuffer;
         const filter = state.ctx.createBiquadFilter();
@@ -334,11 +372,10 @@
         noise.start(t0);
         noise.stop(t0 + 0.5);
       }
-      // New sounds
-      function morph() { tone({ freq: 560, type: 'triangle', attack: 0.008, decay: 0.16, gain: 0.22 }); setTimeout(() => tone({ freq: 900, type: 'sine', attack: 0.005, decay: 0.14, gain: 0.19 }), 120); }
+      function morph() { tone({ freq: 560, type: 'triangle', attack: 0.008, decay: 0.16, gain: 0.22 }); setTimeout(() => tone({ freq: 900, type: 'sine', attack: 0.005, decay: 0.14, gain: 0.19 }), 100); }
       function toggle() { tone({ freq: 380, type: 'square', attack: 0.002, decay: 0.10, gain: 0.18 }); }
       function tab() { tone({ freq: 700, type: 'triangle', attack: 0.004, decay: 0.11, gain: 0.19 }); }
-      function iconChime() { tone({ freq: 820, type: 'triangle', attack: 0.004, decay: 0.14, gain: 0.16 }); setTimeout(() => tone({ freq: 1220, type: 'sine', attack: 0.003, decay: 0.12, gain: 0.13 }), 80); }
+      function iconChime() { tone({ freq: 820, type: 'triangle', attack: 0.004, decay: 0.14, gain: 0.16 }); setTimeout(() => tone({ freq: 1220, type: 'sine', attack: 0.003, decay: 0.12, gain: 0.14 }), 110); }
       return { setEnabled, click, success, warn, error, info, whoosh, morph, toggle, tab, iconChime };
     })();
 
@@ -355,7 +392,6 @@
       btn.appendChild(span);
       span.addEventListener('animationend', () => span.remove());
     }
-    // Attach ripple and sounds to demo buttons
     document.querySelectorAll('.btn-ripple').forEach(btn => {
       btn.addEventListener('click', addRipple);
       const soundType = btn.getAttribute('data-sound');
@@ -368,6 +404,7 @@
         });
       }
     });
+
     // Header controls
     const toggleSoundBtn = document.getElementById('toggleSound');
     toggleSoundBtn.addEventListener('click', () => {
@@ -396,7 +433,6 @@
       `;
       toastStack.appendChild(el);
       requestAnimationFrame(() => el.classList.add('show'));
-      // Sound
       if (type === 'success') Sound.success();
       else if (type === 'info') Sound.info();
       else if (type === 'warn') Sound.warn();
@@ -508,7 +544,7 @@
     window.startProgress = startProgress;
     window.resetProgress = resetProgress;
 
-    // --- NEW: Morphing Button ---
+    // Morphing Button
     const morphBtn = document.getElementById('morphBtn');
     morphBtn.addEventListener('click', function() {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return Sound.morph();
@@ -517,7 +553,7 @@
       setTimeout(() => morphBtn.classList.remove('morphing'), 400);
     });
 
-    // --- NEW: Toggle Switch ---
+    // Toggle Switch
     const toggleSwitch = document.getElementById('toggleSwitch');
     const toggleLabel = document.getElementById('toggleLabel');
     let toggleState = false;
@@ -530,7 +566,6 @@
     function springToggle() {
       setToggle(!toggleState);
       Sound.toggle();
-      // Animate with a little pop if motion allowed
       if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         toggleSwitch.animate([
           { transform: 'scale(1)' },
@@ -544,7 +579,7 @@
       if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); springToggle(); }
     });
 
-    // --- NEW: Animated Tabs ---
+    // Animated Tabs
     const tabBtns = [document.getElementById('tabBtn1'), document.getElementById('tabBtn2'), document.getElementById('tabBtn3')];
     const tabPanels = [document.getElementById('tabPanel1'), document.getElementById('tabPanel2'), document.getElementById('tabPanel3')];
     tabBtns.forEach((btn, idx) => {
@@ -567,20 +602,17 @@
       });
     });
 
-    // --- NEW: Icon Button Wiggle ---
+    // Icon Button Wiggle
     const iconBtn = document.getElementById('iconBtn');
     const iconWiggle = document.getElementById('iconWiggle');
     iconBtn.addEventListener('click', function() {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return Sound.iconChime();
       iconWiggle.classList.remove('wiggled');
-      void iconWiggle.offsetWidth; // restart animation
+      void iconWiggle.offsetWidth;
       iconWiggle.classList.add('wiggled');
       Sound.iconChime();
     });
     iconWiggle.addEventListener('animationend', () => iconWiggle.classList.remove('wiggled'));
-
-    // --- REMOVED: Settings Gear Animation and Sound ---
-    // All code related to #gearBtn, .gear-btn, .gear-svg, and Sound.gear() has been removed from this file.
   </script>
 </body>
 </html>

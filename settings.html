@@ -245,6 +245,274 @@
     html.theme-high-contrast .toggle.on .toggle-knob {
       background: #000000;
     }
+
+    /* --- UI Enhancements: Cards, Chips, Glassy Backgrounds --- */
+    .setting-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 16px rgba(56, 189, 248, 0.06);
+      transition: all 280ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .setting-card:hover {
+      box-shadow: 0 8px 24px rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.3);
+    }
+    @media (prefers-color-scheme: dark) {
+      .setting-card {
+        background: rgba(15, 23, 42, 0.85);
+        border-color: rgba(31, 41, 55, 0.8);
+        box-shadow: 0 4px 16px rgba(14, 165, 233, 0.12);
+      }
+      .setting-card:hover {
+        box-shadow: 0 8px 24px rgba(14, 165, 233, 0.18);
+        border-color: rgba(56, 189, 248, 0.3);
+      }
+    }
+    html.theme-light .setting-card {
+      background: rgba(255, 255, 255, 0.85);
+      border-color: rgba(226, 232, 240, 0.8);
+    }
+    html.theme-dark .setting-card {
+      background: rgba(15, 23, 42, 0.85);
+      border-color: rgba(31, 41, 55, 0.8);
+    }
+    html.theme-high-contrast .setting-card {
+      background: #1a1a1a;
+      border: 2px solid #ffffff;
+      backdrop-filter: none;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(129, 140, 248, 0.15));
+      color: #0369a1;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+    @media (prefers-color-scheme: dark) {
+      .chip {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(129, 140, 248, 0.2));
+        color: #7dd3fc;
+        border-color: rgba(56, 189, 248, 0.3);
+      }
+    }
+    html.theme-light .chip {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(129, 140, 248, 0.15));
+      color: #0369a1;
+    }
+    html.theme-dark .chip {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(129, 140, 248, 0.2));
+      color: #7dd3fc;
+    }
+    html.theme-high-contrast .chip {
+      background: #ffffff;
+      color: #000000;
+      border: 2px solid #ffff00;
+    }
+
+    /* --- Adaptive Theme Slider --- */
+    .theme-slider-container {
+      margin-top: 1rem;
+    }
+    .theme-slider-wrapper {
+      position: relative;
+      padding: 1rem 0;
+    }
+    .theme-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 12px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, 
+        #fbbf24 0%, 
+        #38bdf8 33%, 
+        #f97316 66%, 
+        #1e293b 100%);
+      outline: none;
+      cursor: pointer;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
+      transition: box-shadow 200ms;
+    }
+    .theme-slider:hover {
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
+    }
+    .theme-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: white;
+      border: 3px solid #38bdf8;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .theme-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);
+    }
+    .theme-slider::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: white;
+      border: 3px solid #38bdf8;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .theme-slider::-moz-range-thumb:hover {
+      transform: scale(1.15);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);
+    }
+    .theme-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      padding: 0 0.5rem;
+    }
+    .theme-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #64748b;
+      text-align: center;
+      flex: 1;
+      transition: color 200ms, transform 200ms;
+    }
+    .theme-label.active {
+      color: #38bdf8;
+      transform: scale(1.1);
+    }
+    @media (prefers-color-scheme: dark) {
+      .theme-label {
+        color: #94a3b8;
+      }
+      .theme-label.active {
+        color: #7dd3fc;
+      }
+      .theme-slider::-webkit-slider-thumb {
+        background: #e5e7eb;
+      }
+      .theme-slider::-moz-range-thumb {
+        background: #e5e7eb;
+      }
+    }
+    html.theme-dark .theme-label {
+      color: #94a3b8;
+    }
+    html.theme-dark .theme-label.active {
+      color: #7dd3fc;
+    }
+    html.theme-high-contrast .theme-slider {
+      background: linear-gradient(90deg, #ffff00 0%, #ffffff 33%, #ff00ff 66%, #00ffff 100%);
+      border: 2px solid #ffffff;
+    }
+    html.theme-high-contrast .theme-slider::-webkit-slider-thumb {
+      background: #ffffff;
+      border: 3px solid #ffff00;
+    }
+    html.theme-high-contrast .theme-slider::-moz-range-thumb {
+      background: #ffffff;
+      border: 3px solid #ffff00;
+    }
+    html.theme-high-contrast .theme-label {
+      color: #ffffff;
+    }
+    html.theme-high-contrast .theme-label.active {
+      color: #ffff00;
+    }
+
+    /* --- Gradient Preview --- */
+    .gradient-preview {
+      height: 80px;
+      border-radius: 0.75rem;
+      margin-top: 1rem;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid rgba(226, 232, 240, 0.5);
+    }
+    @media (prefers-color-scheme: dark) {
+      .gradient-preview {
+        border-color: rgba(31, 41, 55, 0.5);
+      }
+    }
+    html.theme-dark .gradient-preview {
+      border-color: rgba(31, 41, 55, 0.5);
+    }
+    html.theme-high-contrast .gradient-preview {
+      border: 3px solid #ffffff;
+    }
+
+    /* Sunrise gradient */
+    .gradient-sunrise {
+      background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 30%, #f97316 60%, #fb923c 100%);
+    }
+    /* Daylight gradient */
+    .gradient-daylight {
+      background: linear-gradient(135deg, #dbeafe 0%, #60a5fa 30%, #38bdf8 60%, #0ea5e9 100%);
+    }
+    /* Sunset gradient */
+    .gradient-sunset {
+      background: linear-gradient(135deg, #fed7aa 0%, #fb923c 30%, #f97316 60%, #dc2626 100%);
+    }
+    /* Midnight gradient */
+    .gradient-midnight {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 30%, #020617 60%, #000000 100%);
+    }
+
+    /* Setting label improvements */
+    .setting-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: #1e293b;
+    }
+    @media (prefers-color-scheme: dark) {
+      .setting-label {
+        color: #e5e7eb;
+      }
+    }
+    html.theme-light .setting-label {
+      color: #1e293b;
+    }
+    html.theme-dark .setting-label {
+      color: #e5e7eb;
+    }
+    html.theme-high-contrast .setting-label {
+      color: #ffffff;
+    }
+
+    .setting-description {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-top: 0.25rem;
+    }
+    @media (prefers-color-scheme: dark) {
+      .setting-description {
+        color: #94a3b8;
+      }
+    }
+    html.theme-dark .setting-description {
+      color: #94a3b8;
+    }
+    html.theme-high-contrast .setting-description {
+      color: #ffffff;
+    }
   </style>
 </head>
 <body class="min-h-screen p-6">
@@ -270,13 +538,22 @@
     <div style="position:relative; min-height:320px;">
       <!-- Account -->
       <form id="tabPanel1" class="tab-panel active panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn1" autocomplete="off">
-        <div>
-          <label class="block font-semibold mb-1" for="accountEmail">Email</label>
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>📧</span>
+            <label for="accountEmail">Email</label>
+            <span class="chip">Read-only</span>
+          </div>
           <input id="accountEmail" name="email" type="email" readonly class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="you@email.com" />
+          <p class="setting-description">Your email is managed through Google Sign-In</p>
         </div>
-        <div>
-          <label class="block font-semibold mb-1" for="accountName">Full Name</label>
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>👤</span>
+            <label for="accountName">Full Name</label>
+          </div>
           <input id="accountName" name="fullname" type="text" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="Your Name" />
+          <p class="setting-description">Your display name on the platform</p>
         </div>
         <div class="flex justify-end">
           <button type="submit" class="save-btn">Save</button>
@@ -285,24 +562,31 @@
       </form>
       <!-- Notifications -->
       <form id="tabPanel2" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn2" autocomplete="off">
-        <div>
-          <label class="block font-semibold mb-1">Site Notifications</label>
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>🔔</span>
+            <span>Site Notifications</span>
+          </div>
           <div class="flex items-center gap-3">
             <div id="toggleReminders" class="toggle on" tabindex="0" role="switch" aria-checked="true">
               <div class="toggle-knob"></div>
             </div>
             <span id="labelReminders" class="text-sm text-slate-700 dark:text-slate-200">On</span>
-            <span class="ml-2 text-xs text-slate-500 dark:text-slate-400">Reminders for calendar events</span>
           </div>
+          <p class="setting-description">Receive browser notifications for calendar event reminders</p>
         </div>
-        <div>
-          <label class="block font-semibold mb-1">Sound on Notification</label>
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>🔊</span>
+            <label for="soundSelect">Sound on Notification</label>
+          </div>
           <select id="soundSelect" class="w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200">
             <option>Chime</option>
             <option>Ping</option>
             <option>Pop</option>
             <option>Off</option>
           </select>
+          <p class="setting-description">Choose the sound that plays with notifications</p>
         </div>
         <div class="flex justify-end">
           <button type="submit" class="save-btn">Save</button>
@@ -311,23 +595,51 @@
       </form>
       <!-- Appearance -->
       <form id="tabPanel3" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn3" autocomplete="off">
-        <div>
-          <label class="block font-semibold mb-1">Theme</label>
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>🎨</span>
+            <span>Adaptive Theme</span>
+            <span class="chip">New!</span>
+          </div>
+          <p class="setting-description" style="margin-bottom: 1rem;">Choose your visual experience with our adaptive theme slider</p>
+          <div class="theme-slider-container">
+            <div class="theme-slider-wrapper">
+              <input type="range" id="adaptiveThemeSlider" class="theme-slider" min="0" max="3" step="1" value="1" />
+            </div>
+            <div class="theme-labels">
+              <span class="theme-label" data-theme="0">🌅 Sunrise</span>
+              <span class="theme-label active" data-theme="1">☀️ Daylight</span>
+              <span class="theme-label" data-theme="2">🌆 Sunset</span>
+              <span class="theme-label" data-theme="3">🌙 Midnight</span>
+            </div>
+          </div>
+          <div id="gradientPreview" class="gradient-preview gradient-daylight"></div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>⚙️</span>
+            <label for="themeSelect">Classic Theme Mode</label>
+          </div>
           <select id="themeSelect" class="w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200">
             <option>System</option>
             <option>Light</option>
             <option>Dark</option>
             <option>High Contrast</option>
           </select>
+          <p class="setting-description">Traditional theme selection (synced with adaptive theme)</p>
         </div>
-        <div>
-          <label class="block font-semibold mb-1">Reduce Motion</label>
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>🎬</span>
+            <span>Reduce Motion</span>
+          </div>
           <div class="flex items-center gap-3">
             <div id="toggleReduceMotion" class="toggle" tabindex="0" role="switch" aria-checked="false">
               <div class="toggle-knob"></div>
             </div>
             <span id="labelReduceMotion" class="text-sm text-slate-700 dark:text-slate-200">Off</span>
           </div>
+          <p class="setting-description">Minimize animations for better accessibility</p>
         </div>
         <div class="flex justify-end">
           <button type="submit" class="save-btn">Save</button>
@@ -336,15 +648,19 @@
       </form>
       <!-- Privacy & Security -->
       <form id="tabPanel4" class="tab-panel panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn4" autocomplete="off">
-        <div>
-          <label class="block font-semibold mb-1">Allow Data Collection</label>
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>🔒</span>
+            <span>Allow Data Collection</span>
+            <span class="chip">Default: On</span>
+          </div>
           <div class="flex items-center gap-3">
             <div id="toggleDataCollection" class="toggle on" tabindex="0" role="switch" aria-checked="true">
               <div class="toggle-knob"></div>
             </div>
             <span id="labelDataCollection" class="text-sm text-slate-700 dark:text-slate-200">On</span>
-            <span class="ml-2 text-xs text-slate-500 dark:text-slate-400">Default On</span>
           </div>
+          <p class="setting-description">Allow collection of usage data to improve your experience. Disabling this will clear all stored user information including Google login.</p>
         </div>
         <div class="flex justify-end">
           <button type="submit" class="save-btn">Save</button>
@@ -506,6 +822,95 @@
     setupToggleSound('toggleReminders');
     setupToggleSound('toggleReduceMotion');
     setupToggleSound('toggleDataCollection');
+
+    // --- Adaptive Theme Slider Logic ---
+    const adaptiveSlider = document.getElementById('adaptiveThemeSlider');
+    const gradientPreview = document.getElementById('gradientPreview');
+    const themeLabels = document.querySelectorAll('.theme-label');
+    const themeSelect = document.getElementById('themeSelect');
+
+    // Theme mapping: slider value -> theme name
+    const sliderThemeMap = ['light', 'light', 'dark', 'dark']; // Sunrise/Daylight = light, Sunset/Midnight = dark
+    const gradientClasses = ['gradient-sunrise', 'gradient-daylight', 'gradient-sunset', 'gradient-midnight'];
+    
+    // Initialize slider from current theme
+    function initAdaptiveSlider() {
+      const currentTheme = themeSelect.value.toLowerCase();
+      let sliderValue = 1; // Default to Daylight
+      
+      if (currentTheme === 'light') {
+        sliderValue = 1; // Daylight
+      } else if (currentTheme === 'dark') {
+        sliderValue = 3; // Midnight
+      } else if (currentTheme === 'system') {
+        // Check system preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        sliderValue = prefersDark ? 3 : 1;
+      }
+      
+      adaptiveSlider.value = sliderValue;
+      updateSliderUI(sliderValue);
+    }
+
+    // Update slider UI (labels and gradient)
+    function updateSliderUI(value) {
+      const intValue = parseInt(value);
+      
+      // Update active label
+      themeLabels.forEach((label, idx) => {
+        label.classList.toggle('active', idx === intValue);
+      });
+      
+      // Update gradient preview
+      gradientPreview.className = 'gradient-preview ' + gradientClasses[intValue];
+      
+      // Play sound on change
+      if (window.Sound && adaptiveSlider._initialized) {
+        Sound.toggle();
+      }
+    }
+
+    // Sync slider with theme select
+    function syncSliderToTheme() {
+      const theme = sliderThemeMap[parseInt(adaptiveSlider.value)];
+      
+      // Map to select value
+      const selectValue = theme.charAt(0).toUpperCase() + theme.slice(1);
+      themeSelect.value = selectValue;
+    }
+
+    // Handle slider input
+    adaptiveSlider.addEventListener('input', function() {
+      updateSliderUI(this.value);
+    });
+
+    // Handle slider change (when user releases)
+    adaptiveSlider.addEventListener('change', function() {
+      syncSliderToTheme();
+      updateSliderUI(this.value);
+    });
+
+    // Handle theme select change
+    themeSelect.addEventListener('change', function() {
+      const theme = this.value.toLowerCase();
+      let sliderValue = 1;
+      
+      if (theme === 'dark') {
+        sliderValue = 3;
+      } else if (theme === 'light') {
+        sliderValue = 1;
+      } else if (theme === 'system') {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        sliderValue = prefersDark ? 3 : 1;
+      }
+      
+      adaptiveSlider.value = sliderValue;
+      updateSliderUI(sliderValue);
+    });
+
+    // Initialize on load
+    initAdaptiveSlider();
+    adaptiveSlider._initialized = true;
 
   </script>
   <script src="/assets/js/toast.js" defer></script>

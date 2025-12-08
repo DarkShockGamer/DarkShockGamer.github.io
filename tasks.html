@@ -4,14 +4,21 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/assets/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
   <!-- Pre-paint theme application to prevent FOUC -->
   <script>
     (function() {
-      const theme = localStorage.getItem('site-theme') || 'system';
-      if (theme !== 'system') {
-        const classes = { 'light': 'theme-light', 'dark': 'theme-dark', 'high-contrast': 'theme-high-contrast' };
-        const className = classes[theme];
-        if (className) document.documentElement.classList.add(className);
+      // Check for adaptive theme first
+      const adaptiveTheme = localStorage.getItem('site-adaptive-theme');
+      if (adaptiveTheme && ['sunrise', 'daylight', 'sunset', 'midnight'].includes(adaptiveTheme)) {
+        document.documentElement.classList.add('theme-' + adaptiveTheme);
+      } else {
+        const theme = localStorage.getItem('site-theme') || 'system';
+        if (theme !== 'system') {
+          const classes = { 'light': 'theme-light', 'dark': 'theme-dark', 'high-contrast': 'theme-high-contrast' };
+          const className = classes[theme];
+          if (className) document.documentElement.classList.add(className);
+        }
       }
     })();
   </script>

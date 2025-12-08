@@ -1,0 +1,157 @@
+/* Adaptive Theme Variants - Modern background treatments */
+/* These styles provide contemporary, clean backgrounds for all adaptive theme variants */
+
+/* Base background modernization */
+body {
+  position: relative;
+  transition: background 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sunrise Theme - Warm morning light with subtle gradient */
+html.theme-sunrise body {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 25%, #fbbf24 50%, #f59e0b 75%, #fb923c 100%);
+  color: #78350f;
+}
+
+/* Daylight Theme - Bright and clear modern light theme */
+html.theme-daylight body {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 25%, #bae6fd 50%, #7dd3fc 75%, #38bdf8 100%);
+  color: #0c4a6e;
+}
+
+/* Sunset Theme - Warm evening tones with rich gradients */
+html.theme-sunset body {
+  background: linear-gradient(135deg, #1c1917 0%, #292524 25%, #44403c 50%, #57534e 75%, #78716c 100%);
+  color: #fef3c7;
+}
+
+/* Midnight Theme - Deep dark modern theme */
+html.theme-midnight body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%);
+  color: #e2e8f0;
+}
+
+/* Panel/Card adaptations for adaptive themes */
+html.theme-sunrise .panel,
+html.theme-sunrise .setting-card {
+  background: rgba(255, 251, 235, 0.9);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+html.theme-daylight .panel,
+html.theme-daylight .setting-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+html.theme-sunset .panel,
+html.theme-sunset .setting-card {
+  background: rgba(28, 25, 23, 0.9);
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+html.theme-midnight .panel,
+html.theme-midnight .setting-card {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Text color adjustments */
+html.theme-sunrise h1,
+html.theme-sunrise h2,
+html.theme-sunrise h3,
+html.theme-sunrise .heading {
+  color: #92400e;
+}
+
+html.theme-daylight h1,
+html.theme-daylight h2,
+html.theme-daylight h3,
+html.theme-daylight .heading {
+  color: #0369a1;
+}
+
+html.theme-sunset h1,
+html.theme-sunset h2,
+html.theme-sunset h3,
+html.theme-sunset .heading {
+  color: #fed7aa;
+}
+
+html.theme-midnight h1,
+html.theme-midnight h2,
+html.theme-midnight h3,
+html.theme-midnight .heading {
+  color: #cbd5e1;
+}
+
+/* Input/Form elements for adaptive themes */
+html.theme-sunrise input,
+html.theme-sunrise select,
+html.theme-sunrise textarea {
+  background: #fffbeb;
+  border-color: #fcd34d;
+  color: #78350f;
+}
+
+html.theme-daylight input,
+html.theme-daylight select,
+html.theme-daylight textarea {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+  color: #0c4a6e;
+}
+
+html.theme-sunset input,
+html.theme-sunset select,
+html.theme-sunset textarea {
+  background: #1c1917;
+  border-color: #ea580c;
+  color: #fef3c7;
+}
+
+html.theme-midnight input,
+html.theme-midnight select,
+html.theme-midnight textarea {
+  background: #0f172a;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+/* Button styles for adaptive themes */
+html.theme-sunrise button:not(.unstyled) {
+  background: linear-gradient(90deg, #fbbf24 60%, #f59e0b 100%);
+  color: white;
+}
+
+html.theme-daylight button:not(.unstyled) {
+  background: linear-gradient(90deg, #38bdf8 60%, #0ea5e9 100%);
+  color: white;
+}
+
+html.theme-sunset button:not(.unstyled) {
+  background: linear-gradient(90deg, #fb923c 60%, #f97316 100%);
+  color: white;
+}
+
+html.theme-midnight button:not(.unstyled) {
+  background: linear-gradient(90deg, #475569 60%, #334155 100%);
+  color: #e2e8f0;
+}
+
+/* Link colors */
+html.theme-sunrise a {
+  color: #ea580c;
+}
+
+html.theme-daylight a {
+  color: #0284c7;
+}
+
+html.theme-sunset a {
+  color: #fb923c;
+}
+
+html.theme-midnight a {
+  color: #7dd3fc;
+}

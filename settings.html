@@ -833,8 +833,13 @@
     const themeSelect = document.getElementById('themeSelect');
 
     // Theme mapping: slider value -> theme name
-    const sliderThemeMap = ['light', 'light', 'dark', 'dark']; // Sunrise/Daylight = light, Sunset/Midnight = dark
+    // Note: Sunrise/Daylight both use 'light' theme, Sunset/Midnight use 'dark'
+    // This provides visual variety while maintaining compatibility with the existing theme system
+    const sliderThemeMap = ['light', 'light', 'dark', 'dark'];
     const gradientClasses = ['gradient-sunrise', 'gradient-daylight', 'gradient-sunset', 'gradient-midnight'];
+    
+    // High contrast theme maps to Midnight (position 3) as the closest visual match
+    const HIGH_CONTRAST_SLIDER_POS = 3;
     
     // Track if slider has been initialized
     let sliderInitialized = false;
@@ -849,7 +854,7 @@
       } else if (currentTheme === 'dark') {
         sliderValue = 3; // Midnight
       } else if (currentTheme === 'high contrast') {
-        sliderValue = 3; // Midnight (closest visual match)
+        sliderValue = HIGH_CONTRAST_SLIDER_POS;
       } else if (currentTheme === 'system') {
         // Check system preference
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -908,7 +913,7 @@
       } else if (theme === 'light') {
         sliderValue = 1;
       } else if (theme === 'high contrast') {
-        sliderValue = 3; // Midnight (closest visual match)
+        sliderValue = HIGH_CONTRAST_SLIDER_POS;
       } else if (theme === 'system') {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         sliderValue = prefersDark ? 3 : 1;

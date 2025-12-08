@@ -86,7 +86,7 @@
   // Listen for storage changes
   window.addEventListener('storage', (e) => { 
     if (e.key === STORAGE_KEY || e.key === ADAPTIVE_KEY) {
-      apply(e.newValue || 'system'); 
+      apply(get()); 
     }
   });
   

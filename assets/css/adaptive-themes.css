@@ -21,7 +21,7 @@ html.theme-daylight body {
 
 /* Sunset Theme - Warm evening tones with rich gradients */
 html.theme-sunset body {
-  background: linear-gradient(135deg, #1c1917 0%, #292524 25%, #44403c 50%, #57534e 75%, #78716c 100%);
+  background: linear-gradient(135deg, #7c2d12 0%, #9a3412 25%, #c2410c 50%, #ea580c 75%, #f97316 100%);
   color: #fef3c7;
 }
 
@@ -46,7 +46,7 @@ html.theme-daylight .setting-card {
 
 html.theme-sunset .panel,
 html.theme-sunset .setting-card {
-  background: rgba(28, 25, 23, 0.9);
+  background: rgba(68, 24, 11, 0.9);
   border-color: rgba(249, 115, 22, 0.3);
 }
 

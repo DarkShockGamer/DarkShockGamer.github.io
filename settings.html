@@ -4,14 +4,21 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/assets/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
   <!-- Pre-paint theme application to prevent FOUC -->
   <script>
     (function() {
-      const theme = localStorage.getItem('site-theme') || 'system';
-      if (theme !== 'system') {
-        const classes = { 'light': 'theme-light', 'dark': 'theme-dark', 'high-contrast': 'theme-high-contrast' };
-        const className = classes[theme];
-        if (className) document.documentElement.classList.add(className);
+      // Check for adaptive theme first
+      const adaptiveTheme = localStorage.getItem('site-adaptive-theme');
+      if (adaptiveTheme && ['sunrise', 'daylight', 'sunset', 'midnight'].includes(adaptiveTheme)) {
+        document.documentElement.classList.add('theme-' + adaptiveTheme);
+      } else {
+        const theme = localStorage.getItem('site-theme') || 'system';
+        if (theme !== 'system') {
+          const classes = { 'light': 'theme-light', 'dark': 'theme-dark', 'high-contrast': 'theme-high-contrast' };
+          const className = classes[theme];
+          if (className) document.documentElement.classList.add(className);
+        }
       }
     })();
   </script>
@@ -246,6 +253,127 @@
       background: #000000;
     }
 
+    /* --- Adaptive Theme Variants --- */
+    /* Sunrise Theme - Warm morning light */
+    html.theme-sunrise body {
+      background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 30%, #f59e0b 60%, #fb923c 100%);
+      color: #78350f;
+    }
+    html.theme-sunrise .panel {
+      background: rgba(255, 251, 235, 0.95);
+      border-color: #fde68a;
+      box-shadow: 0 4px 16px rgba(251, 191, 36, 0.15);
+    }
+    html.theme-sunrise .tabs {
+      background: #fef3c7;
+    }
+    html.theme-sunrise .tab-btn {
+      color: #92400e;
+    }
+    html.theme-sunrise .tab-btn[aria-selected="true"] {
+      background: linear-gradient(90deg, #fbbf24 60%, #f59e0b 100%);
+      color: white;
+    }
+    html.theme-sunrise .cancel-btn {
+      border-color: #fde68a;
+      color: #92400e;
+    }
+    html.theme-sunrise input, html.theme-sunrise select {
+      background: #fffbeb !important;
+      border-color: #fcd34d !important;
+      color: #78350f !important;
+    }
+
+    /* Daylight Theme - Bright and clear (modern light theme) */
+    html.theme-daylight body {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 30%, #93c5fd 60%, #60a5fa 100%);
+      color: #1e3a8a;
+    }
+    html.theme-daylight .panel {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: #bfdbfe;
+      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.12);
+    }
+    html.theme-daylight .tabs {
+      background: #eff6ff;
+    }
+    html.theme-daylight .tab-btn {
+      color: #1e40af;
+    }
+    html.theme-daylight .tab-btn[aria-selected="true"] {
+      background: linear-gradient(90deg, #60a5fa 60%, #3b82f6 100%);
+      color: white;
+    }
+    html.theme-daylight .cancel-btn {
+      border-color: #bfdbfe;
+      color: #1e40af;
+    }
+    html.theme-daylight input, html.theme-daylight select {
+      background: #f0f9ff !important;
+      border-color: #93c5fd !important;
+      color: #1e3a8a !important;
+    }
+
+    /* Sunset Theme - Warm evening tones */
+    html.theme-sunset body {
+      background: linear-gradient(135deg, #7c2d12 0%, #9a3412 25%, #c2410c 50%, #ea580c 75%, #f97316 100%);
+      color: #fef3c7;
+    }
+    html.theme-sunset .panel {
+      background: rgba(68, 24, 11, 0.95);
+      border-color: #ea580c;
+      box-shadow: 0 4px 16px rgba(249, 115, 22, 0.25);
+    }
+    html.theme-sunset .tabs {
+      background: #431407;
+    }
+    html.theme-sunset .tab-btn {
+      color: #fdba74;
+    }
+    html.theme-sunset .tab-btn[aria-selected="true"] {
+      background: linear-gradient(90deg, #fb923c 60%, #f97316 100%);
+      color: white;
+    }
+    html.theme-sunset .cancel-btn {
+      border-color: #ea580c;
+      color: #fdba74;
+    }
+    html.theme-sunset input, html.theme-sunset select {
+      background: #1c1917 !important;
+      border-color: #ea580c !important;
+      color: #fef3c7 !important;
+    }
+
+    /* Midnight Theme - Deep dark (modern dark theme) */
+    html.theme-midnight body {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 30%, #020617 60%, #000000 100%);
+      color: #e2e8f0;
+    }
+    html.theme-midnight .panel {
+      background: rgba(15, 23, 42, 0.95);
+      border-color: #334155;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+    html.theme-midnight .tabs {
+      background: #0f172a;
+    }
+    html.theme-midnight .tab-btn {
+      color: #94a3b8;
+    }
+    html.theme-midnight .tab-btn[aria-selected="true"] {
+      background: linear-gradient(90deg, #475569 60%, #334155 100%);
+      color: white;
+    }
+    html.theme-midnight .cancel-btn {
+      border-color: #334155;
+      color: #94a3b8;
+    }
+    html.theme-midnight input, html.theme-midnight select {
+      background: #020617 !important;
+      border-color: #334155 !important;
+      color: #e2e8f0 !important;
+    }
+
     /* --- UI Enhancements: Cards, Chips, Glassy Backgrounds --- */
     .setting-card {
       background: rgba(255, 255, 255, 0.85);
@@ -286,6 +414,22 @@
       border: 2px solid #ffffff;
       backdrop-filter: none;
     }
+    html.theme-sunrise .setting-card {
+      background: rgba(255, 251, 235, 0.9);
+      border-color: rgba(253, 224, 71, 0.6);
+    }
+    html.theme-daylight .setting-card {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(191, 219, 254, 0.6);
+    }
+    html.theme-sunset .setting-card {
+      background: rgba(68, 24, 11, 0.9);
+      border-color: rgba(234, 88, 12, 0.4);
+    }
+    html.theme-midnight .setting-card {
+      background: rgba(15, 23, 42, 0.9);
+      border-color: rgba(51, 65, 85, 0.6);
+    }
 
     .chip {
       display: inline-flex;
@@ -318,6 +462,26 @@
       background: #ffffff;
       color: #000000;
       border: 2px solid #ffff00;
+    }
+    html.theme-sunrise .chip {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.25));
+      color: #92400e;
+      border-color: rgba(251, 191, 36, 0.4);
+    }
+    html.theme-daylight .chip {
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.2), rgba(59, 130, 246, 0.2));
+      color: #1e40af;
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+    html.theme-sunset .chip {
+      background: linear-gradient(135deg, rgba(251, 146, 60, 0.25), rgba(249, 115, 22, 0.25));
+      color: #fed7aa;
+      border-color: rgba(249, 115, 22, 0.4);
+    }
+    html.theme-midnight .chip {
+      background: linear-gradient(135deg, rgba(71, 85, 105, 0.3), rgba(51, 65, 85, 0.3));
+      color: #cbd5e1;
+      border-color: rgba(71, 85, 105, 0.4);
     }
 
     /* --- Adaptive Theme Slider --- */
@@ -434,6 +598,30 @@
     html.theme-high-contrast .theme-label.active {
       color: #ffff00;
     }
+    html.theme-sunrise .theme-label {
+      color: #92400e;
+    }
+    html.theme-sunrise .theme-label.active {
+      color: #f59e0b;
+    }
+    html.theme-daylight .theme-label {
+      color: #1e40af;
+    }
+    html.theme-daylight .theme-label.active {
+      color: #3b82f6;
+    }
+    html.theme-sunset .theme-label {
+      color: #fdba74;
+    }
+    html.theme-sunset .theme-label.active {
+      color: #fb923c;
+    }
+    html.theme-midnight .theme-label {
+      color: #94a3b8;
+    }
+    html.theme-midnight .theme-label.active {
+      color: #cbd5e1;
+    }
 
     /* --- Gradient Preview --- */
     .gradient-preview {
@@ -515,6 +703,30 @@
     }
     html.theme-high-contrast .setting-description {
       color: #ffffff;
+    }
+    html.theme-sunrise .setting-label {
+      color: #78350f;
+    }
+    html.theme-sunrise .setting-description {
+      color: #92400e;
+    }
+    html.theme-daylight .setting-label {
+      color: #1e3a8a;
+    }
+    html.theme-daylight .setting-description {
+      color: #1e40af;
+    }
+    html.theme-sunset .setting-label {
+      color: #fef3c7;
+    }
+    html.theme-sunset .setting-description {
+      color: #fdba74;
+    }
+    html.theme-midnight .setting-label {
+      color: #e2e8f0;
+    }
+    html.theme-midnight .setting-description {
+      color: #94a3b8;
     }
   </style>
 </head>
@@ -832,41 +1044,58 @@
     const themeLabels = document.querySelectorAll('.theme-label');
     const themeSelect = document.getElementById('themeSelect');
 
-    // Theme mapping: slider value -> theme name
-    // Note: Sunrise/Daylight both use 'light' theme, Sunset/Midnight use 'dark'
-    // This provides visual variety while maintaining compatibility with the existing theme system
-    const sliderThemeMap = ['light', 'light', 'dark', 'dark'];
+    // Adaptive theme names mapped to slider positions
+    const adaptiveThemeNames = ['sunrise', 'daylight', 'sunset', 'midnight'];
     const gradientClasses = ['gradient-sunrise', 'gradient-daylight', 'gradient-sunset', 'gradient-midnight'];
     
-    // High contrast theme maps to Midnight (position 3) as the closest visual match
-    const HIGH_CONTRAST_SLIDER_POS = 3;
+    // Map adaptive themes to classic theme select values (for backward compatibility)
+    const adaptiveToClassicMap = {
+      'sunrise': 'Light',
+      'daylight': 'Light', 
+      'sunset': 'Dark',
+      'midnight': 'Dark'
+    };
     
     // Track if slider has been initialized
     let sliderInitialized = false;
     
     // Initialize slider from current theme
     function initAdaptiveSlider() {
-      const currentTheme = themeSelect.value.toLowerCase();
-      let sliderValue = 1; // Default to Daylight
+      // Check if there's a saved adaptive theme
+      const savedAdaptive = window.Theme ? window.Theme.getAdaptive() : null;
       
-      if (currentTheme === 'light') {
-        sliderValue = 1; // Daylight
-      } else if (currentTheme === 'dark') {
-        sliderValue = 3; // Midnight
-      } else if (currentTheme === 'high contrast') {
-        sliderValue = HIGH_CONTRAST_SLIDER_POS;
-      } else if (currentTheme === 'system') {
-        // Check system preference
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        sliderValue = prefersDark ? 3 : 1;
+      if (savedAdaptive && adaptiveThemeNames.includes(savedAdaptive)) {
+        // Use saved adaptive theme
+        const sliderValue = adaptiveThemeNames.indexOf(savedAdaptive);
+        adaptiveSlider.value = sliderValue;
+        updateSliderUI(sliderValue, false);
+        
+        // Update classic theme select to match
+        themeSelect.value = adaptiveToClassicMap[savedAdaptive] || 'Light';
+      } else {
+        // Initialize from classic theme select
+        const currentTheme = themeSelect.value.toLowerCase();
+        let sliderValue = 1; // Default to Daylight
+        
+        if (currentTheme === 'light') {
+          sliderValue = 1; // Daylight
+        } else if (currentTheme === 'dark') {
+          sliderValue = 3; // Midnight
+        } else if (currentTheme === 'high contrast') {
+          sliderValue = 3; // Midnight as closest match
+        } else if (currentTheme === 'system') {
+          // Check system preference
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          sliderValue = prefersDark ? 3 : 1;
+        }
+        
+        adaptiveSlider.value = sliderValue;
+        updateSliderUI(sliderValue, false);
       }
-      
-      adaptiveSlider.value = sliderValue;
-      updateSliderUI(sliderValue);
     }
 
-    // Update slider UI (labels and gradient)
-    function updateSliderUI(value) {
+    // Update slider UI and optionally apply theme
+    function updateSliderUI(value, applyTheme = false) {
       const intValue = parseInt(value);
       
       // Update active label
@@ -877,50 +1106,66 @@
       // Update gradient preview
       gradientPreview.className = 'gradient-preview ' + gradientClasses[intValue];
       
+      // Apply theme if requested
+      if (applyTheme && window.Theme) {
+        const adaptiveTheme = adaptiveThemeNames[intValue];
+        const classicTheme = adaptiveToClassicMap[adaptiveTheme].toLowerCase();
+        
+        // Apply the adaptive theme
+        window.Theme.set(classicTheme, adaptiveTheme);
+        
+        // Update classic theme select
+        themeSelect.value = adaptiveToClassicMap[adaptiveTheme];
+      }
+      
       // Play sound on change (only after initialization)
-      if (window.Sound && sliderInitialized) {
+      if (window.Sound && sliderInitialized && applyTheme) {
         Sound.toggle();
       }
     }
 
-    // Sync slider with theme select
-    function syncSliderToTheme() {
-      const theme = sliderThemeMap[parseInt(adaptiveSlider.value)];
-      
-      // Map to select value
-      const selectValue = theme.charAt(0).toUpperCase() + theme.slice(1);
-      themeSelect.value = selectValue;
-    }
-
-    // Handle slider input
+    // Handle slider input (live preview)
     adaptiveSlider.addEventListener('input', function() {
-      updateSliderUI(this.value);
+      updateSliderUI(this.value, false);
     });
 
-    // Handle slider change (when user releases)
+    // Handle slider change (when user releases - apply theme)
     adaptiveSlider.addEventListener('change', function() {
-      syncSliderToTheme();
-      updateSliderUI(this.value);
+      updateSliderUI(this.value, true);
     });
 
     // Handle theme select change
     themeSelect.addEventListener('change', function() {
       const theme = this.value.toLowerCase();
-      let sliderValue = 1;
       
-      if (theme === 'dark') {
-        sliderValue = 3;
-      } else if (theme === 'light') {
-        sliderValue = 1;
-      } else if (theme === 'high contrast') {
-        sliderValue = HIGH_CONTRAST_SLIDER_POS;
+      // When classic theme changes, clear adaptive theme and update slider position
+      if (theme === 'high contrast') {
+        // High contrast gets special treatment
+        if (window.Theme) {
+          window.Theme.setAdaptive(null);
+          window.Theme.set('high-contrast');
+        }
+        adaptiveSlider.value = 3; // Midnight position
+        updateSliderUI(3, false);
       } else if (theme === 'system') {
+        // Clear adaptive theme for system
+        if (window.Theme) {
+          window.Theme.setAdaptive(null);
+          window.Theme.set('system');
+        }
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        sliderValue = prefersDark ? 3 : 1;
+        adaptiveSlider.value = prefersDark ? 3 : 1;
+        updateSliderUI(prefersDark ? 3 : 1, false);
+      } else {
+        // For light/dark, don't clear adaptive but update if needed
+        const currentAdaptive = window.Theme ? window.Theme.getAdaptive() : null;
+        if (!currentAdaptive || !adaptiveThemeNames.includes(currentAdaptive)) {
+          // No adaptive theme set, use defaults
+          const sliderValue = theme === 'dark' ? 3 : 1;
+          adaptiveSlider.value = sliderValue;
+          updateSliderUI(sliderValue, false);
+        }
       }
-      
-      adaptiveSlider.value = sliderValue;
-      updateSliderUI(sliderValue);
     });
 
     // Initialize on load

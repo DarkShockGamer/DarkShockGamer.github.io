@@ -8,17 +8,39 @@
   <!-- Pre-paint theme application to prevent FOUC -->
   <script>
     (function() {
+      // Migration map for old adaptive themes
+      const migrationMap = {
+        'sunrise': 'light',
+        'daylight': 'light',
+        'sunset': 'dark',
+        'midnight': 'dark'
+      };
+      
+      // Valid new adaptive themes
+      const validAdaptiveThemes = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark'];
+      
       // Check for adaptive theme first
-      const adaptiveTheme = localStorage.getItem('site-adaptive-theme');
-      if (adaptiveTheme && ['sunrise', 'daylight', 'sunset', 'midnight'].includes(adaptiveTheme)) {
-        document.documentElement.classList.add('theme-' + adaptiveTheme);
+      let adaptiveTheme = localStorage.getItem('site-adaptive-theme');
+      
+      // Migrate old theme if found
+      if (adaptiveTheme && migrationMap[adaptiveTheme]) {
+        adaptiveTheme = migrationMap[adaptiveTheme];
+        localStorage.setItem('site-adaptive-theme', adaptiveTheme);
+      }
+      
+      // Remove all existing theme classes to prevent conflicts
+      const html = document.documentElement;
+      html.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast',
+                            'theme-high-contrast-light', 'theme-high-contrast-dark',
+                            'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight');
+      
+      if (adaptiveTheme && validAdaptiveThemes.includes(adaptiveTheme)) {
+        html.classList.add('theme-' + adaptiveTheme);
       } else {
-        const theme = localStorage.getItem('site-theme') || 'system';
-        if (theme !== 'system') {
-          const classes = { 'light': 'theme-light', 'dark': 'theme-dark', 'high-contrast': 'theme-high-contrast' };
-          const className = classes[theme];
-          if (className) document.documentElement.classList.add(className);
-        }
+        // If no valid adaptive theme, default to light
+        adaptiveTheme = 'light';
+        localStorage.setItem('site-adaptive-theme', adaptiveTheme);
+        html.classList.add('theme-light');
       }
     })();
   </script>

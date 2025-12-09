@@ -409,7 +409,16 @@
       background: rgba(56, 189, 248, 0.1);
       color: #38bdf8;
     }
-    .theme-option.active {
+    /* Light and Dark themes get blue-indigo gradient */
+    .theme-option[data-theme="light"].active,
+    .theme-option[data-theme="dark"].active {
+      background: linear-gradient(90deg, #38bdf8 60%, #818cf8 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
+    }
+    /* High Contrast themes get blue-green gradient */
+    .theme-option[data-theme="high-contrast-light"].active,
+    .theme-option[data-theme="high-contrast-dark"].active {
       background: linear-gradient(90deg, #38bdf8 60%, #10b981 100%);
       color: white;
       box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
@@ -438,8 +447,16 @@
       background: #d4d4d4;
       border-color: #000000;
     }
-    html.theme-high-contrast-light .theme-option.active {
-      background: #059669;
+    html.theme-high-contrast-light .theme-option[data-theme="light"].active,
+    html.theme-high-contrast-light .theme-option[data-theme="dark"].active {
+      background: #0284c7;
+      color: #ffffff;
+      border: 3px solid #000000;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-light .theme-option[data-theme="high-contrast-light"].active,
+    html.theme-high-contrast-light .theme-option[data-theme="high-contrast-dark"].active {
+      background: #16a34a;
       color: #ffffff;
       border: 3px solid #000000;
       box-shadow: none;
@@ -452,8 +469,16 @@
       background: #2a2a2a;
       border-color: #ffffff;
     }
-    html.theme-high-contrast-dark .theme-option.active {
-      background: #10b981;
+    html.theme-high-contrast-dark .theme-option[data-theme="light"].active,
+    html.theme-high-contrast-dark .theme-option[data-theme="dark"].active {
+      background: #0284c7;
+      color: #000000;
+      border: 3px solid #ffffff;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-dark .theme-option[data-theme="high-contrast-light"].active,
+    html.theme-high-contrast-dark .theme-option[data-theme="high-contrast-dark"].active {
+      background: #22c55e;
       color: #000000;
       border: 3px solid #ffffff;
       box-shadow: none;

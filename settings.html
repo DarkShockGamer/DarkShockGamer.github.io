@@ -28,15 +28,19 @@
         localStorage.setItem('site-adaptive-theme', adaptiveTheme);
       }
       
+      // Remove all existing theme classes to prevent conflicts
+      const html = document.documentElement;
+      html.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast',
+                            'theme-high-contrast-light', 'theme-high-contrast-dark',
+                            'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight');
+      
       if (adaptiveTheme && validAdaptiveThemes.includes(adaptiveTheme)) {
-        document.documentElement.classList.add('theme-' + adaptiveTheme);
+        html.classList.add('theme-' + adaptiveTheme);
       } else {
-        const theme = localStorage.getItem('site-theme') || 'system';
-        if (theme !== 'system') {
-          const classes = { 'light': 'theme-light', 'dark': 'theme-dark', 'high-contrast': 'theme-high-contrast' };
-          const className = classes[theme];
-          if (className) document.documentElement.classList.add(className);
-        }
+        // If no valid adaptive theme, default to light
+        adaptiveTheme = 'light';
+        localStorage.setItem('site-adaptive-theme', adaptiveTheme);
+        html.classList.add('theme-light');
       }
     })();
   </script>
@@ -959,13 +963,11 @@
       // Check if there's a saved adaptive theme
       const savedAdaptive = window.Theme ? window.Theme.getAdaptive() : null;
       
-      if (savedAdaptive && validAdaptiveThemes.includes(savedAdaptive)) {
-        // Mark the saved theme as active
-        updateThemeUI(savedAdaptive, false);
-      } else {
-        // Default to light theme
-        updateThemeUI('light', false);
-      }
+      // Use saved theme if valid, otherwise default to 'light'
+      const currentTheme = (savedAdaptive && validAdaptiveThemes.includes(savedAdaptive)) ? savedAdaptive : 'light';
+      
+      // Update UI to reflect current theme (don't re-apply as theme.js already did)
+      updateThemeUI(currentTheme, false);
     }
     
     // Update theme UI and optionally apply theme

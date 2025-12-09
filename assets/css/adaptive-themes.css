@@ -7,79 +7,79 @@ body {
   transition: background 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Light Theme - Clean light background with green accent */
+/* Light Theme - Clean light background with BLUE accent */
 html.theme-light body {
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 25%, #bbf7d0 50%, #86efac 75%, #4ade80 100%);
-  color: #064e3b;
+  background: linear-gradient(to bottom, #f0f9ff 60%, #e0e7ef 100%);
+  color: #1e293b;
 }
 
 html.theme-light .panel,
 html.theme-light .setting-card {
   background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(52, 211, 153, 0.3);
+  border-color: rgba(56, 189, 248, 0.3);
 }
 
 html.theme-light h1,
 html.theme-light h2,
 html.theme-light h3,
 html.theme-light .heading {
-  color: #065f46;
+  color: #0c4a6e;
 }
 
 html.theme-light input,
 html.theme-light select,
 html.theme-light textarea {
-  background: #f0fdf4;
-  border-color: #86efac;
-  color: #064e3b;
+  background: #f8fafc;
+  border-color: #93c5fd;
+  color: #0f172a;
 }
 
 html.theme-light button:not(.unstyled) {
-  background: linear-gradient(90deg, #10b981 60%, #059669 100%);
+  background: linear-gradient(90deg, #38bdf8 60%, #818cf8 100%);
   color: white;
 }
 
 html.theme-light a {
-  color: #059669;
+  color: #0284c7;
 }
 
-/* Dark Theme - Modern dark background with brighter green accent */
+/* Dark Theme - Modern dark background with INDIGO accent */
 html.theme-dark body {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 30%, #020617 60%, #000000 100%);
-  color: #e2e8f0;
+  background: linear-gradient(to bottom, #192132 60%, #0b1220 100%);
+  color: #e5e7eb;
 }
 
 html.theme-dark .panel,
 html.theme-dark .setting-card {
   background: rgba(15, 23, 42, 0.9);
-  border-color: rgba(52, 211, 153, 0.4);
+  border-color: rgba(99, 102, 241, 0.4);
 }
 
 html.theme-dark h1,
 html.theme-dark h2,
 html.theme-dark h3,
 html.theme-dark .heading {
-  color: #cbd5e1;
+  color: #e0e7ff;
 }
 
 html.theme-dark input,
 html.theme-dark select,
 html.theme-dark textarea {
-  background: #0f172a;
-  border-color: #10b981;
-  color: #e2e8f0;
+  background: #1e293b;
+  border-color: #818cf8;
+  color: #e5e7eb;
 }
 
 html.theme-dark button:not(.unstyled) {
-  background: linear-gradient(90deg, #10b981 60%, #059669 100%);
+  background: linear-gradient(90deg, #6366f1 60%, #818cf8 100%);
   color: white;
 }
 
 html.theme-dark a {
-  color: #34d399;
+  color: #a5b4fc;
 }
 
-/* High Contrast Light Theme - Maximum contrast for accessibility */
+/* High Contrast Light Theme - Maximum contrast for accessibility with GREEN accent */
 html.theme-high-contrast-light body {
   background: #ffffff;
   color: #000000;
@@ -110,19 +110,19 @@ html.theme-high-contrast-light textarea {
 }
 
 html.theme-high-contrast-light button:not(.unstyled) {
-  background: #059669;
+  background: #16a34a;
   color: #ffffff;
   border: 3px solid #000000;
   font-weight: 700;
 }
 
 html.theme-high-contrast-light a {
-  color: #047857;
+  color: #15803d;
   text-decoration: underline;
   font-weight: 600;
 }
 
-/* High Contrast Dark Theme - Maximum contrast for accessibility in dark mode */
+/* High Contrast Dark Theme - Maximum contrast for accessibility in dark mode with GREEN accent */
 html.theme-high-contrast-dark body {
   background: #000000;
   color: #ffffff;
@@ -153,14 +153,14 @@ html.theme-high-contrast-dark textarea {
 }
 
 html.theme-high-contrast-dark button:not(.unstyled) {
-  background: #10b981;
+  background: #22c55e;
   color: #000000;
   border: 3px solid #ffffff;
   font-weight: 700;
 }
 
 html.theme-high-contrast-dark a {
-  color: #34d399;
+  color: #4ade80;
   text-decoration: underline;
   font-weight: 600;
 }

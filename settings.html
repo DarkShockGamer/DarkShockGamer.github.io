@@ -361,7 +361,13 @@
     }
 
     /* --- Adaptive Theme Selector (Segmented Control) --- */
+    .theme-selector-container {
+      margin-top: 1rem;
+    }
     .theme-selector {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
       background: #f1f5f9;
       border-radius: 0.75rem;
       padding: 0.5rem;
@@ -730,18 +736,18 @@
             <span>Adaptive Theme</span>
           </div>
           <p class="setting-description" style="margin-bottom: 1rem;">Choose your visual experience with modern theme options</p>
-          <div class="theme-selector-container" style="margin-top: 1rem;">
-            <div class="theme-selector" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; background: #f1f5f9; padding: 0.5rem; border-radius: 0.75rem;">
-              <button type="button" class="theme-option" data-theme="light" style="padding: 0.75rem 1rem; border-radius: 0.5rem; border: none; background: none; font-weight: 600; color: #64748b; transition: all 180ms; cursor: pointer; text-align: center;">
+          <div class="theme-selector-container">
+            <div class="theme-selector">
+              <button type="button" class="theme-option" data-theme="light">
                 ☀️ Light
               </button>
-              <button type="button" class="theme-option" data-theme="dark" style="padding: 0.75rem 1rem; border-radius: 0.5rem; border: none; background: none; font-weight: 600; color: #64748b; transition: all 180ms; cursor: pointer; text-align: center;">
+              <button type="button" class="theme-option" data-theme="dark">
                 🌙 Dark
               </button>
-              <button type="button" class="theme-option" data-theme="high-contrast-light" style="padding: 0.75rem 1rem; border-radius: 0.5rem; border: none; background: none; font-weight: 600; color: #64748b; transition: all 180ms; cursor: pointer; text-align: center;">
+              <button type="button" class="theme-option" data-theme="high-contrast-light">
                 🔆 High Contrast Light
               </button>
-              <button type="button" class="theme-option" data-theme="high-contrast-dark" style="padding: 0.75rem 1rem; border-radius: 0.5rem; border: none; background: none; font-weight: 600; color: #64748b; transition: all 180ms; cursor: pointer; text-align: center;">
+              <button type="button" class="theme-option" data-theme="high-contrast-dark">
                 🌑 High Contrast Dark
               </button>
             </div>

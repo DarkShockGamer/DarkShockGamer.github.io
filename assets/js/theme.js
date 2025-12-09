@@ -4,6 +4,17 @@
   const MEDIA = '(prefers-color-scheme: dark)';
   const mql = window.matchMedia ? window.matchMedia(MEDIA) : null;
   
+  // Valid adaptive theme values (new system)
+  const VALID_ADAPTIVE_THEMES = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark'];
+  
+  // Migration map: old adaptive themes -> new adaptive themes
+  const MIGRATION_MAP = {
+    'sunrise': 'light',
+    'daylight': 'light',
+    'sunset': 'dark',
+    'midnight': 'dark'
+  };
+  
   // Get stored theme preference
   function get() { 
     try { 
@@ -13,10 +24,32 @@
     } 
   }
   
-  // Get stored adaptive theme (sunrise, daylight, sunset, midnight)
+  // Get stored adaptive theme (light, dark, high-contrast-light, high-contrast-dark)
+  // Automatically migrates old values if found
   function getAdaptive() {
     try {
-      return localStorage.getItem(ADAPTIVE_KEY) || null;
+      let adaptiveTheme = localStorage.getItem(ADAPTIVE_KEY);
+      
+      if (!adaptiveTheme) {
+        return null;
+      }
+      
+      // Check if it's a valid new theme
+      if (VALID_ADAPTIVE_THEMES.includes(adaptiveTheme)) {
+        return adaptiveTheme;
+      }
+      
+      // Check if it's an old theme that needs migration
+      if (MIGRATION_MAP[adaptiveTheme]) {
+        const migratedTheme = MIGRATION_MAP[adaptiveTheme];
+        // Automatically migrate to new theme
+        localStorage.setItem(ADAPTIVE_KEY, migratedTheme);
+        return migratedTheme;
+      }
+      
+      // Invalid theme, remove it
+      localStorage.removeItem(ADAPTIVE_KEY);
+      return null;
     } catch {
       return null;
     }
@@ -25,7 +58,7 @@
   // Set adaptive theme
   function setAdaptive(adaptiveTheme) {
     try {
-      if (adaptiveTheme) {
+      if (adaptiveTheme && VALID_ADAPTIVE_THEMES.includes(adaptiveTheme)) {
         localStorage.setItem(ADAPTIVE_KEY, adaptiveTheme);
       } else {
         localStorage.removeItem(ADAPTIVE_KEY);
@@ -37,15 +70,17 @@
   function apply(pref = get()) {
     const html = document.documentElement;
     
-    // Remove all theme classes
-    html.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast', 'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight');
+    // Remove all theme classes (including old ones for cleanup)
+    html.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast', 
+                          'theme-high-contrast-light', 'theme-high-contrast-dark',
+                          'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight');
     
     // Check if there's an adaptive theme set
     const adaptiveTheme = getAdaptive();
-    if (adaptiveTheme && ['sunrise', 'daylight', 'sunset', 'midnight'].includes(adaptiveTheme)) {
+    if (adaptiveTheme && VALID_ADAPTIVE_THEMES.includes(adaptiveTheme)) {
       html.classList.add('theme-' + adaptiveTheme);
       // Set appropriate color scheme based on adaptive theme
-      const isDark = adaptiveTheme === 'sunset' || adaptiveTheme === 'midnight';
+      const isDark = adaptiveTheme === 'dark' || adaptiveTheme === 'high-contrast-dark';
       html.style.colorScheme = isDark ? 'dark' : 'light';
     } else if (pref === 'light' || pref === 'dark' || pref === 'high-contrast') {
       html.classList.add('theme-' + pref);

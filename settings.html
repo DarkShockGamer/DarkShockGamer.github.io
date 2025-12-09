@@ -8,9 +8,27 @@
   <!-- Pre-paint theme application to prevent FOUC -->
   <script>
     (function() {
+      // Migration map for old adaptive themes
+      const migrationMap = {
+        'sunrise': 'light',
+        'daylight': 'light',
+        'sunset': 'dark',
+        'midnight': 'dark'
+      };
+      
+      // Valid new adaptive themes
+      const validAdaptiveThemes = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark'];
+      
       // Check for adaptive theme first
-      const adaptiveTheme = localStorage.getItem('site-adaptive-theme');
-      if (adaptiveTheme && ['sunrise', 'daylight', 'sunset', 'midnight'].includes(adaptiveTheme)) {
+      let adaptiveTheme = localStorage.getItem('site-adaptive-theme');
+      
+      // Migrate old theme if found
+      if (adaptiveTheme && migrationMap[adaptiveTheme]) {
+        adaptiveTheme = migrationMap[adaptiveTheme];
+        localStorage.setItem('site-adaptive-theme', adaptiveTheme);
+      }
+      
+      if (adaptiveTheme && validAdaptiveThemes.includes(adaptiveTheme)) {
         document.documentElement.classList.add('theme-' + adaptiveTheme);
       } else {
         const theme = localStorage.getItem('site-theme') || 'system';
@@ -253,126 +271,8 @@
       background: #000000;
     }
 
-    /* --- Adaptive Theme Variants --- */
-    /* Sunrise Theme - Warm morning light */
-    html.theme-sunrise body {
-      background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 30%, #f59e0b 60%, #fb923c 100%);
-      color: #78350f;
-    }
-    html.theme-sunrise .panel {
-      background: rgba(255, 251, 235, 0.95);
-      border-color: #fde68a;
-      box-shadow: 0 4px 16px rgba(251, 191, 36, 0.15);
-    }
-    html.theme-sunrise .tabs {
-      background: #fef3c7;
-    }
-    html.theme-sunrise .tab-btn {
-      color: #92400e;
-    }
-    html.theme-sunrise .tab-btn[aria-selected="true"] {
-      background: linear-gradient(90deg, #fbbf24 60%, #f59e0b 100%);
-      color: white;
-    }
-    html.theme-sunrise .cancel-btn {
-      border-color: #fde68a;
-      color: #92400e;
-    }
-    html.theme-sunrise input, html.theme-sunrise select {
-      background: #fffbeb !important;
-      border-color: #fcd34d !important;
-      color: #78350f !important;
-    }
-
-    /* Daylight Theme - Bright and clear (modern light theme) */
-    html.theme-daylight body {
-      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 30%, #93c5fd 60%, #60a5fa 100%);
-      color: #1e3a8a;
-    }
-    html.theme-daylight .panel {
-      background: rgba(255, 255, 255, 0.95);
-      border-color: #bfdbfe;
-      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.12);
-    }
-    html.theme-daylight .tabs {
-      background: #eff6ff;
-    }
-    html.theme-daylight .tab-btn {
-      color: #1e40af;
-    }
-    html.theme-daylight .tab-btn[aria-selected="true"] {
-      background: linear-gradient(90deg, #60a5fa 60%, #3b82f6 100%);
-      color: white;
-    }
-    html.theme-daylight .cancel-btn {
-      border-color: #bfdbfe;
-      color: #1e40af;
-    }
-    html.theme-daylight input, html.theme-daylight select {
-      background: #f0f9ff !important;
-      border-color: #93c5fd !important;
-      color: #1e3a8a !important;
-    }
-
-    /* Sunset Theme - Warm evening tones */
-    html.theme-sunset body {
-      background: linear-gradient(135deg, #7c2d12 0%, #9a3412 25%, #c2410c 50%, #ea580c 75%, #f97316 100%);
-      color: #fef3c7;
-    }
-    html.theme-sunset .panel {
-      background: rgba(68, 24, 11, 0.95);
-      border-color: #ea580c;
-      box-shadow: 0 4px 16px rgba(249, 115, 22, 0.25);
-    }
-    html.theme-sunset .tabs {
-      background: #431407;
-    }
-    html.theme-sunset .tab-btn {
-      color: #fdba74;
-    }
-    html.theme-sunset .tab-btn[aria-selected="true"] {
-      background: linear-gradient(90deg, #fb923c 60%, #f97316 100%);
-      color: white;
-    }
-    html.theme-sunset .cancel-btn {
-      border-color: #ea580c;
-      color: #fdba74;
-    }
-    html.theme-sunset input, html.theme-sunset select {
-      background: #1c1917 !important;
-      border-color: #ea580c !important;
-      color: #fef3c7 !important;
-    }
-
-    /* Midnight Theme - Deep dark (modern dark theme) */
-    html.theme-midnight body {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 30%, #020617 60%, #000000 100%);
-      color: #e2e8f0;
-    }
-    html.theme-midnight .panel {
-      background: rgba(15, 23, 42, 0.95);
-      border-color: #334155;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-    }
-    html.theme-midnight .tabs {
-      background: #0f172a;
-    }
-    html.theme-midnight .tab-btn {
-      color: #94a3b8;
-    }
-    html.theme-midnight .tab-btn[aria-selected="true"] {
-      background: linear-gradient(90deg, #475569 60%, #334155 100%);
-      color: white;
-    }
-    html.theme-midnight .cancel-btn {
-      border-color: #334155;
-      color: #94a3b8;
-    }
-    html.theme-midnight input, html.theme-midnight select {
-      background: #020617 !important;
-      border-color: #334155 !important;
-      color: #e2e8f0 !important;
-    }
+    /* --- New Adaptive Theme Variants (Light/Dark/High-Contrast) --- */
+    /* Themes are now defined in adaptive-themes.css - these overrides are for settings page specifics */
 
     /* --- UI Enhancements: Cards, Chips, Glassy Backgrounds --- */
     .setting-card {
@@ -409,26 +309,16 @@
       background: rgba(15, 23, 42, 0.85);
       border-color: rgba(31, 41, 55, 0.8);
     }
-    html.theme-high-contrast .setting-card {
-      background: #1a1a1a;
-      border: 2px solid #ffffff;
+    html.theme-high-contrast .setting-card,
+    html.theme-high-contrast-light .setting-card {
+      background: #ffffff;
+      border: 2px solid #000000;
       backdrop-filter: none;
     }
-    html.theme-sunrise .setting-card {
-      background: rgba(255, 251, 235, 0.9);
-      border-color: rgba(253, 224, 71, 0.6);
-    }
-    html.theme-daylight .setting-card {
-      background: rgba(255, 255, 255, 0.9);
-      border-color: rgba(191, 219, 254, 0.6);
-    }
-    html.theme-sunset .setting-card {
-      background: rgba(68, 24, 11, 0.9);
-      border-color: rgba(234, 88, 12, 0.4);
-    }
-    html.theme-midnight .setting-card {
-      background: rgba(15, 23, 42, 0.9);
-      border-color: rgba(51, 65, 85, 0.6);
+    html.theme-high-contrast-dark .setting-card {
+      background: #000000;
+      border: 2px solid #ffffff;
+      backdrop-filter: none;
     }
 
     .chip {
@@ -458,33 +348,114 @@
       background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(129, 140, 248, 0.2));
       color: #7dd3fc;
     }
-    html.theme-high-contrast .chip {
-      background: #ffffff;
+    html.theme-high-contrast .chip,
+    html.theme-high-contrast-light .chip {
+      background: #059669;
+      color: #ffffff;
+      border: 2px solid #000000;
+    }
+    html.theme-high-contrast-dark .chip {
+      background: #10b981;
       color: #000000;
-      border: 2px solid #ffff00;
-    }
-    html.theme-sunrise .chip {
-      background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.25));
-      color: #92400e;
-      border-color: rgba(251, 191, 36, 0.4);
-    }
-    html.theme-daylight .chip {
-      background: linear-gradient(135deg, rgba(96, 165, 250, 0.2), rgba(59, 130, 246, 0.2));
-      color: #1e40af;
-      border-color: rgba(59, 130, 246, 0.3);
-    }
-    html.theme-sunset .chip {
-      background: linear-gradient(135deg, rgba(251, 146, 60, 0.25), rgba(249, 115, 22, 0.25));
-      color: #fed7aa;
-      border-color: rgba(249, 115, 22, 0.4);
-    }
-    html.theme-midnight .chip {
-      background: linear-gradient(135deg, rgba(71, 85, 105, 0.3), rgba(51, 65, 85, 0.3));
-      color: #cbd5e1;
-      border-color: rgba(71, 85, 105, 0.4);
+      border: 2px solid #ffffff;
     }
 
-    /* --- Adaptive Theme Slider --- */
+    /* --- Adaptive Theme Selector (Segmented Control) --- */
+    .theme-selector-container {
+      margin-top: 1rem;
+    }
+    .theme-selector {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      background: #f1f5f9;
+      border-radius: 0.75rem;
+      padding: 0.5rem;
+    }
+    @media (prefers-color-scheme: dark) {
+      .theme-selector {
+        background: #1e293b;
+      }
+    }
+    html.theme-dark .theme-selector {
+      background: #1e293b;
+    }
+    html.theme-high-contrast-light .theme-selector {
+      background: #e5e5e5;
+      border: 2px solid #000000;
+    }
+    html.theme-high-contrast-dark .theme-selector {
+      background: #1a1a1a;
+      border: 2px solid #ffffff;
+    }
+    
+    .theme-option {
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      border: none;
+      background: none;
+      font-weight: 600;
+      color: #64748b;
+      transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      text-align: center;
+      font-size: 0.875rem;
+    }
+    .theme-option:hover {
+      background: rgba(56, 189, 248, 0.1);
+      color: #38bdf8;
+    }
+    .theme-option.active {
+      background: linear-gradient(90deg, #38bdf8 60%, #10b981 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
+    }
+    @media (prefers-color-scheme: dark) {
+      .theme-option {
+        color: #94a3b8;
+      }
+      .theme-option:hover {
+        background: rgba(56, 189, 248, 0.15);
+        color: #7dd3fc;
+      }
+    }
+    html.theme-dark .theme-option {
+      color: #94a3b8;
+    }
+    html.theme-dark .theme-option:hover {
+      background: rgba(56, 189, 248, 0.15);
+      color: #7dd3fc;
+    }
+    html.theme-high-contrast-light .theme-option {
+      color: #000000;
+      border: 2px solid transparent;
+    }
+    html.theme-high-contrast-light .theme-option:hover {
+      background: #d4d4d4;
+      border-color: #000000;
+    }
+    html.theme-high-contrast-light .theme-option.active {
+      background: #059669;
+      color: #ffffff;
+      border: 3px solid #000000;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-dark .theme-option {
+      color: #ffffff;
+      border: 2px solid transparent;
+    }
+    html.theme-high-contrast-dark .theme-option:hover {
+      background: #2a2a2a;
+      border-color: #ffffff;
+    }
+    html.theme-high-contrast-dark .theme-option.active {
+      background: #10b981;
+      color: #000000;
+      border: 3px solid #ffffff;
+      box-shadow: none;
+    }
+
+    /* --- Deprecated: Old Adaptive Theme Slider (kept for reference) --- */
     .theme-slider-container {
       margin-top: 1rem;
     }
@@ -623,46 +594,7 @@
       color: #cbd5e1;
     }
 
-    /* --- Gradient Preview --- */
-    .gradient-preview {
-      height: 80px;
-      border-radius: 0.75rem;
-      margin-top: 1rem;
-      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
-      transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
-      border: 2px solid rgba(226, 232, 240, 0.5);
-    }
-    @media (prefers-color-scheme: dark) {
-      .gradient-preview {
-        border-color: rgba(31, 41, 55, 0.5);
-      }
-    }
-    html.theme-light .gradient-preview {
-      border-color: rgba(226, 232, 240, 0.5);
-    }
-    html.theme-dark .gradient-preview {
-      border-color: rgba(31, 41, 55, 0.5);
-    }
-    html.theme-high-contrast .gradient-preview {
-      border: 3px solid #ffffff;
-    }
 
-    /* Sunrise gradient */
-    .gradient-sunrise {
-      background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 30%, #f97316 60%, #fb923c 100%);
-    }
-    /* Daylight gradient */
-    .gradient-daylight {
-      background: linear-gradient(135deg, #dbeafe 0%, #60a5fa 30%, #38bdf8 60%, #0ea5e9 100%);
-    }
-    /* Sunset gradient */
-    .gradient-sunset {
-      background: linear-gradient(135deg, #fed7aa 0%, #fb923c 30%, #f97316 60%, #dc2626 100%);
-    }
-    /* Midnight gradient */
-    .gradient-midnight {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 30%, #020617 60%, #000000 100%);
-    }
 
     /* Setting label improvements */
     .setting-label {
@@ -684,8 +616,14 @@
     html.theme-dark .setting-label {
       color: #e5e7eb;
     }
-    html.theme-high-contrast .setting-label {
+    html.theme-high-contrast .setting-label,
+    html.theme-high-contrast-light .setting-label {
+      color: #000000;
+      font-weight: 700;
+    }
+    html.theme-high-contrast-dark .setting-label {
       color: #ffffff;
+      font-weight: 700;
     }
 
     .setting-description {
@@ -701,32 +639,14 @@
     html.theme-dark .setting-description {
       color: #94a3b8;
     }
-    html.theme-high-contrast .setting-description {
+    html.theme-high-contrast .setting-description,
+    html.theme-high-contrast-light .setting-description {
+      color: #000000;
+      font-weight: 600;
+    }
+    html.theme-high-contrast-dark .setting-description {
       color: #ffffff;
-    }
-    html.theme-sunrise .setting-label {
-      color: #78350f;
-    }
-    html.theme-sunrise .setting-description {
-      color: #92400e;
-    }
-    html.theme-daylight .setting-label {
-      color: #1e3a8a;
-    }
-    html.theme-daylight .setting-description {
-      color: #1e40af;
-    }
-    html.theme-sunset .setting-label {
-      color: #fef3c7;
-    }
-    html.theme-sunset .setting-description {
-      color: #fdba74;
-    }
-    html.theme-midnight .setting-label {
-      color: #e2e8f0;
-    }
-    html.theme-midnight .setting-description {
-      color: #94a3b8;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -814,34 +734,24 @@
           <div class="setting-label">
             <span>🎨</span>
             <span>Adaptive Theme</span>
-            <span class="chip">New!</span>
           </div>
-          <p class="setting-description" style="margin-bottom: 1rem;">Choose your visual experience with our adaptive theme slider</p>
-          <div class="theme-slider-container">
-            <div class="theme-slider-wrapper">
-              <input type="range" id="adaptiveThemeSlider" class="theme-slider" min="0" max="3" step="1" value="1" />
+          <p class="setting-description" style="margin-bottom: 1rem;">Choose your visual experience with modern theme options</p>
+          <div class="theme-selector-container">
+            <div class="theme-selector">
+              <button type="button" class="theme-option" data-theme="light">
+                ☀️ Light
+              </button>
+              <button type="button" class="theme-option" data-theme="dark">
+                🌙 Dark
+              </button>
+              <button type="button" class="theme-option" data-theme="high-contrast-light">
+                🔆 High Contrast Light
+              </button>
+              <button type="button" class="theme-option" data-theme="high-contrast-dark">
+                🌑 High Contrast Dark
+              </button>
             </div>
-            <div class="theme-labels">
-              <span class="theme-label" data-theme="0">🌅 Sunrise</span>
-              <span class="theme-label active" data-theme="1">☀️ Daylight</span>
-              <span class="theme-label" data-theme="2">🌆 Sunset</span>
-              <span class="theme-label" data-theme="3">🌙 Midnight</span>
-            </div>
           </div>
-          <div id="gradientPreview" class="gradient-preview gradient-daylight"></div>
-        </div>
-        <div class="setting-card">
-          <div class="setting-label">
-            <span>⚙️</span>
-            <label for="themeSelect">Classic Theme Mode</label>
-          </div>
-          <select id="themeSelect" class="w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200">
-            <option>System</option>
-            <option>Light</option>
-            <option>Dark</option>
-            <option>High Contrast</option>
-          </select>
-          <p class="setting-description">Traditional theme selection (synced with adaptive theme)</p>
         </div>
         <div class="setting-card">
           <div class="setting-label">
@@ -1038,139 +948,56 @@
     setupToggleSound('toggleReduceMotion');
     setupToggleSound('toggleDataCollection');
 
-    // --- Adaptive Theme Slider Logic ---
-    const adaptiveSlider = document.getElementById('adaptiveThemeSlider');
-    const gradientPreview = document.getElementById('gradientPreview');
-    const themeLabels = document.querySelectorAll('.theme-label');
-    const themeSelect = document.getElementById('themeSelect');
-
-    // Adaptive theme names mapped to slider positions
-    const adaptiveThemeNames = ['sunrise', 'daylight', 'sunset', 'midnight'];
-    const gradientClasses = ['gradient-sunrise', 'gradient-daylight', 'gradient-sunset', 'gradient-midnight'];
+    // --- Adaptive Theme Selector Logic ---
+    const themeOptions = document.querySelectorAll('.theme-option');
     
-    // Map adaptive themes to classic theme select values (for backward compatibility)
-    const adaptiveToClassicMap = {
-      'sunrise': 'Light',
-      'daylight': 'Light', 
-      'sunset': 'Dark',
-      'midnight': 'Dark'
-    };
+    // Valid adaptive theme values
+    const validAdaptiveThemes = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark'];
     
-    // Track if slider has been initialized
-    let sliderInitialized = false;
-    
-    // Initialize slider from current theme
-    function initAdaptiveSlider() {
+    // Initialize theme selector from current theme
+    function initThemeSelector() {
       // Check if there's a saved adaptive theme
       const savedAdaptive = window.Theme ? window.Theme.getAdaptive() : null;
       
-      if (savedAdaptive && adaptiveThemeNames.includes(savedAdaptive)) {
-        // Use saved adaptive theme
-        const sliderValue = adaptiveThemeNames.indexOf(savedAdaptive);
-        adaptiveSlider.value = sliderValue;
-        updateSliderUI(sliderValue, false);
-        
-        // Update classic theme select to match
-        themeSelect.value = adaptiveToClassicMap[savedAdaptive] || 'Light';
+      if (savedAdaptive && validAdaptiveThemes.includes(savedAdaptive)) {
+        // Mark the saved theme as active
+        updateThemeUI(savedAdaptive, false);
       } else {
-        // Initialize from classic theme select
-        const currentTheme = themeSelect.value.toLowerCase();
-        let sliderValue = 1; // Default to Daylight
-        
-        if (currentTheme === 'light') {
-          sliderValue = 1; // Daylight
-        } else if (currentTheme === 'dark') {
-          sliderValue = 3; // Midnight
-        } else if (currentTheme === 'high contrast') {
-          sliderValue = 3; // Midnight as closest match
-        } else if (currentTheme === 'system') {
-          // Check system preference
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          sliderValue = prefersDark ? 3 : 1;
-        }
-        
-        adaptiveSlider.value = sliderValue;
-        updateSliderUI(sliderValue, false);
+        // Default to light theme
+        updateThemeUI('light', false);
       }
     }
-
-    // Update slider UI and optionally apply theme
-    function updateSliderUI(value, applyTheme = false) {
-      const intValue = parseInt(value);
-      
-      // Update active label
-      themeLabels.forEach((label, idx) => {
-        label.classList.toggle('active', idx === intValue);
+    
+    // Update theme UI and optionally apply theme
+    function updateThemeUI(themeName, applyTheme = false) {
+      // Update active state on buttons
+      themeOptions.forEach(option => {
+        const isActive = option.dataset.theme === themeName;
+        option.classList.toggle('active', isActive);
       });
-      
-      // Update gradient preview
-      gradientPreview.className = 'gradient-preview ' + gradientClasses[intValue];
       
       // Apply theme if requested
       if (applyTheme && window.Theme) {
-        const adaptiveTheme = adaptiveThemeNames[intValue];
-        const classicTheme = adaptiveToClassicMap[adaptiveTheme].toLowerCase();
+        window.Theme.setAdaptive(themeName);
+        window.Theme.apply();
         
-        // Apply the adaptive theme
-        window.Theme.set(classicTheme, adaptiveTheme);
-        
-        // Update classic theme select
-        themeSelect.value = adaptiveToClassicMap[adaptiveTheme];
-      }
-      
-      // Play sound on change (only after initialization)
-      if (window.Sound && sliderInitialized && applyTheme) {
-        Sound.toggle();
+        // Play sound
+        if (window.Sound) {
+          Sound.toggle();
+        }
       }
     }
-
-    // Handle slider input (live preview)
-    adaptiveSlider.addEventListener('input', function() {
-      updateSliderUI(this.value, false);
+    
+    // Handle theme option clicks
+    themeOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        const themeName = this.dataset.theme;
+        updateThemeUI(themeName, true);
+      });
     });
-
-    // Handle slider change (when user releases - apply theme)
-    adaptiveSlider.addEventListener('change', function() {
-      updateSliderUI(this.value, true);
-    });
-
-    // Handle theme select change
-    themeSelect.addEventListener('change', function() {
-      const theme = this.value.toLowerCase();
-      
-      // When classic theme changes, clear adaptive theme and update slider position
-      if (theme === 'high contrast') {
-        // High contrast gets special treatment
-        if (window.Theme) {
-          window.Theme.setAdaptive(null);
-          window.Theme.set('high-contrast');
-        }
-        adaptiveSlider.value = 3; // Midnight position
-        updateSliderUI(3, false);
-      } else if (theme === 'system') {
-        // Clear adaptive theme for system
-        if (window.Theme) {
-          window.Theme.setAdaptive(null);
-          window.Theme.set('system');
-        }
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        adaptiveSlider.value = prefersDark ? 3 : 1;
-        updateSliderUI(prefersDark ? 3 : 1, false);
-      } else {
-        // For light/dark, don't clear adaptive but update if needed
-        const currentAdaptive = window.Theme ? window.Theme.getAdaptive() : null;
-        if (!currentAdaptive || !adaptiveThemeNames.includes(currentAdaptive)) {
-          // No adaptive theme set, use defaults
-          const sliderValue = theme === 'dark' ? 3 : 1;
-          adaptiveSlider.value = sliderValue;
-          updateSliderUI(sliderValue, false);
-        }
-      }
-    });
-
+    
     // Initialize on load
-    initAdaptiveSlider();
-    sliderInitialized = true;
+    initThemeSelector();
 
   </script>
   <script src="/assets/js/toast.js" defer></script>

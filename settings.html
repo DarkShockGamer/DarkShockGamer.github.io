@@ -975,8 +975,29 @@
       }
     }
     
-    // Initialize indicator on first tab
-    updateTabIndicator(0);
+    // Restore active tab from localStorage on page load
+    const savedTab = localStorage.getItem('settings-active-tab');
+    let initialTab = 0;
+    if (savedTab) {
+      const tabIndex = parseInt(savedTab, 10);
+      if (tabIndex >= 0 && tabIndex < tabBtns.length) {
+        initialTab = tabIndex;
+      }
+    }
+    
+    // Initialize with saved tab
+    if (initialTab > 0) {
+      tabBtns.forEach((b, i) => {
+        b.setAttribute('aria-selected', i === initialTab);
+        b.tabIndex = i === initialTab ? 0 : -1;
+      });
+      tabPanels.forEach((panel, i) => {
+        panel.classList.toggle('active', i === initialTab);
+      });
+    }
+    
+    // Initialize indicator on correct tab
+    updateTabIndicator(initialTab);
     
     // Update indicator on window resize
     window.addEventListener('resize', () => {
@@ -995,6 +1016,9 @@
         });
         updateTabIndicator(idx);
         Sound.tab();
+        
+        // Save current tab to localStorage
+        localStorage.setItem('settings-active-tab', idx.toString());
       });
       btn.addEventListener('keydown', function(e) {
         if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
@@ -1011,6 +1035,9 @@
           updateTabIndicator(next);
           Sound.tab();
           tabBtns[next].focus();
+          
+          // Save current tab to localStorage
+          localStorage.setItem('settings-active-tab', next.toString());
         }
       });
     });
@@ -1033,15 +1060,21 @@
     // Valid adaptive theme values
     const validAdaptiveThemes = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark'];
     
+    // Track current selected theme
+    let selectedTheme = null;
+    
     // Initialize theme selector from current theme
     function initThemeSelector() {
-      // Check if there's a saved adaptive theme
-      const savedAdaptive = window.Theme ? window.Theme.getAdaptive() : null;
+      // Read from localStorage directly using the correct key
+      const savedAdaptive = localStorage.getItem('site-adaptive-theme') || 'light';
       
       // Use saved theme if valid, otherwise default to 'light'
-      const currentTheme = (savedAdaptive && validAdaptiveThemes.includes(savedAdaptive)) ? savedAdaptive : 'light';
+      const currentTheme = validAdaptiveThemes.includes(savedAdaptive) ? savedAdaptive : 'light';
       
-      // Update UI to reflect current theme (don't re-apply as theme.js already did)
+      // Set selected theme
+      selectedTheme = currentTheme;
+      
+      // Update UI to reflect current theme (don't re-apply as it's already applied)
       updateThemeUI(currentTheme, false);
     }
     
@@ -1053,10 +1086,18 @@
         option.classList.toggle('active', isActive);
       });
       
+      // Update selected theme
+      selectedTheme = themeName;
+      
       // Apply theme if requested
-      if (applyTheme && window.Theme) {
-        window.Theme.setAdaptive(themeName);
-        window.Theme.apply();
+      if (applyTheme) {
+        // Apply theme class immediately
+        const html = document.documentElement;
+        html.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast-light', 'theme-high-contrast-dark');
+        html.classList.add('theme-' + themeName);
+        
+        // Save to localStorage
+        localStorage.setItem('site-adaptive-theme', themeName);
         
         // Play sound
         if (window.Sound) {
@@ -1072,6 +1113,14 @@
         updateThemeUI(themeName, true);
       });
     });
+    
+    // Get currently selected theme
+    function getSelectedTheme() {
+      return selectedTheme;
+    }
+    
+    // Expose to settings.js
+    window.getSelectedTheme = getSelectedTheme;
     
     // Initialize on load
     initThemeSelector();

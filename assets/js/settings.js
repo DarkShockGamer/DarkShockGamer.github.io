@@ -462,14 +462,10 @@ document.addEventListener("DOMContentLoaded", async function() {
 
   // ========== APPEARANCE TAB ==========
   const appearanceForm = document.getElementById("tabPanel3");
-  const themeSelect = appearanceForm?.querySelector("select");
   const reduceMotionToggle = document.getElementById("toggleReduceMotion");
   const reduceMotionLabel = document.getElementById("labelReduceMotion");
 
-  if (appearanceForm && themeSelect) {
-    // Set initial values
-    themeSelect.value = appearanceSettings.theme;
-    
+  if (appearanceForm) {
     // Store reduce motion state and update UI
     if (reduceMotionToggle) {
       reduceMotionToggle._enabled = appearanceSettings.reduceMotion;
@@ -491,12 +487,18 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Save form handler
     appearanceForm.addEventListener('submit', function(e) {
       e.preventDefault();
-      const theme = themeSelect.value;
+      
+      // Get selected theme from theme selector (no reload needed - theme already applied on click)
+      const selectedTheme = window.getSelectedTheme ? window.getSelectedTheme() : localStorage.getItem('site-adaptive-theme') || 'light';
       const reduceMotion = reduceMotionToggle?._enabled || false;
       
-      AppearanceSettings.save(theme, reduceMotion);
+      // Save reduce motion setting
+      localStorage.setItem(SETTINGS_KEYS.REDUCE_MOTION, reduceMotion.toString());
+      AppearanceSettings.applyReduceMotion(reduceMotion);
       
-      if(window.Sound) window.Sound.click();
+      // Theme is already saved and applied by theme selector buttons, so no need to reload
+      
+      if(window.Sound) window.Sound.success();
       if(window.Toast) Toast("Appearance settings saved.", "success");
     });
 
@@ -504,7 +506,15 @@ document.addEventListener("DOMContentLoaded", async function() {
     appearanceForm.addEventListener('reset', function(e) {
       e.preventDefault();
       const settings = AppearanceSettings.init();
-      themeSelect.value = settings.theme;
+      
+      // Reset theme selector UI
+      const savedTheme = localStorage.getItem('site-adaptive-theme') || 'light';
+      const themeOptions = document.querySelectorAll('.theme-option');
+      themeOptions.forEach(option => {
+        const isActive = option.dataset.theme === savedTheme;
+        option.classList.toggle('active', isActive);
+      });
+      
       if (reduceMotionToggle) {
         reduceMotionToggle._enabled = settings.reduceMotion;
         reduceMotionToggle.classList.toggle('on', settings.reduceMotion);

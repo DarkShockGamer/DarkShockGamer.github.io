@@ -488,8 +488,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     appearanceForm.addEventListener('submit', function(e) {
       e.preventDefault();
       
-      // Get selected theme from theme selector
-      const selectedTheme = window.getSelectedTheme ? window.getSelectedTheme() : null;
+      // Get reduce motion state
       const reduceMotion = reduceMotionToggle?._enabled || false;
       
       // Save reduce motion setting using consistent method
@@ -509,7 +508,7 @@ document.addEventListener("DOMContentLoaded", async function() {
       const settings = AppearanceSettings.init();
       
       // Reset theme selector UI using Theme API
-      const savedTheme = (window.Theme && window.Theme.getAdaptive());
+      const savedTheme = window.Theme && window.Theme.getAdaptive();
       if (savedTheme) {
         const themeOptions = document.querySelectorAll('.theme-option');
         themeOptions.forEach(option => {

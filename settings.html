@@ -1067,7 +1067,7 @@
     // Initialize theme selector from current theme
     function initThemeSelector() {
       // Use Theme API to get current adaptive theme (includes migration logic)
-      const savedAdaptive = (window.Theme && window.Theme.getAdaptive()) || DEFAULT_THEME;
+      const savedAdaptive = window.Theme && window.Theme.getAdaptive() || DEFAULT_THEME;
       
       // Set selected theme
       selectedTheme = savedAdaptive;
@@ -1112,7 +1112,7 @@
     
     // Get currently selected theme
     function getSelectedTheme() {
-      return selectedTheme || (window.Theme && window.Theme.getAdaptive()) || DEFAULT_THEME;
+      return selectedTheme || window.Theme && window.Theme.getAdaptive() || DEFAULT_THEME;
     }
     
     // Expose to settings.js

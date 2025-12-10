@@ -1118,8 +1118,17 @@
     // Expose to settings.js
     window.getSelectedTheme = getSelectedTheme;
     
-    // Initialize on load
-    initThemeSelector();
+    // Initialize on load - wait for theme.js to be available
+    if (window.Theme) {
+      initThemeSelector();
+    } else {
+      // Wait for theme.js to load
+      window.addEventListener('load', () => {
+        if (window.Theme) {
+          initThemeSelector();
+        }
+      });
+    }
 
   </script>
   <script src="/assets/js/toast.js" defer></script>

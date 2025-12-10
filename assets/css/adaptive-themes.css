@@ -1,6 +1,21 @@
 /* Adaptive Theme Variants - Modern background treatments */
 /* These styles provide contemporary, clean backgrounds for all adaptive theme variants */
 
+/* Base button normalization - Fix vertical text alignment */
+.btn,
+button.btn,
+a.btn,
+button[class*="btn"],
+.save-btn,
+.cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  min-height: 2.25rem;
+  gap: 0.5rem;
+}
+
 /* Base background modernization */
 body {
   position: relative;

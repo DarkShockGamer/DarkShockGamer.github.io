@@ -63,16 +63,29 @@
     @media (prefers-color-scheme: dark) {
       .panel { background: #0f172a; border-color: #1f2937; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.30); }
     }
-    .tabs { display: flex; gap: 2px; background: #f1f5f9; border-radius: 0.5rem; padding: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .tabs { 
+      display: flex; gap: 2px; background: #f1f5f9; border-radius: 0.5rem; padding: 4px; 
+      overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative;
+    }
     .tab-btn {
       flex: 1 1 auto; padding: 0.5rem 1rem; border-radius: 0.5rem; background: none; border: none;
-      font-weight: 600; color: #64748b; transition: background 180ms, color 180ms;
-      cursor: pointer; white-space: nowrap; min-width: max-content;
+      font-weight: 600; color: #64748b; transition: color 180ms;
+      cursor: pointer; white-space: nowrap; min-width: max-content; position: relative; z-index: 1;
     }
     .tab-btn[aria-selected="true"] {
-      background: linear-gradient(90deg, #38bdf8 60%, #818cf8 100%);
       color: white;
+    }
+    .tab-indicator {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      height: calc(100% - 8px);
+      border-radius: 0.5rem;
+      background: linear-gradient(90deg, #38bdf8 60%, #818cf8 100%);
       box-shadow: 0 2px 8px rgba(56,189,248,0.09);
+      transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1), width 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      z-index: 0;
     }
     @media (prefers-color-scheme: dark) {
       .tabs { background: #1e293b; }
@@ -99,6 +112,11 @@
     .toggle.on .toggle-knob { left: 22px; background: #818cf8; }
     .save-btn { background: linear-gradient(90deg, #38bdf8 60%, #818cf8 100%); color: white; font-weight: 600; border: none; border-radius: 0.5rem; padding: 0.5rem 1.5rem; transition: background 180ms, box-shadow 180ms; box-shadow: 0 2px 8px rgba(56,189,248,0.09);}
     .save-btn:active { background: linear-gradient(90deg, #818cf8 0%, #38bdf8 80%);}
+    /* Make save buttons also receive primary button theming */
+    html.theme-light .save-btn,
+    html.theme-dark .save-btn {
+      /* Theme-specific styling is handled by adaptive-themes.css via .btn-primary */
+    }
     .cancel-btn { background: none; border: 1px solid #e2e8f0; color: #64748b; font-weight: 600; border-radius: 0.5rem; padding: 0.5rem 1.5rem; margin-left: 0.5rem;}
     @media (prefers-color-scheme: dark) {
       .cancel-btn { border-color: #374151; color: #94a3b8;}
@@ -694,6 +712,7 @@
   <main class="max-w-3xl mx-auto space-y-6 fadein relative z-10">
     <!-- Tabs Bar -->
     <nav class="tabs mb-2" role="tablist" aria-label="Settings Sections">
+      <div class="tab-indicator"></div>
       <button class="tab-btn" id="tabBtn1" aria-controls="tabPanel1" aria-selected="true" role="tab" tabindex="0">Account</button>
       <button class="tab-btn" id="tabBtn2" aria-controls="tabPanel2" aria-selected="false" role="tab" tabindex="-1">Notifications</button>
       <button class="tab-btn" id="tabBtn3" aria-controls="tabPanel3" aria-selected="false" role="tab" tabindex="-1">Appearance</button>
@@ -720,7 +739,7 @@
           <p class="setting-description">Your display name on the platform</p>
         </div>
         <div class="flex justify-end">
-          <button type="submit" class="save-btn">Save</button>
+          <button type="submit" class="save-btn btn-primary">Save</button>
           <button type="reset" class="cancel-btn">Cancel</button>
         </div>
       </form>
@@ -753,7 +772,7 @@
           <p class="setting-description">Choose the sound that plays with notifications</p>
         </div>
         <div class="flex justify-end">
-          <button type="submit" class="save-btn">Save</button>
+          <button type="submit" class="save-btn btn-primary">Save</button>
           <button type="reset" class="cancel-btn">Cancel</button>
         </div>
       </form>
@@ -796,7 +815,7 @@
           <p class="setting-description">Minimize animations for better accessibility</p>
         </div>
         <div class="flex justify-end">
-          <button type="submit" class="save-btn">Save</button>
+          <button type="submit" class="save-btn btn-primary">Save</button>
           <button type="reset" class="cancel-btn">Cancel</button>
         </div>
       </form>
@@ -817,7 +836,7 @@
           <p class="setting-description">Allow collection of usage data to improve your experience. Disabling this will clear all stored user information including Google login.</p>
         </div>
         <div class="flex justify-end">
-          <button type="submit" class="save-btn">Save</button>
+          <button type="submit" class="save-btn btn-primary">Save</button>
           <button type="reset" class="cancel-btn">Cancel</button>
         </div>
       </form>
@@ -942,9 +961,34 @@
       return { setEnabled, click, success, warn, error, info, tab, toggle };
     })();
 
-    // Tabs (animated, motion-safe)
+    // Tabs (animated with indicator, motion-safe)
     const tabBtns = [document.getElementById('tabBtn1'), document.getElementById('tabBtn2'), document.getElementById('tabBtn3'), document.getElementById('tabBtn4')];
     const tabPanels = [document.getElementById('tabPanel1'), document.getElementById('tabPanel2'), document.getElementById('tabPanel3'), document.getElementById('tabPanel4')];
+    const tabIndicator = document.querySelector('.tab-indicator');
+    
+    // Function to update the indicator position
+    function updateTabIndicator(index) {
+      const activeBtn = tabBtns[index];
+      if (activeBtn && tabIndicator) {
+        const containerRect = activeBtn.parentElement.getBoundingClientRect();
+        const btnRect = activeBtn.getBoundingClientRect();
+        const left = btnRect.left - containerRect.left;
+        const width = btnRect.width;
+        
+        tabIndicator.style.transform = `translateX(${left}px)`;
+        tabIndicator.style.width = `${width}px`;
+      }
+    }
+    
+    // Initialize indicator on first tab
+    updateTabIndicator(0);
+    
+    // Update indicator on window resize
+    window.addEventListener('resize', () => {
+      const activeIdx = tabBtns.findIndex(btn => btn.getAttribute('aria-selected') === 'true');
+      if (activeIdx !== -1) updateTabIndicator(activeIdx);
+    });
+    
     tabBtns.forEach((btn, idx) => {
       btn.addEventListener('click', () => {
         tabBtns.forEach((b,i) => {
@@ -954,12 +998,14 @@
         tabPanels.forEach((panel,i) => {
           panel.classList.toggle('active', i === idx);
         });
+        updateTabIndicator(idx);
         Sound.tab();
       });
       btn.addEventListener('keydown', function(e) {
         if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
           let dir = e.key === "ArrowLeft" ? -1 : 1;
           let next = (idx + dir + tabBtns.length) % tabBtns.length;
+          tabBtns[next].click(); // Trigger click to also update indicator
           tabBtns[next].focus();
         }
       });

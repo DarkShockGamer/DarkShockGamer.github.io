@@ -1059,6 +1059,7 @@
     
     // Valid adaptive theme values
     const validAdaptiveThemes = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark'];
+    const DEFAULT_THEME = 'light';
     
     // Track current selected theme
     let selectedTheme = null;
@@ -1066,7 +1067,7 @@
     // Initialize theme selector from current theme
     function initThemeSelector() {
       // Use Theme API to get current adaptive theme (includes migration logic)
-      const savedAdaptive = (window.Theme && window.Theme.getAdaptive()) || 'light';
+      const savedAdaptive = (window.Theme && window.Theme.getAdaptive()) || DEFAULT_THEME;
       
       // Set selected theme
       selectedTheme = savedAdaptive;
@@ -1111,7 +1112,7 @@
     
     // Get currently selected theme
     function getSelectedTheme() {
-      return selectedTheme || (window.Theme && window.Theme.getAdaptive()) || 'light';
+      return selectedTheme || (window.Theme && window.Theme.getAdaptive()) || DEFAULT_THEME;
     }
     
     // Expose to settings.js

@@ -488,15 +488,16 @@ document.addEventListener("DOMContentLoaded", async function() {
     appearanceForm.addEventListener('submit', function(e) {
       e.preventDefault();
       
-      // Get selected theme from theme selector (no reload needed - theme already applied on click)
-      const selectedTheme = window.getSelectedTheme ? window.getSelectedTheme() : localStorage.getItem('site-adaptive-theme') || 'light';
+      // Get selected theme from theme selector
+      const selectedTheme = window.getSelectedTheme ? window.getSelectedTheme() : null;
       const reduceMotion = reduceMotionToggle?._enabled || false;
       
-      // Save reduce motion setting
+      // Save reduce motion setting using consistent method
       localStorage.setItem(SETTINGS_KEYS.REDUCE_MOTION, reduceMotion.toString());
       AppearanceSettings.applyReduceMotion(reduceMotion);
       
-      // Theme is already saved and applied by theme selector buttons, so no need to reload
+      // Theme is already saved and applied by theme selector buttons via Theme API
+      // No need to re-apply or reload
       
       if(window.Sound) window.Sound.success();
       if(window.Toast) Toast("Appearance settings saved.", "success");
@@ -508,12 +509,14 @@ document.addEventListener("DOMContentLoaded", async function() {
       const settings = AppearanceSettings.init();
       
       // Reset theme selector UI using Theme API
-      const savedTheme = (window.Theme && window.Theme.getAdaptive()) || 'light';
-      const themeOptions = document.querySelectorAll('.theme-option');
-      themeOptions.forEach(option => {
-        const isActive = option.dataset.theme === savedTheme;
-        option.classList.toggle('active', isActive);
-      });
+      const savedTheme = (window.Theme && window.Theme.getAdaptive());
+      if (savedTheme) {
+        const themeOptions = document.querySelectorAll('.theme-option');
+        themeOptions.forEach(option => {
+          const isActive = option.dataset.theme === savedTheme;
+          option.classList.toggle('active', isActive);
+        });
+      }
       
       if (reduceMotionToggle) {
         reduceMotionToggle._enabled = settings.reduceMotion;

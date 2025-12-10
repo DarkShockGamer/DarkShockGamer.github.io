@@ -1065,17 +1065,14 @@
     
     // Initialize theme selector from current theme
     function initThemeSelector() {
-      // Read from localStorage directly using the correct key
-      const savedAdaptive = localStorage.getItem('site-adaptive-theme') || 'light';
-      
-      // Use saved theme if valid, otherwise default to 'light'
-      const currentTheme = validAdaptiveThemes.includes(savedAdaptive) ? savedAdaptive : 'light';
+      // Use Theme API to get current adaptive theme (includes migration logic)
+      const savedAdaptive = (window.Theme && window.Theme.getAdaptive()) || 'light';
       
       // Set selected theme
-      selectedTheme = currentTheme;
+      selectedTheme = savedAdaptive;
       
       // Update UI to reflect current theme (don't re-apply as it's already applied)
-      updateThemeUI(currentTheme, false);
+      updateThemeUI(savedAdaptive, false);
     }
     
     // Update theme UI and optionally apply theme
@@ -1091,13 +1088,11 @@
       
       // Apply theme if requested
       if (applyTheme) {
-        // Apply theme class immediately
-        const html = document.documentElement;
-        html.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast-light', 'theme-high-contrast-dark');
-        html.classList.add('theme-' + themeName);
-        
-        // Save to localStorage
-        localStorage.setItem('site-adaptive-theme', themeName);
+        // Use Theme API to apply theme consistently
+        if (window.Theme) {
+          window.Theme.setAdaptive(themeName);
+          window.Theme.apply();
+        }
         
         // Play sound
         if (window.Sound) {
@@ -1116,7 +1111,7 @@
     
     // Get currently selected theme
     function getSelectedTheme() {
-      return selectedTheme;
+      return selectedTheme || (window.Theme && window.Theme.getAdaptive()) || 'light';
     }
     
     // Expose to settings.js

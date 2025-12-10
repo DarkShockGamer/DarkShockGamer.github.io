@@ -507,8 +507,8 @@ document.addEventListener("DOMContentLoaded", async function() {
       e.preventDefault();
       const settings = AppearanceSettings.init();
       
-      // Reset theme selector UI
-      const savedTheme = localStorage.getItem('site-adaptive-theme') || 'light';
+      // Reset theme selector UI using Theme API
+      const savedTheme = (window.Theme && window.Theme.getAdaptive()) || 'light';
       const themeOptions = document.querySelectorAll('.theme-option');
       themeOptions.forEach(option => {
         const isActive = option.dataset.theme === savedTheme;

@@ -112,11 +112,6 @@
     .toggle.on .toggle-knob { left: 22px; background: #818cf8; }
     .save-btn { background: linear-gradient(90deg, #38bdf8 60%, #818cf8 100%); color: white; font-weight: 600; border: none; border-radius: 0.5rem; padding: 0.5rem 1.5rem; transition: background 180ms, box-shadow 180ms; box-shadow: 0 2px 8px rgba(56,189,248,0.09);}
     .save-btn:active { background: linear-gradient(90deg, #818cf8 0%, #38bdf8 80%);}
-    /* Make save buttons also receive primary button theming */
-    html.theme-light .save-btn,
-    html.theme-dark .save-btn {
-      /* Theme-specific styling is handled by adaptive-themes.css via .btn-primary */
-    }
     .cancel-btn { background: none; border: 1px solid #e2e8f0; color: #64748b; font-weight: 600; border-radius: 0.5rem; padding: 0.5rem 1.5rem; margin-left: 0.5rem;}
     @media (prefers-color-scheme: dark) {
       .cancel-btn { border-color: #374151; color: #94a3b8;}
@@ -1005,7 +1000,16 @@
         if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
           let dir = e.key === "ArrowLeft" ? -1 : 1;
           let next = (idx + dir + tabBtns.length) % tabBtns.length;
-          tabBtns[next].click(); // Trigger click to also update indicator
+          // Update ARIA attributes
+          tabBtns.forEach((b,i) => {
+            b.setAttribute('aria-selected', i === next);
+            b.tabIndex = i === next ? 0 : -1;
+          });
+          tabPanels.forEach((panel,i) => {
+            panel.classList.toggle('active', i === next);
+          });
+          updateTabIndicator(next);
+          Sound.tab();
           tabBtns[next].focus();
         }
       });

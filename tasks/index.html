@@ -46,6 +46,8 @@
     })();
   </script>
   <title>Trident Robotics — Task Board</title>
+  <!-- JWT decode library for authentication -->
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, sans-serif; }
@@ -1311,13 +1313,11 @@ async function archiveTaskAttachments(taskId, attachments) {
         await uploadBytesResumable(archivedRef, compressedFile);
         const archivedURL = await getDownloadURL(archivedRef);
         
-        // Delete original if different from archived path
-        if (attachment.storagePath !== archivedPath) {
-          try {
-            await deleteFile(attachment.storagePath);
-          } catch (err) {
-            console.warn(`Could not delete original file ${attachment.storagePath}:`, err);
-          }
+        // Delete original (original is always in attachments folder, archived is in archived folder)
+        try {
+          await deleteFile(attachment.storagePath);
+        } catch (err) {
+          console.warn(`Could not delete original file ${attachment.storagePath}:`, err);
         }
         
         // Update metadata
@@ -2626,6 +2626,13 @@ filterInput.oninput = () => { renderBoard(); };
     
     // Helper: Generate unique file ID
     function generateFileId() {
+      // Use crypto API for better uniqueness
+      if (window.crypto && window.crypto.getRandomValues) {
+        const array = new Uint8Array(16);
+        window.crypto.getRandomValues(array);
+        return `${Date.now()}_${Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')}`;
+      }
+      // Fallback to timestamp + random
       return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
     
@@ -2672,16 +2679,21 @@ filterInput.oninput = () => { renderBoard(); };
                 resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' }));
               } else {
                 // Fallback to JPEG
-                canvas.toBlob((blob) => {
-                  resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
+                canvas.toBlob((jpegBlob) => {
+                  if (jpegBlob) {
+                    resolve(new File([jpegBlob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
+                  } else {
+                    // If both fail, reject with error
+                    reject(new Error('Failed to compress image'));
+                  }
                 }, 'image/jpeg', quality);
               }
             }, 'image/webp', quality);
           };
-          img.onerror = reject;
+          img.onerror = () => reject(new Error('Failed to load image'));
           img.src = e.target.result;
         };
-        reader.onerror = reject;
+        reader.onerror = () => reject(new Error('Failed to read file'));
         reader.readAsDataURL(file);
       });
     }
@@ -2715,7 +2727,7 @@ filterInput.oninput = () => { renderBoard(); };
                 downloadURL: downloadURL,
                 storagePath: filePath,
                 uploadedAt: Date.now(),
-                uploadedBy: getUserEmail() || 'Anonymous'
+                uploadedBy: getUserEmail() || 'unknown'
               });
             } catch (error) {
               reject(error);

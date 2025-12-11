@@ -4,7 +4,7 @@ Welcome to the repository for our robotics team public website, hosted via **Git
 
 This site presents our robots, competition seasons, engineering process, outreach, and resources for new and returning team members.
 
-> Tech Breakdown: **HTML ~88.3% · JavaScript ~10% · CSS ~1.4%**
+> Tech Breakdown: **HTML ~83.3% · JavaScript ~12.6% · CSS ~4.1%**
 
 ---
 ## Table of Contents

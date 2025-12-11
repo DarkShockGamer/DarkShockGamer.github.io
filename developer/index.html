@@ -156,11 +156,12 @@
       <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-8 w-8"/>
       <div>
         <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 dark:text-sky-300 leading-snug">Developer Editor</h1>
-        <p class="text-sm text-sky-600 dark:text-sky-400">Edit site content and download or push the data file</p>
+        <p class="text-sm text-sky-600 dark:text-sky-400">Edit site content and push the data file</p>
       </div>
     </div>
     <p class="muted mt-2">
-      Pushing directly requires a GitHub Personal Access Token with repo write permissions. You can also download the file and commit via GitHub.
+      To save changes from this page, enter a GitHub Personal Access Token with <code>repo</code> permissions and click <strong>Push to GitHub</strong>.
+      The token is used only in your browser and is never stored on the site.
     </p>
   </header>
 
@@ -172,12 +173,12 @@
         <div class="col-span-1">
           <label for="site-title" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Site Title</label>
           <input id="site-title" type="text" placeholder="Site title"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500"/>
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
         </div>
         <div class="col-span-1">
           <label for="about-heading" class="block text-sm font-medium text-slate-700 dark:text-slate-300">About Heading</label>
           <input id="about-heading" type="text" placeholder="About heading"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500"/>
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
         </div>
       </div>
 
@@ -208,7 +209,7 @@
         <div id="leads-list" class="mt-2"></div>
         <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2">
           <input id="new-lead" type="text" placeholder="Add lead name"
-                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500"/>
+                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
           <select id="new-lead-team" aria-label="Lead team"
                   class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200"></select>
           <button id="add-lead"
@@ -222,7 +223,7 @@
         <div id="drivers-list" class="mt-2"></div>
         <div class="mt-3 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-2">
           <input id="new-driver" type="text" placeholder="Add driver name"
-                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500"/>
+                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
           <button id="add-driver"
                   class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">Add</button>
         </div>
@@ -233,16 +234,18 @@
     <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
       <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Media Manager</h2>
       <p class="muted mt-1">
-        Upload images directly to this repo (via your PAT below) and set which images appear on the site.
-        <span class="ml-1 text-[0.8rem] text-amber-600 dark:text-amber-400">Note: Uploading commits the image file, but the site.json reference isn’t saved until you click “Push to GitHub”.</span>
+        Upload images directly to this repo (using your PAT below) and choose which images appear on the site.
+        <span class="ml-1 text-[0.8rem] text-amber-600 dark:text-amber-400">
+          Note: Uploading commits the image file, but the site.json reference isn’t saved until you click “Push to GitHub”.
+        </span>
       </p>
 
       <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-2">
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Index Header Image URL</label>
           <div class="flex gap-2">
-            <input id="media-indexHeader" type="text" placeholder="/assets/group.png" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-            <button id="btn-upload-indexHeader" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload & Set</button>
+            <input id="media-indexHeader" type="text" placeholder="/assets/group.png" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
+            <button id="btn-upload-indexHeader" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload &amp; Set</button>
             <input id="file-indexHeader" type="file" accept="image/*" class="hidden">
           </div>
           <img id="preview-indexHeader" alt="Preview" class="mt-2 max-h-36 rounded-md border border-slate-200 dark:border-slate-700">
@@ -251,8 +254,8 @@
         <div class="space-y-2">
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Index Team Photo URL</label>
           <div class="flex gap-2">
-            <input id="media-indexPhoto" type="text" placeholder="/assets/Shark-Photo.png" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-            <button id="btn-upload-indexPhoto" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload & Set</button>
+            <input id="media-indexPhoto" type="text" placeholder="/assets/Shark-Photo.png" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
+            <button id="btn-upload-indexPhoto" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload &amp; Set</button>
             <input id="file-indexPhoto" type="file" accept="image/*" class="hidden">
           </div>
           <img id="preview-indexPhoto" alt="Preview" class="mt-2 max-h-36 rounded-md border border-slate-200 dark:border-slate-700">
@@ -261,8 +264,8 @@
         <div class="space-y-2">
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Sponsors Header Image URL</label>
           <div class="flex gap-2">
-            <input id="media-sponsorsHeader" type="text" placeholder="/assets/group.png" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-            <button id="btn-upload-sponsorsHeader" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload & Set</button>
+            <input id="media-sponsorsHeader" type="text" placeholder="/assets/group.png" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
+            <button id="btn-upload-sponsorsHeader" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload &amp; Set</button>
             <input id="file-sponsorsHeader" type="file" accept="image/*" class="hidden">
           </div>
           <img id="preview-sponsorsHeader" alt="Preview" class="mt-2 max-h-36 rounded-md border border-slate-200 dark:border-slate-700">
@@ -279,9 +282,9 @@
         <h3 class="text-md font-semibold text-slate-700 dark:text-slate-200 mb-2">Competition Moments Gallery</h3>
 
         <div class="flex flex-wrap items-center gap-2 mb-3">
-          <input id="new-competition-url" type="text" placeholder="https://... or /assets/uploads/your-image.png" class="flex-1 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+          <input id="new-competition-url" type="text" placeholder="https://... or /assets/uploads/your-image.png" class="flex-1 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500">
           <button id="add-competition-url" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">Add URL</button>
-          <button id="btn-upload-competition" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload & Add</button>
+          <button id="btn-upload-competition" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload &amp; Add</button>
           <input id="file-competition" type="file" accept="image/*" multiple class="hidden">
         </div>
 
@@ -296,7 +299,9 @@
       <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Sponsors Manager</h2>
       <p class="muted mt-1">
         Add sponsors shown on sponsors.html. Upload a logo, set the sponsor name (and optional link), reorder, or remove.
-        <span class="ml-1 text-[0.8rem] text-amber-600 dark:text-amber-400">Note: Uploaded logo files are committed immediately, but changes to the sponsors list are saved when you click “Push to GitHub”.</span>
+        <span class="ml-1 text-[0.8rem] text-amber-600 dark:text-amber-400">
+          Note: Uploaded logo files are committed immediately, but changes to the sponsors list are saved when you click “Push to GitHub”.
+        </span>
       </p>
 
       <!-- Add sponsor form -->
@@ -335,65 +340,33 @@
       <div class="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="sponsors-list"></div>
     </section>
 
-    <!-- Data Actions -->
-    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
-      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">Data Actions</h2>
-      <div class="flex flex-wrap gap-2">
-        <button id="download-json" class="border border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 px-4 py-2 rounded-md font-semibold shadow-sm">
-          Download data/site.json
-        </button>
-        <button id="preview-json" class="border border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 px-4 py-2 rounded-md font-semibold shadow-sm">
-          Preview JSON
-        </button>
-      </div>
-    </section>
-
-    <!-- GitHub Push (required to save from here) -->
+    <!-- Simplified GitHub Push -->
     <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
       <div class="flex items-center gap-2">
-        <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Push to GitHub</h3>
+        <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Save Changes to GitHub</h3>
         <!-- Live save status badge -->
         <span id="save-status" class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
           All changes saved
         </span>
       </div>
       <p class="muted mt-1">
-        Provide owner/repo/branch/path and a PAT with repo permissions. This is required to save changes from this editor.
-        Alternatively, you can download site.json above and commit it manually.
+        This editor always saves to
+        <code>DarkShockGamer/DarkShockGamer.github.io</code>,
+        branch <code>main</code>, file <code>data/site.json</code>.
+        Enter a GitHub Personal Access Token (PAT) with permission to push to that repo and click
+        <strong>Push to GitHub</strong>.
       </p>
 
-      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label for="gh-owner" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Owner</label>
-          <input id="gh-owner" type="text" placeholder="owner" value="DarkShockGamer"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-        </div>
-        <div>
-          <label for="gh-repo" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Repo</label>
-          <input id="gh-repo" type="text" placeholder="repo" value="DarkShockGamer.github.io"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-        </div>
-        <div>
-          <label for="gh-branch" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Branch</label>
-          <input id="gh-branch" type="text" placeholder="branch" value="main"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-        </div>
-        <div>
-          <label for="gh-path" class="block text-sm font-medium text-slate-700 dark:text-slate-300">File path</label>
-          <input id="gh-path" type="text" placeholder="path" value="data/site.json"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-        </div>
-        <div class="md:col-span-2">
-          <label for="gh-token" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Personal Access Token (PAT)</label>
-          <input id="gh-token" type="password" placeholder="ghp_xxx"
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-        </div>
+      <div class="mt-4">
+        <label for="gh-token" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Personal Access Token (PAT)</label>
+        <input id="gh-token" type="password" placeholder="ghp_xxx"
+               class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+        <p class="text-xs muted mt-1">
+          The token is only used in your browser to call the GitHub API. It is not logged or stored by the site.
+        </p>
       </div>
 
       <div class="flex flex-wrap gap-2 mt-4">
-        <button id="dry-run" class="border border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 px-4 py-2 rounded-md font-semibold shadow-sm">
-          Dry run (get SHA)
-        </button>
         <button id="push-github" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">
           Push to GitHub
         </button>
@@ -412,6 +385,12 @@
   <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
 
   <script>
+    // ===== Fixed GitHub target (no fields for moderators to edit) =====
+    const GH_OWNER  = 'DarkShockGamer';
+    const GH_REPO   = 'DarkShockGamer.github.io';
+    const GH_BRANCH = 'main';
+    const GH_PATH   = 'data/site.json';
+
     // ===== Base state and helpers =====
     function uid(){ return 'id_'+Math.random().toString(36).slice(2,9); }
 
@@ -680,14 +659,6 @@
     document.getElementById('about-heading').addEventListener('input',(e)=> { siteData.about.heading = e.target.value; setDirty('Content changed'); });
     document.getElementById('about-content').addEventListener('input',(e)=> { siteData.about.content = e.target.value; setDirty('Content changed'); });
 
-    // ===== Download/preview =====
-    document.getElementById('download-json').addEventListener('click', ()=>{
-      const b = new Blob([JSON.stringify(siteData,null,2)], {type:'application/json'});
-      const u = URL.createObjectURL(b);
-      const a = document.createElement('a'); a.href = u; a.download = 'site.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(u);
-    });
-    document.getElementById('preview-json').addEventListener('click', ()=> alert(JSON.stringify(siteData,null,2)));
-
     // ===== GitHub push (text/json) =====
     async function getSha(owner, repo, path, branch, token){
       const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
@@ -764,44 +735,13 @@
       window.showToast = showToast;
     }
 
-    // ===== Dry run and Push handlers with toasts =====
-    document.getElementById('dry-run').addEventListener('click', async ()=>{
-      const owner = document.getElementById('gh-owner').value.trim();
-      const repo = document.getElementById('gh-repo').value.trim();
-      const branch = document.getElementById('gh-branch').value.trim() || 'main';
-      const path = document.getElementById('gh-path').value.trim() || 'data/site.json';
-      const token = document.getElementById('gh-token').value.trim();
-
-      if (!owner || !repo || !token) {
-        document.getElementById('gh-result').textContent = 'owner/repo/token required';
-        showToast('warn', 'Please provide owner, repo, and token.');
-        return;
-      }
-
-      try {
-        document.getElementById('gh-result').textContent = 'Checking...';
-        showToast('info', 'Checking GitHub for existing file…');
-        const sha = await getSha(owner, repo, path, branch, token);
-        const msg = sha ? ('Found existing file. SHA: ' + sha) : 'No existing file (will create new).';
-        document.getElementById('gh-result').textContent = msg;
-        showToast('success', msg);
-      } catch (e) {
-        const msg = 'Error: ' + e.message;
-        document.getElementById('gh-result').textContent = msg;
-        showToast('error', msg);
-      }
-    });
-
+    // ===== Push handler (no dry run, no owner/repo fields) =====
     document.getElementById('push-github').addEventListener('click', async ()=>{
-      const owner = document.getElementById('gh-owner').value.trim();
-      const repo = document.getElementById('gh-repo').value.trim();
-      const branch = document.getElementById('gh-branch').value.trim() || 'main';
-      const path = document.getElementById('gh-path').value.trim() || 'data/site.json';
       const token = document.getElementById('gh-token').value.trim();
 
-      if (!owner || !repo || !token) {
-        document.getElementById('gh-result').textContent = 'owner/repo/token required';
-        showToast('warn', 'Please provide owner, repo, and token.');
+      if (!token) {
+        document.getElementById('gh-result').textContent = 'Token required';
+        showToast('warn', 'Please enter a Personal Access Token (PAT).');
         return;
       }
 
@@ -817,7 +757,7 @@
         document.getElementById('gh-result').textContent = 'Pushing...';
         showToast('info', 'Pushing to GitHub…');
 
-        const res = await pushFile(owner, repo, path, branch, token, JSON.stringify(siteData,null,2), 'Update site data via developer.html');
+        const res = await pushFile(GH_OWNER, GH_REPO, GH_PATH, GH_BRANCH, token, JSON.stringify(siteData,null,2), 'Update site data via developer.html');
         if (res && res.commit && res.commit.sha) {
           const msg = 'Success. Commit: ' + res.commit.sha;
           document.getElementById('gh-result').textContent = msg;
@@ -876,17 +816,14 @@
       return j;
     }
     async function uploadOneImage(file) {
-      const owner = document.getElementById('gh-owner').value.trim();
-      const repo = document.getElementById('gh-repo').value.trim();
-      const branch = (document.getElementById('gh-branch').value.trim() || 'main');
       const token = document.getElementById('gh-token').value.trim();
       const destDir = (document.getElementById('media-dest-dir').value.trim() || 'assets/uploads').replace(/\/+$/,'');
-      if (!owner || !repo || !token) throw new Error('owner/repo/token required (set in the "Push to GitHub" section).');
+      if (!token) throw new Error('Token required (set in the "Save Changes to GitHub" section).');
 
       const safeName = `${Date.now()}-${sanitizeFileName(file.name)}`;
       const path = `${destDir}/${safeName}`.replace(/^\/+/,'');
       const b64 = await base64FromFile(file);
-      const res = await pushBinaryFile(owner, repo, path, branch, token, b64, `Upload image ${safeName} via developer.html`);
+      const res = await pushBinaryFile(GH_OWNER, GH_REPO, path, GH_BRANCH, token, b64, `Upload image ${safeName} via developer.html`);
       return `/${res.content.path}`; // site-relative URL
     }
 
@@ -1010,14 +947,14 @@
           const files = Array.from(e.target.files || []);
           if (!files.length) return;
           try {
-            document.getElementById('media-result').textContent = 'Uploading...';
+            document.getElementById('media-result').textContent = 'Uploading competition images...';
             for (const f of files) {
               const url = await uploadOneImage(f);
               siteData.media.competitionImages.push(url);
             }
-            setDirty('Image(s) uploaded to repository ✓ (references pending in site.json)');
-            document.getElementById('media-result').textContent = 'Uploaded ' + files.length + ' file(s).\nImages are committed. References will be saved when you click "Push to GitHub".';
+            setDirty('Competition gallery updated (uploads committed, references pending in site.json).');
             renderCompetitionList();
+            document.getElementById('media-result').textContent = 'Competition images uploaded. Remember to click "Push to GitHub" to save site.json references.';
           } catch (err) {
             document.getElementById('media-result').textContent = 'Error: ' + err.message;
           } finally {
@@ -1029,127 +966,111 @@
 
     function bindMediaManager() {
       bindImageField(
-        'media-indexHeader', 'file-indexHeader', 'btn-upload-indexHeader', 'preview-indexHeader',
+        'media-indexHeader','file-indexHeader','btn-upload-indexHeader','preview-indexHeader',
         () => siteData.media.indexHeader,
-        (v) => siteData.media.indexHeader = v
+        (v) => { siteData.media.indexHeader = v; }
       );
       bindImageField(
-        'media-indexPhoto', 'file-indexPhoto', 'btn-upload-indexPhoto', 'preview-indexPhoto',
+        'media-indexPhoto','file-indexPhoto','btn-upload-indexPhoto','preview-indexPhoto',
         () => siteData.media.indexPhoto,
-        (v) => siteData.media.indexPhoto = v
+        (v) => { siteData.media.indexPhoto = v; }
       );
       bindImageField(
-        'media-sponsorsHeader', 'file-sponsorsHeader', 'btn-upload-sponsorsHeader', 'preview-sponsorsHeader',
+        'media-sponsorsHeader','file-sponsorsHeader','btn-upload-sponsorsHeader','preview-sponsorsHeader',
         () => siteData.media.sponsorsHeader,
-        (v) => siteData.media.sponsorsHeader = v
+        (v) => { siteData.media.sponsorsHeader = v; }
       );
       bindCompetitionControls();
-      renderCompetitionList();
     }
 
-    // ===== Sponsors Manager =====
+    // ===== Sponsors manager =====
     function bindSponsorAddControls() {
-      const logoBtn = document.getElementById('btn-upload-sponsor-logo');
-      const logoInput = document.getElementById('file-sponsor-logo');
-      const logoUrlField = document.getElementById('new-sponsor-logo');
-      const logoPreview = document.getElementById('preview-sponsor-logo');
+      const nameInput = document.getElementById('new-sponsor-name');
+      const linkInput = document.getElementById('new-sponsor-link');
+      const logoInput = document.getElementById('new-sponsor-logo');
       const addBtn = document.getElementById('add-sponsor');
+      const uploadBtn = document.getElementById('btn-upload-sponsor-logo');
+      const fileInput = document.getElementById('file-sponsor-logo');
+      const logoPreview = document.getElementById('preview-sponsor-logo');
 
-      // Initialize preview hidden until a valid URL is present
-      setPreview(logoPreview, (logoUrlField?.value || '').trim());
+      if (logoInput && logoPreview) {
+        logoInput.addEventListener('input', () => {
+          setPreview(logoPreview, logoInput.value.trim());
+        });
+      }
 
-      if (logoBtn && logoInput && logoUrlField && logoPreview) {
-        logoBtn.addEventListener('click', () => logoInput.click());
-        logoInput.addEventListener('change', async (e) => {
+      if (uploadBtn && fileInput) {
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', async (e) => {
           const f = e.target.files && e.target.files[0];
           if (!f) return;
           try {
-            document.getElementById('media-result').textContent = 'Uploading logo...';
+            document.getElementById('media-result').textContent = 'Uploading sponsor logo...';
             const url = await uploadOneImage(f);
-            logoUrlField.value = url;
-            setPreview(logoPreview, url); // show only when valid
-            setDirty('Sponsor logo uploaded ✓ (reference pending in site.json)');
-            document.getElementById('media-result').textContent = `Uploaded logo: ${url}\nLogo file is committed. Add sponsor and push to save changes.`;
+            logoInput.value = url;
+            setPreview(logoPreview, url);
+            setDirty('Sponsor logo uploaded (reference pending in site.json).');
+            document.getElementById('media-result').textContent = `Uploaded sponsor logo: ${url}\nRemember to click "Push to GitHub" to save the sponsor list.`;
           } catch (err) {
             document.getElementById('media-result').textContent = 'Error: ' + err.message;
           } finally {
-            logoInput.value = '';
+            fileInput.value = '';
           }
-        });
-        logoUrlField.addEventListener('input', () => {
-          setPreview(logoPreview, logoUrlField.value.trim());
         });
       }
 
       if (addBtn) {
         addBtn.addEventListener('click', () => {
-          const name = document.getElementById('new-sponsor-name').value.trim();
-          const logo = document.getElementById('new-sponsor-logo').value.trim();
-          const url = document.getElementById('new-sponsor-link').value.trim();
-          if (!name || !logo) {
-            alert('Please provide at least a sponsor name and a logo URL.');
-            return;
-          }
+          const name = nameInput.value.trim();
+          const logo = logoInput.value.trim();
+          const url = linkInput.value.trim();
+          if (!name || !logo) return;
           siteData.sponsors.push({ name, logo, url });
-          // clear inputs
-          document.getElementById('new-sponsor-name').value = '';
-          document.getElementById('new-sponsor-logo').value = '';
-          document.getElementById('new-sponsor-link').value = '';
-          setPreview(logoPreview, ''); // hide preview again
-          setDirty('Sponsors list updated');
+          nameInput.value = '';
+          logoInput.value = '';
+          linkInput.value = '';
+          setPreview(logoPreview, '');
+          setDirty('Sponsors updated');
           renderSponsorsList();
         });
       }
     }
 
     function renderSponsorsList() {
-      const wrap = document.getElementById('sponsors-list');
-      if (!wrap) return;
-      wrap.innerHTML = '';
+      const list = document.getElementById('sponsors-list');
+      if (!list) return;
+      list.innerHTML = '';
       (siteData.sponsors || []).forEach((s, idx) => {
         const card = document.createElement('div');
-        card.className = 'rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm';
-
-        const safeName = (s.name||'').replace(/"/g,'&quot;');
-        const safeLogo = (s.logo||'').replace(/"/g,'&quot;');
-        const safeUrl = (s.url||'').replace(/"/g,'&quot;');
-
+        card.className = 'rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 flex flex-col gap-2';
         card.innerHTML = `
-          <div class="p-3 flex items-start gap-3">
-            <img src="${safeLogo}" alt="${safeName}" class="h-16 w-24 object-contain rounded border border-slate-200 dark:border-slate-700 bg-white" onerror="this.style.visibility='hidden'">
-            <div class="flex-1 grid grid-cols-1 gap-2">
-              <div>
-                <label class="block text-xs text-slate-500 dark:text-slate-400">Name</label>
-                <input class="s-name mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" value="${safeName}">
-              </div>
-              <div>
-                <label class="block text-xs text-slate-500 dark:text-slate-400">Logo URL</label>
-                <input class="s-logo mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" value="${safeLogo}">
-              </div>
-              <div>
-                <label class="block text-xs text-slate-500 dark:text-slate-400">Link URL (optional)</label>
-                <input class="s-url mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" value="${safeUrl}">
-              </div>
-              <div class="flex gap-2">
-                <button class="up border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs">↑</button>
-                <button class="down border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs">↓</button>
-                <button class="del border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 rounded px-2 py-1 text-xs">Delete</button>
-              </div>
+          <div class="flex items-center gap-3">
+            <img src="${s.logo}" alt="${s.name}" class="h-12 w-12 rounded object-contain bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <div class="min-w-0">
+              <div class="font-semibold text-sm text-slate-800 dark:text-slate-100 truncate">${s.name}</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400 truncate" title="${s.url || ''}">${s.url || ''}</div>
             </div>
           </div>
+          <div class="flex flex-wrap gap-2 mt-1">
+            <button class="border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs edit">Edit</button>
+            <button class="border border-red-300 dark:border-red-900 text-red-600 dark:text-red-400 rounded px-2 py-1 text-xs remove">Remove</button>
+            <button class="border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs up">↑</button>
+            <button class="border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs down">↓</button>
+          </div>
         `;
-        wrap.appendChild(card);
+        list.appendChild(card);
 
-        // Bind events
-        card.querySelector('.s-name').addEventListener('input', (e) => { siteData.sponsors[idx].name = e.target.value; setDirty('Sponsors list updated'); });
-        card.querySelector('.s-logo').addEventListener('input', (e) => { siteData.sponsors[idx].logo = e.target.value; setDirty('Sponsors list updated'); });
-        card.querySelector('.s-url').addEventListener('input', (e) => { siteData.sponsors[idx].url = e.target.value; setDirty('Sponsors list updated'); });
+        card.querySelector('.remove').addEventListener('click', () => {
+          siteData.sponsors.splice(idx, 1);
+          setDirty('Sponsors updated');
+          renderSponsorsList();
+        });
         card.querySelector('.up').addEventListener('click', () => {
           if (idx > 0) {
             const a = siteData.sponsors[idx-1];
             siteData.sponsors[idx-1] = siteData.sponsors[idx];
             siteData.sponsors[idx] = a;
-            setDirty('Sponsors list updated');
+            setDirty('Sponsors updated');
             renderSponsorsList();
           }
         });
@@ -1158,21 +1079,28 @@
             const a = siteData.sponsors[idx+1];
             siteData.sponsors[idx+1] = siteData.sponsors[idx];
             siteData.sponsors[idx] = a;
-            setDirty('Sponsors list updated');
+            setDirty('Sponsors updated');
             renderSponsorsList();
           }
         });
-        card.querySelector('.del').addEventListener('click', () => {
-          siteData.sponsors.splice(idx, 1);
-          setDirty('Sponsors list updated');
+        card.querySelector('.edit').addEventListener('click', () => {
+          const name = prompt('Sponsor name', s.name);
+          if (name === null) return;
+          const logo = prompt('Logo URL', s.logo);
+          if (logo === null) return;
+          const url = prompt('Optional link URL', s.url || '');
+          if (url === null) return;
+          siteData.sponsors[idx] = { name: name.trim(), logo: logo.trim(), url: url.trim() };
+          setDirty('Sponsors updated');
           renderSponsorsList();
         });
       });
     }
 
-    // Initial load
-    loadExisting();
+    // ===== Initialize =====
+    window.addEventListener('DOMContentLoaded', () => {
+      loadExisting();
+    });
   </script>
-  <script src="/assets/js/sound.js" defer></script>
 </body>
 </html>

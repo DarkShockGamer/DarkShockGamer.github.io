@@ -4,6 +4,11 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     
+    // Default deny all access (security by default)
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+    
     // Helper function to check authentication
     function isAuthenticated() {
       return request.auth != null;
@@ -31,11 +36,6 @@ service firebase.storage {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated() && isValidSize();
       allow delete: if isAuthenticated();
-    }
-    
-    // Deny all other access by default
-    match /{allPaths=**} {
-      allow read, write: if false;
     }
   }
 }

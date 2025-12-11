@@ -1301,6 +1301,9 @@ async function archiveTaskAttachments(taskId, attachments) {
       if (attachment.type && attachment.type.startsWith('image/') && !attachment.archived) {
         // Download original image
         const response = await fetch(attachment.downloadURL);
+        if (!response.ok) {
+          throw new Error(`Failed to download attachment: ${response.status}`);
+        }
         const blob = await response.blob();
         const file = new File([blob], attachment.name, { type: attachment.type });
         
@@ -2673,22 +2676,35 @@ filterInput.oninput = () => { renderBoard(); };
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
             
-            // Try WebP first, fallback to JPEG
-            canvas.toBlob((blob) => {
-              if (blob) {
-                resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' }));
-              } else {
-                // Fallback to JPEG
-                canvas.toBlob((jpegBlob) => {
-                  if (jpegBlob) {
-                    resolve(new File([jpegBlob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
-                  } else {
-                    // If both fail, reject with error
-                    reject(new Error('Failed to compress image'));
-                  }
-                }, 'image/jpeg', quality);
-              }
-            }, 'image/webp', quality);
+            // Check WebP support
+            const supportsWebP = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+            
+            if (supportsWebP) {
+              // Try WebP first
+              canvas.toBlob((blob) => {
+                if (blob) {
+                  resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' }));
+                } else {
+                  // Fallback to JPEG if WebP blob creation fails
+                  canvas.toBlob((jpegBlob) => {
+                    if (jpegBlob) {
+                      resolve(new File([jpegBlob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
+                    } else {
+                      reject(new Error('Failed to compress image'));
+                    }
+                  }, 'image/jpeg', quality);
+                }
+              }, 'image/webp', quality);
+            } else {
+              // Use JPEG directly if WebP not supported
+              canvas.toBlob((jpegBlob) => {
+                if (jpegBlob) {
+                  resolve(new File([jpegBlob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
+                } else {
+                  reject(new Error('Failed to compress image'));
+                }
+              }, 'image/jpeg', quality);
+            }
           };
           img.onerror = () => reject(new Error('Failed to load image'));
           img.src = e.target.result;

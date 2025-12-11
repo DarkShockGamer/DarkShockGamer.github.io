@@ -1,0 +1,311 @@
+/* Task Tag Chip Styles */
+/* Team-specific color classes with high specificity to prevent theme overrides */
+
+/* Base tag chip styling */
+.tag,
+.tag-chip {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  margin-right: 0.25rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  white-space: nowrap;
+  border: 1px solid;
+  color: inherit !important; /* Prevent anchor link color override */
+  text-decoration: none !important;
+}
+
+/* Default tag color (if no team specified) */
+.tag,
+.tag-chip {
+  background: #e0f2fe;
+  color: #0369a1;
+  border-color: #bae6fd;
+}
+
+/* Team-specific colors with stronger specificity */
+/* Design - Dark Blue */
+.tag[data-tag="design"],
+.tag-chip[data-tag="design"],
+a.tag[data-tag="design"],
+a.tag-chip[data-tag="design"] {
+  background: #dbeafe !important;
+  color: #1e40af !important;
+  border-color: #bfdbfe !important;
+}
+
+/* Mechanical - Red */
+.tag[data-tag="mechanical"],
+.tag-chip[data-tag="mechanical"],
+a.tag[data-tag="mechanical"],
+a.tag-chip[data-tag="mechanical"] {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+  border-color: #fecaca !important;
+}
+
+/* Website - Light Blue (Cyan) */
+.tag[data-tag="website"],
+.tag-chip[data-tag="website"],
+a.tag[data-tag="website"],
+a.tag-chip[data-tag="website"] {
+  background: #cffafe !important;
+  color: #155e75 !important;
+  border-color: #a5f3fc !important;
+}
+
+/* Programming - Purple */
+.tag[data-tag="programming"],
+.tag-chip[data-tag="programming"],
+a.tag[data-tag="programming"],
+a.tag-chip[data-tag="programming"] {
+  background: #f3e8ff !important;
+  color: #6b21a8 !important;
+  border-color: #e9d5ff !important;
+}
+
+/* Electrical - Yellow */
+.tag[data-tag="electrical"],
+.tag-chip[data-tag="electrical"],
+a.tag[data-tag="electrical"],
+a.tag-chip[data-tag="electrical"] {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border-color: #fde68a !important;
+}
+
+/* Business - Black/Gray */
+.tag[data-tag="business"],
+.tag-chip[data-tag="business"],
+a.tag[data-tag="business"],
+a.tag-chip[data-tag="business"] {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Drive Team - Teal (distinct from Website) */
+.tag[data-tag="drive"],
+.tag-chip[data-tag="drive"],
+a.tag[data-tag="drive"],
+a.tag-chip[data-tag="drive"] {
+  background: #fed7aa !important;
+  color: #9a3412 !important;
+  border-color: #fdba74 !important;
+}
+
+/* Dark theme adjustments for better contrast */
+@media (prefers-color-scheme: dark) {
+  .tag,
+  .tag-chip {
+    background: #0c4a6e;
+    color: #e0f2fe;
+    border-color: #075985;
+  }
+  
+  .tag[data-tag="mechanical"],
+  .tag-chip[data-tag="mechanical"],
+  a.tag[data-tag="mechanical"],
+  a.tag-chip[data-tag="mechanical"] {
+    background: #7f1d1d !important;
+    color: #fecaca !important;
+    border-color: #991b1b !important;
+  }
+  
+  .tag[data-tag="design"],
+  .tag-chip[data-tag="design"],
+  a.tag[data-tag="design"],
+  a.tag-chip[data-tag="design"] {
+    background: #1e3a8a !important;
+    color: #bfdbfe !important;
+    border-color: #1e40af !important;
+  }
+  
+  .tag[data-tag="electrical"],
+  .tag-chip[data-tag="electrical"],
+  a.tag[data-tag="electrical"],
+  a.tag-chip[data-tag="electrical"] {
+    background: #78350f !important;
+    color: #fde68a !important;
+    border-color: #92400e !important;
+  }
+  
+  .tag[data-tag="programming"],
+  .tag-chip[data-tag="programming"],
+  a.tag[data-tag="programming"],
+  a.tag-chip[data-tag="programming"] {
+    background: #581c87 !important;
+    color: #e9d5ff !important;
+    border-color: #6b21a8 !important;
+  }
+  
+  .tag[data-tag="website"],
+  .tag-chip[data-tag="website"],
+  a.tag[data-tag="website"],
+  a.tag-chip[data-tag="website"] {
+    background: #0e7490 !important;
+    color: #a5f3fc !important;
+    border-color: #155e75 !important;
+  }
+  
+  .tag[data-tag="business"],
+  .tag-chip[data-tag="business"],
+  a.tag[data-tag="business"],
+  a.tag-chip[data-tag="business"] {
+    background: #334155 !important;
+    color: #cbd5e1 !important;
+    border-color: #475569 !important;
+  }
+  
+  .tag[data-tag="drive"],
+  .tag-chip[data-tag="drive"],
+  a.tag[data-tag="drive"],
+  a.tag-chip[data-tag="drive"] {
+    background: #7c2d12 !important;
+    color: #fdba74 !important;
+    border-color: #9a3412 !important;
+  }
+}
+
+/* Adaptive theme overrides with highest specificity */
+html.theme-light .tag,
+html.theme-light .tag-chip {
+  background: #e0f2fe;
+  color: #0369a1;
+  border-color: #bae6fd;
+}
+
+html.theme-light .tag[data-tag="mechanical"],
+html.theme-light .tag-chip[data-tag="mechanical"],
+html.theme-light a.tag[data-tag="mechanical"],
+html.theme-light a.tag-chip[data-tag="mechanical"] {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+  border-color: #fecaca !important;
+}
+
+html.theme-light .tag[data-tag="design"],
+html.theme-light .tag-chip[data-tag="design"],
+html.theme-light a.tag[data-tag="design"],
+html.theme-light a.tag-chip[data-tag="design"] {
+  background: #dbeafe !important;
+  color: #1e40af !important;
+  border-color: #bfdbfe !important;
+}
+
+html.theme-light .tag[data-tag="electrical"],
+html.theme-light .tag-chip[data-tag="electrical"],
+html.theme-light a.tag[data-tag="electrical"],
+html.theme-light a.tag-chip[data-tag="electrical"] {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border-color: #fde68a !important;
+}
+
+html.theme-light .tag[data-tag="programming"],
+html.theme-light .tag-chip[data-tag="programming"],
+html.theme-light a.tag[data-tag="programming"],
+html.theme-light a.tag-chip[data-tag="programming"] {
+  background: #f3e8ff !important;
+  color: #6b21a8 !important;
+  border-color: #e9d5ff !important;
+}
+
+html.theme-light .tag[data-tag="website"],
+html.theme-light .tag-chip[data-tag="website"],
+html.theme-light a.tag[data-tag="website"],
+html.theme-light a.tag-chip[data-tag="website"] {
+  background: #cffafe !important;
+  color: #155e75 !important;
+  border-color: #a5f3fc !important;
+}
+
+html.theme-light .tag[data-tag="business"],
+html.theme-light .tag-chip[data-tag="business"],
+html.theme-light a.tag[data-tag="business"],
+html.theme-light a.tag-chip[data-tag="business"] {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.theme-light .tag[data-tag="drive"],
+html.theme-light .tag-chip[data-tag="drive"],
+html.theme-light a.tag[data-tag="drive"],
+html.theme-light a.tag-chip[data-tag="drive"] {
+  background: #fed7aa !important;
+  color: #9a3412 !important;
+  border-color: #fdba74 !important;
+}
+
+html.theme-dark .tag,
+html.theme-dark .tag-chip {
+  background: #0c4a6e;
+  color: #e0f2fe;
+  border-color: #075985;
+}
+
+html.theme-dark .tag[data-tag="mechanical"],
+html.theme-dark .tag-chip[data-tag="mechanical"],
+html.theme-dark a.tag[data-tag="mechanical"],
+html.theme-dark a.tag-chip[data-tag="mechanical"] {
+  background: #7f1d1d !important;
+  color: #fecaca !important;
+  border-color: #991b1b !important;
+}
+
+html.theme-dark .tag[data-tag="design"],
+html.theme-dark .tag-chip[data-tag="design"],
+html.theme-dark a.tag[data-tag="design"],
+html.theme-dark a.tag-chip[data-tag="design"] {
+  background: #1e3a8a !important;
+  color: #bfdbfe !important;
+  border-color: #1e40af !important;
+}
+
+html.theme-dark .tag[data-tag="electrical"],
+html.theme-dark .tag-chip[data-tag="electrical"],
+html.theme-dark a.tag[data-tag="electrical"],
+html.theme-dark a.tag-chip[data-tag="electrical"] {
+  background: #78350f !important;
+  color: #fde68a !important;
+  border-color: #92400e !important;
+}
+
+html.theme-dark .tag[data-tag="programming"],
+html.theme-dark .tag-chip[data-tag="programming"],
+html.theme-dark a.tag[data-tag="programming"],
+html.theme-dark a.tag-chip[data-tag="programming"] {
+  background: #581c87 !important;
+  color: #e9d5ff !important;
+  border-color: #6b21a8 !important;
+}
+
+html.theme-dark .tag[data-tag="website"],
+html.theme-dark .tag-chip[data-tag="website"],
+html.theme-dark a.tag[data-tag="website"],
+html.theme-dark a.tag-chip[data-tag="website"] {
+  background: #0e7490 !important;
+  color: #a5f3fc !important;
+  border-color: #155e75 !important;
+}
+
+html.theme-dark .tag[data-tag="business"],
+html.theme-dark .tag-chip[data-tag="business"],
+html.theme-dark a.tag[data-tag="business"],
+html.theme-dark a.tag-chip[data-tag="business"] {
+  background: #334155 !important;
+  color: #cbd5e1 !important;
+  border-color: #475569 !important;
+}
+
+html.theme-dark .tag[data-tag="drive"],
+html.theme-dark .tag-chip[data-tag="drive"],
+html.theme-dark a.tag[data-tag="drive"],
+html.theme-dark a.tag-chip[data-tag="drive"] {
+  background: #7c2d12 !important;
+  color: #fdba74 !important;
+  border-color: #9a3412 !important;
+}

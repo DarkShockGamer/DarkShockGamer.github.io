@@ -1115,11 +1115,9 @@
       return selectedTheme || window.Theme && window.Theme.getAdaptive() || DEFAULT_THEME;
     }
     
-    // Expose to settings.js
+    // Expose functions globally for later initialization
+    window.initThemeSelector = initThemeSelector;
     window.getSelectedTheme = getSelectedTheme;
-    
-    // Initialize on load
-    initThemeSelector();
 
   </script>
   <script src="/assets/js/toast.js" defer></script>
@@ -1186,6 +1184,12 @@
     })();
   </script>
   <script src="/assets/js/theme.js"></script>
+  <script>
+    // Initialize theme selector now that theme.js is loaded
+    if (window.initThemeSelector && window.Theme) {
+      window.initThemeSelector();
+    }
+  </script>
   <script src="/assets/js/settings.js"></script>
 </body>
 </html>

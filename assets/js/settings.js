@@ -491,12 +491,21 @@ document.addEventListener("DOMContentLoaded", async function() {
       // Get reduce motion state
       const reduceMotion = reduceMotionToggle?._enabled || false;
       
-      // Save reduce motion setting using consistent method
+      // Get the selected adaptive theme from window.getSelectedTheme (defined in settings.html)
+      const selectedTheme = window.getSelectedTheme && window.getSelectedTheme() || 'light';
+      
+      // Save reduce motion setting
       localStorage.setItem(SETTINGS_KEYS.REDUCE_MOTION, reduceMotion.toString());
       AppearanceSettings.applyReduceMotion(reduceMotion);
       
-      // Theme is already saved and applied by theme selector buttons via Theme API
-      // No need to re-apply or reload
+      // Save adaptive theme using Theme API (already saved by theme selector buttons, but ensure it's persisted)
+      if (window.Theme) {
+        window.Theme.setAdaptive(selectedTheme);
+      } else {
+        localStorage.setItem('site-adaptive-theme', selectedTheme);
+      }
+      
+      // No reload needed - theme is already applied and tab is already saved
       
       if(window.Sound) window.Sound.success();
       if(window.Toast) Toast("Appearance settings saved.", "success");

@@ -843,6 +843,38 @@
         <textarea id="newNotes" 
                   class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" 
                   placeholder="Add any additional notes here..."></textarea>
+        
+        <!-- Attachments Section -->
+        <div class="mt-4">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Attachments (optional)
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-normal ml-2" id="attachmentLimitLabel">
+              Max 5 files, 10MB each
+            </span>
+          </label>
+          <div id="attachmentAuthMessage" class="text-sm text-amber-600 dark:text-amber-400 mb-2 hidden">
+            Sign in to add attachments
+          </div>
+          <div class="flex gap-2 items-start">
+            <input 
+              type="file" 
+              id="newAttachmentInput" 
+              multiple 
+              class="hidden" 
+              accept="*/*"
+            />
+            <button 
+              type="button"
+              id="newAttachmentBtn" 
+              class="text-sm px-3 py-1.5 bg-sky-100 hover:bg-sky-200 text-sky-700 rounded-md dark:bg-sky-900 dark:text-sky-300 dark:hover:bg-sky-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              📎 Add Files
+            </button>
+          </div>
+          <div id="newAttachmentsList" class="mt-2 space-y-2">
+            <!-- Attachment previews will be added here -->
+          </div>
+        </div>
       </div>
 
       <button id="addTaskBtn" class="btn bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Add Task</button>
@@ -886,6 +918,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, setDoc, doc, deleteDoc, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHGWZI",
@@ -899,7 +932,48 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 window.firestoreDB = db;
+window.firebaseStorage = storage;
+
+/* Attachment Configuration */
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_ATTACHMENTS = 5;
+const ARCHIVE_IMAGE_MAX_WIDTH = 1200;
+const ARCHIVE_IMAGE_QUALITY = 0.8;
+
+/* Authentication Helper */
+function isUserSignedIn() {
+  const credential = localStorage.getItem('g_credential_v1');
+  if (!credential) return false;
+  try {
+    // Basic check if credential exists and is not expired
+    if (typeof jwt_decode === 'function') {
+      const decoded = jwt_decode(credential);
+      // Check if token is expired
+      if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+        return false;
+      }
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function getUserEmail() {
+  const credential = localStorage.getItem('g_credential_v1');
+  if (!credential) return null;
+  try {
+    if (typeof jwt_decode === 'function') {
+      const decoded = jwt_decode(credential);
+      return decoded.email || null;
+    }
+  } catch (e) {
+    return null;
+  }
+  return null;
+}
 
 /* DOM refs */
 const board = document.getElementById("board");
@@ -1191,12 +1265,87 @@ async function checkAutoArchive(data) {
       }
       
       if ((now - task.completedAt) > archiveThreshold) {
-        batch.update(doc(db, "tasks", task.id), { archived: true, archivedAt: now });
+        // Before archiving, compress images in attachments
+        if (task.attachments && task.attachments.length > 0) {
+          try {
+            const compressedAttachments = await archiveTaskAttachments(task.id, task.attachments);
+            batch.update(doc(db, "tasks", task.id), { 
+              archived: true, 
+              archivedAt: now,
+              attachments: compressedAttachments
+            });
+          } catch (err) {
+            console.error(`Failed to compress attachments for task ${task.id}:`, err);
+            // Archive anyway without compression
+            batch.update(doc(db, "tasks", task.id), { archived: true, archivedAt: now });
+          }
+        } else {
+          batch.update(doc(db, "tasks", task.id), { archived: true, archivedAt: now });
+        }
         needsUpdate = true;
       }
     }
   }
   if (needsUpdate) await batch.commit();
+}
+
+/* Archive task attachments - compress images */
+async function archiveTaskAttachments(taskId, attachments) {
+  const archivedAttachments = [];
+  
+  for (const attachment of attachments) {
+    try {
+      // Check if it's an image
+      if (attachment.type && attachment.type.startsWith('image/') && !attachment.archived) {
+        // Download original image
+        const response = await fetch(attachment.downloadURL);
+        const blob = await response.blob();
+        const file = new File([blob], attachment.name, { type: attachment.type });
+        
+        // Compress the image
+        const compressedFile = await compressImage(file);
+        
+        // Upload compressed version
+        const archivedPath = `tasks/${taskId}/archived/${attachment.id}_${compressedFile.name}`;
+        const archivedRef = storageRef(storage, archivedPath);
+        await uploadBytesResumable(archivedRef, compressedFile);
+        const archivedURL = await getDownloadURL(archivedRef);
+        
+        // Delete original if different from archived path
+        if (attachment.storagePath !== archivedPath) {
+          try {
+            await deleteFile(attachment.storagePath);
+          } catch (err) {
+            console.warn(`Could not delete original file ${attachment.storagePath}:`, err);
+          }
+        }
+        
+        // Update metadata
+        archivedAttachments.push({
+          ...attachment,
+          downloadURL: archivedURL,
+          storagePath: archivedPath,
+          originalSize: attachment.size,
+          size: compressedFile.size,
+          archived: true,
+          archivedAt: Date.now()
+        });
+      } else {
+        // Non-image files: keep as-is
+        archivedAttachments.push({
+          ...attachment,
+          archived: true,
+          archivedAt: Date.now()
+        });
+      }
+    } catch (err) {
+      console.error(`Failed to archive attachment ${attachment.name}:`, err);
+      // Keep original on error
+      archivedAttachments.push(attachment);
+    }
+  }
+  
+  return archivedAttachments;
 }
 
 /* Save task (safe payload) */
@@ -1222,10 +1371,43 @@ async function saveTask(task, col) {
   }
   
   if (Array.isArray(task.comments) && task.comments.length > 0) payload.comments = task.comments;
+  
+  // Include attachments if present
+  if (Array.isArray(task.attachments) && task.attachments.length > 0) {
+    payload.attachments = task.attachments;
+  }
+  
   await setDoc(doc(db, "tasks", task.id), payload, { merge: true });
 }
 
-async function deleteTaskFirestore(taskId) { await deleteDoc(doc(db, "tasks", taskId)); }
+async function deleteTaskFirestore(taskId) {
+  // First, get the task to check for attachments
+  try {
+    const taskDoc = await getDoc(doc(db, "tasks", taskId));
+    if (taskDoc.exists()) {
+      const task = taskDoc.data();
+      
+      // Delete all attachments from Storage
+      if (task.attachments && task.attachments.length > 0) {
+        for (const attachment of task.attachments) {
+          if (attachment.storagePath) {
+            try {
+              await deleteFile(attachment.storagePath);
+              console.log(`Deleted attachment: ${attachment.name}`);
+            } catch (err) {
+              console.warn(`Failed to delete attachment ${attachment.name}:`, err);
+            }
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error checking task attachments:', err);
+  }
+  
+  // Delete the task document
+  await deleteDoc(doc(db, "tasks", taskId));
+}
 
 /* Update global completion bar */
 function updateCompletionBar(data) {
@@ -1349,6 +1531,8 @@ function createTaskEl(task, colId) {
         ${descHtml}
       </div>
     ` : ""}
+    
+    ${task.attachments && task.attachments.length > 0 ? renderTaskAttachments(task.attachments, task.id) : ''}
 
     <div class="mt-3">
       <button class="text-xs text-sky-600 dark:text-sky-400 underline toggle-comments">Show Notes</button>
@@ -1628,6 +1812,45 @@ function openEditModal(task, colId) {
       <textarea id="editNotes" 
                 class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" 
                 placeholder="Add any additional notes here..."></textarea>
+      
+      <!-- Attachments Section -->
+      <div class="mt-3">
+        <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
+          Attachments
+          <span class="text-xs text-slate-500 dark:text-slate-400 font-normal ml-2">
+            Max 5 files, 10MB each
+          </span>
+        </label>
+        <div id="editAttachmentAuthMessage" class="text-sm text-amber-600 dark:text-amber-400 mb-2 hidden">
+          Sign in to manage attachments
+        </div>
+        
+        <!-- Existing attachments -->
+        <div id="editExistingAttachments" class="space-y-2 mb-2">
+          <!-- Existing attachments will be listed here -->
+        </div>
+        
+        <!-- Add new attachments -->
+        <div class="flex gap-2 items-start">
+          <input 
+            type="file" 
+            id="editAttachmentInput" 
+            multiple 
+            class="hidden" 
+            accept="*/*"
+          />
+          <button 
+            type="button"
+            id="editAttachmentBtn" 
+            class="text-sm px-3 py-1.5 bg-sky-100 hover:bg-sky-200 text-sky-700 rounded-md dark:bg-sky-900 dark:text-sky-300 dark:hover:bg-sky-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            📎 Add Files
+          </button>
+        </div>
+        <div id="editNewAttachmentsList" class="mt-2 space-y-2">
+          <!-- New attachment previews will be added here -->
+        </div>
+      </div>
 
       <div class="dropdown mt-2" id="editTagDropdown">
         <div class="dropdown-btn" id="editDropdownBtn"><span class="placeholder">Select tags...</span></div>
@@ -1670,6 +1893,150 @@ function openEditModal(task, colId) {
   // Populate notes
   modal.querySelector("#editNotes").value = (descModelToEdit && descModelToEdit.notes) || "";
   
+  // Handle attachments
+  let editPendingAttachments = [];
+  let existingAttachments = task.attachments ? [...task.attachments] : [];
+  let attachmentsToDelete = []; // Track attachments marked for deletion
+  
+  function renderExistingAttachments() {
+    const container = modal.querySelector("#editExistingAttachments");
+    if (!container) return;
+    
+    container.innerHTML = '';
+    existingAttachments.forEach((att, index) => {
+      const isImage = att.type && att.type.startsWith('image/');
+      const attachmentDiv = document.createElement('div');
+      attachmentDiv.className = 'flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded-md bg-slate-50 dark:bg-slate-800';
+      attachmentDiv.innerHTML = `
+        <div class="flex-shrink-0">
+          ${isImage ? '🖼️' : '📎'}
+        </div>
+        <div class="flex-1 min-w-0">
+          <a href="${escHtml(att.downloadURL)}" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-sky-600 dark:text-sky-400 hover:underline truncate">${escHtml(att.name)}</a>
+          <div class="text-xs text-slate-500 dark:text-slate-400">${formatFileSize(att.size)}</div>
+        </div>
+        <button 
+          type="button"
+          class="remove-existing-attachment-btn flex-shrink-0 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+          data-index="${index}"
+        >
+          ✕
+        </button>
+      `;
+      container.appendChild(attachmentDiv);
+    });
+    
+    // Wire up remove buttons
+    container.querySelectorAll('.remove-existing-attachment-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!isUserSignedIn()) {
+          showToast('error', 'Please sign in to remove attachments');
+          return;
+        }
+        const index = parseInt(btn.getAttribute('data-index'));
+        const removed = existingAttachments[index];
+        attachmentsToDelete.push(removed);
+        existingAttachments.splice(index, 1);
+        renderExistingAttachments();
+        updateEditAttachmentButton();
+      });
+    });
+    
+    updateEditAttachmentButton();
+  }
+  
+  function renderEditPendingAttachments() {
+    const container = modal.querySelector("#editNewAttachmentsList");
+    if (!container) return;
+    
+    container.innerHTML = '';
+    editPendingAttachments.forEach((file, index) => {
+      container.appendChild(renderAttachmentPreview(file, index));
+    });
+    
+    // Wire up remove buttons
+    container.querySelectorAll('.remove-attachment-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const index = parseInt(btn.getAttribute('data-index'));
+        editPendingAttachments.splice(index, 1);
+        renderEditPendingAttachments();
+        updateEditAttachmentButton();
+      });
+    });
+    
+    updateEditAttachmentButton();
+  }
+  
+  function updateEditAttachmentButton() {
+    const btn = modal.querySelector('#editAttachmentBtn');
+    const authMessage = modal.querySelector('#editAttachmentAuthMessage');
+    
+    if (!btn) return;
+    
+    // Check authentication
+    if (!isUserSignedIn()) {
+      btn.disabled = true;
+      btn.classList.add('opacity-50', 'cursor-not-allowed');
+      if (authMessage) authMessage.classList.remove('hidden');
+      return;
+    }
+    
+    if (authMessage) authMessage.classList.add('hidden');
+    
+    // Check total attachment limit
+    const totalAttachments = existingAttachments.length + editPendingAttachments.length;
+    if (totalAttachments >= MAX_ATTACHMENTS) {
+      btn.disabled = true;
+      btn.classList.add('opacity-50', 'cursor-not-allowed');
+      btn.textContent = `📎 Max ${MAX_ATTACHMENTS} files`;
+    } else {
+      btn.disabled = false;
+      btn.classList.remove('opacity-50', 'cursor-not-allowed');
+      btn.textContent = `📎 Add Files (${totalAttachments}/${MAX_ATTACHMENTS})`;
+    }
+  }
+  
+  renderExistingAttachments();
+  
+  // Setup attachment controls
+  setTimeout(() => {
+    const attachmentBtn = modal.querySelector('#editAttachmentBtn');
+    const attachmentInput = modal.querySelector('#editAttachmentInput');
+    
+    if (attachmentBtn && attachmentInput) {
+      attachmentBtn.addEventListener('click', () => {
+        attachmentInput.click();
+      });
+      
+      attachmentInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          if (!isUserSignedIn()) {
+            showToast('error', 'Please sign in to add attachments');
+            return;
+          }
+          
+          for (const file of e.target.files) {
+            const totalAttachments = existingAttachments.length + editPendingAttachments.length;
+            if (totalAttachments >= MAX_ATTACHMENTS) {
+              showToast('warn', `Maximum ${MAX_ATTACHMENTS} attachments allowed`);
+              break;
+            }
+            
+            if (file.size > MAX_FILE_SIZE) {
+              showToast('error', `File "${file.name}" exceeds ${formatFileSize(MAX_FILE_SIZE)} limit`);
+              continue;
+            }
+            
+            editPendingAttachments.push(file);
+          }
+          
+          renderEditPendingAttachments();
+          e.target.value = ''; // Reset input
+        }
+      });
+    }
+  }, 0);
+  
   // Setup Add Item button for edit modal
   setTimeout(() => {
     const addItemBtn = modal.querySelector("#editAddChecklistItemBtn");
@@ -1704,7 +2071,13 @@ function openEditModal(task, colId) {
 
   modal.querySelector("#cancelEdit").onclick = () => modal.remove();
   modal.querySelector("#saveEdit").onclick = async () => {
+    const saveBtn = modal.querySelector("#saveEdit");
+    const originalSaveText = saveBtn.textContent;
+    
     try {
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving...";
+      
       task.title = (modal.querySelector("#editTitle").value || "").trim();
       task.assignee = (modal.querySelector("#editAssign").value || "Unassigned").trim() || "Unassigned";
       task.due = modal.querySelector("#editDue").value || "";
@@ -1718,6 +2091,38 @@ function openEditModal(task, colId) {
       task.descModel = createDescModel(checklistItems, notes);
       task.descHtml = generateDescHtml(task.descModel, task.id);
       task.descText = generateDescText(task.descModel);
+      
+      // Handle attachment deletions
+      if (attachmentsToDelete.length > 0 && isUserSignedIn()) {
+        saveBtn.textContent = "Deleting files...";
+        for (const att of attachmentsToDelete) {
+          try {
+            await deleteFile(att.storagePath);
+          } catch (err) {
+            console.warn(`Failed to delete ${att.name}:`, err);
+          }
+        }
+      }
+      
+      // Upload new attachments
+      if (editPendingAttachments.length > 0 && isUserSignedIn()) {
+        saveBtn.textContent = `Uploading files (0/${editPendingAttachments.length})...`;
+        
+        for (let i = 0; i < editPendingAttachments.length; i++) {
+          const file = editPendingAttachments[i];
+          try {
+            saveBtn.textContent = `Uploading files (${i + 1}/${editPendingAttachments.length})...`;
+            const metadata = await uploadFile(file, task.id);
+            existingAttachments.push(metadata);
+          } catch (uploadErr) {
+            console.error(`Failed to upload ${file.name}:`, uploadErr);
+            showToast('warn', `Failed to upload ${file.name}`);
+          }
+        }
+      }
+      
+      // Update task attachments
+      task.attachments = existingAttachments;
 
       await saveTask(task, colId);
 
@@ -1727,6 +2132,9 @@ function openEditModal(task, colId) {
     } catch (err) {
       console.error("Failed to save task:", err);
       showToast('error', `Failed to save task: ${err?.message || err}`);
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = originalSaveText;
     }
   };
 }
@@ -1937,6 +2345,33 @@ addBtn.onclick = async () => {
         descHtml: generateDescHtml(descModel, docRef.id)
       }, { merge: true });
     }
+    
+    // Upload attachments if any
+    const attachments = [];
+    if (pendingAttachments.length > 0 && isUserSignedIn()) {
+      addBtn.textContent = `Uploading files (0/${pendingAttachments.length})...`;
+      
+      for (let i = 0; i < pendingAttachments.length; i++) {
+        const file = pendingAttachments[i];
+        try {
+          addBtn.textContent = `Uploading files (${i + 1}/${pendingAttachments.length})...`;
+          const metadata = await uploadFile(file, docRef.id, (progress) => {
+            // Optional: show progress
+          });
+          attachments.push(metadata);
+        } catch (uploadErr) {
+          console.error(`Failed to upload ${file.name}:`, uploadErr);
+          showToast('warn', `Failed to upload ${file.name}`);
+        }
+      }
+      
+      // Save attachments metadata to task
+      if (attachments.length > 0) {
+        await setDoc(doc(db, "tasks", docRef.id), {
+          attachments: attachments
+        }, { merge: true });
+      }
+    }
 
     // Clear form
     document.getElementById("newTitle").value = "";
@@ -1944,13 +2379,15 @@ addBtn.onclick = async () => {
     document.getElementById("newDue").value = "";
     document.getElementById("newNotes").value = "";
     clearChecklistUI("checklistItems");
+    pendingAttachments = [];
+    updatePendingAttachmentsList();
     selectedTags = [];
     document.querySelectorAll("#dropdownList input[type=checkbox]").forEach(cb => cb.checked = false);
     updateDropdownBtn();
 
     await renderBoard();
 
-    showToast('success', 'Task added successfully!');
+    showToast('success', `Task added successfully!${attachments.length > 0 ? ` (${attachments.length} file(s) attached)` : ''}`);
   } catch (err) {
     console.error("Failed to add task:", err);
     showToast('error', `Failed to add task: ${err?.message || err}`);
@@ -2182,6 +2619,260 @@ filterInput.oninput = () => { renderBoard(); };
       });
     };
 
+    /* ========== ATTACHMENT HANDLING ========== */
+    
+    // State for pending attachments (before task is created)
+    let pendingAttachments = [];
+    
+    // Helper: Generate unique file ID
+    function generateFileId() {
+      return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+    
+    // Helper: Check if file is an image
+    function isImageFile(file) {
+      return file.type.startsWith('image/');
+    }
+    
+    // Helper: Format file size
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+    
+    // Helper: Compress image using canvas
+    async function compressImage(file, maxWidth = ARCHIVE_IMAGE_MAX_WIDTH, quality = ARCHIVE_IMAGE_QUALITY) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            
+            // Calculate new dimensions
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Try WebP first, fallback to JPEG
+            canvas.toBlob((blob) => {
+              if (blob) {
+                resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' }));
+              } else {
+                // Fallback to JPEG
+                canvas.toBlob((blob) => {
+                  resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
+                }, 'image/jpeg', quality);
+              }
+            }, 'image/webp', quality);
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+    
+    // Upload file to Firebase Storage
+    async function uploadFile(file, taskId, progressCallback) {
+      const fileId = generateFileId();
+      const filePath = `tasks/${taskId}/attachments/${fileId}_${file.name}`;
+      const fileRef = storageRef(storage, filePath);
+      
+      const uploadTask = uploadBytesResumable(fileRef, file);
+      
+      return new Promise((resolve, reject) => {
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            if (progressCallback) progressCallback(progress);
+          },
+          (error) => {
+            console.error('Upload error:', error);
+            reject(error);
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              resolve({
+                id: fileId,
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                downloadURL: downloadURL,
+                storagePath: filePath,
+                uploadedAt: Date.now(),
+                uploadedBy: getUserEmail() || 'Anonymous'
+              });
+            } catch (error) {
+              reject(error);
+            }
+          }
+        );
+      });
+    }
+    
+    // Delete file from Firebase Storage
+    async function deleteFile(storagePath) {
+      try {
+        const fileRef = storageRef(storage, storagePath);
+        await deleteObject(fileRef);
+        return true;
+      } catch (error) {
+        console.error('Delete error:', error);
+        if (error.code === 'storage/object-not-found') {
+          // File already deleted, consider it success
+          return true;
+        }
+        throw error;
+      }
+    }
+    
+    // Render attachment preview in pending list
+    function renderAttachmentPreview(file, index) {
+      const isImage = isImageFile(file);
+      const preview = document.createElement('div');
+      preview.className = 'flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded-md bg-slate-50 dark:bg-slate-800';
+      preview.innerHTML = `
+        <div class="flex-shrink-0">
+          ${isImage ? '🖼️' : '📎'}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">${escHtml(file.name)}</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">${formatFileSize(file.size)}</div>
+        </div>
+        <button 
+          type="button"
+          class="remove-attachment-btn flex-shrink-0 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+          data-index="${index}"
+        >
+          ✕
+        </button>
+      `;
+      return preview;
+    }
+    
+    // Update pending attachments list UI
+    function updatePendingAttachmentsList() {
+      const container = document.getElementById('newAttachmentsList');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      pendingAttachments.forEach((file, index) => {
+        container.appendChild(renderAttachmentPreview(file, index));
+      });
+      
+      // Wire up remove buttons
+      container.querySelectorAll('.remove-attachment-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const index = parseInt(btn.getAttribute('data-index'));
+          pendingAttachments.splice(index, 1);
+          updatePendingAttachmentsList();
+          updateAttachmentButton();
+        });
+      });
+      
+      updateAttachmentButton();
+    }
+    
+    // Update attachment button state
+    function updateAttachmentButton() {
+      const btn = document.getElementById('newAttachmentBtn');
+      const input = document.getElementById('newAttachmentInput');
+      const authMessage = document.getElementById('attachmentAuthMessage');
+      
+      if (!btn || !input) return;
+      
+      // Check authentication
+      if (!isUserSignedIn()) {
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        if (authMessage) authMessage.classList.remove('hidden');
+        return;
+      }
+      
+      if (authMessage) authMessage.classList.add('hidden');
+      
+      // Check attachment limit
+      if (pendingAttachments.length >= MAX_ATTACHMENTS) {
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        btn.textContent = `📎 Max ${MAX_ATTACHMENTS} files`;
+      } else {
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        btn.textContent = `📎 Add Files (${pendingAttachments.length}/${MAX_ATTACHMENTS})`;
+      }
+    }
+    
+    // Handle file selection
+    function handleFileSelection(files) {
+      if (!isUserSignedIn()) {
+        showToast('error', 'Please sign in to add attachments');
+        return;
+      }
+      
+      for (const file of files) {
+        // Check if we've reached the limit
+        if (pendingAttachments.length >= MAX_ATTACHMENTS) {
+          showToast('warn', `Maximum ${MAX_ATTACHMENTS} attachments allowed`);
+          break;
+        }
+        
+        // Check file size
+        if (file.size > MAX_FILE_SIZE) {
+          showToast('error', `File "${file.name}" exceeds ${formatFileSize(MAX_FILE_SIZE)} limit`);
+          continue;
+        }
+        
+        pendingAttachments.push(file);
+      }
+      
+      updatePendingAttachmentsList();
+    }
+    
+    // Render attachment display in task card
+    function renderTaskAttachments(attachments, taskId) {
+      if (!attachments || attachments.length === 0) return '';
+      
+      const items = attachments.map(att => {
+        const isImage = att.type && att.type.startsWith('image/');
+        return `
+          <a 
+            href="${escHtml(att.downloadURL)}" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1 text-xs text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300"
+          >
+            ${isImage ? '🖼️' : '📎'}
+            <span class="underline">${escHtml(att.name)}</span>
+          </a>
+        `;
+      }).join('');
+      
+      return `
+        <div class="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+          <div class="text-xs text-slate-600 dark:text-slate-400 mb-1">Attachments:</div>
+          <div class="flex flex-wrap gap-2">
+            ${items}
+          </div>
+        </div>
+      `;
+    }
+
     /* Bootstrap */
     async function bootstrap() {
       try {
@@ -2203,6 +2894,26 @@ filterInput.oninput = () => { renderBoard(); };
           addItemBtn.addEventListener("click", () => {
             createChecklistItemUI("", false, "checklistItems");
           });
+        }
+        
+        // Setup attachment UI
+        const attachmentBtn = document.getElementById('newAttachmentBtn');
+        const attachmentInput = document.getElementById('newAttachmentInput');
+        
+        if (attachmentBtn && attachmentInput) {
+          attachmentBtn.addEventListener('click', () => {
+            attachmentInput.click();
+          });
+          
+          attachmentInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+              handleFileSelection(Array.from(e.target.files));
+              e.target.value = ''; // Reset input
+            }
+          });
+          
+          // Initial button state
+          updateAttachmentButton();
         }
 
         console.log('[TaskBoard] Bootstrap complete');

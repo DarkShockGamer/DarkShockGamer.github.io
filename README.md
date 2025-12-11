@@ -10,6 +10,7 @@ This site presents our robots, competition seasons, engineering process, outreac
 ## Table of Contents
 - [Team Mission](#team-mission)
 - [What This Repository Contains](#what-this-repository-contains)
+- [Task Board Features](#task-board-features)
 - [Season Content Structure](#season-content-structure)
 - [Tech & Tooling](#tech--tooling)
 - [Repository Structure](#repository-structure)
@@ -35,6 +36,32 @@ We build competitive, reliable, and innovative robots while growing engineering 
 Static site assets only (no backend). Content is organized into HTML pages, shared CSS, and small JavaScript helpers for navigation, tabs, filtering, and any interactive visualizations.
 
 If/When robot control code exists, it will live in a separate repository to keep this site lightweight.
+
+---
+## Task Board Features
+The task board (`/tasks/index.html`) includes Firebase-powered task management with the following capabilities:
+
+### File Attachments
+- **Upload files**: Team members can attach up to 5 files per task (max 10MB each)
+- **Authentication required**: Users must be signed in with Google to upload, view, or delete attachments
+- **Supported file types**: All file types are supported (images, PDFs, documents, etc.)
+- **Image compression**: When tasks are archived, images are automatically compressed to WebP/JPEG format (max 1200px width) to conserve storage
+- **Secure storage**: Files are stored in Firebase Storage with security rules enforcing authentication and size limits
+
+### Usage Guidelines
+- **File size limit**: 10MB per file
+- **Maximum attachments**: 5 files per task
+- **Storage**: Free tier usage is limited; please use attachments judiciously
+- **Archive behavior**: Completed tasks and their attachments are automatically archived after 1-7 days (depending on due date status)
+
+### Firebase Configuration
+To deploy with attachment support:
+1. Ensure Firebase Storage is enabled in your Firebase project
+2. Deploy the security rules from `storage.rules`:
+   ```bash
+   firebase deploy --only storage
+   ```
+3. Verify that team members can authenticate via Google Sign-In
 
 ---
 ## Season Content Structure

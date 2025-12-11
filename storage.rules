@@ -1,0 +1,41 @@
+rules_version = '2';
+
+// Firebase Storage Security Rules for Task Attachments
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Default deny all access (security by default)
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+    
+    // Helper function to check authentication
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check file size (10MB limit)
+    function isValidSize() {
+      return request.resource.size <= 10 * 1024 * 1024;
+    }
+    
+    // Task attachments: Only authenticated users can upload
+    match /tasks/{taskId}/attachments/{fileName} {
+      // Allow read if authenticated (for team members to view)
+      allow read: if isAuthenticated();
+      
+      // Allow write (upload) only if authenticated and file size is valid
+      allow write: if isAuthenticated() && isValidSize();
+      
+      // Allow delete only if authenticated
+      allow delete: if isAuthenticated();
+    }
+    
+    // Archived task attachments: Same rules as regular attachments
+    match /tasks/{taskId}/archived/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isValidSize();
+      allow delete: if isAuthenticated();
+    }
+  }
+}

@@ -5,6 +5,12 @@
   <link rel="icon" type="image/png" href="/assets/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Site Telemetry & Monitoring — DarkShockGamer</title>
+  <!-- Privacy-friendly analytics by Plausible -->
+  <script async src="https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
@@ -99,8 +105,8 @@
         </button>
         <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="warn" id="tile-views" disabled>
           <p class="text-[11px] uppercase tracking-[0.16em] text-amber-300/80">Unique Views</p>
-          <p class="text-2xl font-semibold mt-1" id="telemetry-views" title="GitHub does not provide pageview analytics">–</p>
-          <p class="text-[11px] text-slate-400 mt-1">Add analytics for live tracking</p>
+          <p class="text-2xl font-semibold mt-1" id="telemetry-views" title="Unique viewers today, Plausible.io">–</p>
+          <p class="text-[11px] text-slate-400 mt-1">Today (via Plausible)</p>
           <div class="stat-spark mt-2"></div>
         </button>
       </div>
@@ -204,7 +210,7 @@
     }, { threshold: 0.2 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    // --- GitHub data fetching logic ---
+    // --- GitHub API Data (status, commit, events) ---
     async function fetchCommit() {
       const res = await fetch("https://api.github.com/repos/DarkShockGamer/DarkShockGamer.github.io/commits/main");
       if(!res.ok) return;
@@ -268,11 +274,28 @@
       timeline.insertBefore(li, timeline.firstChild);
     });
 
-    // Call on load and every 2 minutes
     fetchCommit();
     fetchEvents();
     setInterval(fetchCommit, 120000);
     setInterval(fetchEvents, 120000);
+  </script>
+  <!-- Plausible Unique Visitors API Fetch -->
+  <!-- 
+    IMPORTANT: For security, this example assumes you have a proxy endpoint at /api/plausible-visitors
+    that returns the Plausible API stats JSON. Never expose your Plausible API key publicly!
+    For testing only, you may use the direct API endpoint if you understand the risk.
+    Replace '/api/plausible-visitors' with your own endpoint.
+  -->
+  <script>
+    fetch('/api/plausible-visitors')
+      .then(res => res.json())
+      .then(data => {
+        if (data.results && data.results.visitors)
+          document.getElementById("telemetry-views").textContent = data.results.visitors.value;
+      })
+      .catch(() => {
+        document.getElementById("telemetry-views").textContent = "–";
+      });
   </script>
 </body>
 </html>

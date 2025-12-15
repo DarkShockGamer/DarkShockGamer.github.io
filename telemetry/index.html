@@ -16,6 +16,25 @@
     @media (prefers-color-scheme: dark) {
       .panel { background: #0f172a; border-color: #1f2937; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.30); }
     }
+    .stat-card {
+      border-radius: 0.9rem;
+      border: 1px solid rgba(148,163,184,0.55);
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.18), transparent 50%), rgba(15,23,42,0.98);
+      color: #e5e7eb;
+      box-shadow: 0 14px 40px rgba(15,23,42,0.9);
+      transform-origin: center;
+      transition: transform 160ms cubic-bezier(.2,0.9,.3,1.3), box-shadow 160ms cubic-bezier(.2,0.9,.3,1.3);
+    }
+    .stat-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 20px 55px rgba(15,23,42,0.95);
+    }
+    .stat-spark {
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg,#38bdf8,#22c55e,#eab308);
+      opacity: 0.9;
+    }
     .btn-ripple { position: relative; overflow: hidden; }
     .btn-ripple:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
     .ripple {
@@ -31,138 +50,203 @@
     @keyframes ripple {
       to { transform: translate(-50%, -50%) scale(6); opacity: 0; }
     }
-    .hover-lift { transition: transform 200ms cubic-bezier(.23,1.14,.81,1.03), box-shadow 200ms cubic-bezier(.23,1.14,.81,1.03), border-color 200ms; will-change: transform; }
-    .hover-lift:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 12px 28px rgba(2,132,199,0.15); border-color: #93c5fd; }
-    /* Scrollbar for Notification Stream */
-    .notif-scroll { overflow-y: auto; max-height: 360px;}
-    /* Status indicator badge */
-    .badge-dot { width: 0.75rem; height: 0.75rem; border-radius: 9999px; display: inline-block;}
-    .badge-up { background:#22d3ee; }
-    .badge-down { background:#f87171; }
-    .badge-warn { background:#fbbf24; }
+    .hover-lift {
+      transition: transform 200ms cubic-bezier(.23,1.14,.81,1.03), box-shadow 200ms cubic-bezier(.23,1.14,.81,1.03), border-color 200ms;
+      will-change: transform;
+    }
+    .hover-lift:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 12px 28px rgba(2,132,199,0.15);
+      border-color: #93c5fd;
+    }
   </style>
 </head>
-<body>
-  <main class="min-h-screen pb-16">
-    <div class="max-w-4xl mx-auto px-4 pt-8">
-      <h1 class="text-4xl font-bold mb-2 drop-shadow-sm">Site Telemetry &amp; Monitoring</h1>
-      <p class="text-lg text-sky-600 mb-10">Live status, snapshots, and alerts for your website.</p>
-      <!-- Telemetry Snapshots -->
-      <div class="panel mb-8 p-6">
-        <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-2xl font-semibold">Telemetry Snapshots</h2>
-          <button onclick="refreshTelemetry()" class="btn-ripple px-4 py-2 rounded-lg font-semibold bg-sky-100 text-sky-700 hover:bg-sky-200 hover-lift">
-            Refresh
-          </button>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          <div class="p-5 rounded-xl panel hover-lift flex flex-col gap-2">
-            <span class="text-sky-500 font-semibold">Site Status</span>
-            <div class="flex items-center gap-2">
-              <span id="siteStatusDot" class="badge-dot badge-up"></span>
-              <span id="siteStatus" class="font-bold text-lg">Online</span>
-            </div>
-            <span class="text-xs text-gray-500">Last checked: <span id="statusChecked">a moment ago</span></span>
-          </div>
-          <div class="p-5 rounded-xl panel hover-lift flex flex-col gap-2">
-            <span class="text-cyan-500 font-semibold">Uptime This Month</span>
-            <span class="font-bold text-lg" id="siteUptime">99.98%</span>
-            <span class="text-xs text-gray-500">Goal: 99.9%</span>
-          </div>
-          <div class="p-5 rounded-xl panel hover-lift flex flex-col gap-2">
-            <span class="text-emerald-500 font-semibold">Page Views</span>
-            <span class="font-bold text-lg" id="pageViews">1,356</span>
-            <span class="text-xs text-gray-500">Last 24 hours</span>
-          </div>
-          <div class="p-5 rounded-xl panel hover-lift flex flex-col gap-2">
-            <span class="text-amber-500 font-semibold">Response Time</span>
-            <span class="font-bold text-lg" id="respTime">182 ms</span>
-            <span class="text-xs text-gray-500">Peak: 264 ms</span>
-          </div>
-          <div class="p-5 rounded-xl panel hover-lift flex flex-col gap-2">
-            <span class="text-fuchsia-500 font-semibold">Last Error</span>
-            <span class="font-bold text-lg" id="lastError">None</span>
-            <span class="text-xs text-gray-500">No critical errors detected</span>
-          </div>
-          <div class="p-5 rounded-xl panel hover-lift flex flex-col gap-2">
-            <span class="text-indigo-500 font-semibold">Deployed Commit</span>
-            <span class="font-bold text-lg" id="deployCommit">976a68e</span>
-            <span class="text-xs text-gray-500">Updated 2 days ago</span>
-          </div>
-        </div>
+<body class="min-h-screen">
+  <header class="border-b border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-950/70 backdrop-blur-sm">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+          Site Telemetry &amp; Monitoring
+        </h1>
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          Snapshots and event stream for this website.
+        </p>
       </div>
-      <!-- Notification Stream -->
-      <div class="panel p-6">
-        <div class="flex items-center mb-4">
-          <h2 class="text-2xl font-semibold flex-1">Notification Stream</h2>
-        </div>
-        <div class="notif-scroll space-y-4" id="notifStream">
-          <div class="flex gap-2 items-start">
-            <div class="badge-dot badge-up mt-1"></div>
-            <div>
-              <span class="font-semibold text-sky-700 dark:text-cyan-300">Site online and healthy</span>
-              <div class="text-xs text-gray-500">Dec 15, 2025 16:03 UTC</div>
-            </div>
-          </div>
-          <div class="flex gap-2 items-start">
-            <div class="badge-dot badge-warn mt-1"></div>
-            <div>
-              <span class="font-semibold text-amber-700 dark:text-amber-200">Slight response delay detected: 392ms peak</span>
-              <div class="text-xs text-gray-500">Dec 15, 2025 12:25 UTC</div>
-            </div>
-          </div>
-          <div class="flex gap-2 items-start">
-            <div class="badge-dot badge-down mt-1"></div>
-            <div>
-              <span class="font-semibold text-red-700 dark:text-red-300">Downtime detected (3 min)</span>
-              <div class="text-xs text-gray-500">Dec 14, 2025 20:47 UTC</div>
-            </div>
-          </div>
-          <div class="flex gap-2 items-start">
-            <div class="badge-dot badge-up mt-1"></div>
-            <div>
-              <span class="font-semibold text-sky-700 dark:text-cyan-300">Status restored • All systems operational</span>
-              <div class="text-xs text-gray-500">Dec 14, 2025 20:51 UTC</div>
-            </div>
-          </div>
-          <div class="flex gap-2 items-start">
-            <div class="badge-dot badge-warn mt-1"></div>
-            <div>
-              <span class="font-semibold text-amber-700 dark:text-amber-200">Elevated error rate 2.1%</span>
-              <div class="text-xs text-gray-500">Dec 14, 2025 09:11 UTC</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <footer class="pt-10 text-center text-xs text-gray-400">
-        Telemetry dashboard &copy; 2025 DarkShockGamer &middot; <a class="underline text-sky-500" href="/">Back to Home</a>
-      </footer>
+      <a href="/" class="btn-ripple px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 bg-white/70 dark:bg-slate-900/70 text-[11px] text-slate-700 dark:text-slate-200 hover-lift">
+        Home
+      </a>
     </div>
+  </header>
+  <main class="max-w-4xl mx-auto px-4 py-6 space-y-6">
+    <!-- Telemetry Snapshots, UI Lab style -->
+    <section class="panel p-5 hover-lift reveal">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Telemetry Snapshots</h2>
+        <span class="text-[11px] text-slate-400 dark:text-slate-500">Realtime tiles</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="info" id="tile-status">
+          <p class="text-[11px] uppercase tracking-[0.16em] text-sky-300/80">Site Status</p>
+          <p class="text-2xl font-semibold mt-1" id="telemetry-status">Online</p>
+          <p class="text-[11px] text-slate-400 mt-1">All systems operational</p>
+          <div class="stat-spark mt-2"></div>
+        </button>
+        <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="success" id="tile-uptime">
+          <p class="text-[11px] uppercase tracking-[0.16em] text-emerald-300/80">Uptime (30d)</p>
+          <p class="text-2xl font-semibold mt-1" id="telemetry-uptime">99.98%</p>
+          <p class="text-[11px] text-slate-400 mt-1">Max. 2 min downtime</p>
+          <div class="stat-spark mt-2"></div>
+        </button>
+        <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="warn" id="tile-views">
+          <p class="text-[11px] uppercase tracking-[0.16em] text-amber-300/80">Unique Views</p>
+          <p class="text-2xl font-semibold mt-1" id="telemetry-views">1,356</p>
+          <p class="text-[11px] text-slate-400 mt-1">Past 24h</p>
+          <div class="stat-spark mt-2"></div>
+        </button>
+      </div>
+    </section>
+    <!-- Notification/Event Timeline, UI Lab style -->
+    <section class="panel p-5 hover-lift reveal">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Notification Stream</h2>
+        <button id="demoTimelineToast" class="btn-ripple text-xs px-2.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-700">Ping Latest</button>
+      </div>
+      <ol class="relative border-l border-slate-200 dark:border-slate-700 pl-4 space-y-3 text-sm" id="event-timeline">
+        <li class="flex gap-3 items-start">
+          <span class="mt-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(16,185,129,0.18)]"></span>
+          <div>
+            <p class="text-slate-800 dark:text-slate-100 font-medium">Site healthy: All systems go</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Pageviews above normal, no errors</p>
+          </div>
+          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">2m</span>
+        </li>
+        <li class="flex gap-3 items-start">
+          <span class="mt-1 w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_0_3px_rgba(56,189,248,0.18)]"></span>
+          <div>
+            <p class="text-slate-800 dark:text-slate-100 font-medium">New deployment: 976a68e</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Main branch deployed to production</p>
+          </div>
+          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">8m</span>
+        </li>
+        <li class="flex gap-3 items-start">
+          <span class="mt-1 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_0_3px_rgba(251,191,36,0.2)]"></span>
+          <div>
+            <p class="text-slate-800 dark:text-slate-100 font-medium">Latency spike observed</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Response time peaked at 392 ms</p>
+          </div>
+          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">21m</span>
+        </li>
+        <li class="flex gap-3 items-start">
+          <span class="mt-1 w-2 h-2 rounded-full bg-red-400 shadow-[0_0_0_3px_rgba(248,113,113,0.22)]"></span>
+          <div>
+            <p class="text-slate-800 dark:text-slate-100 font-medium">Downtime detected (3 min)</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Briefly unreachable; automatic restart</p>
+          </div>
+          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">1h</span>
+        </li>
+      </ol>
+    </section>
+    <footer class="pt-10 text-center text-xs text-gray-400">
+      Telemetry dashboard &copy; 2025 DarkShockGamer &middot; <a class="underline text-sky-500" href="/">Back to Home</a>
+    </footer>
   </main>
   <script>
-    // Simple ripple effect for buttons (like ui-lab)
-    document.querySelectorAll('.btn-ripple').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        const circle = document.createElement('span');
-        circle.className = 'ripple';
-        circle.style.left = e.offsetX + 'px';
-        circle.style.top = e.offsetY + 'px';
-        circle.style.width = circle.style.height = Math.max(btn.offsetWidth, btn.offsetHeight) + 'px';
-        btn.appendChild(circle);
-        setTimeout(() => circle.remove(), 700);
-      });
-    });
-
-    // Example: mock refresh function with fake update
-    function refreshTelemetry() {
-      document.getElementById('siteStatus').textContent = 'Online';
-      document.getElementById('siteStatusDot').className = 'badge-dot badge-up';
-      document.getElementById('statusChecked').textContent = 'just now';
-      document.getElementById('siteUptime').textContent = '99.98%';
-      document.getElementById('respTime').textContent = Math.round(150 + 80*Math.random()) + ' ms';
-      document.getElementById('pageViews').textContent = 1200 + Math.floor(Math.random()*300);
-      document.getElementById('lastError').textContent = 'None';
+    // --- Ripple and Sound system from ui-lab ---
+    const Sound = (() => {
+      const state = {
+        ctx: null, master: null, enabled: true,
+        prefersReduced: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      };
+      function ensureCtx() {
+        if (!state.ctx) {
+          const ctx = new (window.AudioContext||window.webkitAudioContext)();
+          const master = ctx.createGain();
+          master.gain.value = 0.6;
+          master.connect(ctx.destination);
+          state.ctx = ctx; state.master = master;
+          const resume = () => { if (ctx.state==='suspended') ctx.resume(); document.removeEventListener('pointerdown',resume,true);};
+          document.addEventListener('pointerdown', resume, true);
+        }
+      }
+      function tone({freq=440,type='sine',duration=0.12,attack=0.005,decay=0.08,gain=0.3,detune=0}) {
+        if (!state.enabled) return;
+        ensureCtx();
+        const t0 = state.ctx.currentTime;
+        const osc = state.ctx.createOscillator();
+        const g = state.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, t0);
+        if (detune) osc.detune.setValueAtTime(detune, t0);
+        g.gain.setValueAtTime(0, t0);
+        g.gain.linearRampToValueAtTime(gain, t0 + attack);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + attack + decay);
+        osc.connect(g).connect(state.master);
+        osc.start(t0); osc.stop(t0 + Math.max(duration, attack+decay));
+      }
+      return {
+        click:()=>tone({freq:240,type:'triangle',duration:0.08,attack:0.002,decay:0.06,gain:0.22}),
+        success:()=>{tone({freq:660,type:'sine',attack:0.004,decay:0.10,gain:0.25});setTimeout(()=>tone({freq:880,type:'sine',attack:0.004,decay:0.12,gain:0.23}),90);},
+        warn:()=>tone({freq:320,type:'square',attack:0.003,decay:0.15,gain:0.2}),
+        error:()=>{tone({freq:220,type:'square',attack:0.002,decay:0.2,gain:0.25});setTimeout(()=>tone({freq:180,type:'square',attack:0.002,decay:0.22,gain:0.22}), 90);},
+        info:()=>tone({freq:520,type:'triangle',attack:0.004,decay:0.12,gain:0.22}),
+      };
+    })();
+    function addRipple(e) {
+      const btn = e.currentTarget;
+      const rect = btn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const span = document.createElement('span');
+      span.className = 'ripple';
+      span.style.width = span.style.height = size + 'px';
+      span.style.left = (e.clientX - rect.left) + 'px';
+      span.style.top = (e.clientY - rect.top) + 'px';
+      btn.appendChild(span);
+      span.addEventListener('animationend', () => span.remove());
     }
+    document.querySelectorAll('.btn-ripple').forEach(btn => {
+      btn.addEventListener('click', addRipple);
+      const soundType = btn.getAttribute('data-sound');
+      if (soundType) {
+        btn.addEventListener('click', () => {
+          if(soundType==='click') Sound.click();
+          if(soundType==='success') Sound.success();
+          if(soundType==='warn') Sound.warn();
+          if(soundType==='error') Sound.error();
+          if(soundType==='info') Sound.info();
+        });
+      }
+    });
+    // Reveal entry motion
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          Sound.info();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    // Demo event: ping stream timeline, update "status"
+    document.getElementById('demoTimelineToast').addEventListener('click', () => {
+      Sound.info();
+      const timeline = document.getElementById('event-timeline');
+      const now = new Date().toTimeString().slice(0,5);
+      const li = document.createElement('li');
+      li.className = 'flex gap-3 items-start';
+      li.innerHTML = `
+        <span class="mt-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(16,185,129,0.18)]"></span>
+        <div>
+          <p class="text-slate-800 dark:text-slate-100 font-medium">Manual site check pinged</p>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Check at ${now}, status ok</p>
+        </div>
+        <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">Now</span>
+      `;
+      timeline.insertBefore(li, timeline.firstChild);
+      // animate tile
+      const statusTile = document.getElementById('telemetry-status');
+      statusTile.textContent = 'Online';
+    });
   </script>
 </body>
 </html>

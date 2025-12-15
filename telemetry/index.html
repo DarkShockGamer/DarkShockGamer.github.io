@@ -88,19 +88,19 @@
         <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="info" id="tile-status">
           <p class="text-[11px] uppercase tracking-[0.16em] text-sky-300/80">Site Status</p>
           <p class="text-2xl font-semibold mt-1" id="telemetry-status">Online</p>
-          <p class="text-[11px] text-slate-400 mt-1">All systems operational</p>
+          <p class="text-[11px] text-slate-400 mt-1" id="telemetry-status-msg">GitHub Pages active</p>
           <div class="stat-spark mt-2"></div>
         </button>
         <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="success" id="tile-uptime">
-          <p class="text-[11px] uppercase tracking-[0.16em] text-emerald-300/80">Uptime (30d)</p>
-          <p class="text-2xl font-semibold mt-1" id="telemetry-uptime">99.98%</p>
-          <p class="text-[11px] text-slate-400 mt-1">Max. 2 min downtime</p>
+          <p class="text-[11px] uppercase tracking-[0.16em] text-emerald-300/80">Last Commit</p>
+          <p class="text-2xl font-semibold mt-1" id="telemetry-uptime">...</p>
+          <p class="text-[11px] text-slate-400 mt-1" id="telemetry-commit-date">...</p>
           <div class="stat-spark mt-2"></div>
         </button>
-        <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="warn" id="tile-views">
+        <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="warn" id="tile-views" disabled>
           <p class="text-[11px] uppercase tracking-[0.16em] text-amber-300/80">Unique Views</p>
-          <p class="text-2xl font-semibold mt-1" id="telemetry-views">1,356</p>
-          <p class="text-[11px] text-slate-400 mt-1">Past 24h</p>
+          <p class="text-2xl font-semibold mt-1" id="telemetry-views" title="GitHub does not provide pageview analytics">–</p>
+          <p class="text-[11px] text-slate-400 mt-1">Add analytics for live tracking</p>
           <div class="stat-spark mt-2"></div>
         </button>
       </div>
@@ -115,34 +115,10 @@
         <li class="flex gap-3 items-start">
           <span class="mt-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(16,185,129,0.18)]"></span>
           <div>
-            <p class="text-slate-800 dark:text-slate-100 font-medium">Site healthy: All systems go</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Pageviews above normal, no errors</p>
+            <p class="text-slate-800 dark:text-slate-100 font-medium">Loading events&hellip;</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">&nbsp;</p>
           </div>
-          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">2m</span>
-        </li>
-        <li class="flex gap-3 items-start">
-          <span class="mt-1 w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_0_3px_rgba(56,189,248,0.18)]"></span>
-          <div>
-            <p class="text-slate-800 dark:text-slate-100 font-medium">New deployment: 976a68e</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Main branch deployed to production</p>
-          </div>
-          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">8m</span>
-        </li>
-        <li class="flex gap-3 items-start">
-          <span class="mt-1 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_0_3px_rgba(251,191,36,0.2)]"></span>
-          <div>
-            <p class="text-slate-800 dark:text-slate-100 font-medium">Latency spike observed</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Response time peaked at 392 ms</p>
-          </div>
-          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">21m</span>
-        </li>
-        <li class="flex gap-3 items-start">
-          <span class="mt-1 w-2 h-2 rounded-full bg-red-400 shadow-[0_0_0_3px_rgba(248,113,113,0.22)]"></span>
-          <div>
-            <p class="text-slate-800 dark:text-slate-100 font-medium">Downtime detected (3 min)</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Briefly unreachable; automatic restart</p>
-          </div>
-          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">1h</span>
+          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500"></span>
         </li>
       </ol>
     </section>
@@ -151,7 +127,7 @@
     </footer>
   </main>
   <script>
-    // --- Ripple and Sound system from ui-lab ---
+    // --- UI Lab Sound and Ripple ---
     const Sound = (() => {
       const state = {
         ctx: null, master: null, enabled: true,
@@ -227,26 +203,76 @@
       });
     }, { threshold: 0.2 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    // Demo event: ping stream timeline, update "status"
+
+    // --- GitHub data fetching logic ---
+    async function fetchCommit() {
+      const res = await fetch("https://api.github.com/repos/DarkShockGamer/DarkShockGamer.github.io/commits/main");
+      if(!res.ok) return;
+      const data = await res.json();
+      document.getElementById('telemetry-uptime').textContent = data.sha ? data.sha.substring(0, 7) : '—';
+      document.getElementById('telemetry-commit-date').textContent = data.commit?.committer?.date ? "Pushed: " + new Date(data.commit.committer.date).toLocaleString() : '';
+    }
+    async function fetchEvents() {
+      const res = await fetch("https://api.github.com/repos/DarkShockGamer/DarkShockGamer.github.io/events");
+      if(!res.ok) return;
+      const events = await res.json();
+      if (!Array.isArray(events)) return;
+      const timeline = document.getElementById("event-timeline");
+      timeline.innerHTML = events.slice(0, 6).map(ev => {
+        let color = ev.type.includes('Push') ? 'bg-sky-400' :
+                    ev.type.includes('Create') ? 'bg-emerald-400' :
+                    ev.type.includes('Delete') ? 'bg-red-400' :
+                    'bg-amber-400';
+        let desc = '';
+        if (ev.type === 'PushEvent') {
+          desc = ev.payload.commits && ev.payload.commits.length
+            ? `${ev.payload.commits[0].message}`
+            : 'Push to ' + ev.repo.name;
+        } else if (ev.type === 'CreateEvent') {
+          desc = `Created ${ev.payload.ref_type}: ${ev.payload.ref || ""}`;
+        } else if (ev.type === 'DeleteEvent') {
+          desc = `Deleted ${ev.payload.ref_type}: ${ev.payload.ref || ""}`;
+        } else if (ev.type === 'IssuesEvent') {
+          desc = `${ev.payload.action} issue #${ev.payload.issue?.number || ""}`;
+        } else if (ev.type === 'PullRequestEvent') {
+          desc = `${ev.payload.action} PR #${ev.payload.pull_request?.number || ""}`;
+        } else {
+          desc = ev.type.replace(/Event$/, '');
+        }
+        return `
+      <li class="flex gap-3 items-start">
+        <span class="mt-1 w-2 h-2 rounded-full ${color} shadow-[0_0_0_3px_rgba(56,189,248,0.12)]"></span>
+        <div>
+          <p class="text-slate-800 dark:text-slate-100 font-medium">${ev.type.replace(/Event$/,'')}</p>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">${desc}</p>
+        </div>
+        <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500" title="${ev.created_at}">${new Date(ev.created_at).toLocaleString()}</span>
+      </li>`;
+      }).join('');
+    }
+    // "Ping Latest" button adds a fake event (not from GitHub)
     document.getElementById('demoTimelineToast').addEventListener('click', () => {
       Sound.info();
       const timeline = document.getElementById('event-timeline');
-      const now = new Date().toTimeString().slice(0,5);
+      const now = new Date().toISOString();
       const li = document.createElement('li');
       li.className = 'flex gap-3 items-start';
       li.innerHTML = `
         <span class="mt-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(16,185,129,0.18)]"></span>
         <div>
           <p class="text-slate-800 dark:text-slate-100 font-medium">Manual site check pinged</p>
-          <p class="text-[11px] text-slate-500 dark:text-slate-400">Check at ${now}, status ok</p>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Check at ${new Date().toLocaleTimeString()}, status ok</p>
         </div>
-        <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">Now</span>
+        <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500" title="${now}">Now</span>
       `;
       timeline.insertBefore(li, timeline.firstChild);
-      // animate tile
-      const statusTile = document.getElementById('telemetry-status');
-      statusTile.textContent = 'Online';
     });
+
+    // Call on load and every 2 minutes
+    fetchCommit();
+    fetchEvents();
+    setInterval(fetchCommit, 120000);
+    setInterval(fetchEvents, 120000);
   </script>
 </body>
 </html>

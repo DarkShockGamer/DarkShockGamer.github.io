@@ -11,6 +11,8 @@
     window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
     plausible.init()
   </script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
@@ -68,70 +70,98 @@
   </style>
 </head>
 <body class="min-h-screen">
-  <header class="border-b border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-950/70 backdrop-blur-sm">
-    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div>
-        <h1 class="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-          Site Telemetry &amp; Monitoring
-        </h1>
-        <p class="text-xs text-slate-500 dark:text-slate-400">
-          Snapshots and event stream for this website.
-        </p>
+  <!-- Protected Content Wrapper -->
+  <div id="protected-content" style="display:none;">
+    <header class="border-b border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-950/70 backdrop-blur-sm">
+      <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div>
+          <h1 class="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+            Site Telemetry &amp; Monitoring
+          </h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            Snapshots and event stream for this website.
+          </p>
+        </div>
+        <a href="/" class="btn-ripple px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 bg-white/70 dark:bg-slate-900/70 text-[11px] text-slate-700 dark:text-slate-200 hover-lift">
+          Home
+        </a>
       </div>
-      <a href="/" class="btn-ripple px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 bg-white/70 dark:bg-slate-900/70 text-[11px] text-slate-700 dark:text-slate-200 hover-lift">
-        Home
-      </a>
-    </div>
-  </header>
-  <main class="max-w-4xl mx-auto px-4 py-6 space-y-6">
-    <!-- Telemetry Snapshots, UI Lab style -->
-    <section class="panel p-5 hover-lift reveal">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Telemetry Snapshots</h2>
-        <span class="text-[11px] text-slate-400 dark:text-slate-500">Realtime tiles</span>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="info" id="tile-status">
-          <p class="text-[11px] uppercase tracking-[0.16em] text-sky-300/80">Site Status</p>
-          <p class="text-2xl font-semibold mt-1" id="telemetry-status">Online</p>
-          <p class="text-[11px] text-slate-400 mt-1" id="telemetry-status-msg">GitHub Pages active</p>
-          <div class="stat-spark mt-2"></div>
-        </button>
-        <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="success" id="tile-uptime">
-          <p class="text-[11px] uppercase tracking-[0.16em] text-emerald-300/80">Last Commit</p>
-          <p class="text-2xl font-semibold mt-1" id="telemetry-uptime">...</p>
-          <p class="text-[11px] text-slate-400 mt-1" id="telemetry-commit-date">...</p>
-          <div class="stat-spark mt-2"></div>
-        </button>
-        <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="warn" id="tile-views" disabled>
-          <p class="text-[11px] uppercase tracking-[0.16em] text-amber-300/80">Unique Views</p>
-          <p class="text-2xl font-semibold mt-1" id="telemetry-views" title="Unique viewers today, Plausible.io">–</p>
-          <p class="text-[11px] text-slate-400 mt-1">Today (via Plausible)</p>
-          <div class="stat-spark mt-2"></div>
-        </button>
-      </div>
-    </section>
-    <!-- Notification/Event Timeline, UI Lab style -->
-    <section class="panel p-5 hover-lift reveal">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Notification Stream</h2>
-        <button id="demoTimelineToast" class="btn-ripple text-xs px-2.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-700">Ping Latest</button>
-      </div>
-      <ol class="relative border-l border-slate-200 dark:border-slate-700 pl-4 space-y-3 text-sm" id="event-timeline">
-        <li class="flex gap-3 items-start">
-          <span class="mt-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(16,185,129,0.18)]"></span>
-          <div>
-            <p class="text-slate-800 dark:text-slate-100 font-medium">Loading events&hellip;</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">&nbsp;</p>
-          </div>
-          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500"></span>
-        </li>
-      </ol>
-    </section>
-    <footer class="pt-10 text-center text-xs text-gray-400">
-      Telemetry dashboard &copy; 2025 DarkShockGamer &middot; <a class="underline text-sky-500" href="/">Back to Home</a>
-    </footer>
-  </main>
+    </header>
+    <main class="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <!-- Telemetry Snapshots, UI Lab style -->
+      <section class="panel p-5 hover-lift reveal">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Telemetry Snapshots</h2>
+          <span class="text-[11px] text-slate-400 dark:text-slate-500">Realtime tiles</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="info" id="tile-status">
+            <p class="text-[11px] uppercase tracking-[0.16em] text-sky-300/80">Site Status</p>
+            <p class="text-2xl font-semibold mt-1" id="telemetry-status">Online</p>
+            <p class="text-[11px] text-slate-400 mt-1" id="telemetry-status-msg">GitHub Pages active</p>
+            <div class="stat-spark mt-2"></div>
+          </button>
+          <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="success" id="tile-uptime">
+            <p class="text-[11px] uppercase tracking-[0.16em] text-emerald-300/80">Last Commit</p>
+            <p class="text-2xl font-semibold mt-1" id="telemetry-uptime">...</p>
+            <p class="text-[11px] text-slate-400 mt-1" id="telemetry-commit-date">...</p>
+            <div class="stat-spark mt-2"></div>
+          </button>
+          <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="warn" id="tile-views" disabled>
+            <p class="text-[11px] uppercase tracking-[0.16em] text-amber-300/80">Unique Views</p>
+            <p class="text-2xl font-semibold mt-1" id="telemetry-views" title="Unique viewers today, Plausible.io">–</p>
+            <p class="text-[11px] text-slate-400 mt-1">Today (via Plausible)</p>
+            <div class="stat-spark mt-2"></div>
+          </button>
+        </div>
+      </section>
+      <!-- Notification/Event Timeline, UI Lab style -->
+      <section class="panel p-5 hover-lift reveal">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Notification Stream</h2>
+          <button id="demoTimelineToast" class="btn-ripple text-xs px-2.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-700">Ping Latest</button>
+        </div>
+        <ol class="relative border-l border-slate-200 dark:border-slate-700 pl-4 space-y-3 text-sm" id="event-timeline">
+          <li class="flex gap-3 items-start">
+            <span class="mt-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(16,185,129,0.18)]"></span>
+            <div>
+              <p class="text-slate-800 dark:text-slate-100 font-medium">Loading events&hellip;</p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">&nbsp;</p>
+            </div>
+            <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500"></span>
+          </li>
+        </ol>
+      </section>
+      <footer class="pt-10 text-center text-xs text-gray-400">
+        Telemetry dashboard &copy; 2025 DarkShockGamer &middot; <a class="underline text-sky-500" href="/">Back to Home</a>
+      </footer>
+    </main>
+  </div>
+  <div id="not-allowed" style="display:none; text-align:center; color:red; margin-top:2em;">
+    Access denied.
+  </div>
+  <script>
+    // GOOGLE EMAIL AUTHORIZATION (reuse Google login credential from main page)
+    const allowedEmails = [
+      "palm4215@wths.net",
+      "blackshocktrooper@gmail.com"
+    ];
+    function checkGoogleLoginAndAuthorize() {
+      // Use the same key as index.html for Google Identity credential
+      const storageKey = 'g_credential_v1';
+      let credential = localStorage.getItem(storageKey) || sessionStorage.getItem(storageKey);
+      if (!credential) { return; }
+      try {
+        const user = jwt_decode(credential);
+        if (allowedEmails.includes(user.email)) {
+          document.getElementById("protected-content").style.display = "";
+          return;
+        }
+      } catch (e) {}
+      document.getElementById("not-allowed").style.display = "";
+    }
+    window.addEventListener('DOMContentLoaded', checkGoogleLoginAndAuthorize);
+  </script>
   <script>
     // --- UI Lab Sound and Ripple ---
     const Sound = (() => {
@@ -279,13 +309,25 @@
     setInterval(fetchCommit, 120000);
     setInterval(fetchEvents, 120000);
   </script>
-  <!-- Plausible Unique Visitors API Fetch -->
-  <!-- 
-    IMPORTANT: For security, this example assumes you have a proxy endpoint at /api/plausible-visitors
-    that returns the Plausible API stats JSON. Never expose your Plausible API key publicly!
-    For testing only, you may use the direct API endpoint if you understand the risk.
-    Replace '/api/plausible-visitors' with your own endpoint.
+  <!-- IF YOU WANT PLAUSIBLE VISITOR STATS DIRECT FROM THE BROWSER (NOT RECOMMENDED for public): -->
+  <!-- Uncomment and insert your own API key if you accept the *private risk* -->
+  <!--
+  <script>
+    fetch('https://plausible.io/api/v1/stats/aggregate?site_id=DarkShockGamer.github.io&period=day', {
+      headers: { 'Authorization': 'Bearer YOUR_PLAUSIBLE_API_KEY' }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.results && data.results.visitors)
+        document.getElementById("telemetry-views").textContent = data.results.visitors.value;
+    })
+    .catch(() => {
+      document.getElementById("telemetry-views").textContent = "–";
+    });
+  </script>
   -->
+  <!-- IF YOU USE A SECURE PROXY FUNCTION INSTEAD, REPLACE WITH: -->
+  <!--
   <script>
     fetch('/api/plausible-visitors')
       .then(res => res.json())
@@ -297,5 +339,6 @@
         document.getElementById("telemetry-views").textContent = "–";
       });
   </script>
+  -->
 </body>
 </html>

@@ -324,7 +324,7 @@ html.theme-high-contrast-dark input[type="date"]::-webkit-calendar-picker-indica
 
 /* Media query fallback for browsers using system preference (only when no explicit theme class is set) */
 @media (prefers-color-scheme: dark) {
-  html:not(.theme-light):not(.theme-dark):not(.theme-high-contrast-light):not(.theme-high-contrast-dark) input[type="date"]::-webkit-calendar-picker-indicator {
+  html:not(.theme-light):not(.theme-dark):not(.theme-high-contrast):not(.theme-high-contrast-light):not(.theme-high-contrast-dark) input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(1);
     opacity: 1;
     cursor: pointer;
@@ -332,7 +332,7 @@ html.theme-high-contrast-dark input[type="date"]::-webkit-calendar-picker-indica
 }
 
 @media (prefers-color-scheme: light) {
-  html:not(.theme-light):not(.theme-dark):not(.theme-high-contrast-light):not(.theme-high-contrast-dark) input[type="date"]::-webkit-calendar-picker-indicator {
+  html:not(.theme-light):not(.theme-dark):not(.theme-high-contrast):not(.theme-high-contrast-light):not(.theme-high-contrast-dark) input[type="date"]::-webkit-calendar-picker-indicator {
     filter: none;
     opacity: 1;
     cursor: pointer;

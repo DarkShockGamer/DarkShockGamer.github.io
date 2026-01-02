@@ -5,6 +5,7 @@
   <link rel="icon" type="image/png" href="/assets/logo.png">
   <link rel="shortcut icon" type="image/png" href="/assets/logo.png">
   <title>Trident Robotics 4296</title>
+  <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
   <!-- Privacy-friendly analytics by Plausible -->
   <script async src="https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js"></script>
   <script>
@@ -449,6 +450,12 @@
       width: 100%;
       border-top: 3px solid var(--light-blue);
       z-index: 1001;
+      transform: translateY(-8px);
+      max-height: 0;
+      opacity: 0;
+      visibility: hidden;
+      overflow: hidden;
+      transition: max-height 220ms ease, opacity 200ms ease, transform 200ms ease;
     }
     .nav-links-mobile a {
       padding: 0.8rem 0;
@@ -457,8 +464,8 @@
     }
 
     @media (max-width: 768px) {
-      .nav-links-mobile { display: none; /* hidden by default */ }
-      .nav-links-mobile.show { display: flex; /* show when toggled */ }
+      .nav-links-mobile { display: flex; /* hidden via max-height/opacity */ }
+      .nav-links-mobile.show { visibility: visible; opacity: 1; transform: translateY(0); max-height: 480px; }
     }
 
     /* ====== Sections ====== */
@@ -1056,13 +1063,28 @@
       const navLinksMobile = document.getElementById('navLinksMobile');
       navToggle?.addEventListener('click', function () {
         const expanded = navToggle.getAttribute('aria-expanded') === 'true';
-        navToggle.setAttribute('aria-expanded', (!expanded).toString());
-        navLinksMobile.classList.toggle('show');
+        const next = (!expanded);
+        navToggle.setAttribute('aria-expanded', next.toString());
+        navLinksMobile?.classList.toggle('show', next);
       });
+      document.addEventListener('click', (evt) => {
+        if (!navLinksMobile || !navToggle) return;
+        if (!navLinksMobile.classList.contains('show')) return;
+        const target = evt.target;
+        if (!(target instanceof Element)) return;
+        if (!navLinksMobile.contains(target) && !navToggle.contains(target)) {
+          navLinksMobile.classList.remove('show');
+          navToggle.setAttribute('aria-expanded', 'false');
+        }
+      }, { passive: true });
       document.querySelectorAll('.nav-links-mobile a').forEach(link => {
-        link.addEventListener('click', () => navLinksMobile.classList.remove('show'));
+        link.addEventListener('click', () => {
+          navLinksMobile?.classList.remove('show');
+          navToggle?.setAttribute('aria-expanded', 'false');
+        });
       });
     });
   </script>
+  <script src="/assets/js/theme.js"></script>
 </body>
 </html>

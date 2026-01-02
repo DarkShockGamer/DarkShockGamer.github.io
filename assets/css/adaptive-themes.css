@@ -298,6 +298,7 @@ html.theme-high-contrast-light {
   --medium-blue: #ffffff;
   --light-blue: #000000;
   --accent: #16a34a;
+  /* Keep variable names for compatibility while inverting real values for contrast */
   --white: #000000;
 }
 
@@ -306,6 +307,7 @@ html.theme-high-contrast-dark {
   --medium-blue: #000000;
   --light-blue: #ffffff;
   --accent: #22c55e;
+  /* Keep variable names for compatibility while inverting real values for contrast */
   --white: #ffffff;
 }
 

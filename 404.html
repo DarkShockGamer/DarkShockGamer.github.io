@@ -91,11 +91,11 @@
     });
     // If error code is passed in URL, display it
     const params = new URLSearchParams(location.search);
-  if(params.has('code')) {
-    document.getElementById('errorCode').textContent = params.get('code');
-    document.title = params.get('code') + ' Not Found — Trident Robotics';
-    document.querySelector('span.text-7xl').textContent = params.get('code');
-  }
+    if(params.has('code')) {
+      document.getElementById('errorCode').textContent = params.get('code');
+      document.title = params.get('code') + ' Not Found — Trident Robotics';
+      document.querySelector('span.text-7xl').textContent = params.get('code');
+    }
   </script>
   <script src="/assets/js/theme.js"></script>
 </body>

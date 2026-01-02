@@ -243,55 +243,95 @@
       color: #e5e7eb !important;
     }
 
-    /* High Contrast Theme */
+    /* High Contrast Theme (Deprecated - kept for backward compatibility) */
     html.theme-high-contrast body {
       background: #000000;
       color: #ffffff;
     }
     html.theme-high-contrast .panel {
-      background: #1a1a1a;
-      border: 2px solid #ffffff;
+      background: #000000;
+      border: 3px solid #ffffff;
       box-shadow: none;
     }
     html.theme-high-contrast .tabs {
-      background: #2a2a2a;
-      border: 1px solid #ffffff;
+      background: #000000;
+      border: 3px solid #ffffff;
     }
     html.theme-high-contrast .tab-btn {
       color: #ffffff;
-      border: 1px solid transparent;
+      border: 2px solid transparent;
+      font-weight: 700;
     }
     html.theme-high-contrast .tab-btn[aria-selected="true"] {
-      background: #ffffff;
+      background: #22c55e;
       color: #000000;
-      border: 2px solid #ffff00;
+      border: 3px solid #ffffff;
+    }
+    html.theme-high-contrast .tab-indicator {
+      display: none; /* Hide gradient indicator in high contrast */
     }
     html.theme-high-contrast .cancel-btn {
-      border: 2px solid #ffffff;
+      border: 3px solid #ffffff;
       color: #ffffff;
+      font-weight: 700;
     }
     html.theme-high-contrast .save-btn {
-      background: #ffffff;
+      background: #22c55e;
       color: #000000;
-      border: 2px solid #ffff00;
+      border: 3px solid #ffffff;
+      font-weight: 700;
+      box-shadow: none;
     }
     html.theme-high-contrast input, html.theme-high-contrast select {
       background: #000000 !important;
-      border: 2px solid #ffffff !important;
+      border: 3px solid #ffffff !important;
       color: #ffffff !important;
+      font-weight: 600;
     }
     html.theme-high-contrast .toggle {
-      border: 2px solid #ffffff;
+      border: 3px solid #ffffff;
+      background: #000000;
+      box-shadow: none;
     }
     html.theme-high-contrast .toggle.on {
-      background: #ffff00;
+      background: #22c55e;
       border-color: #ffffff;
     }
     html.theme-high-contrast .toggle-knob {
       background: #ffffff;
+      box-shadow: none;
     }
     html.theme-high-contrast .toggle.on .toggle-knob {
       background: #000000;
+    }
+    html.theme-high-contrast .gear {
+      display: none; /* Hide decorative gears in high contrast mode */
+    }
+    html.theme-high-contrast .toast {
+      background: #000000;
+      border: 3px solid #ffffff;
+      color: #ffffff;
+      box-shadow: none;
+    }
+    html.theme-high-contrast .toast.success {
+      border-color: #22c55e;
+      background: #000000;
+      color: #22c55e;
+    }
+    html.theme-high-contrast .toast.error {
+      border-color: #f87171;
+      background: #000000;
+      color: #f87171;
+    }
+    html.theme-high-contrast .toast.warn {
+      border-color: #fbbf24;
+      background: #000000;
+      color: #fbbf24;
+    }
+    html.theme-high-contrast .toast.info {
+      border-color: #7dd3fc;
+      background: #000000;
+      color: #7dd3fc;
     }
 
     /* --- New Adaptive Theme Variants (Light/Dark/High-Contrast) --- */
@@ -335,13 +375,24 @@
     html.theme-high-contrast .setting-card,
     html.theme-high-contrast-light .setting-card {
       background: #ffffff;
-      border: 2px solid #000000;
+      border: 3px solid #000000;
       backdrop-filter: none;
+      box-shadow: none;
+    }
+    html.theme-high-contrast .setting-card:hover,
+    html.theme-high-contrast-light .setting-card:hover {
+      box-shadow: none;
+      border-color: #000000;
     }
     html.theme-high-contrast-dark .setting-card {
       background: #000000;
-      border: 2px solid #ffffff;
+      border: 3px solid #ffffff;
       backdrop-filter: none;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-dark .setting-card:hover {
+      box-shadow: none;
+      border-color: #ffffff;
     }
 
     .chip {
@@ -373,14 +424,16 @@
     }
     html.theme-high-contrast .chip,
     html.theme-high-contrast-light .chip {
-      background: #059669;
+      background: #16a34a;
       color: #ffffff;
-      border: 2px solid #000000;
+      border: 3px solid #000000;
+      font-weight: 700;
     }
     html.theme-high-contrast-dark .chip {
-      background: #10b981;
+      background: #22c55e;
       color: #000000;
-      border: 2px solid #ffffff;
+      border: 3px solid #ffffff;
+      font-weight: 700;
     }
 
     /* --- Adaptive Theme Selector (Segmented Control) --- */
@@ -408,11 +461,15 @@
     }
     html.theme-high-contrast-light .theme-selector {
       background: #e5e5e5;
-      border: 2px solid #000000;
+      border: 3px solid #000000;
     }
     html.theme-high-contrast-dark .theme-selector {
-      background: #1a1a1a;
-      border: 2px solid #ffffff;
+      background: #000000;
+      border: 3px solid #ffffff;
+    }
+    html.theme-high-contrast .theme-selector {
+      background: #000000;
+      border: 3px solid #ffffff;
     }
     
     .theme-option {
@@ -504,6 +561,216 @@
       color: #000000;
       border: 3px solid #ffffff;
       box-shadow: none;
+    }
+    
+    /* Also add styles for old theme-high-contrast class for theme options */
+    html.theme-high-contrast .theme-option {
+      color: #ffffff;
+      border: 2px solid transparent;
+      font-weight: 700;
+    }
+    html.theme-high-contrast .theme-option:hover {
+      background: #1a1a1a;
+      border-color: #ffffff;
+    }
+    html.theme-high-contrast .theme-option[data-theme="light"].active,
+    html.theme-high-contrast .theme-option[data-theme="dark"].active {
+      background: #0284c7;
+      color: #000000;
+      border: 3px solid #ffffff;
+      box-shadow: none;
+    }
+    html.theme-high-contrast .theme-option[data-theme="high-contrast-light"].active,
+    html.theme-high-contrast .theme-option[data-theme="high-contrast-dark"].active {
+      background: #22c55e;
+      color: #000000;
+      border: 3px solid #ffffff;
+      box-shadow: none;
+    }
+    
+    /* Hide/adjust decorative elements in high-contrast modes */
+    html.theme-high-contrast .tab-indicator,
+    html.theme-high-contrast-light .tab-indicator,
+    html.theme-high-contrast-dark .tab-indicator {
+      display: none; /* Hide gradient indicator in high contrast */
+    }
+    
+    html.theme-high-contrast .gear,
+    html.theme-high-contrast-light .gear,
+    html.theme-high-contrast-dark .gear {
+      display: none; /* Hide decorative gears in high contrast mode */
+    }
+    
+    /* High Contrast Light - Additional Elements */
+    html.theme-high-contrast-light body {
+      background: #ffffff;
+      color: #000000;
+    }
+    html.theme-high-contrast-light .panel {
+      background: #ffffff;
+      border: 3px solid #000000;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-light .tabs {
+      background: #e5e5e5;
+      border: 3px solid #000000;
+    }
+    html.theme-high-contrast-light .tab-btn {
+      color: #000000;
+      border: 2px solid transparent;
+      font-weight: 700;
+    }
+    html.theme-high-contrast-light .tab-btn[aria-selected="true"] {
+      background: #16a34a;
+      color: #ffffff;
+      border: 3px solid #000000;
+    }
+    html.theme-high-contrast-light .cancel-btn {
+      border: 3px solid #000000;
+      color: #000000;
+      font-weight: 700;
+    }
+    html.theme-high-contrast-light .save-btn {
+      background: #16a34a;
+      color: #ffffff;
+      border: 3px solid #000000;
+      font-weight: 700;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-light input, 
+    html.theme-high-contrast-light select {
+      background: #ffffff !important;
+      border: 3px solid #000000 !important;
+      color: #000000 !important;
+      font-weight: 600;
+    }
+    html.theme-high-contrast-light .toggle {
+      border: 3px solid #000000;
+      background: #ffffff;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-light .toggle.on {
+      background: #16a34a;
+      border-color: #000000;
+    }
+    html.theme-high-contrast-light .toggle-knob {
+      background: #000000;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-light .toggle.on .toggle-knob {
+      background: #ffffff;
+    }
+    html.theme-high-contrast-light .toast {
+      background: #ffffff;
+      border: 3px solid #000000;
+      color: #000000;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-light .toast.success {
+      border-color: #16a34a;
+      background: #ffffff;
+      color: #16a34a;
+    }
+    html.theme-high-contrast-light .toast.error {
+      border-color: #dc2626;
+      background: #ffffff;
+      color: #dc2626;
+    }
+    html.theme-high-contrast-light .toast.warn {
+      border-color: #d97706;
+      background: #ffffff;
+      color: #d97706;
+    }
+    html.theme-high-contrast-light .toast.info {
+      border-color: #0284c7;
+      background: #ffffff;
+      color: #0284c7;
+    }
+    
+    /* High Contrast Dark - Additional Elements */
+    html.theme-high-contrast-dark body {
+      background: #000000;
+      color: #ffffff;
+    }
+    html.theme-high-contrast-dark .panel {
+      background: #000000;
+      border: 3px solid #ffffff;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-dark .tabs {
+      background: #000000;
+      border: 3px solid #ffffff;
+    }
+    html.theme-high-contrast-dark .tab-btn {
+      color: #ffffff;
+      border: 2px solid transparent;
+      font-weight: 700;
+    }
+    html.theme-high-contrast-dark .tab-btn[aria-selected="true"] {
+      background: #22c55e;
+      color: #000000;
+      border: 3px solid #ffffff;
+    }
+    html.theme-high-contrast-dark .cancel-btn {
+      border: 3px solid #ffffff;
+      color: #ffffff;
+      font-weight: 700;
+    }
+    html.theme-high-contrast-dark .save-btn {
+      background: #22c55e;
+      color: #000000;
+      border: 3px solid #ffffff;
+      font-weight: 700;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-dark input, 
+    html.theme-high-contrast-dark select {
+      background: #000000 !important;
+      border: 3px solid #ffffff !important;
+      color: #ffffff !important;
+      font-weight: 600;
+    }
+    html.theme-high-contrast-dark .toggle {
+      border: 3px solid #ffffff;
+      background: #000000;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-dark .toggle.on {
+      background: #22c55e;
+      border-color: #ffffff;
+    }
+    html.theme-high-contrast-dark .toggle-knob {
+      background: #ffffff;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-dark .toggle.on .toggle-knob {
+      background: #000000;
+    }
+    html.theme-high-contrast-dark .toast {
+      background: #000000;
+      border: 3px solid #ffffff;
+      color: #ffffff;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-dark .toast.success {
+      border-color: #22c55e;
+      background: #000000;
+      color: #22c55e;
+    }
+    html.theme-high-contrast-dark .toast.error {
+      border-color: #f87171;
+      background: #000000;
+      color: #f87171;
+    }
+    html.theme-high-contrast-dark .toast.warn {
+      border-color: #fbbf24;
+      background: #000000;
+      color: #fbbf24;
+    }
+    html.theme-high-contrast-dark .toast.info {
+      border-color: #7dd3fc;
+      background: #000000;
+      color: #7dd3fc;
     }
 
     /* --- Deprecated: Old Adaptive Theme Slider (kept for reference) --- */
@@ -698,6 +965,22 @@
     html.theme-high-contrast-dark .setting-description {
       color: #ffffff;
       font-weight: 600;
+    }
+    
+    /* Header text colors for high-contrast modes */
+    html.theme-high-contrast h1,
+    html.theme-high-contrast-light h1 {
+      color: #000000 !important;
+    }
+    html.theme-high-contrast-dark h1 {
+      color: #ffffff !important;
+    }
+    html.theme-high-contrast p,
+    html.theme-high-contrast-light p {
+      color: #000000 !important;
+    }
+    html.theme-high-contrast-dark p {
+      color: #ffffff !important;
     }
   </style>
 </head>

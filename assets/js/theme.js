@@ -66,6 +66,14 @@
     } catch {}
   }
   
+  // Check if current page should be excluded from theming
+  function isExcludedPage() {
+    const path = window.location.pathname;
+    // Exclude index.html and sponsors/index.html from theming
+    return path === '/' || path === '/index.html' || 
+           path === '/sponsors' || path === '/sponsors/' || path === '/sponsors/index.html';
+  }
+  
   // Apply theme to page
   function apply(pref = get()) {
     const html = document.documentElement;
@@ -74,6 +82,12 @@
     html.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast', 
                           'theme-high-contrast-light', 'theme-high-contrast-dark',
                           'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight');
+    
+    // Skip theme application on excluded pages
+    if (isExcludedPage()) {
+      html.style.colorScheme = '';
+      return;
+    }
     
     // Check if there's an adaptive theme set
     const adaptiveTheme = getAdaptive();

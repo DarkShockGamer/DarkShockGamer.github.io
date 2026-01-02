@@ -1069,6 +1069,7 @@
       });
       document.addEventListener('click', (evt) => {
         if (!navLinksMobile || !navToggle) return;
+        if (!navLinksMobile.classList.contains('show')) return;
         const target = evt.target;
         if (!(target instanceof Element)) return;
         if (!navLinksMobile.contains(target) && !navToggle.contains(target)) {

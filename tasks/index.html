@@ -326,6 +326,7 @@
     html.theme-light body {
       background: linear-gradient(to bottom, #f0f9ff, white);
       color: #1e293b;
+      color-scheme: light;
     }
     html.theme-light .column-section {
       background: white !important;
@@ -369,6 +370,7 @@
     html.theme-dark body {
       background: linear-gradient(to bottom, #0b1220, #0a0f1a);
       color: #e5e7eb;
+      color-scheme: dark;
     }
     html.theme-dark .dropdown-btn {
       background: #0b1220 !important;
@@ -421,6 +423,7 @@
     html.theme-high-contrast body {
       background: #000000;
       color: #ffffff;
+      color-scheme: dark;
     }
     html.theme-high-contrast .column-section {
       background: #1a1a1a !important;
@@ -591,13 +594,29 @@
     /* Native date input calendar picker icon - dark theme visibility */
     html.theme-dark input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(1);
+      opacity: 1;
       cursor: pointer;
     }
     @media (prefers-color-scheme: dark) {
       input[type="date"]::-webkit-calendar-picker-indicator {
         filter: invert(1);
+        opacity: 1;
         cursor: pointer;
       }
+    }
+    
+    /* High contrast dark theme calendar picker */
+    html.theme-high-contrast-dark input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1) brightness(2);
+      opacity: 1;
+      cursor: pointer;
+    }
+    
+    /* Light theme calendar picker - ensure no inversion */
+    html.theme-light input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: none;
+      opacity: 1;
+      cursor: pointer;
     }
 
     /* ===== FIX 3: Comments input layout - prevent overflow on small screens ===== */

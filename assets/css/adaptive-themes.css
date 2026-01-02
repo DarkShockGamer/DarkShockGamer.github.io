@@ -26,6 +26,7 @@ body {
 html.theme-light body {
   background: linear-gradient(to bottom, #f0f9ff 60%, #e0e7ef 100%);
   color: #1e293b;
+  color-scheme: light;
 }
 
 html.theme-light .panel,
@@ -85,6 +86,7 @@ html.theme-light a {
 html.theme-dark body {
   background: linear-gradient(to bottom, #192132 60%, #0b1220 100%);
   color: #e5e7eb;
+  color-scheme: dark;
 }
 
 html.theme-dark .panel,
@@ -144,6 +146,7 @@ html.theme-dark a {
 html.theme-high-contrast-light body {
   background: #ffffff;
   color: #000000;
+  color-scheme: light;
 }
 
 html.theme-high-contrast-light .panel,
@@ -218,6 +221,7 @@ html.theme-high-contrast-light a {
 html.theme-high-contrast-dark body {
   background: #000000;
   color: #ffffff;
+  color-scheme: dark;
 }
 
 html.theme-high-contrast-dark .panel,
@@ -286,4 +290,51 @@ html.theme-high-contrast-dark a {
   color: #4ade80;
   text-decoration: underline;
   font-weight: 600;
+}
+
+/* Date input calendar picker indicator visibility fixes */
+
+/* Light theme - ensure no inversion */
+html.theme-light input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: none;
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* Dark theme - invert for visibility */
+html.theme-dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* High contrast light - ensure visibility with slight enhancement */
+html.theme-high-contrast-light input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: none;
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* High contrast dark - invert with brightness boost for maximum visibility */
+html.theme-high-contrast-dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(2);
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* Media query fallback for browsers using system preference */
+@media (prefers-color-scheme: dark) {
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 1;
+    cursor: pointer;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: none;
+    opacity: 1;
+    cursor: pointer;
+  }
 }

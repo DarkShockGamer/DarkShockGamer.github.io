@@ -600,7 +600,7 @@
     
     /* Media query fallback for system preference (only when no explicit theme is set) */
     @media (prefers-color-scheme: dark) {
-      html:not(.theme-light):not(.theme-dark):not(.theme-high-contrast-light):not(.theme-high-contrast-dark) input[type="date"]::-webkit-calendar-picker-indicator {
+      html:not(.theme-light):not(.theme-dark):not(.theme-high-contrast):not(.theme-high-contrast-light):not(.theme-high-contrast-dark) input[type="date"]::-webkit-calendar-picker-indicator {
         filter: invert(1);
         opacity: 1;
         cursor: pointer;
@@ -609,6 +609,13 @@
     
     /* High contrast dark theme calendar picker */
     html.theme-high-contrast-dark input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1) brightness(2);
+      opacity: 1;
+      cursor: pointer;
+    }
+    
+    /* Legacy high contrast theme calendar picker (backwards compatibility) */
+    html.theme-high-contrast input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(1) brightness(2);
       opacity: 1;
       cursor: pointer;

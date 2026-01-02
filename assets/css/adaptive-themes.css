@@ -293,7 +293,8 @@ html.theme-high-contrast-dark a {
 }
 
 /* Shared palette overrides so existing pages pick up accessible colors */
-/* Legacy variable names are preserved for compatibility; values are intentionally inverted for contrast */
+/* Legacy variable names are preserved for compatibility with existing page styles.
+   Values are intentionally inverted for contrast, so do not rename without updating all consumers. */
 html.theme-high-contrast-light {
   --dark-blue: #000000;
   --medium-blue: #ffffff;

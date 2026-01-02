@@ -294,8 +294,9 @@ html.theme-high-contrast-dark a {
 
 /* Date input calendar picker indicator visibility fixes */
 
-/* Light theme - ensure no inversion */
-html.theme-light input[type="date"]::-webkit-calendar-picker-indicator {
+/* Light themes - ensure no inversion (native dark icon) */
+html.theme-light input[type="date"]::-webkit-calendar-picker-indicator,
+html.theme-high-contrast-light input[type="date"]::-webkit-calendar-picker-indicator {
   filter: none;
   opacity: 1;
   cursor: pointer;
@@ -304,13 +305,6 @@ html.theme-light input[type="date"]::-webkit-calendar-picker-indicator {
 /* Dark theme - invert for visibility */
 html.theme-dark input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
-  opacity: 1;
-  cursor: pointer;
-}
-
-/* High contrast light - ensure visibility with slight enhancement */
-html.theme-high-contrast-light input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: none;
   opacity: 1;
   cursor: pointer;
 }

@@ -591,39 +591,10 @@
       }
     }
     
-    /* Native date input calendar picker icon - dark theme visibility */
-    html.theme-dark input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(1);
-      opacity: 1;
-      cursor: pointer;
-    }
     
-    /* Media query fallback for system preference (only when no explicit theme is set) */
-    @media (prefers-color-scheme: dark) {
-      html:not(.theme-light):not(.theme-dark):not(.theme-high-contrast):not(.theme-high-contrast-light):not(.theme-high-contrast-dark) input[type="date"]::-webkit-calendar-picker-indicator {
-        filter: invert(1);
-        opacity: 1;
-        cursor: pointer;
-      }
-    }
-    
-    /* High contrast dark theme calendar picker */
-    html.theme-high-contrast-dark input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(1) brightness(2);
-      opacity: 1;
-      cursor: pointer;
-    }
-    
-    /* Legacy high contrast theme calendar picker (backwards compatibility) */
+    /* Legacy high contrast theme calendar picker - backwards compatibility for tasks page */
     html.theme-high-contrast input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(1) brightness(2);
-      opacity: 1;
-      cursor: pointer;
-    }
-    
-    /* Light theme calendar picker - ensure no inversion */
-    html.theme-light input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: none;
       opacity: 1;
       cursor: pointer;
     }

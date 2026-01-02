@@ -548,7 +548,9 @@
       });
       document.addEventListener('click', (evt) => {
         if (!navLinksMobile || !navToggle) return;
-        if (!navLinksMobile.contains(evt.target) && !navToggle.contains(evt.target)) {
+        const target = evt.target;
+        if (!target) return;
+        if (!navLinksMobile.contains(target) && !navToggle.contains(target)) {
           navLinksMobile.classList.remove('show');
           navToggle.setAttribute('aria-expanded', 'false');
         }

@@ -982,11 +982,7 @@
           tabIndicator.style.transform = `translateX(${left}px)`;
           tabIndicator.style.width = `${width}px`;
         };
-        if (typeof requestAnimationFrame === 'function') {
-          requestAnimationFrame(applyPosition);
-        } else {
-          applyPosition();
-        }
+        requestAnimationFrame(applyPosition);
       }
     }
     

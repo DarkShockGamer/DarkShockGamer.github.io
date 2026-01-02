@@ -974,13 +974,19 @@
     function updateTabIndicator(index) {
       const activeBtn = tabBtns[index];
       if (activeBtn && tabIndicator) {
-        const containerRect = activeBtn.parentElement.getBoundingClientRect();
-        const btnRect = activeBtn.getBoundingClientRect();
-        const left = btnRect.left - containerRect.left;
-        const width = btnRect.width;
-        
-        tabIndicator.style.transform = `translateX(${left}px)`;
-        tabIndicator.style.width = `${width}px`;
+        const container = activeBtn.parentElement;
+        const scrollLeft = container ? container.scrollLeft : 0;
+        const left = activeBtn.offsetLeft - scrollLeft;
+        const width = activeBtn.offsetWidth;
+        const applyPosition = () => {
+          tabIndicator.style.transform = `translateX(${left}px)`;
+          tabIndicator.style.width = `${width}px`;
+        };
+        if (typeof requestAnimationFrame === 'function') {
+          requestAnimationFrame(applyPosition);
+        } else {
+          applyPosition();
+        }
       }
     }
     

@@ -292,6 +292,90 @@ html.theme-high-contrast-dark a {
   font-weight: 600;
 }
 
+/* Shared palette overrides so existing pages pick up accessible colors */
+html.theme-high-contrast-light {
+  --dark-blue: #000000;
+  --medium-blue: #ffffff;
+  --light-blue: #000000;
+  --accent: #16a34a;
+  --white: #000000;
+}
+
+html.theme-high-contrast-dark {
+  --dark-blue: #000000;
+  --medium-blue: #000000;
+  --light-blue: #ffffff;
+  --accent: #22c55e;
+  --white: #ffffff;
+}
+
+/* Navigation + card clean up for high contrast across all pages */
+html.theme-high-contrast-light .site-nav,
+html.theme-high-contrast-light header {
+  background: #ffffff;
+  color: #000000;
+  border-color: #000000;
+  box-shadow: none;
+}
+
+html.theme-high-contrast-dark .site-nav,
+html.theme-high-contrast-dark header {
+  background: #000000;
+  color: #ffffff;
+  border-color: #ffffff;
+  box-shadow: none;
+}
+
+html[class*="theme-high-contrast"] .nav-links a,
+html[class*="theme-high-contrast"] .nav-links-mobile a {
+  border-bottom-color: transparent;
+}
+
+html.theme-high-contrast-light .nav-links a:hover,
+html.theme-high-contrast-light .nav-links-mobile a:hover {
+  color: #000000;
+  border-bottom-color: #000000;
+}
+
+html.theme-high-contrast-dark .nav-links a:hover,
+html.theme-high-contrast-dark .nav-links-mobile a:hover {
+  color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+
+html.theme-high-contrast-light .nav-links-mobile { background: #ffffff; border-color: #000000; }
+html.theme-high-contrast-dark .nav-links-mobile { background: #000000; border-color: #ffffff; }
+
+html.theme-high-contrast-light .card,
+html.theme-high-contrast-light .sponsor-card,
+html.theme-high-contrast-light .panel,
+html.theme-high-contrast-light .timeline-item,
+html.theme-high-contrast-light .competition-frame,
+html.theme-high-contrast-light footer {
+  background: #ffffff;
+  color: #000000;
+  border: 2px solid #000000;
+  box-shadow: none;
+}
+
+html.theme-high-contrast-dark .card,
+html.theme-high-contrast-dark .sponsor-card,
+html.theme-high-contrast-dark .panel,
+html.theme-high-contrast-dark .timeline-item,
+html.theme-high-contrast-dark .competition-frame,
+html.theme-high-contrast-dark footer {
+  background: #000000;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  box-shadow: none;
+}
+
+html[class*="theme-high-contrast"] .sponsor-button,
+html[class*="theme-high-contrast"] .btn,
+html[class*="theme-high-contrast"] button {
+  box-shadow: none !important;
+}
+
 /* Date input calendar picker indicator visibility fixes */
 
 /* Light themes - ensure no inversion (native dark icon) */

@@ -54,6 +54,78 @@
   <title>Trident Robotics — Task Board</title>
   <!-- JWT decode library for authentication -->
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+  
+  <!-- Access Control Guard - runs before page loads -->
+  <script>
+    (function() {
+      // Wait for jwt_decode to be available
+      function checkAccess() {
+        // Check if user is signed in
+        const credential = localStorage.getItem('g_credential_v1');
+        
+        if (!credential) {
+          // Not signed in - redirect to home with return URL
+          const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.href = '/?return=' + returnUrl;
+          return;
+        }
+        
+        // User is signed in - check if email is authorized
+        try {
+          if (typeof jwt_decode !== 'function') {
+            // jwt_decode not loaded yet, wait
+            setTimeout(checkAccess, 50);
+            return;
+          }
+          
+          const decoded = jwt_decode(credential);
+          const email = decoded.email;
+          
+          // Check if token is expired
+          if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+            // Token expired - redirect to home
+            localStorage.removeItem('g_credential_v1');
+            localStorage.removeItem('signedInEmail');
+            const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = '/?return=' + returnUrl;
+            return;
+          }
+          
+          if (!email) {
+            // No email in token - redirect to restricted page
+            window.location.href = '/restricted.html';
+            return;
+          }
+          
+          // Check authorization
+          const allowedDomains = ['wths.net'];
+          const allowedEmails = ['blackshocktrooper@gmail.com'];
+          
+          const isAuthorized = allowedDomains.some(domain => email.endsWith('@' + domain)) || 
+                               allowedEmails.includes(email);
+          
+          if (!isAuthorized) {
+            // User is signed in but not authorized
+            window.location.href = '/restricted.html';
+            return;
+          }
+          
+          // User is authorized - allow page to load
+        } catch (e) {
+          // Error decoding credential - redirect to home
+          console.error('Access check error:', e);
+          localStorage.removeItem('g_credential_v1');
+          localStorage.removeItem('signedInEmail');
+          const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.href = '/?return=' + returnUrl;
+        }
+      }
+      
+      // Start the access check
+      checkAccess();
+    })();
+  </script>
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, sans-serif; }

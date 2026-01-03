@@ -128,6 +128,21 @@
       localStorage.setItem('signedInEmail', email); // <-- fixed line
       // Update UI
       setSignedInUI(data, response.credential);
+      
+      // Check if there's a return URL and redirect if user is authorized
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnUrl = urlParams.get('return');
+      if (returnUrl) {
+        // Check if user is authorized for tasks
+        const allowedDomains = ["wths.net"];
+        const allowedEmails = ["blackshocktrooper@gmail.com"];
+        const allowed = allowedDomains.some(domain => email.endsWith(`@${domain}`)) || allowedEmails.includes(email);
+        
+        if (allowed) {
+          // Redirect to the return URL
+          window.location.href = returnUrl;
+        }
+      }
     } catch (err) {
       console.error('Error decoding credential:', err);
       alert('Sign-in failed (invalid token).');
@@ -188,6 +203,21 @@
         const data = jwt_decode(saved);
         setSignedInUI(data, saved);
         try { google.accounts.id.disableAutoSelect(); } catch(e){/* ignore */ }
+        
+        // Check if there's a return URL and user is already signed in
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnUrl = urlParams.get('return');
+        if (returnUrl) {
+          const email = data.email;
+          const allowedDomains = ["wths.net"];
+          const allowedEmails = ["blackshocktrooper@gmail.com"];
+          const allowed = allowedDomains.some(domain => email.endsWith(`@${domain}`)) || allowedEmails.includes(email);
+          
+          if (allowed) {
+            // Redirect to the return URL
+            window.location.href = returnUrl;
+          }
+        }
       } catch (err) {
         console.warn('Stored credential invalid, clearing', err);
         localStorage.removeItem(G_CRED_KEY);

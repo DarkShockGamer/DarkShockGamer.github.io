@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <link rel="shortcut icon" type="image/png" href="/assets/logo.png">
+  <title>Access Restricted - Trident Robotics 4296</title>
+  <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <style>
+    /* ====== Colors ====== */
+    :root {
+      --dark-blue: #0a1f44;
+      --medium-blue: #1f4d7a;
+      --light-blue: #4fa3d1;
+      --white: #f4f8fb;
+      --accent: #ffd700;
+    }
+
+    @font-face {
+      font-family: 'Ethnocentric';
+      src: url('/assets/fonts/Ethnocentric Rg.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    /* ====== Global Styles ====== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(-45deg, #050c24, #0a1f44);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 600px;
+      background: rgba(31, 77, 122, 0.3);
+      border: 2px solid var(--light-blue);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    h1 {
+      font-family: 'Ethnocentric', sans-serif;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      color: var(--white);
+      opacity: 0.9;
+    }
+
+    .email-info {
+      background: rgba(10, 31, 68, 0.6);
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1.5rem 0;
+      border: 1px solid var(--light-blue);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      background: var(--medium-blue);
+      color: var(--white);
+      border: 2px solid var(--light-blue);
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .btn:hover {
+      background: var(--light-blue);
+      color: var(--dark-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border-color: var(--white);
+    }
+
+    .btn-secondary:hover {
+      background: var(--white);
+      color: var(--dark-blue);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 2rem 1.5rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      .button-group {
+        flex-direction: column;
+      }
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">🔒</div>
+    <h1>Access Restricted</h1>
+    <p>
+      This page is restricted to authorized team members only.
+    </p>
+    <div class="email-info">
+      <p><strong>Current account:</strong> <span id="userEmail">Not signed in</span></p>
+    </div>
+    <p>
+      To access the task board, please sign in with an approved team account.
+    </p>
+    <p>
+      If you believe you should have access, please contact your team administrator.
+    </p>
+    <div class="button-group">
+      <a href="/" class="btn">Return to Home</a>
+      <button id="signOutBtn" class="btn btn-secondary" style="display:none;">Sign Out & Try Again</button>
+    </div>
+  </div>
+
+  <!-- JWT decode library -->
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
+  
+  <script>
+    // Display the current user's email if signed in
+    function displayUserEmail() {
+      const credential = localStorage.getItem('g_credential_v1');
+      const emailSpan = document.getElementById('userEmail');
+      const signOutBtn = document.getElementById('signOutBtn');
+      
+      if (!credential) {
+        emailSpan.textContent = 'Not signed in';
+        return;
+      }
+      
+      try {
+        // Check if jwt_decode is available
+        if (typeof jwt_decode !== 'function') {
+          emailSpan.textContent = 'Checking...';
+          // Retry after a short delay
+          setTimeout(displayUserEmail, 100);
+          return;
+        }
+        
+        const decoded = jwt_decode(credential);
+        emailSpan.textContent = decoded.email || 'Unknown';
+        signOutBtn.style.display = 'inline-block';
+      } catch (e) {
+        emailSpan.textContent = 'Invalid credential';
+      }
+    }
+
+    // Sign out and redirect to home
+    document.getElementById('signOutBtn').addEventListener('click', function() {
+      localStorage.removeItem('g_credential_v1');
+      localStorage.removeItem('signedInEmail');
+      window.location.href = '/';
+    });
+
+    // Display email on page load
+    displayUserEmail();
+  </script>
+</body>
+</html>

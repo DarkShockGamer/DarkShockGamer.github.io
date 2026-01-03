@@ -22,16 +22,8 @@
   const G_CRED_KEY = 'g_credential_v1';
 
   /**
-   * Normalize email address: trim whitespace and convert to lowercase
-   * This ensures consistent comparison regardless of how the email is stored
-   */
-  function normalizeEmail(email) {
-    return (email || '').trim().toLowerCase();
-  }
-
-  /**
    * Check if user is authorized based on their email
-   * Waits for AUTH_CONFIG to be available before checking
+   * Delegates to AUTH_CONFIG.isAuthorized() for actual authorization check
    */
   function isUserAuthorized(email) {
     if (!email) return false;
@@ -41,19 +33,8 @@
       return false;
     }
 
-    const normalizedEmail = normalizeEmail(email);
-    
-    // Check domain-based authorization
-    const domainAllowed = window.AUTH_CONFIG.allowedDomains.some(domain => 
-      normalizedEmail.endsWith('@' + domain.toLowerCase())
-    );
-    
-    // Check specific email authorization
-    const emailAllowed = window.AUTH_CONFIG.allowedEmails.some(allowed => 
-      normalizedEmail === normalizeEmail(allowed)
-    );
-    
-    return domainAllowed || emailAllowed;
+    // Use the centralized authorization logic
+    return window.AUTH_CONFIG.isAuthorized(email);
   }
 
   /**

@@ -173,11 +173,17 @@
       }
       
       try {
-        if (typeof jwt_decode === 'function') {
-          const decoded = jwt_decode(credential);
-          emailSpan.textContent = decoded.email || 'Unknown';
-          signOutBtn.style.display = 'inline-block';
+        // Check if jwt_decode is available
+        if (typeof jwt_decode !== 'function') {
+          emailSpan.textContent = 'Checking...';
+          // Retry after a short delay
+          setTimeout(displayUserEmail, 100);
+          return;
         }
+        
+        const decoded = jwt_decode(credential);
+        emailSpan.textContent = decoded.email || 'Unknown';
+        signOutBtn.style.display = 'inline-block';
       } catch (e) {
         emailSpan.textContent = 'Invalid credential';
       }

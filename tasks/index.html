@@ -53,7 +53,7 @@
   </script>
   <title>Trident Robotics — Task Board</title>
   <!-- JWT decode library for authentication -->
-  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
   <!-- Shared auth configuration -->
   <script src="/assets/js/auth-config.js"></script>
   
@@ -100,8 +100,8 @@
           }
           
           // Check authorization using shared config
-          if (!AUTH_CONFIG.isAuthorized(email)) {
-            // User is signed in but not authorized
+          if (!window.AUTH_CONFIG || !AUTH_CONFIG.isAuthorized(email)) {
+            // User is signed in but not authorized (or config not loaded)
             window.location.href = '/restricted.html';
             return;
           }

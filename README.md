@@ -41,6 +41,17 @@ If/When robot control code exists, it will live in a separate repository to keep
 ## Task Board Features
 The task board (`/tasks/index.html`) includes Firebase-powered task management with the following capabilities:
 
+### Access Restriction
+The task board is protected with client-side access control to prevent accidental access:
+- **Authentication required**: Users must sign in with Google to access the task board
+- **Authorization check**: Only authorized email addresses can access the board:
+  - Any email ending with `@wths.net`
+  - Or the specific email: `blackshocktrooper@gmail.com`
+- **Automatic redirect**: Unauthenticated users are redirected to the home page and returned to the task board after successful login
+- **Restricted access page**: Unauthorized users see a friendly message explaining access requirements
+
+**Note**: This is a soft, client-side protection intended to prevent accidental access. It is not a substitute for server-side security.
+
 ### File Attachments
 - **Upload files**: Team members can attach up to 5 files per task (max 10MB each)
 - **Authentication required**: Users must be signed in with Google to upload, view, or delete attachments

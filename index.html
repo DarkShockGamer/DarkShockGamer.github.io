@@ -20,6 +20,9 @@
   <!-- Include JWT decode library -->
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
 
+  <!-- Shared auth configuration -->
+  <script src="/assets/js/auth-config.js"></script>
+
   <!-- Firebase SDKs -->
   <script type="module">
     // Import the Firebase functions you need
@@ -65,7 +68,7 @@
   
   <script>
   // Helper: storage key for the credential
-  const G_CRED_KEY = 'g_credential_v1';
+  // Note: G_CRED_KEY is now defined in auth-config.js
 
   // Toggle tasks visibility based on email allowed list/domains
   function updateTasksVisibility(email) {
@@ -76,9 +79,7 @@
       if (tasksMobile) tasksMobile.style.display = "none";
       return;
     }
-    const allowedDomains = ["wths.net"];
-    const allowedEmails = ["blackshocktrooper@gmail.com"];
-    const allowed = allowedDomains.some(domain => email.endsWith(`@${domain}`)) || allowedEmails.includes(email);
+    const allowed = AUTH_CONFIG.isAuthorized(email);
     if (allowed) {
       if (tasksDesktop) tasksDesktop.style.display = "inline-block";
       if (tasksMobile) tasksMobile.style.display = "block";
@@ -134,11 +135,7 @@
       const returnUrl = urlParams.get('return');
       if (returnUrl) {
         // Check if user is authorized for tasks
-        const allowedDomains = ["wths.net"];
-        const allowedEmails = ["blackshocktrooper@gmail.com"];
-        const allowed = allowedDomains.some(domain => email.endsWith(`@${domain}`)) || allowedEmails.includes(email);
-        
-        if (allowed) {
+        if (AUTH_CONFIG.isAuthorized(email)) {
           // Redirect to the return URL
           window.location.href = returnUrl;
         }
@@ -209,11 +206,7 @@
         const returnUrl = urlParams.get('return');
         if (returnUrl) {
           const email = data.email;
-          const allowedDomains = ["wths.net"];
-          const allowedEmails = ["blackshocktrooper@gmail.com"];
-          const allowed = allowedDomains.some(domain => email.endsWith(`@${domain}`)) || allowedEmails.includes(email);
-          
-          if (allowed) {
+          if (AUTH_CONFIG.isAuthorized(email)) {
             // Redirect to the return URL
             window.location.href = returnUrl;
           }

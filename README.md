@@ -46,9 +46,23 @@ The task board is protected with client-side access control to prevent accidenta
 - **Authentication required**: Users must sign in with Google to access the task board
 - **Authorization check**: Only authorized email addresses can access the board:
   - Any email ending with `@wths.net`
-  - Or the specific email: `blackshocktrooper@gmail.com`
+  - Or specific exception emails configured in `/assets/js/auth-config.js`
 - **Automatic redirect**: Unauthenticated users are redirected to the home page and returned to the task board after successful login
 - **Restricted access page**: Unauthorized users see a friendly message explaining access requirements
+
+**Configuration**: To add or remove exception emails, edit the `allowedEmails` array in `/assets/js/auth-config.js`:
+```javascript
+// Example: Allow site owner or specific users
+allowedEmails: ['owner@example.com', 'admin@example.com']
+```
+
+**Protected pages**:
+- `/tasks` - Task board
+- `/ui-lab` - UI Motion & Sound Lab
+- `/developer` - Developer content editor
+- `/telemetry` - Site telemetry and monitoring
+
+All protected pages use a shared authorization guard (`/assets/js/auth-guard.js`) that implements consistent access control.
 
 **Note**: This is a soft, client-side protection intended to prevent accidental access. It is not a substitute for server-side security.
 

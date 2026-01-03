@@ -14,6 +14,9 @@
   </script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
+  <!-- Shared auth configuration and guard -->
+  <script src="/assets/js/auth-config.js"></script>
+  <script src="/assets/js/auth-guard.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
@@ -71,9 +74,7 @@
   </style>
 </head>
 <body class="min-h-screen">
-  <!-- Protected Content Wrapper -->
-  <div id="protected-content" style="display:none;">
-    <header class="border-b border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-950/70 backdrop-blur-sm">
+  <header class="border-b border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-950/70 backdrop-blur-sm">
       <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
         <div>
           <h1 class="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
@@ -137,32 +138,6 @@
         Telemetry dashboard &copy; 2025 DarkShockGamer &middot; <a class="underline text-sky-500" href="/">Back to Home</a>
       </footer>
     </main>
-  </div>
-  <div id="not-allowed" style="display:none; text-align:center; color:red; margin-top:2em;">
-    Access denied.
-  </div>
-  <script>
-    // GOOGLE EMAIL AUTHORIZATION (reuse Google login credential from main page)
-    const allowedEmails = [
-      "palm4215@wths.net",
-      "blackshocktrooper@gmail.com"
-    ];
-    function checkGoogleLoginAndAuthorize() {
-      // Use the same key as index.html for Google Identity credential
-      const storageKey = 'g_credential_v1';
-      let credential = localStorage.getItem(storageKey) || sessionStorage.getItem(storageKey);
-      if (!credential) { return; }
-      try {
-        const user = jwt_decode(credential);
-        if (allowedEmails.includes(user.email)) {
-          document.getElementById("protected-content").style.display = "";
-          return;
-        }
-      } catch (e) {}
-      document.getElementById("not-allowed").style.display = "";
-    }
-    window.addEventListener('DOMContentLoaded', checkGoogleLoginAndAuthorize);
-  </script>
   <script>
     // --- UI Lab Sound and Ripple ---
     const Sound = (() => {

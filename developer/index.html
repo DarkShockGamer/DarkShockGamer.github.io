@@ -179,20 +179,6 @@
     </p>
   </header>
 
-  <!-- Loading / Error Status Bar -->
-  <div id="page-status-bar" class="max-w-6xl mx-auto px-4 pb-2">
-    <div id="loading-indicator" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-4 py-3 text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
-      <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <span>Loading site data...</span>
-    </div>
-    <div id="error-indicator" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3 text-sm text-red-800 dark:text-red-200">
-      <strong>⚠️ Data Loading Error:</strong> <span id="error-message"></span>
-    </div>
-  </div>
-
   <main class="max-w-6xl mx-auto px-4 pb-16 space-y-6">
     <!-- Site Content -->
     <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
@@ -468,69 +454,38 @@
     const GH_BRANCH = 'main';
     const GH_PATH   = 'data/site.json';
 
-    // ===== JSON Path Helper =====
-    /**
-     * Ensure JSON data file paths are absolute from site root
-     * This ensures paths work correctly regardless of page location (e.g., /developer/)
-     * Always use absolute-from-site-root paths starting with / to avoid
-     * relative path resolution issues under subdirectories.
-     * 
-     * @param {string} path - Path relative to site root (should start with /)
-     * @returns {string} - Absolute path from site root
-     * 
-     * Examples:
-     *   ensureAbsolutePath('/data/site.json') -> '/data/site.json'
-     *   ensureAbsolutePath('/assets/data/developers.json') -> '/assets/data/developers.json'
-     */
-    function ensureAbsolutePath(path) {
-      // Ensure path starts with / for site-root absolute path
-      if (!path.startsWith('/')) {
-        console.warn('[JSON Path Helper] Path should start with / for site-root absolute path:', path);
-        return '/' + path;
-      }
-      return path;
-    }
-
     // ===== Base state and helpers =====
     function uid(){ return 'id_'+Math.random().toString(36).slice(2,9); }
-    
-    /**
-     * Get default site data structure
-     * Used when initializing or when fetch fails
-     */
-    function getDefaultSiteData() {
-      return {
-        title: 'Trident Robotics 4296',
-        about: { heading: 'About Us', content: '<p>Edit...</p>' },
-        timeline: [],
-        leadership: {
-          teams: [
-            { team: "Design Team", role: "Lead", members: [] },
-            { team: "Mechanical Team", role: "Lead", members: [] },
-            { team: "Electrical Team", role: "Lead", members: [] },
-            { team: "Programming Team", role: "Lead", members: [] },
-            { team: "Drive Team", role: "Driver", members: [] }
-          ],
-          leads: [],
-          drivers: []
-        },
-        media: {
-          indexHeader: "/assets/group.png",
-          indexPhoto: "/assets/Shark-Photo.png",
-          sponsorsHeader: "/assets/group.png",
-          competitionImages: ["/assets/Competition-Photo1.png"]
-        },
-        sponsors: [
-          { name: "Baxter", logo: "/assets/Baxter-Logo.png", url: "" },
-          { name: "NASA", logo: "/assets/NASA-Logo.png", url: "" },
-          { name: "Kubota", logo: "/assets/Kubota-Logo.png", url: "" },
-          { name: "WW Displays Inc", logo: "/assets/WWDisplays.png", url: "" },
-          { name: "Patel Family", logo: "/assets/PatelFamily.png", url: "" }
-        ]
-      };
-    }
 
-    let siteData = getDefaultSiteData();
+    let siteData = {
+      title: document.getElementById('site-title')?.value || 'Trident Robotics 4296',
+      about: { heading: 'About Us', content: '<p>Edit...</p>' },
+      timeline: [],
+      leadership: {
+        teams: [
+          { team: "Design Team", role: "Lead", members: [] },
+          { team: "Mechanical Team", role: "Lead", members: [] },
+          { team: "Electrical Team", role: "Lead", members: [] },
+          { team: "Programming Team", role: "Lead", members: [] },
+          { team: "Drive Team", role: "Driver", members: [] }
+        ],
+        leads: [],
+        drivers: []
+      },
+      media: {
+        indexHeader: "/assets/group.png",
+        indexPhoto: "/assets/Shark-Photo.png",
+        sponsorsHeader: "/assets/group.png",
+        competitionImages: ["/assets/Compitition-Photo1.png"]
+      },
+      sponsors: [
+        { name: "Baxter", logo: "/assets/Baxter-Logo.png", url: "" },
+        { name: "NASA", logo: "/assets/NASA-Logo.png", url: "" },
+        { name: "Kubota", logo: "/assets/Kubota-Logo.png", url: "" },
+        { name: "WW Displays Inc", logo: "/assets/WWDisplays.png", url: "" },
+        { name: "Patel Family", logo: "/assets/PatelFamily.png", url: "" }
+      ]
+    };
 
     let isDirty = false;
     function updateSaveStatus() {
@@ -552,98 +507,12 @@
         if (res) res.textContent = reason + ' — Remember to click "Push to GitHub" to save site.json.';
       }
     }
-    
-    // ===== Page Status Indicators =====
-    /**
-     * Show loading indicator
-     */
-    function showLoadingIndicator() {
-      const loading = document.getElementById('loading-indicator');
-      const error = document.getElementById('error-indicator');
-      if (loading) loading.classList.remove('hidden');
-      if (error) error.classList.add('hidden');
-    }
-    
-    /**
-     * Hide loading indicator
-     */
-    function hideLoadingIndicator() {
-      const loading = document.getElementById('loading-indicator');
-      if (loading) loading.classList.add('hidden');
-    }
-    
-    /**
-     * Show error indicator with message
-     */
-    function showErrorIndicator(message) {
-      const loading = document.getElementById('loading-indicator');
-      const error = document.getElementById('error-indicator');
-      const errorMsg = document.getElementById('error-message');
-      
-      if (loading) loading.classList.add('hidden');
-      if (error) error.classList.remove('hidden');
-      if (errorMsg) errorMsg.textContent = message;
-    }
-    
-    /**
-     * Hide error indicator
-     */
-    function hideErrorIndicator() {
-      const error = document.getElementById('error-indicator');
-      if (error) error.classList.add('hidden');
-    }
 
     async function loadExisting() {
-      showLoadingIndicator();
-      
       try {
-        // Use absolute site-root path to ensure correct resolution from /developer/ subdirectory
-        const url = ensureAbsolutePath('/data/site.json') + '?_=' + Date.now();
-        console.log('[Developer Page] Loading site data from:', url);
-        
-        const r = await fetch(url);
-        
-        if (!r.ok) {
-          const errorMsg = `Failed to load site data: ${r.status} ${r.statusText}`;
-          console.error('[Developer Page]', errorMsg);
-          console.error('[Developer Page] URL:', url);
-          console.error('[Developer Page] Response headers:', Array.from(r.headers.entries()));
-          
-          // Show user-facing error messages
-          showToast('error', `Could not load site.json: ${r.status} ${r.statusText}. Using defaults.`);
-          showErrorIndicator(`Could not load site.json (${r.status} ${r.statusText}). Using default values. You can still edit and save.`);
-          
-          // Continue with defaults rather than failing completely
-          throw new Error(errorMsg);
-        }
-        
-        // Parse JSON with error handling
-        try {
-          siteData = await r.json();
-          console.log('[Developer Page] Successfully loaded site data');
-          hideLoadingIndicator();
-          hideErrorIndicator();
-        } catch (parseErr) {
-          console.error('[Developer Page] Failed to parse site.json as JSON:', parseErr);
-          showToast('error', 'Invalid JSON in site.json. Using defaults.');
-          showErrorIndicator('Invalid JSON in site.json. Using default values. You can still edit and save.');
-          throw parseErr;
-        }
-      } catch (e) {
-        // Log error but continue with defaults
-        console.error('[Developer Page] Error loading site.json:', e);
-        console.log('[Developer Page] Continuing with default values');
-        
-        // Ensure siteData has sensible defaults even if fetch failed
-        if (!siteData || typeof siteData !== 'object') {
-          console.log('[Developer Page] Initializing with default siteData');
-          siteData = getDefaultSiteData();
-        }
-        
-        // Hide loading indicator after setting defaults
-        hideLoadingIndicator();
-      }
-      
+        const r = await fetch('/data/site.json?_=' + Date.now());
+        if (r.ok) siteData = await r.json();
+      } catch (e) { /* ignore */ }
       // Normalize leads
       if (siteData && siteData.leadership) {
         const leads = siteData.leadership.leads || [];
@@ -674,7 +543,7 @@
       siteData.media.sponsorsHeader = siteData.media.sponsorsHeader || '/assets/group.png';
       let imgs = siteData.media.competitionImages;
       if (!Array.isArray(imgs)) imgs = imgs ? [imgs] : [];
-      if (!imgs.length) imgs = ['/assets/Competition-Photo1.png'];
+      if (!imgs.length) imgs = ['/assets/Compitition-Photo1.png'];
       siteData.media.competitionImages = imgs;
     }
 
@@ -1332,46 +1201,20 @@
     async function loadDeveloperList(bustCache = true) {
       try {
         // Always use cache-busting by default and add cache: 'no-store' to prevent caching
-        // Use absolute site-root path to work correctly from /developer/ subdirectory
-        const url = ensureAbsolutePath('/assets/data/developers.json') + (bustCache ? '?ts=' + Date.now() : '');
-        console.log('[Developer Page] Loading developer list from:', url);
-        
+        const url = bustCache 
+          ? '/assets/data/developers.json?ts=' + Date.now()
+          : '/assets/data/developers.json';
         const response = await fetch(url, { cache: 'no-store' });
-        
         if (!response.ok) {
-          const errorMsg = `Failed to load developer list: ${response.status} ${response.statusText}`;
-          console.error('[Developer Page]', errorMsg);
-          console.error('[Developer Page] URL:', url);
-          console.error('[Developer Page] Response headers:', Array.from(response.headers.entries()));
-          showToast('warn', `Could not load developer list: ${response.status} ${response.statusText}`);
+          showToast('warn', 'Could not load developer list from server');
           return null;
         }
-        
-        // Parse JSON with error handling
-        try {
-          const data = await response.json();
-          console.log('[Developer Page] Successfully loaded developer list');
-          currentDeveloperData = data;
-          return data;
-        } catch (parseErr) {
-          console.error('[Developer Page] Failed to parse developers.json as JSON:', parseErr);
-          showToast('error', 'Invalid JSON in developers.json');
-          return null;
-        }
+        const data = await response.json();
+        currentDeveloperData = data;
+        return data;
       } catch (err) {
         console.error('[Developer Page] Error loading developer list:', err);
-        console.error('[Developer Page] Error type:', err.name);
-        console.error('[Developer Page] Error message:', err.message);
-        
-        // Provide more specific error messages based on error type
-        let userMessage = 'Error loading developer list';
-        if (err.name === 'TypeError' && err.message.includes('fetch')) {
-          userMessage = 'Network error loading developer list. Check your connection.';
-        } else if (err.name === 'SyntaxError') {
-          userMessage = 'Developer list file contains invalid JSON';
-        }
-        
-        showToast('error', userMessage);
+        showToast('error', 'Error loading developer list: ' + err.message);
         return null;
       }
     }
@@ -1566,8 +1409,7 @@
         const res = await pushFile(
           GH_OWNER, 
           GH_REPO, 
-          'assets/data/developers.json',  // GitHub API requires repo-relative path without leading /
-                                          // (unlike fetch() which needs / for site-root absolute paths)
+          'assets/data/developers.json', 
           GH_BRANCH, 
           token, 
           content, 

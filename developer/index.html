@@ -1161,6 +1161,21 @@
     }
 
     // ===== Developer Management =====
+    // Hardcoded developer emails (always allowed, cannot be removed)
+    const HARDCODED_DEVELOPERS = [
+      'blackshocktrooper@gmail.com',
+      'palm4215@wths.net'
+    ];
+    
+    /**
+     * Check if email is a hardcoded core developer (cannot be removed)
+     */
+    function isHardcodedDeveloper(email) {
+      if (!email) return false;
+      const normalized = email.trim().toLowerCase();
+      return HARDCODED_DEVELOPERS.some(dev => dev.toLowerCase() === normalized);
+    }
+    
     // Current developer list state (loaded from JSON file)
     let currentDeveloperData = null;
     let hasDevPendingChanges = false;
@@ -1181,13 +1196,15 @@
     
     /**
      * Load developer list from the JSON file
+     * Always uses cache-busting to avoid stale data from GitHub Pages
      */
-    async function loadDeveloperList(bustCache = false) {
+    async function loadDeveloperList(bustCache = true) {
       try {
+        // Always use cache-busting by default and add cache: 'no-store' to prevent caching
         const url = bustCache 
-          ? '/assets/data/developers.json?v=' + Date.now()
+          ? '/assets/data/developers.json?ts=' + Date.now()
           : '/assets/data/developers.json';
-        const response = await fetch(url);
+        const response = await fetch(url, { cache: 'no-store' });
         if (!response.ok) {
           showToast('warn', 'Could not load developer list from server');
           return null;
@@ -1202,28 +1219,35 @@
       }
     }
     
+    /**
+     * Render the developer list in the UI
+     * Maintains a single source of truth in currentDeveloperData
+     * Fetches from JSON file if not already loaded
+     */
     async function renderDeveloperList() {
       const devList = document.getElementById('dev-list');
       if (!devList) return;
       
-      // If we have in-memory data, use it (for immediate UI updates)
+      // If we have in-memory data, use it (for immediate UI updates after local changes)
       if (currentDeveloperData && Array.isArray(currentDeveloperData.developers)) {
         const developers = currentDeveloperData.developers.map(e => e.trim().toLowerCase());
         renderDeveloperListUI(developers);
         return;
       }
       
-      // Otherwise, load from JSON file
+      // Otherwise, load from JSON file with cache-busting
       devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">Loading...</p>';
-      const data = await loadDeveloperList();
+      const data = await loadDeveloperList(true);
       if (!data || !Array.isArray(data.developers)) {
-        // Fallback to auth-utils function
-        const developers = getAllDevelopersSync();
-        if (developers.length === 0) {
-          devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">No developers found.</p>';
-          return;
-        }
-        renderDeveloperListUI(developers);
+        // Fallback: if no data loaded, show empty state
+        devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">No developers found. The list will be created when you add developers.</p>';
+        // Initialize with core developers
+        currentDeveloperData = {
+          version: 1,
+          updatedAt: new Date().toISOString(),
+          developers: ['blackshocktrooper@gmail.com', 'palm4215@wths.net']
+        };
+        renderDeveloperListUI(currentDeveloperData.developers);
         return;
       }
       
@@ -1231,6 +1255,10 @@
       renderDeveloperListUI(developers);
     }
     
+    /**
+     * Render the developer list UI from array of emails
+     * Enforces core developer protection (cannot be removed)
+     */
     function renderDeveloperListUI(developers) {
       const devList = document.getElementById('dev-list');
       if (!devList) return;
@@ -1259,7 +1287,9 @@
               >
                 Remove
               </button>
-            ` : ''}
+            ` : `
+              <span class="text-xs text-slate-500 dark:text-slate-400">Cannot remove</span>
+            `}
           </div>
         `;
       }).join('');
@@ -1268,13 +1298,13 @@
       devList.querySelectorAll('.remove-dev').forEach(btn => {
         btn.addEventListener('click', (e) => {
           const email = e.target.getAttribute('data-email');
-          if (confirm(`Remove developer access for ${email}?\n\nThis will be saved when you click "Push to GitHub".`)) {
+          if (confirm(`Remove developer access for ${email}?\n\nThis will be saved when you click "Push Developer List to GitHub".`)) {
             if (removeDevFromList(email)) {
               showMessage('Developer removed. Remember to push to GitHub!', 'success');
               showToast('info', 'Developer removed. Click "Push Developer List to GitHub" to save changes');
               hasDevPendingChanges = true;
               updateDevPendingIndicator();
-              renderDeveloperList();
+              renderDeveloperList(); // Re-render with updated state
             } else {
               showMessage('Failed to remove developer', 'error');
             }
@@ -1285,6 +1315,7 @@
     
     /**
      * Add developer to the current list (updates local state and JSON structure)
+     * Validates email format and prevents duplicates (case-insensitive)
      */
     function addDevToList(email) {
       if (!email) return { success: false, message: 'Email is required' };
@@ -1297,7 +1328,7 @@
         return { success: false, message: 'Invalid email format' };
       }
       
-      // Ensure we have current data
+      // Ensure we have current data (single source of truth)
       if (!currentDeveloperData) {
         currentDeveloperData = {
           version: 1,
@@ -1306,13 +1337,13 @@
         };
       }
       
-      // Check if already exists
+      // Check if already exists (case-insensitive)
       const currentList = currentDeveloperData.developers.map(e => e.trim().toLowerCase());
       if (currentList.includes(normalized)) {
         return { success: false, message: 'Developer already exists' };
       }
       
-      // Add to list
+      // Add to list (maintain original casing for consistency)
       currentDeveloperData.developers.push(normalized);
       currentDeveloperData.updatedAt = new Date().toISOString();
       
@@ -1321,13 +1352,14 @@
     
     /**
      * Remove developer from the current list (updates local state and JSON structure)
+     * Core developers (hardcoded) cannot be removed
      */
     function removeDevFromList(email) {
       if (!email) return false;
       
       const normalized = email.trim().toLowerCase();
       
-      // Cannot remove hardcoded developers
+      // Cannot remove hardcoded developers (enforces core developer protection)
       if (isHardcodedDeveloper(normalized)) {
         return false;
       }
@@ -1337,7 +1369,7 @@
         return false;
       }
       
-      // Find and remove
+      // Find and remove (case-insensitive)
       const index = currentDeveloperData.developers.findIndex(e => 
         e.trim().toLowerCase() === normalized
       );
@@ -1354,6 +1386,7 @@
     
     /**
      * Push developer list to GitHub
+     * After successful push, refreshes from GitHub with cache-busting and re-renders UI
      */
     async function pushDeveloperList() {
       const token = document.getElementById('gh-token').value.trim();
@@ -1393,14 +1426,14 @@
           hasDevPendingChanges = false;
           updateDevPendingIndicator();
           
-          // Clear the cache and re-fetch to confirm
+          // Clear the cache and re-fetch with cache-busting to confirm changes
           if (typeof clearDeveloperCache === 'function') {
             clearDeveloperCache();
           }
           
           // Re-fetch the developer list with cache-busting and update UI
           await loadDeveloperList(true);
-          // currentDeveloperData is now set by loadDeveloperList, so renderDeveloperList will use it
+          // currentDeveloperData is now updated by loadDeveloperList
           await renderDeveloperList();
           
         } else if (res && res.message) {
@@ -1420,6 +1453,18 @@
       }
     }
     
+    /**
+     * Escape HTML to prevent XSS
+     */
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    /**
+     * Show temporary message below the Add Developer button
+     */
     function showMessage(text, type = 'info') {
       const msgEl = document.getElementById('dev-add-message');
       if (!msgEl) return;
@@ -1441,18 +1486,16 @@
       }, 3000);
     }
     
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-    
-    // Initialize developer management
+    /**
+     * Initialize developer management
+     * Binds event handlers and loads initial developer list
+     */
     function initDeveloperManagement() {
       const addBtn = document.getElementById('add-dev-btn');
       const emailInput = document.getElementById('dev-email-input');
       
       if (addBtn && emailInput) {
+        // Add Developer button handler - updates UI immediately
         addBtn.addEventListener('click', () => {
           const email = emailInput.value.trim();
           
@@ -1470,6 +1513,7 @@
             emailInput.value = '';
             hasDevPendingChanges = true;
             updateDevPendingIndicator();
+            // Immediately re-render UI with updated local state
             renderDeveloperList();
           } else {
             showMessage(result.message, 'error');
@@ -1491,7 +1535,7 @@
         pushDevBtn.addEventListener('click', pushDeveloperList);
       }
       
-      // Initial render
+      // Initial render - loads from JSON file with cache-busting
       renderDeveloperList();
     }
 

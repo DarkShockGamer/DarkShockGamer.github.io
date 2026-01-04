@@ -2,6 +2,10 @@
  * Shared authentication and role utilities
  * Provides centralized functions for user role checks, developer management,
  * and welcome overlay handling across the site.
+ * 
+ * Dependencies:
+ * - auth-config.js must be loaded first (provides G_CRED_KEY)
+ * - jwt_decode library for token decoding
  */
 
 // Storage keys (G_CRED_KEY is defined in auth-config.js)
@@ -19,6 +23,12 @@ const HARDCODED_DEVELOPERS = [
  * @returns {string|null} - Normalized email or null if not signed in
  */
 function getCurrentEmail() {
+  // Ensure G_CRED_KEY is available from auth-config.js
+  if (typeof G_CRED_KEY === 'undefined') {
+    console.error('[Auth Utils] G_CRED_KEY not defined. Ensure auth-config.js is loaded first.');
+    return null;
+  }
+  
   const credential = localStorage.getItem(G_CRED_KEY);
   if (!credential) return null;
   

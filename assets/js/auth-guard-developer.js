@@ -100,6 +100,7 @@
 
   /**
    * Redirect to restricted page
+   * Note: /restricted.html exists at the site root
    */
   function redirectToRestricted() {
     window.location.href = '/restricted.html';

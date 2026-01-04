@@ -1239,13 +1239,11 @@
       devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">Loading...</p>';
       const data = await loadDeveloperList(true);
       if (!data || !Array.isArray(data.developers)) {
-        // Fallback: if no data loaded, show empty state
-        devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">No developers found. The list will be created when you add developers.</p>';
-        // Initialize with core developers
+        // Fallback: if no data loaded, initialize with core developers
         currentDeveloperData = {
           version: 1,
           updatedAt: new Date().toISOString(),
-          developers: ['blackshocktrooper@gmail.com', 'palm4215@wths.net']
+          developers: [...HARDCODED_DEVELOPERS]
         };
         renderDeveloperListUI(currentDeveloperData.developers);
         return;
@@ -1333,7 +1331,7 @@
         currentDeveloperData = {
           version: 1,
           updatedAt: new Date().toISOString(),
-          developers: ['blackshocktrooper@gmail.com', 'palm4215@wths.net']
+          developers: [...HARDCODED_DEVELOPERS]
         };
       }
       

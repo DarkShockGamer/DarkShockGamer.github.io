@@ -655,6 +655,7 @@
     // ====== Load media and sponsors from data/site.json ======
     (async function(){
       try {
+        // Use absolute site-root path (starts with /) to ensure correct resolution
         const r = await fetch('/data/site.json?_=' + Date.now());
         if (!r.ok) return; const site = await r.json(); const media = site.media || {};
 

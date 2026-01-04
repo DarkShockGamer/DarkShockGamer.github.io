@@ -157,6 +157,125 @@ git push
 7. Wait for GitHub Pages to update (usually under 2 minutes).
 
 ---
+## Testing Guidelines
+
+### Local Testing
+**⚠️ Important:** Always test using a local HTTP server, not by opening files directly with `file://` protocol.
+
+The site uses `fetch()` to load JSON data files (e.g., `data/site.json`, `assets/data/developers.json`). These requests will fail with CORS errors when using `file://` protocol.
+
+**Recommended testing approach:**
+
+1. **Start a local HTTP server:**
+   ```sh
+   # Python 3 (recommended)
+   python3 -m http.server 8080
+   
+   # Python 2 (fallback)
+   python -m SimpleHTTPServer 8080
+   
+   # Node.js (if available)
+   npx http-server -p 8080
+   ```
+
+2. **Open in browser:**
+   ```
+   http://localhost:8080
+   ```
+
+3. **Test key pages:**
+   - `/` - Home page
+   - `/developer/` - Developer editor (requires authentication)
+   - `/sponsors/` - Sponsors page
+
+4. **Verify in browser DevTools:**
+   - **Console tab:** Should show no JavaScript errors
+   - **Network tab:** All JSON files should load with 200 status
+   - **Application tab:** Check for any storage/cache issues
+
+### Testing the Developer Page
+
+The developer page (`/developer/index.html`) is the primary JSON-driven page and requires special attention:
+
+1. **Access the page:**
+   ```
+   http://localhost:8080/developer/
+   ```
+
+2. **Check for data loading:**
+   - Page should show "Loading site data..." briefly
+   - All sections should populate with content from `data/site.json`
+   - Developer list should load from `assets/data/developers.json`
+
+3. **Verify error handling:**
+   - If JSON files are missing or invalid, errors should display in:
+     - Browser console (with detailed error messages)
+     - Page status bar (user-friendly message)
+     - Toast notifications (optional)
+
+4. **Common issues and solutions:**
+   
+   | Issue | Symptom | Solution |
+   |-------|---------|----------|
+   | No data renders | Empty sections, no timeline/leaders/sponsors | Check console for fetch errors; verify JSON files exist |
+   | 404 on JSON files | Network tab shows 404 errors | Ensure `data/site.json` and `assets/data/developers.json` exist |
+   | JSON parse errors | "Invalid JSON" message | Validate JSON files with `jq` or online validator |
+   | CORS errors | "CORS policy" error in console | Use local HTTP server, not `file://` protocol |
+
+### Testing on GitHub Pages
+
+After pushing changes:
+
+1. **Wait for deployment** (usually < 2 minutes)
+   - Check Actions tab for deployment status
+
+2. **Test live site:**
+   ```
+   https://darkshockgamer.github.io/
+   https://darkshockgamer.github.io/developer/
+   ```
+
+3. **Verify:**
+   - Open browser DevTools → Network tab
+   - Refresh page with cache cleared (Ctrl+Shift+R / Cmd+Shift+R)
+   - Confirm all JSON files return 200 status with `application/json` MIME type
+   - Check console for any errors
+
+4. **Test from different paths:**
+   - Access via `/developer` (no trailing slash)
+   - Access via `/developer/` (with trailing slash)
+   - Access via `/developer/index.html` (explicit file)
+   - All should work identically
+
+### Debugging Tips
+
+1. **Enable verbose logging:**
+   - Open browser DevTools Console
+   - Look for `[Developer Page]` prefixed messages
+   - These show detailed loading progress and errors
+
+2. **Check JSON file validity:**
+   ```sh
+   # Validate JSON syntax
+   python3 -m json.tool data/site.json
+   jq . data/site.json
+   
+   # Check file permissions
+   ls -la data/site.json
+   ls -la assets/data/developers.json
+   ```
+
+3. **Clear browser cache:**
+   - The page uses cache-busting (`?_=timestamp`) but sometimes manual clearing helps
+   - Chrome: DevTools → Network tab → Disable cache (checkbox)
+   - Firefox: about:preferences#privacy → Clear Data
+
+4. **Test in multiple browsers:**
+   - Chrome/Edge (Chromium)
+   - Firefox
+   - Safari (if on macOS)
+
+---
 ## Development Workflow
 Recommended steps for major updates:
 - Plan: Outline page purpose & required assets.

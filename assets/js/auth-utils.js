@@ -4,8 +4,7 @@
  * and welcome overlay handling across the site.
  */
 
-// Storage keys
-const G_CRED_KEY = 'g_credential_v1';
+// Storage keys (G_CRED_KEY is defined in auth-config.js)
 const DEVELOPER_LIST_KEY = 'developer_emails';
 const WELCOME_SHOWN_KEY = 'welcome_shown_';
 

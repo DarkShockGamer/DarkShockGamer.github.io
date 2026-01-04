@@ -18,6 +18,10 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <!-- Include JWT decode library -->
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
+  <!-- Shared auth configuration -->
+  <script src="/assets/js/auth-config.js"></script>
+  <!-- Shared auth utilities -->
+  <script src="/assets/js/auth-utils.js"></script>
 
   <style>
     /* ====== Colors ====== */
@@ -570,8 +574,10 @@
       const tasksDesktop = document.getElementById("tasksLink");
       const tasksMobile = document.getElementById("tasksLinkMobile");
       if (!email) { if (tasksDesktop) tasksDesktop.style.display = "none"; if (tasksMobile) tasksMobile.style.display = "none"; return; }
-      const allowedDomains = ["wths.net"]; const allowedEmails = ["blackshocktrooper@gmail.com"];
-      const allowed = allowedDomains.some(domain => email.endsWith(`@${domain}`)) || allowedEmails.includes(email);
+      
+      // Use isTeamMember from auth-utils for consistent role checking
+      const allowed = (typeof isTeamMember === 'function') ? isTeamMember(email) : 
+                       (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized && AUTH_CONFIG.isAuthorized(email));
       if (allowed) { if (tasksDesktop) tasksDesktop.style.display = "inline-block"; if (tasksMobile) tasksMobile.style.display = "block"; }
       else { if (tasksDesktop) tasksDesktop.style.display = "none"; if (tasksMobile) tasksMobile.style.display = "none"; }
     }

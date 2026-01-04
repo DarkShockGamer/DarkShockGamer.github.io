@@ -14,9 +14,11 @@
   </script>
   <!-- JWT decode library for authentication -->
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
-  <!-- Shared auth configuration and guard -->
+  <!-- Shared auth configuration and utilities -->
   <script src="/assets/js/auth-config.js"></script>
-  <script src="/assets/js/auth-guard.js"></script>
+  <script src="/assets/js/auth-utils.js"></script>
+  <!-- Developer-specific auth guard -->
+  <script src="/assets/js/auth-guard-developer.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Extra polish to complement Tailwind */
@@ -350,6 +352,42 @@
 
       <!-- Existing sponsors list -->
       <div class="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="sponsors-list"></div>
+    </section>
+
+    <!-- Developer Management -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
+      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-3">Developer Access Management</h2>
+      <p class="muted mb-4">
+        Manage who has access to developer pages (Developer Console, UI Lab, Telemetry). 
+        The two core developers (<code>blackshocktrooper@gmail.com</code>, <code>palm4215@wths.net</code>) 
+        cannot be removed.
+      </p>
+      
+      <div class="mb-4">
+        <label for="dev-email-input" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Add Developer Email</label>
+        <div class="flex gap-2">
+          <input 
+            id="dev-email-input" 
+            type="email" 
+            placeholder="developer@example.com"
+            class="flex-1 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500"
+          />
+          <button 
+            id="add-dev-btn"
+            class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm whitespace-nowrap"
+          >
+            Add Developer
+          </button>
+        </div>
+        <p id="dev-add-message" class="text-xs mt-1 hidden"></p>
+      </div>
+      
+      <div>
+        <h3 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Current Developers</h3>
+        <div id="dev-list" class="space-y-2">
+          <!-- Developer list will be populated here -->
+        </div>
+      </div>
     </section>
 
     <!-- Simplified GitHub Push -->
@@ -1109,9 +1147,129 @@
       });
     }
 
+    // ===== Developer Management =====
+    function renderDeveloperList() {
+      const devList = document.getElementById('dev-list');
+      if (!devList) return;
+      
+      const developers = getAllDevelopers();
+      
+      if (developers.length === 0) {
+        devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">No developers found.</p>';
+        return;
+      }
+      
+      devList.innerHTML = developers.map(email => {
+        const isHardcoded = isHardcodedDeveloper(email);
+        const badgeClass = isHardcoded 
+          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300' 
+          : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+        
+        return `
+          <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-200">${escapeHtml(email)}</span>
+              ${isHardcoded ? `<span class="text-xs px-2 py-0.5 rounded-full ${badgeClass}">Core Developer</span>` : ''}
+            </div>
+            ${!isHardcoded ? `
+              <button 
+                class="remove-dev text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium"
+                data-email="${escapeHtml(email)}"
+              >
+                Remove
+              </button>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+      
+      // Attach remove handlers
+      devList.querySelectorAll('.remove-dev').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const email = e.target.getAttribute('data-email');
+          if (confirm(`Remove developer access for ${email}?`)) {
+            if (removeDeveloper(email)) {
+              showMessage('Developer removed successfully', 'success');
+              renderDeveloperList();
+            } else {
+              showMessage('Failed to remove developer', 'error');
+            }
+          }
+        });
+      });
+    }
+    
+    function showMessage(text, type = 'info') {
+      const msgEl = document.getElementById('dev-add-message');
+      if (!msgEl) return;
+      
+      msgEl.textContent = text;
+      msgEl.classList.remove('hidden', 'text-green-600', 'text-red-600', 'text-slate-600');
+      
+      if (type === 'success') {
+        msgEl.classList.add('text-green-600');
+      } else if (type === 'error') {
+        msgEl.classList.add('text-red-600');
+      } else {
+        msgEl.classList.add('text-slate-600');
+      }
+      
+      // Auto-hide after 3 seconds
+      setTimeout(() => {
+        msgEl.classList.add('hidden');
+      }, 3000);
+    }
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    // Initialize developer management
+    function initDeveloperManagement() {
+      const addBtn = document.getElementById('add-dev-btn');
+      const emailInput = document.getElementById('dev-email-input');
+      
+      if (addBtn && emailInput) {
+        addBtn.addEventListener('click', () => {
+          const email = emailInput.value.trim();
+          
+          if (!email) {
+            showMessage('Please enter an email address', 'error');
+            return;
+          }
+          
+          if (!email.includes('@') || !email.includes('.')) {
+            showMessage('Please enter a valid email address', 'error');
+            return;
+          }
+          
+          if (addDeveloper(email)) {
+            showMessage('Developer added successfully', 'success');
+            emailInput.value = '';
+            renderDeveloperList();
+          } else {
+            showMessage('Developer already exists or is invalid', 'error');
+          }
+        });
+        
+        // Allow Enter key to add
+        emailInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            addBtn.click();
+          }
+        });
+      }
+      
+      // Initial render
+      renderDeveloperList();
+    }
+
     // ===== Initialize =====
     window.addEventListener('DOMContentLoaded', () => {
       loadExisting();
+      initDeveloperManagement();
     });
   </script>
   <script src="/assets/js/theme.js"></script>

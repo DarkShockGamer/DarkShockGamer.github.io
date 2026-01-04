@@ -454,24 +454,24 @@
     const GH_BRANCH = 'main';
     const GH_PATH   = 'data/site.json';
 
-    // ===== JSON URL Helper =====
+    // ===== JSON Path Helper =====
     /**
-     * Build absolute site-root URL for JSON data files
+     * Ensure JSON data file paths are absolute from site root
      * This ensures paths work correctly regardless of page location (e.g., /developer/)
      * Always use absolute-from-site-root paths starting with / to avoid
      * relative path resolution issues under subdirectories.
      * 
      * @param {string} path - Path relative to site root (should start with /)
-     * @returns {string} - Absolute URL from site root
+     * @returns {string} - Absolute path from site root
      * 
      * Examples:
-     *   buildJsonUrl('/data/site.json') -> '/data/site.json'
-     *   buildJsonUrl('/assets/data/developers.json') -> '/assets/data/developers.json'
+     *   ensureAbsolutePath('/data/site.json') -> '/data/site.json'
+     *   ensureAbsolutePath('/assets/data/developers.json') -> '/assets/data/developers.json'
      */
-    function buildJsonUrl(path) {
+    function ensureAbsolutePath(path) {
       // Ensure path starts with / for site-root absolute path
       if (!path.startsWith('/')) {
-        console.warn('[JSON URL Builder] Path should start with / for site-root absolute path:', path);
+        console.warn('[JSON Path Helper] Path should start with / for site-root absolute path:', path);
         return '/' + path;
       }
       return path;
@@ -534,7 +534,7 @@
     async function loadExisting() {
       try {
         // Use absolute site-root path to ensure correct resolution from /developer/ subdirectory
-        const r = await fetch(buildJsonUrl('/data/site.json') + '?_=' + Date.now());
+        const r = await fetch(ensureAbsolutePath('/data/site.json') + '?_=' + Date.now());
         if (r.ok) siteData = await r.json();
       } catch (e) { /* ignore */ }
       // Normalize leads
@@ -1226,7 +1226,7 @@
       try {
         // Always use cache-busting by default and add cache: 'no-store' to prevent caching
         // Use absolute site-root path to work correctly from /developer/ subdirectory
-        const url = buildJsonUrl('/assets/data/developers.json') + (bustCache ? '?ts=' + Date.now() : '');
+        const url = ensureAbsolutePath('/assets/data/developers.json') + (bustCache ? '?ts=' + Date.now() : '');
         const response = await fetch(url, { cache: 'no-store' });
         if (!response.ok) {
           showToast('warn', 'Could not load developer list from server');
@@ -1432,7 +1432,8 @@
         const res = await pushFile(
           GH_OWNER, 
           GH_REPO, 
-          'assets/data/developers.json',  // GitHub API path (no leading /)
+          'assets/data/developers.json',  // GitHub API requires repo-relative path without leading /
+                                          // (unlike fetch() which needs / for site-root absolute paths)
           GH_BRANCH, 
           token, 
           content, 

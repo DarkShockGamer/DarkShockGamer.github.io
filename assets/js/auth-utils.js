@@ -10,13 +10,18 @@
 
 // Storage keys (G_CRED_KEY is defined in auth-config.js)
 const DEVELOPER_LIST_KEY = 'developer_emails';
+const DEVELOPER_CACHE_KEY = 'developer_emails_cache';
+const DEVELOPER_CACHE_TIME_KEY = 'developer_emails_cache_time';
 const WELCOME_SHOWN_KEY = 'welcome_shown_';
 
-// Hardcoded developer emails (always allowed)
+// Hardcoded developer emails (always allowed, cannot be removed)
 const HARDCODED_DEVELOPERS = [
   'blackshocktrooper@gmail.com',
   'palm4215@wths.net'
 ];
+
+// Cache duration: 5 minutes
+const CACHE_DURATION_MS = 5 * 60 * 1000;
 
 /**
  * Get the current user's email from localStorage credential
@@ -98,19 +103,131 @@ function isTeamMember(email) {
 }
 
 /**
- * Get list of developer emails from localStorage
- * @returns {Array<string>} - Array of developer emails (normalized)
+ * Fetch developer list from the canonical JSON file
+ * @returns {Promise<Array<string>>} - Array of developer emails (normalized)
  */
-function getDeveloperList() {
+async function fetchDeveloperListFromFile() {
+  try {
+    const response = await fetch('/assets/data/developers.json');
+    if (!response.ok) {
+      console.warn('[Auth Utils] Failed to fetch developers.json:', response.status);
+      return null;
+    }
+    const data = await response.json();
+    if (!data || !Array.isArray(data.developers)) {
+      console.warn('[Auth Utils] Invalid developers.json format');
+      return null;
+    }
+    return data.developers.map(normalizeEmail);
+  } catch (err) {
+    console.error('[Auth Utils] Error fetching developer list:', err);
+    return null;
+  }
+}
+
+/**
+ * Get cached developer list from localStorage
+ * @returns {Array<string>|null} - Cached list or null if expired/missing
+ */
+function getCachedDeveloperList() {
+  try {
+    const cached = localStorage.getItem(DEVELOPER_CACHE_KEY);
+    const cacheTime = localStorage.getItem(DEVELOPER_CACHE_TIME_KEY);
+    
+    if (!cached || !cacheTime) return null;
+    
+    const age = Date.now() - parseInt(cacheTime, 10);
+    if (age > CACHE_DURATION_MS) {
+      // Cache expired
+      return null;
+    }
+    
+    const list = JSON.parse(cached);
+    return Array.isArray(list) ? list : null;
+  } catch (err) {
+    console.error('[Auth Utils] Error reading cached developer list:', err);
+    return null;
+  }
+}
+
+/**
+ * Save developer list to cache
+ * @param {Array<string>} list - Developer emails to cache
+ */
+function cacheDeveloperList(list) {
+  try {
+    localStorage.setItem(DEVELOPER_CACHE_KEY, JSON.stringify(list));
+    localStorage.setItem(DEVELOPER_CACHE_TIME_KEY, Date.now().toString());
+  } catch (err) {
+    console.error('[Auth Utils] Error caching developer list:', err);
+  }
+}
+
+/**
+ * Get list of developer emails with fallback strategy:
+ * 1. Try cached list (if not expired)
+ * 2. Fetch from JSON file and cache
+ * 3. Fallback to localStorage for backwards compatibility
+ * 4. Fallback to empty array
+ * @returns {Promise<Array<string>>} - Array of developer emails (normalized)
+ */
+async function getDeveloperList() {
+  // Try cache first
+  const cached = getCachedDeveloperList();
+  if (cached !== null) {
+    return cached;
+  }
+  
+  // Fetch from file
+  const fromFile = await fetchDeveloperListFromFile();
+  if (fromFile !== null) {
+    cacheDeveloperList(fromFile);
+    return fromFile;
+  }
+  
+  // Fallback to localStorage (backwards compatibility)
   try {
     const stored = localStorage.getItem(DEVELOPER_LIST_KEY);
-    if (!stored) return [];
-    const list = JSON.parse(stored);
-    return Array.isArray(list) ? list.map(normalizeEmail) : [];
+    if (stored) {
+      const list = JSON.parse(stored);
+      if (Array.isArray(list)) {
+        return list.map(normalizeEmail);
+      }
+    }
   } catch (err) {
-    console.error('[Auth Utils] Error reading developer list:', err);
-    return [];
+    console.error('[Auth Utils] Error reading localStorage developer list:', err);
   }
+  
+  // Final fallback
+  return [];
+}
+
+/**
+ * Get list of developer emails synchronously (uses only cache and localStorage)
+ * This is for immediate checks when async is not available
+ * @returns {Array<string>} - Array of developer emails (normalized)
+ */
+function getDeveloperListSync() {
+  // Try cache first
+  const cached = getCachedDeveloperList();
+  if (cached !== null) {
+    return cached;
+  }
+  
+  // Fallback to localStorage
+  try {
+    const stored = localStorage.getItem(DEVELOPER_LIST_KEY);
+    if (stored) {
+      const list = JSON.parse(stored);
+      if (Array.isArray(list)) {
+        return list.map(normalizeEmail);
+      }
+    }
+  } catch (err) {
+    console.error('[Auth Utils] Error reading localStorage developer list:', err);
+  }
+  
+  return [];
 }
 
 /**
@@ -128,7 +245,7 @@ function saveDeveloperList(list) {
 
 /**
  * Check if email is a developer (has access to developer pages)
- * Developers: hardcoded emails OR emails in localStorage
+ * Developers: hardcoded emails OR emails in the canonical JSON file
  * @param {string} email - Email address to check
  * @returns {boolean} - True if developer
  */
@@ -144,13 +261,16 @@ function isDeveloper(email) {
   
   if (isHardcoded) return true;
   
-  // Check localStorage developers
-  const devList = getDeveloperList();
+  // Check cached/localStorage developers (synchronous)
+  const devList = getDeveloperListSync();
   return devList.includes(normalized);
 }
 
 /**
- * Add a developer email to the list
+ * Add a developer email to localStorage (for UI state management)
+ * Note: This updates localStorage only. The developer page UI must push 
+ * the updated list to the canonical developers.json file via GitHub.
+ * For backwards compatibility with existing code.
  * @param {string} email - Email address to add
  * @returns {boolean} - True if added successfully, false if duplicate or invalid
  */
@@ -159,12 +279,13 @@ function addDeveloper(email) {
   
   const normalized = normalizeEmail(email);
   
-  // Basic email validation
-  if (!normalized.includes('@') || !normalized.includes('.')) {
+  // Basic email validation (format: something@something.something)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(normalized)) {
     return false;
   }
   
-  const devList = getDeveloperList();
+  const devList = getDeveloperListSync();
   
   // Check if already in list or hardcoded
   if (devList.includes(normalized) || 
@@ -174,11 +295,16 @@ function addDeveloper(email) {
   
   devList.push(normalized);
   saveDeveloperList(devList);
+  // Clear cache so next fetch will get fresh data
+  clearDeveloperCache();
   return true;
 }
 
 /**
- * Remove a developer email from the list
+ * Remove a developer email from localStorage (for UI state management)
+ * Note: This updates localStorage only. The developer page UI must push
+ * the updated list to the canonical developers.json file via GitHub.
+ * For backwards compatibility with existing code.
  * @param {string} email - Email address to remove
  * @returns {boolean} - True if removed successfully, false if not found or hardcoded
  */
@@ -192,7 +318,7 @@ function removeDeveloper(email) {
     return false;
   }
   
-  const devList = getDeveloperList();
+  const devList = getDeveloperListSync();
   const index = devList.indexOf(normalized);
   
   if (index === -1) {
@@ -201,16 +327,43 @@ function removeDeveloper(email) {
   
   devList.splice(index, 1);
   saveDeveloperList(devList);
+  // Clear cache so next fetch will get fresh data
+  clearDeveloperCache();
   return true;
 }
 
 /**
- * Get all developer emails (hardcoded + localStorage)
+ * Clear the developer list cache
+ */
+function clearDeveloperCache() {
+  try {
+    localStorage.removeItem(DEVELOPER_CACHE_KEY);
+    localStorage.removeItem(DEVELOPER_CACHE_TIME_KEY);
+  } catch (err) {
+    console.error('[Auth Utils] Error clearing developer cache:', err);
+  }
+}
+
+/**
+ * Get all developer emails (hardcoded + from JSON file/cache)
+ * @returns {Promise<Array<string>>} - Array of all developer emails
+ */
+async function getAllDevelopers() {
+  const hardcoded = HARDCODED_DEVELOPERS.map(normalizeEmail);
+  const stored = await getDeveloperList();
+  
+  // Combine and deduplicate
+  const all = [...hardcoded, ...stored];
+  return [...new Set(all)];
+}
+
+/**
+ * Get all developer emails synchronously (hardcoded + cache/localStorage)
  * @returns {Array<string>} - Array of all developer emails
  */
-function getAllDevelopers() {
+function getAllDevelopersSync() {
   const hardcoded = HARDCODED_DEVELOPERS.map(normalizeEmail);
-  const stored = getDeveloperList();
+  const stored = getDeveloperListSync();
   
   // Combine and deduplicate
   const all = [...hardcoded, ...stored];
@@ -461,10 +614,13 @@ if (typeof module !== 'undefined' && module.exports) {
     isTeamMember,
     isDeveloper,
     getDeveloperList,
+    getDeveloperListSync,
     addDeveloper,
     removeDeveloper,
     getAllDevelopers,
+    getAllDevelopersSync,
     isHardcodedDeveloper,
+    clearDeveloperCache,
     hasWelcomeBeenShown,
     markWelcomeAsShown,
     showWelcomeOverlay,

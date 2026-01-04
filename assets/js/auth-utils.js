@@ -104,10 +104,13 @@ function isTeamMember(email) {
 
 /**
  * Fetch developer list from the canonical JSON file
+ * Uses absolute site-root path to ensure correct resolution from any subdirectory
  * @returns {Promise<Array<string>>} - Array of developer emails (normalized)
  */
 async function fetchDeveloperListFromFile() {
   try {
+    // Use absolute site-root path (starts with /) to work correctly from any page location
+    // This prevents relative path resolution issues when loaded from subdirectories like /developer/
     const response = await fetch('/assets/data/developers.json');
     if (!response.ok) {
       console.warn('[Auth Utils] Failed to fetch developers.json:', response.status);

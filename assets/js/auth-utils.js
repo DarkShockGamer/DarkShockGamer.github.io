@@ -108,7 +108,7 @@ function isTeamMember(email) {
  */
 async function fetchDeveloperListFromFile() {
   try {
-    const response = await fetch('/assets/data/developers.json?_=' + Date.now());
+    const response = await fetch('/assets/data/developers.json');
     if (!response.ok) {
       console.warn('[Auth Utils] Failed to fetch developers.json:', response.status);
       return null;
@@ -267,9 +267,10 @@ function isDeveloper(email) {
 }
 
 /**
- * Add a developer email to the list (localStorage only, for UI state)
- * Note: This does NOT update the canonical JSON file. The developer page
- * must push the updated list to GitHub separately.
+ * Add a developer email to localStorage (for UI state management)
+ * Note: This updates localStorage only. The developer page UI must push 
+ * the updated list to the canonical developers.json file via GitHub.
+ * For backwards compatibility with existing code.
  * @param {string} email - Email address to add
  * @returns {boolean} - True if added successfully, false if duplicate or invalid
  */
@@ -278,8 +279,9 @@ function addDeveloper(email) {
   
   const normalized = normalizeEmail(email);
   
-  // Basic email validation
-  if (!normalized.includes('@') || !normalized.includes('.')) {
+  // Basic email validation (format: something@something.something)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(normalized)) {
     return false;
   }
   
@@ -299,9 +301,10 @@ function addDeveloper(email) {
 }
 
 /**
- * Remove a developer email from the list (localStorage only, for UI state)
- * Note: This does NOT update the canonical JSON file. The developer page
- * must push the updated list to GitHub separately.
+ * Remove a developer email from localStorage (for UI state management)
+ * Note: This updates localStorage only. The developer page UI must push
+ * the updated list to the canonical developers.json file via GitHub.
+ * For backwards compatibility with existing code.
  * @param {string} email - Email address to remove
  * @returns {boolean} - True if removed successfully, false if not found or hardcoded
  */

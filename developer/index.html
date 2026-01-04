@@ -1164,7 +1164,7 @@
      */
     async function loadDeveloperList() {
       try {
-        const response = await fetch('/assets/data/developers.json?_=' + Date.now());
+        const response = await fetch('/assets/data/developers.json');
         if (!response.ok) {
           showToast('warn', 'Could not load developer list from server');
           return null;
@@ -1254,8 +1254,9 @@
       
       const normalized = email.trim().toLowerCase();
       
-      // Basic email validation
-      if (!normalized.includes('@') || !normalized.includes('.')) {
+      // Email validation (format: something@something.something)
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(normalized)) {
         return false;
       }
       

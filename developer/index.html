@@ -356,7 +356,12 @@
 
     <!-- Developer Management -->
     <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
-      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-3">Developer Access Management</h2>
+      <div class="flex items-center gap-2 mb-3">
+        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Developer Access Management</h2>
+        <span id="dev-pending-indicator" class="hidden inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+          Pending changes
+        </span>
+      </div>
       <p class="muted mb-4">
         Manage who has access to developer pages (Developer Console, UI Lab, Telemetry). 
         The two core developers (<code>blackshocktrooper@gmail.com</code>, <code>palm4215@wths.net</code>) 
@@ -1158,13 +1163,31 @@
     // ===== Developer Management =====
     // Current developer list state (loaded from JSON file)
     let currentDeveloperData = null;
+    let hasDevPendingChanges = false;
+    
+    /**
+     * Update the pending changes indicator
+     */
+    function updateDevPendingIndicator() {
+      const indicator = document.getElementById('dev-pending-indicator');
+      if (!indicator) return;
+      
+      if (hasDevPendingChanges) {
+        indicator.classList.remove('hidden');
+      } else {
+        indicator.classList.add('hidden');
+      }
+    }
     
     /**
      * Load developer list from the JSON file
      */
-    async function loadDeveloperList() {
+    async function loadDeveloperList(bustCache = false) {
       try {
-        const response = await fetch('/assets/data/developers.json');
+        const url = bustCache 
+          ? '/assets/data/developers.json?v=' + Date.now()
+          : '/assets/data/developers.json';
+        const response = await fetch(url);
         if (!response.ok) {
           showToast('warn', 'Could not load developer list from server');
           return null;
@@ -1183,11 +1206,18 @@
       const devList = document.getElementById('dev-list');
       if (!devList) return;
       
-      // Load from JSON file
+      // If we have in-memory data, use it (for immediate UI updates)
+      if (currentDeveloperData && Array.isArray(currentDeveloperData.developers)) {
+        const developers = currentDeveloperData.developers.map(e => e.trim().toLowerCase());
+        renderDeveloperListUI(developers);
+        return;
+      }
+      
+      // Otherwise, load from JSON file
+      devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">Loading...</p>';
       const data = await loadDeveloperList();
       if (!data || !Array.isArray(data.developers)) {
         // Fallback to auth-utils function
-        devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">Loading...</p>';
         const developers = getAllDevelopersSync();
         if (developers.length === 0) {
           devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">No developers found.</p>';
@@ -1204,6 +1234,11 @@
     function renderDeveloperListUI(developers) {
       const devList = document.getElementById('dev-list');
       if (!devList) return;
+      
+      if (!developers || developers.length === 0) {
+        devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">No developers found.</p>';
+        return;
+      }
       
       devList.innerHTML = developers.map(email => {
         const isHardcoded = isHardcodedDeveloper(email);
@@ -1231,13 +1266,15 @@
       
       // Attach remove handlers
       devList.querySelectorAll('.remove-dev').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
+        btn.addEventListener('click', (e) => {
           const email = e.target.getAttribute('data-email');
           if (confirm(`Remove developer access for ${email}?\n\nThis will be saved when you click "Push to GitHub".`)) {
             if (removeDevFromList(email)) {
               showMessage('Developer removed. Remember to push to GitHub!', 'success');
-              showToast('info', 'Remember to click "Push to GitHub" to save changes');
-              await renderDeveloperList();
+              showToast('info', 'Developer removed. Click "Push Developer List to GitHub" to save changes');
+              hasDevPendingChanges = true;
+              updateDevPendingIndicator();
+              renderDeveloperList();
             } else {
               showMessage('Failed to remove developer', 'error');
             }
@@ -1250,14 +1287,14 @@
      * Add developer to the current list (updates local state and JSON structure)
      */
     function addDevToList(email) {
-      if (!email) return false;
+      if (!email) return { success: false, message: 'Email is required' };
       
       const normalized = email.trim().toLowerCase();
       
       // Email validation (format: something@something.something)
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(normalized)) {
-        return false;
+        return { success: false, message: 'Invalid email format' };
       }
       
       // Ensure we have current data
@@ -1272,14 +1309,14 @@
       // Check if already exists
       const currentList = currentDeveloperData.developers.map(e => e.trim().toLowerCase());
       if (currentList.includes(normalized)) {
-        return false; // Duplicate
+        return { success: false, message: 'Developer already exists' };
       }
       
       // Add to list
       currentDeveloperData.developers.push(normalized);
       currentDeveloperData.updatedAt = new Date().toISOString();
       
-      return true;
+      return { success: true, message: 'Developer added successfully' };
     }
     
     /**
@@ -1322,7 +1359,7 @@
       const token = document.getElementById('gh-token').value.trim();
       
       if (!token) {
-        showToast('warn', 'Please enter a Personal Access Token (PAT).');
+        showToast('warn', 'Please enter a Personal Access Token (PAT) in the "Save Changes to GitHub" section below.');
         return;
       }
       
@@ -1347,11 +1384,27 @@
         
         if (res && res.commit && res.commit.sha) {
           showToast('success', 'Developer list saved • ' + res.commit.sha);
-          showMessage('Developer list saved successfully!', 'success');
-          // Clear the cache so it will be reloaded
+          showMessage('Developer list saved successfully! Commit: ' + res.commit.sha, 'success');
+          
+          // Reset pending changes indicator
+          hasDevPendingChanges = false;
+          updateDevPendingIndicator();
+          
+          // Clear the cache and re-fetch to confirm
           if (typeof clearDeveloperCache === 'function') {
             clearDeveloperCache();
           }
+          
+          // Re-fetch the developer list with cache-busting and update UI
+          await loadDeveloperList(true);
+          // currentDeveloperData is now set by loadDeveloperList, so renderDeveloperList will use it
+          await renderDeveloperList();
+          
+        } else if (res && res.message) {
+          // GitHub returned an error
+          const msg = 'GitHub API error: ' + res.message;
+          showToast('error', msg);
+          showMessage(msg, 'error');
         } else {
           const msg = 'Unexpected response: ' + JSON.stringify(res);
           showToast('error', msg);
@@ -1397,26 +1450,27 @@
       const emailInput = document.getElementById('dev-email-input');
       
       if (addBtn && emailInput) {
-        addBtn.addEventListener('click', async () => {
+        addBtn.addEventListener('click', () => {
           const email = emailInput.value.trim();
           
           if (!email) {
             showMessage('Please enter an email address', 'error');
+            showToast('warn', 'Please enter an email address');
             return;
           }
           
-          if (!email.includes('@') || !email.includes('.')) {
-            showMessage('Please enter a valid email address', 'error');
-            return;
-          }
+          const result = addDevToList(email);
           
-          if (addDevToList(email)) {
-            showMessage('Developer added. Remember to push to GitHub!', 'success');
-            showToast('info', 'Remember to click "Push to GitHub" to save changes');
+          if (result.success) {
+            showMessage(result.message + ' Remember to push to GitHub!', 'success');
+            showToast('info', 'Developer added. Click "Push Developer List to GitHub" to save changes');
             emailInput.value = '';
-            await renderDeveloperList();
+            hasDevPendingChanges = true;
+            updateDevPendingIndicator();
+            renderDeveloperList();
           } else {
-            showMessage('Developer already exists or is invalid', 'error');
+            showMessage(result.message, 'error');
+            showToast('error', result.message);
           }
         });
         

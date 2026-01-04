@@ -12,6 +12,11 @@
     window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
     plausible.init()
   </script>
+  <!-- JWT decode library for authentication -->
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
+  <!-- Shared auth configuration and guard -->
+  <script src="/assets/js/auth-config.js"></script>
+  <script src="/assets/js/auth-guard.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Extra polish to complement Tailwind */

@@ -21,8 +21,21 @@ const AUTH_CONFIG = {
    */
   isAuthorized(email) {
     if (!email) return false;
-    return this.allowedDomains.some(domain => email.endsWith(`@${domain}`)) || 
-           this.allowedEmails.includes(email);
+    
+    // Normalize email: trim whitespace and convert to lowercase
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    
+    // Check domain-based authorization
+    const domainAllowed = this.allowedDomains.some(domain => 
+      normalizedEmail.endsWith('@' + domain.toLowerCase())
+    );
+    
+    // Check specific email authorization
+    const emailAllowed = this.allowedEmails.some(allowed => 
+      normalizedEmail === (allowed || '').trim().toLowerCase()
+    );
+    
+    return domainAllowed || emailAllowed;
   }
 };
 

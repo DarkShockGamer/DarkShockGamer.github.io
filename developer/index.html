@@ -1371,6 +1371,9 @@
       try {
         showToast('info', 'Pushing developer list to GitHub…');
         
+        // Update the timestamp to reflect the actual commit time
+        currentDeveloperData.updatedAt = new Date().toISOString();
+        
         const content = JSON.stringify(currentDeveloperData, null, 2);
         const res = await pushFile(
           GH_OWNER, 
@@ -1379,7 +1382,7 @@
           GH_BRANCH, 
           token, 
           content, 
-          'Update developer allowlist via developer.html'
+          'Update developers list'
         );
         
         if (res && res.commit && res.commit.sha) {

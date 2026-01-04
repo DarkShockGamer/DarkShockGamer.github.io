@@ -72,22 +72,4 @@ document.addEventListener('DOMContentLoaded', function() {
   // Also bind sound to the Trident Robotics logo button
   const navLogo = document.querySelector('.nav-logo');
   bindClickSound(navLogo);
-
-  // ======= Bind sound to Tasks links (if they exist and become visible) =======
-  // Tasks links are managed by the centralized auth logic in index.html
-  // We just need to bind sound effects to them
-  const tasksLink = document.getElementById('tasksLink');
-  const tasksLinkMobile = document.getElementById('tasksLinkMobile');
-  
-  if (tasksLink) {
-    bindClickSound(tasksLink);
-  }
-  
-  if (tasksLinkMobile) {
-    bindClickSound(tasksLinkMobile);
-    tasksLinkMobile.addEventListener('click', () => {
-      navLinksMobile.classList.remove('show');
-      navLinksMobile.style.display = 'none';
-    });
-  }
 });

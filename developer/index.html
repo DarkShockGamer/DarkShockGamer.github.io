@@ -358,7 +358,7 @@
     <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
       <div class="flex items-center gap-2 mb-3">
         <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Developer Access Management</h2>
-        <span id="dev-pending-indicator" class="hidden ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+        <span id="dev-pending-indicator" class="hidden inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
           Pending changes
         </span>
       </div>
@@ -1182,9 +1182,12 @@
     /**
      * Load developer list from the JSON file
      */
-    async function loadDeveloperList() {
+    async function loadDeveloperList(bustCache = false) {
       try {
-        const response = await fetch('/assets/data/developers.json?v=' + Date.now());
+        const url = bustCache 
+          ? '/assets/data/developers.json?v=' + Date.now()
+          : '/assets/data/developers.json';
+        const response = await fetch(url);
         if (!response.ok) {
           showToast('warn', 'Could not load developer list from server');
           return null;
@@ -1268,7 +1271,7 @@
           if (confirm(`Remove developer access for ${email}?\n\nThis will be saved when you click "Push to GitHub".`)) {
             if (removeDevFromList(email)) {
               showMessage('Developer removed. Remember to push to GitHub!', 'success');
-              showToast('info', 'Remember to click "Push Developer List to GitHub" to save changes');
+              showToast('info', 'Developer removed. Click "Push Developer List to GitHub" to save changes');
               hasDevPendingChanges = true;
               updateDevPendingIndicator();
               renderDeveloperList();
@@ -1392,8 +1395,9 @@
             clearDeveloperCache();
           }
           
-          // Re-fetch the developer list with cache-busting
-          await loadDeveloperList();
+          // Re-fetch the developer list with cache-busting and update UI
+          await loadDeveloperList(true);
+          // currentDeveloperData is now set by loadDeveloperList, so renderDeveloperList will use it
           await renderDeveloperList();
           
         } else if (res && res.message) {
@@ -1459,7 +1463,7 @@
           
           if (result.success) {
             showMessage(result.message + ' Remember to push to GitHub!', 'success');
-            showToast('info', 'Developer added. Remember to click "Push Developer List to GitHub" to save changes');
+            showToast('info', 'Developer added. Click "Push Developer List to GitHub" to save changes');
             emailInput.value = '';
             hasDevPendingChanges = true;
             updateDevPendingIndicator();

@@ -37,6 +37,8 @@
   <script src="/assets/js/auth-config.js"></script>
   <!-- Shared auth utilities -->
   <script src="/assets/js/auth-utils.js"></script>
+  <!-- Portal overlay menu -->
+  <link rel="stylesheet" href="/assets/css/portal.css">
 
   <style>
     /* ====== Colors ====== */
@@ -477,7 +479,8 @@
         <a href="/calendar">Calendar</a>
         <a href="/sponsors" aria-current="page">Sponsors</a>
         <a href="/faq">FAQ</a>
-        <a href="/tasks" id="tasksLink" style="display:none;">Tasks</a>
+        <!-- Portal replaces Tasks link -->
+        <a href="#" data-portal-trigger id="portalLink" style="display:none;">Portal</a>
       </div>
 
       <div class="nav-links-mobile" id="navLinksMobile">
@@ -487,7 +490,8 @@
         <a href="/calendar">Calendar</a>
         <a href="/sponsors" aria-current="page">Sponsors</a>
         <a href="/faq">FAQ</a>
-        <a href="/tasks" id="tasksLinkMobile" style="display:none;">Tasks</a>
+        <!-- Portal replaces Tasks link -->
+        <a href="#" data-portal-trigger id="portalLinkMobile" style="display:none;">Portal</a>
       </div>
 
       <div class="nav-login">
@@ -585,16 +589,16 @@
 
     // ====== Google Sign-In logic (UI only on this page) ======
     // Use G_CRED_KEY from auth-config.js (already loaded globally)
-    function updateTasksVisibility(email) {
-      const tasksDesktop = document.getElementById("tasksLink");
-      const tasksMobile = document.getElementById("tasksLinkMobile");
-      if (!email) { if (tasksDesktop) tasksDesktop.style.display = "none"; if (tasksMobile) tasksMobile.style.display = "none"; return; }
+    function updatePortalVisibility(email) {
+      const portalDesktop = document.getElementById("portalLink");
+      const portalMobile = document.getElementById("portalLinkMobile");
+      if (!email) { if (portalDesktop) portalDesktop.style.display = "none"; if (portalMobile) portalMobile.style.display = "none"; return; }
       
       // Use isTeamMember from auth-utils for consistent role checking
       const allowed = (typeof isTeamMember === 'function') ? isTeamMember(email) : 
                        (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized && AUTH_CONFIG.isAuthorized(email));
-      if (allowed) { if (tasksDesktop) tasksDesktop.style.display = "inline-block"; if (tasksMobile) tasksMobile.style.display = "block"; }
-      else { if (tasksDesktop) tasksDesktop.style.display = "none"; if (tasksMobile) tasksMobile.style.display = "none"; }
+      if (allowed) { if (portalDesktop) portalDesktop.style.display = "inline-block"; if (portalMobile) portalMobile.style.display = "block"; }
+      else { if (portalDesktop) portalDesktop.style.display = "none"; if (portalMobile) portalMobile.style.display = "none"; }
     }
     function setSignedInUI(profile) {
       const signInContainer = document.getElementById('googleSignIn');
@@ -609,14 +613,14 @@
         avatarImg.title = profile.email || profile.name || 'Signed in';
         avatarImg.alt = (profile.email || profile.name || 'Avatar') + ' avatar';
       }
-      updateTasksVisibility(profile.email);
+      updatePortalVisibility(profile.email);
     }
     function setSignedOutUI() {
       const signInContainer = document.getElementById('googleSignIn');
       const signedContainer = document.getElementById('googleSignedIn');
       if (signInContainer) signInContainer.style.display = 'block';
       if (signedContainer) signedContainer.style.display = 'none';
-      updateTasksVisibility(null);
+      updatePortalVisibility(null);
     }
     function handleCredentialResponse(response) {
       try { const data = jwt_decode(response.credential); localStorage.setItem(window.G_CRED_KEY, response.credential); setSignedInUI(data); }
@@ -729,6 +733,7 @@
     })();
   </script>
   <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/portal.js"></script>
   <script src="/assets/js/sound.js" defer></script>
 </body>
 </html>

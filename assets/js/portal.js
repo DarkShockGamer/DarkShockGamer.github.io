@@ -313,11 +313,25 @@
           <div class="portal-not-logged-in-icon">🔒</div>
           <h3>Portal Access Restricted</h3>
           <p>Please sign in with your team account to access the portal and view team resources.</p>
-          <a href="#" class="portal-login-prompt" onclick="document.getElementById('googleSignIn')?.querySelector('div[role=button]')?.click(); document.getElementById('portalOverlay')?.classList.remove('open'); document.body.classList.remove('portal-open'); return false;">
+          <a href="#" class="portal-login-prompt" id="portalLoginPrompt">
             Sign In to Continue
           </a>
         </div>
       `;
+      
+      // Add click handler for login prompt
+      const loginPrompt = content.querySelector('#portalLoginPrompt');
+      if (loginPrompt) {
+        loginPrompt.addEventListener('click', (e) => {
+          e.preventDefault();
+          const signInButton = document.getElementById('googleSignIn');
+          if (signInButton) {
+            const googleButton = signInButton.querySelector('div[role=button]');
+            if (googleButton) googleButton.click();
+          }
+          closePortal();
+        });
+      }
       return;
     }
 
@@ -378,13 +392,8 @@
     const portalButtons = document.querySelectorAll('[data-portal-trigger]');
     
     portalButtons.forEach(button => {
-      if (role === 'guest') {
-        // Hide portal button when not logged in (optional - could also show with guest message)
-        // For now, we'll show it but display login prompt when clicked
-        button.style.display = 'inline-block';
-      } else {
-        button.style.display = 'inline-block';
-      }
+      // Always show portal button - guests will see login prompt when clicked
+      button.style.display = 'inline-block';
     });
   }
 
@@ -401,7 +410,8 @@
 
   // Also update visibility when user signs in/out
   window.addEventListener('storage', (e) => {
-    if (e.key === G_CRED_KEY || e.key === 'signedInEmail') {
+    // Use typeof check to ensure G_CRED_KEY is defined
+    if (typeof G_CRED_KEY !== 'undefined' && (e.key === G_CRED_KEY || e.key === 'signedInEmail')) {
       updatePortalVisibility();
     }
   });

@@ -81,7 +81,7 @@
     const portalDesktop = document.getElementById("portalLink");
     const portalMobile = document.getElementById("portalLinkMobile");
     if (!email) {
-      // Show portal even when not logged in (will show login prompt)
+      // Hide portal when not logged in
       if (portalDesktop) portalDesktop.style.display = "none";
       if (portalMobile) portalMobile.style.display = "none";
       return;

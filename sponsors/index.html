@@ -6,11 +6,18 @@
   <link rel="shortcut icon" type="image/png" href="/assets/logo.png">
   <title>Trident Robotics 4296 - Sponsors</title>
   <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
-  <!-- Privacy-friendly analytics by Plausible -->
-  <script async src="https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js"></script>
+  <!-- Privacy-friendly analytics by Plausible (production only) -->
   <script>
-    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-    plausible.init()
+    // Only load Plausible on production domain to avoid CORS/rate limit errors in development
+    if (window.location.hostname === 'darkshockgamer.github.io' || window.location.hostname === 'www.darkshockgamer.github.io') {
+      const script = document.createElement('script');
+      script.src = 'https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js';
+      script.async = true;
+      document.head.appendChild(script);
+      
+      window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+      plausible.init();
+    }
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -569,8 +576,7 @@
     });
 
     // ====== Google Sign-In logic (UI only on this page) ======
-    window.G_CRED_KEY = window.G_CRED_KEY || 'g_credential_v1';
-    const G_CRED_KEY = window.G_CRED_KEY;
+    // Use G_CRED_KEY from auth-config.js (already loaded globally)
     function updateTasksVisibility(email) {
       const tasksDesktop = document.getElementById("tasksLink");
       const tasksMobile = document.getElementById("tasksLinkMobile");
@@ -605,11 +611,11 @@
       updateTasksVisibility(null);
     }
     function handleCredentialResponse(response) {
-      try { const data = jwt_decode(response.credential); localStorage.setItem(G_CRED_KEY, response.credential); setSignedInUI(data); }
+      try { const data = jwt_decode(response.credential); localStorage.setItem(window.G_CRED_KEY, response.credential); setSignedInUI(data); }
       catch (err) { console.error('Error decoding credential:', err); alert('Sign-in failed (invalid token).'); }
     }
     function signOut() {
-      const raw = localStorage.getItem(G_CRED_KEY);
+      const raw = localStorage.getItem(window.G_CRED_KEY);
       if (raw) {
         try {
           const decoded = jwt_decode(raw);
@@ -619,7 +625,7 @@
           }
         } catch(e){}
       }
-      localStorage.removeItem(G_CRED_KEY);
+      localStorage.removeItem(window.G_CRED_KEY);
       try { google?.accounts?.id?.disableAutoSelect(); } catch(e){}
       setSignedOutUI();
     }
@@ -630,7 +636,7 @@
         auto_select: false
       });
       document.addEventListener('click', (e) => { if (e.target && e.target.id === 'googleSignOut') { signOut(); } });
-      const saved = localStorage.getItem(G_CRED_KEY);
+      const saved = localStorage.getItem(window.G_CRED_KEY);
       if (saved) {
         try {
           const data = jwt_decode(saved);
@@ -639,7 +645,7 @@
         }
         catch (err) {
           console.warn('Stored credential invalid, clearing', err);
-          localStorage.removeItem(G_CRED_KEY);
+          localStorage.removeItem(window.G_CRED_KEY);
           google.accounts.id.renderButton(
             document.getElementById("googleSignIn"),
             { theme: "outline", size: "medium", text: "signin_with" }

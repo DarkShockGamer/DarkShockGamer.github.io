@@ -569,7 +569,8 @@
     });
 
     // ====== Google Sign-In logic (UI only on this page) ======
-    const G_CRED_KEY = 'g_credential_v1';
+    window.G_CRED_KEY = window.G_CRED_KEY || 'g_credential_v1';
+    const G_CRED_KEY = window.G_CRED_KEY;
     function updateTasksVisibility(email) {
       const tasksDesktop = document.getElementById("tasksLink");
       const tasksMobile = document.getElementById("tasksLinkMobile");

@@ -350,6 +350,8 @@ function clearDeveloperCache() {
   try {
     localStorage.removeItem(DEVELOPER_CACHE_KEY);
     localStorage.removeItem(DEVELOPER_CACHE_TIME_KEY);
+    // Also clear backwards-compat localStorage key
+    localStorage.removeItem(DEVELOPER_LIST_KEY);
   } catch (err) {
     console.error('[Auth Utils] Error clearing developer cache:', err);
   }
@@ -605,6 +607,8 @@ function clearTeamMemberCache() {
   try {
     localStorage.removeItem(TEAM_MEMBER_CACHE_KEY);
     localStorage.removeItem(TEAM_MEMBER_CACHE_TIME_KEY);
+    // Also clear backwards-compat localStorage key
+    localStorage.removeItem(TEAM_MEMBER_LIST_KEY);
   } catch (err) {
     console.error('[Auth Utils] Error clearing team member cache:', err);
   }

@@ -9,13 +9,21 @@
   <!-- Privacy-friendly analytics by Plausible (production only) -->
   <script>
     // Only load Plausible on production domain to avoid CORS/rate limit errors in development
-    if (window.location.hostname === 'darkshockgamer.github.io' || window.location.hostname === 'www.darkshockgamer.github.io') {
+    const isProduction = window.location.hostname.includes('darkshockgamer.github.io');
+    
+    if (isProduction) {
       const script = document.createElement('script');
       script.src = 'https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js';
       script.async = true;
       document.head.appendChild(script);
       
-      window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+      // Initialize Plausible queue for event tracking
+      window.plausible = window.plausible || function() { 
+        (plausible.q = plausible.q || []).push(arguments);
+      };
+      plausible.init = plausible.init || function(i) { 
+        plausible.o = i || {};
+      };
       plausible.init();
     }
   </script>

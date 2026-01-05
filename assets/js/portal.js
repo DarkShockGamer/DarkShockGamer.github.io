@@ -26,10 +26,10 @@
       url: '/calendar'
     },
     {
-      icon: '📊',
-      title: 'Telemetry',
-      description: 'Robot performance data',
-      url: '/telemetry'
+      icon: '🔗',
+      title: 'Links',
+      description: 'Internal resources hub',
+      url: '/links/index.html'
     },
     {
       icon: '⚙️',
@@ -61,8 +61,14 @@
     {
       icon: '📊',
       title: 'Telemetry',
-      description: 'Robot performance data',
+      description: 'Site telemetry to GitHub',
       url: '/telemetry'
+    },
+    {
+      icon: '🔗',
+      title: 'Links',
+      description: 'Internal resources hub',
+      url: '/links/index.html'
     },
     {
       icon: '📅',

@@ -1266,14 +1266,19 @@
       devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">Loading...</p>';
       const data = await loadDeveloperList();
       if (!data || !Array.isArray(data.developers)) {
-        // Fallback to auth-utils function
-        const developers = getAllDevelopersSync();
-        if (developers.length === 0) {
-          devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">No developers found.</p>';
+        // Fallback to auth-utils function (if available)
+        if (typeof getAllDevelopersSync === 'function') {
+          const developers = getAllDevelopersSync();
+          if (developers.length === 0) {
+            devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">No developers found.</p>';
+            return;
+          }
+          renderDeveloperListUI(developers);
+          return;
+        } else {
+          devList.innerHTML = '<p class="text-sm text-red-500 dark:text-red-400">Error: Auth utilities not loaded.</p>';
           return;
         }
-        renderDeveloperListUI(developers);
-        return;
       }
       
       const developers = data.developers.map(e => e.trim().toLowerCase());
@@ -1601,14 +1606,19 @@
       teamList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">Loading...</p>';
       const data = await loadTeamMemberList();
       if (!data || !Array.isArray(data.teamMembers)) {
-        // Fallback to auth-utils function
-        const teamMembers = getAllTeamMembersSync();
-        if (teamMembers.length === 0) {
-          teamList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">No team members found.</p>';
+        // Fallback to auth-utils function (if available)
+        if (typeof getAllTeamMembersSync === 'function') {
+          const teamMembers = getAllTeamMembersSync();
+          if (teamMembers.length === 0) {
+            teamList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">No team members found.</p>';
+            return;
+          }
+          renderTeamMemberListUI(teamMembers);
+          return;
+        } else {
+          teamList.innerHTML = '<p class="text-sm text-red-500 dark:text-red-400">Error: Auth utilities not loaded.</p>';
           return;
         }
-        renderTeamMemberListUI(teamMembers);
-        return;
       }
       
       const teamMembers = data.teamMembers.map(e => e.trim().toLowerCase());

@@ -107,13 +107,17 @@
     .tag-chip[data-tag="drive"] { background: #fed7aa; color: #9a3412; border-color: #fdba74; }
     .dropdown-btn .placeholder { color: #94a3b8; }
 
+    /* Board grid layout */
+    #board { align-items: stretch; }
+
     /* Column styling */
-    .column-section { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05); padding: 1rem; }
+    .column-section { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05); padding: 1rem; display: flex; flex-direction: column; }
     .column-header {
       display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; background: rgba(241,245,249,0.6);
       border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.5rem 0.75rem;
     }
     .column-count { color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 9999px; padding: 0 0.5rem; font-size: 0.75rem; line-height: 1.25rem; }
+    .task-list { flex: 1; }
 
     /* Task card */
     .task-card { background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; box-shadow: 0 1px 1px rgba(2, 6, 23, 0.04); transition: box-shadow 150ms, border-color 150ms; }

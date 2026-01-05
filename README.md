@@ -45,14 +45,25 @@ The task board (`/tasks/index.html`) includes Firebase-powered task management w
 The task board is protected with client-side access control to prevent accidental access:
 - **Authentication required**: Users must sign in with Google to access the task board
 - **Authorization check**: Only authorized email addresses can access the board:
-  - Any email ending with `@wths.net`
-  - Or specific exception emails configured in `/assets/js/auth-config.js`
+  - Team members listed in `/assets/data/team-members.json` (managed via Developer Console)
+  - Or specific override emails configured in `/assets/js/auth-config.js`
 - **Automatic redirect**: Unauthenticated users are redirected to the home page and returned to the task board after successful login
 - **Restricted access page**: Unauthorized users see a friendly message explaining access requirements
 
-**Configuration**: To add or remove exception emails, edit the `allowedEmails` array in `/assets/js/auth-config.js`:
+**Managing Team Member Access**:
+Team member access is managed through the Developer Console (`/developer`):
+1. Sign in as a developer
+2. Navigate to the "Team Member Access Management" section
+3. Add or remove team member emails
+4. Click "Push Team Member List to GitHub" to save changes
+
+The following core team members cannot be removed:
+- `blackshocktrooper@gmail.com`
+- `palm4215@wths.net`
+
+**Configuration**: To add override emails (bypass allowlist), edit the `allowedEmails` array in `/assets/js/auth-config.js`:
 ```javascript
-// Example: Allow site owner or specific users
+// Example: Allow site owner or specific users to override allowlist
 allowedEmails: ['owner@example.com', 'admin@example.com']
 ```
 

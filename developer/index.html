@@ -403,6 +403,55 @@
       </div>
     </section>
 
+    <!-- Team Member Access Management -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
+      <div class="flex items-center gap-2 mb-3">
+        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Team Member Access Management</h2>
+        <span id="team-pending-indicator" class="hidden inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+          Pending changes
+        </span>
+      </div>
+      <p class="muted mb-4">
+        Manage who has access to the task board. Team members can view and manage tasks.
+        The two core team members (<code>blackshocktrooper@gmail.com</code>, <code>palm4215@wths.net</code>) 
+        cannot be removed. Changes are saved to <code>assets/data/team-members.json</code> when you push to GitHub.
+      </p>
+      
+      <div class="mb-4">
+        <label for="team-email-input" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Add Team Member Email</label>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input 
+            id="team-email-input" 
+            type="email" 
+            placeholder="teammember@example.com"
+            class="flex-1 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500"
+          />
+          <button 
+            id="add-team-btn"
+            class="w-full sm:w-auto bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm whitespace-nowrap"
+          >
+            Add Team Member
+          </button>
+        </div>
+        <p id="team-add-message" class="text-xs mt-1 hidden"></p>
+      </div>
+      
+      <div class="mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-sm font-medium text-slate-700 dark:text-slate-300">Current Team Members</h3>
+          <button 
+            id="push-team-list-btn"
+            class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold shadow-sm whitespace-nowrap"
+          >
+            💾 Push Team Member List to GitHub
+          </button>
+        </div>
+        <div id="team-list" class="space-y-2">
+          <!-- Team member list will be populated here -->
+        </div>
+      </div>
+    </section>
+
     <!-- Simplified GitHub Push -->
     <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
       <div class="flex items-center gap-2">
@@ -1217,14 +1266,19 @@
       devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">Loading...</p>';
       const data = await loadDeveloperList();
       if (!data || !Array.isArray(data.developers)) {
-        // Fallback to auth-utils function
-        const developers = getAllDevelopersSync();
-        if (developers.length === 0) {
-          devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">No developers found.</p>';
+        // Fallback to auth-utils function (if available)
+        if (typeof getAllDevelopersSync === 'function') {
+          const developers = getAllDevelopersSync();
+          if (developers.length === 0) {
+            devList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">No developers found.</p>';
+            return;
+          }
+          renderDeveloperListUI(developers);
+          return;
+        } else {
+          devList.innerHTML = '<p class="text-sm text-red-500 dark:text-red-400">Error: Auth utilities not loaded.</p>';
           return;
         }
-        renderDeveloperListUI(developers);
-        return;
       }
       
       const developers = data.developers.map(e => e.trim().toLowerCase());
@@ -1495,10 +1549,344 @@
       renderDeveloperList();
     }
 
+    // ===== Team Member Management =====
+    // Current team member list state (loaded from JSON file)
+    let currentTeamMemberData = null;
+    let hasTeamPendingChanges = false;
+    
+    /**
+     * Update the pending changes indicator
+     */
+    function updateTeamPendingIndicator() {
+      const indicator = document.getElementById('team-pending-indicator');
+      if (!indicator) return;
+      
+      if (hasTeamPendingChanges) {
+        indicator.classList.remove('hidden');
+      } else {
+        indicator.classList.add('hidden');
+      }
+    }
+    
+    /**
+     * Load team member list from the JSON file
+     */
+    async function loadTeamMemberList(bustCache = false) {
+      try {
+        const url = bustCache 
+          ? '/assets/data/team-members.json?v=' + Date.now()
+          : '/assets/data/team-members.json';
+        const response = await fetch(url);
+        if (!response.ok) {
+          showToast('warn', 'Could not load team member list from server');
+          return null;
+        }
+        const data = await response.json();
+        currentTeamMemberData = data;
+        return data;
+      } catch (err) {
+        console.error('[Developer Page] Error loading team member list:', err);
+        showToast('error', 'Error loading team member list: ' + err.message);
+        return null;
+      }
+    }
+    
+    async function renderTeamMemberList() {
+      const teamList = document.getElementById('team-list');
+      if (!teamList) return;
+      
+      // If we have in-memory data, use it (for immediate UI updates)
+      if (currentTeamMemberData && Array.isArray(currentTeamMemberData.teamMembers)) {
+        const teamMembers = currentTeamMemberData.teamMembers.map(e => e.trim().toLowerCase());
+        renderTeamMemberListUI(teamMembers);
+        return;
+      }
+      
+      // Otherwise, load from JSON file
+      teamList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">Loading...</p>';
+      const data = await loadTeamMemberList();
+      if (!data || !Array.isArray(data.teamMembers)) {
+        // Fallback to auth-utils function (if available)
+        if (typeof getAllTeamMembersSync === 'function') {
+          const teamMembers = getAllTeamMembersSync();
+          if (teamMembers.length === 0) {
+            teamList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">No team members found.</p>';
+            return;
+          }
+          renderTeamMemberListUI(teamMembers);
+          return;
+        } else {
+          teamList.innerHTML = '<p class="text-sm text-red-500 dark:text-red-400">Error: Auth utilities not loaded.</p>';
+          return;
+        }
+      }
+      
+      const teamMembers = data.teamMembers.map(e => e.trim().toLowerCase());
+      renderTeamMemberListUI(teamMembers);
+    }
+    
+    function renderTeamMemberListUI(teamMembers) {
+      const teamList = document.getElementById('team-list');
+      if (!teamList) return;
+      
+      if (!teamMembers || teamMembers.length === 0) {
+        teamList.innerHTML = '<p class="text-sm text-slate-500 dark:text-slate-400">No team members found.</p>';
+        return;
+      }
+      
+      teamList.innerHTML = teamMembers.map(email => {
+        const isHardcoded = isHardcodedTeamMember(email);
+        const badgeClass = isHardcoded 
+          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300' 
+          : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+        
+        return `
+          <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-200">${escapeHtml(email)}</span>
+              ${isHardcoded ? `<span class="text-xs px-2 py-0.5 rounded-full ${badgeClass}">Core Team Member</span>` : ''}
+            </div>
+            ${!isHardcoded ? `
+              <button 
+                class="remove-team text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium"
+                data-email="${escapeHtml(email)}"
+              >
+                Remove
+              </button>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+      
+      // Attach remove handlers
+      teamList.querySelectorAll('.remove-team').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const email = e.target.getAttribute('data-email');
+          if (confirm(`Remove team member access for ${email}?\n\nThis will be saved when you click "Push to GitHub".`)) {
+            if (removeTeamFromList(email)) {
+              showTeamMessage('Team member removed. Remember to push to GitHub!', 'success');
+              showToast('info', 'Team member removed. Click "Push Team Member List to GitHub" to save changes');
+              hasTeamPendingChanges = true;
+              updateTeamPendingIndicator();
+              renderTeamMemberList();
+            } else {
+              showTeamMessage('Failed to remove team member', 'error');
+            }
+          }
+        });
+      });
+    }
+    
+    /**
+     * Add team member to the current list (updates local state and JSON structure)
+     */
+    function addTeamToList(email) {
+      if (!email) return { success: false, message: 'Email is required' };
+      
+      const normalized = email.trim().toLowerCase();
+      
+      // Email validation (format: something@something.something)
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(normalized)) {
+        return { success: false, message: 'Invalid email format' };
+      }
+      
+      // Ensure we have current data
+      if (!currentTeamMemberData) {
+        currentTeamMemberData = {
+          version: 1,
+          updatedAt: new Date().toISOString(),
+          teamMembers: ['blackshocktrooper@gmail.com', 'palm4215@wths.net']
+        };
+      }
+      
+      // Check if already exists
+      const currentList = currentTeamMemberData.teamMembers.map(e => e.trim().toLowerCase());
+      if (currentList.includes(normalized)) {
+        return { success: false, message: 'Team member already exists' };
+      }
+      
+      // Add to list
+      currentTeamMemberData.teamMembers.push(normalized);
+      currentTeamMemberData.updatedAt = new Date().toISOString();
+      
+      return { success: true, message: 'Team member added successfully' };
+    }
+    
+    /**
+     * Remove team member from the current list (updates local state and JSON structure)
+     */
+    function removeTeamFromList(email) {
+      if (!email) return false;
+      
+      const normalized = email.trim().toLowerCase();
+      
+      // Cannot remove hardcoded team members
+      if (isHardcodedTeamMember(normalized)) {
+        return false;
+      }
+      
+      // Ensure we have current data
+      if (!currentTeamMemberData || !Array.isArray(currentTeamMemberData.teamMembers)) {
+        return false;
+      }
+      
+      // Find and remove
+      const index = currentTeamMemberData.teamMembers.findIndex(e => 
+        e.trim().toLowerCase() === normalized
+      );
+      
+      if (index === -1) {
+        return false; // Not found
+      }
+      
+      currentTeamMemberData.teamMembers.splice(index, 1);
+      currentTeamMemberData.updatedAt = new Date().toISOString();
+      
+      return true;
+    }
+    
+    /**
+     * Push team member list to GitHub
+     */
+    async function pushTeamMemberList() {
+      const token = document.getElementById('gh-token').value.trim();
+      
+      if (!token) {
+        showToast('warn', 'Please enter a Personal Access Token (PAT) in the "Save Changes to GitHub" section below.');
+        return;
+      }
+      
+      if (!currentTeamMemberData) {
+        showToast('error', 'No team member data to push. Please reload the page.');
+        return;
+      }
+      
+      try {
+        showToast('info', 'Pushing team member list to GitHub…');
+        
+        // Update the timestamp to reflect the actual commit time
+        currentTeamMemberData.updatedAt = new Date().toISOString();
+        
+        const content = JSON.stringify(currentTeamMemberData, null, 2);
+        const res = await pushFile(
+          GH_OWNER, 
+          GH_REPO, 
+          'assets/data/team-members.json', 
+          GH_BRANCH, 
+          token, 
+          content, 
+          'Update team members list'
+        );
+        
+        if (res && res.commit && res.commit.sha) {
+          showToast('success', 'Team member list saved • ' + res.commit.sha);
+          showTeamMessage('Team member list saved successfully! Commit: ' + res.commit.sha, 'success');
+          
+          // Reset pending changes indicator
+          hasTeamPendingChanges = false;
+          updateTeamPendingIndicator();
+          
+          // Clear the cache and re-fetch to confirm
+          if (typeof clearTeamMemberCache === 'function') {
+            clearTeamMemberCache();
+          }
+          
+          // Re-fetch the team member list with cache-busting and update UI
+          await loadTeamMemberList(true);
+          await renderTeamMemberList();
+          
+        } else if (res && res.message) {
+          // GitHub returned an error
+          const msg = 'GitHub API error: ' + res.message;
+          showToast('error', msg);
+          showTeamMessage(msg, 'error');
+        } else {
+          const msg = 'Unexpected response: ' + JSON.stringify(res);
+          showToast('error', msg);
+          showTeamMessage('Error saving: ' + msg, 'error');
+        }
+      } catch (e) {
+        const msg = 'Error: ' + e.message;
+        showToast('error', msg);
+        showTeamMessage(msg, 'error');
+      }
+    }
+    
+    function showTeamMessage(text, type = 'info') {
+      const msgEl = document.getElementById('team-add-message');
+      if (!msgEl) return;
+      
+      msgEl.textContent = text;
+      msgEl.classList.remove('hidden', 'text-green-600', 'text-red-600', 'text-slate-600');
+      
+      if (type === 'success') {
+        msgEl.classList.add('text-green-600');
+      } else if (type === 'error') {
+        msgEl.classList.add('text-red-600');
+      } else {
+        msgEl.classList.add('text-slate-600');
+      }
+      
+      // Auto-hide after 3 seconds
+      setTimeout(() => {
+        msgEl.classList.add('hidden');
+      }, 3000);
+    }
+    
+    // Initialize team member management
+    function initTeamMemberManagement() {
+      const addBtn = document.getElementById('add-team-btn');
+      const emailInput = document.getElementById('team-email-input');
+      
+      if (addBtn && emailInput) {
+        addBtn.addEventListener('click', () => {
+          const email = emailInput.value.trim();
+          
+          if (!email) {
+            showTeamMessage('Please enter an email address', 'error');
+            showToast('warn', 'Please enter an email address');
+            return;
+          }
+          
+          const result = addTeamToList(email);
+          
+          if (result.success) {
+            showTeamMessage(result.message + ' Remember to push to GitHub!', 'success');
+            showToast('info', 'Team member added. Click "Push Team Member List to GitHub" to save changes');
+            emailInput.value = '';
+            hasTeamPendingChanges = true;
+            updateTeamPendingIndicator();
+            renderTeamMemberList();
+          } else {
+            showTeamMessage(result.message, 'error');
+            showToast('error', result.message);
+          }
+        });
+        
+        // Allow Enter key to add
+        emailInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            addBtn.click();
+          }
+        });
+      }
+      
+      // Push team member list button
+      const pushTeamBtn = document.getElementById('push-team-list-btn');
+      if (pushTeamBtn) {
+        pushTeamBtn.addEventListener('click', pushTeamMemberList);
+      }
+      
+      // Initial render
+      renderTeamMemberList();
+    }
+
     // ===== Initialize =====
     window.addEventListener('DOMContentLoaded', () => {
       loadExisting();
       initDeveloperManagement();
+      initTeamMemberManagement();
     });
   </script>
   <script src="/assets/js/theme.js"></script>

@@ -10,9 +10,8 @@
  *   <script src="/assets/js/auth-guard.js"></script>
  * 
  * Configuration:
- *   Edit /assets/js/auth-config.js to configure:
- *   - allowedDomains: Array of email domains (e.g., ['wths.net'])
- *   - allowedEmails: Array of specific exception emails (e.g., ['owner@example.com'])
+ *   Team member access is now managed via /assets/data/team-members.json.
+ *   Edit /assets/js/auth-config.js to configure override emails (allowedEmails array).
  */
 
 (function() {

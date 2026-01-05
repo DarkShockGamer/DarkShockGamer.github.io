@@ -12,10 +12,19 @@
 const DEVELOPER_LIST_KEY = 'developer_emails';
 const DEVELOPER_CACHE_KEY = 'developer_emails_cache';
 const DEVELOPER_CACHE_TIME_KEY = 'developer_emails_cache_time';
+const TEAM_MEMBER_LIST_KEY = 'team_member_emails';
+const TEAM_MEMBER_CACHE_KEY = 'team_member_emails_cache';
+const TEAM_MEMBER_CACHE_TIME_KEY = 'team_member_emails_cache_time';
 const WELCOME_SHOWN_KEY = 'welcome_shown_';
 
 // Hardcoded developer emails (always allowed, cannot be removed)
 const HARDCODED_DEVELOPERS = [
+  'blackshocktrooper@gmail.com',
+  'palm4215@wths.net'
+];
+
+// Hardcoded team member emails (always allowed, cannot be removed)
+const HARDCODED_TEAM_MEMBERS = [
   'blackshocktrooper@gmail.com',
   'palm4215@wths.net'
 ];
@@ -73,7 +82,7 @@ function normalizeEmail(email) {
 
 /**
  * Check if email is a team member (has access to tasks)
- * Team members: any @wths.net email OR blackshocktrooper@gmail.com
+ * Team members: hardcoded emails OR emails in the canonical team-members.json file
  * @param {string} email - Email address to check
  * @returns {boolean} - True if team member
  */
@@ -82,24 +91,23 @@ function isTeamMember(email) {
   
   const normalized = normalizeEmail(email);
   
-  // Check if AUTH_CONFIG is available for centralized authorization
+  // Check if AUTH_CONFIG is available for centralized authorization override
   if (window.AUTH_CONFIG && typeof AUTH_CONFIG.isAuthorized === 'function') {
-    return AUTH_CONFIG.isAuthorized(normalized);
+    if (AUTH_CONFIG.isAuthorized(normalized)) {
+      return true;
+    }
   }
   
-  // Fallback: check domain and specific emails
-  const allowedDomains = ['wths.net'];
-  const allowedEmails = ['blackshocktrooper@gmail.com'];
-  
-  const domainAllowed = allowedDomains.some(domain => 
-    normalized.endsWith('@' + domain.toLowerCase())
+  // Check hardcoded team members
+  const isHardcoded = HARDCODED_TEAM_MEMBERS.some(member => 
+    normalizeEmail(member) === normalized
   );
   
-  const emailAllowed = allowedEmails.some(allowed => 
-    normalized === normalizeEmail(allowed)
-  );
+  if (isHardcoded) return true;
   
-  return domainAllowed || emailAllowed;
+  // Check cached/localStorage team members (synchronous)
+  const teamList = getTeamMemberListSync();
+  return teamList.includes(normalized);
 }
 
 /**
@@ -385,6 +393,261 @@ function isHardcodedDeveloper(email) {
 }
 
 /**
+ * Fetch team member list from the canonical JSON file
+ * Uses absolute site-root path to ensure correct resolution from any subdirectory
+ * @returns {Promise<Array<string>>} - Array of team member emails (normalized)
+ */
+async function fetchTeamMemberListFromFile() {
+  try {
+    const response = await fetch('/assets/data/team-members.json');
+    if (!response.ok) {
+      console.warn('[Auth Utils] Failed to fetch team-members.json:', response.status);
+      return null;
+    }
+    const data = await response.json();
+    if (!data || !Array.isArray(data.teamMembers)) {
+      console.warn('[Auth Utils] Invalid team-members.json format');
+      return null;
+    }
+    return data.teamMembers.map(normalizeEmail);
+  } catch (err) {
+    console.error('[Auth Utils] Error fetching team member list:', err);
+    return null;
+  }
+}
+
+/**
+ * Get cached team member list from localStorage
+ * @returns {Array<string>|null} - Cached list or null if expired/missing
+ */
+function getCachedTeamMemberList() {
+  try {
+    const cached = localStorage.getItem(TEAM_MEMBER_CACHE_KEY);
+    const cacheTime = localStorage.getItem(TEAM_MEMBER_CACHE_TIME_KEY);
+    
+    if (!cached || !cacheTime) return null;
+    
+    const age = Date.now() - parseInt(cacheTime, 10);
+    if (age > CACHE_DURATION_MS) {
+      // Cache expired
+      return null;
+    }
+    
+    const list = JSON.parse(cached);
+    return Array.isArray(list) ? list : null;
+  } catch (err) {
+    console.error('[Auth Utils] Error reading cached team member list:', err);
+    return null;
+  }
+}
+
+/**
+ * Save team member list to cache
+ * @param {Array<string>} list - Team member emails to cache
+ */
+function cacheTeamMemberList(list) {
+  try {
+    localStorage.setItem(TEAM_MEMBER_CACHE_KEY, JSON.stringify(list));
+    localStorage.setItem(TEAM_MEMBER_CACHE_TIME_KEY, Date.now().toString());
+  } catch (err) {
+    console.error('[Auth Utils] Error caching team member list:', err);
+  }
+}
+
+/**
+ * Get list of team member emails with fallback strategy:
+ * 1. Try cached list (if not expired)
+ * 2. Fetch from JSON file and cache
+ * 3. Fallback to localStorage for backwards compatibility
+ * 4. Fallback to empty array
+ * @returns {Promise<Array<string>>} - Array of team member emails (normalized)
+ */
+async function getTeamMemberList() {
+  // Try cache first
+  const cached = getCachedTeamMemberList();
+  if (cached !== null) {
+    return cached;
+  }
+  
+  // Fetch from file
+  const fromFile = await fetchTeamMemberListFromFile();
+  if (fromFile !== null) {
+    cacheTeamMemberList(fromFile);
+    return fromFile;
+  }
+  
+  // Fallback to localStorage (backwards compatibility)
+  try {
+    const stored = localStorage.getItem(TEAM_MEMBER_LIST_KEY);
+    if (stored) {
+      const list = JSON.parse(stored);
+      if (Array.isArray(list)) {
+        return list.map(normalizeEmail);
+      }
+    }
+  } catch (err) {
+    console.error('[Auth Utils] Error reading localStorage team member list:', err);
+  }
+  
+  // Final fallback
+  return [];
+}
+
+/**
+ * Get list of team member emails synchronously (uses only cache and localStorage)
+ * This is for immediate checks when async is not available
+ * @returns {Array<string>} - Array of team member emails (normalized)
+ */
+function getTeamMemberListSync() {
+  // Try cache first
+  const cached = getCachedTeamMemberList();
+  if (cached !== null) {
+    return cached;
+  }
+  
+  // Fallback to localStorage
+  try {
+    const stored = localStorage.getItem(TEAM_MEMBER_LIST_KEY);
+    if (stored) {
+      const list = JSON.parse(stored);
+      if (Array.isArray(list)) {
+        return list.map(normalizeEmail);
+      }
+    }
+  } catch (err) {
+    console.error('[Auth Utils] Error reading localStorage team member list:', err);
+  }
+  
+  return [];
+}
+
+/**
+ * Save team member list to localStorage
+ * @param {Array<string>} list - Array of team member emails
+ */
+function saveTeamMemberList(list) {
+  try {
+    const normalized = list.map(normalizeEmail);
+    localStorage.setItem(TEAM_MEMBER_LIST_KEY, JSON.stringify(normalized));
+  } catch (err) {
+    console.error('[Auth Utils] Error saving team member list:', err);
+  }
+}
+
+/**
+ * Add a team member email to localStorage (for UI state management)
+ * Note: This updates localStorage only. The developer page UI must push 
+ * the updated list to the canonical team-members.json file via GitHub.
+ * @param {string} email - Email address to add
+ * @returns {boolean} - True if added successfully, false if duplicate or invalid
+ */
+function addTeamMember(email) {
+  if (!email) return false;
+  
+  const normalized = normalizeEmail(email);
+  
+  // Basic email validation (format: something@something.something)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(normalized)) {
+    return false;
+  }
+  
+  const teamList = getTeamMemberListSync();
+  
+  // Check if already in list or hardcoded
+  if (teamList.includes(normalized) || 
+      HARDCODED_TEAM_MEMBERS.some(member => normalizeEmail(member) === normalized)) {
+    return false; // Duplicate
+  }
+  
+  teamList.push(normalized);
+  saveTeamMemberList(teamList);
+  // Clear cache so next fetch will get fresh data
+  clearTeamMemberCache();
+  return true;
+}
+
+/**
+ * Remove a team member email from localStorage (for UI state management)
+ * Note: This updates localStorage only. The developer page UI must push
+ * the updated list to the canonical team-members.json file via GitHub.
+ * @param {string} email - Email address to remove
+ * @returns {boolean} - True if removed successfully, false if not found or hardcoded
+ */
+function removeTeamMember(email) {
+  if (!email) return false;
+  
+  const normalized = normalizeEmail(email);
+  
+  // Cannot remove hardcoded team members
+  if (HARDCODED_TEAM_MEMBERS.some(member => normalizeEmail(member) === normalized)) {
+    return false;
+  }
+  
+  const teamList = getTeamMemberListSync();
+  const index = teamList.indexOf(normalized);
+  
+  if (index === -1) {
+    return false; // Not found
+  }
+  
+  teamList.splice(index, 1);
+  saveTeamMemberList(teamList);
+  // Clear cache so next fetch will get fresh data
+  clearTeamMemberCache();
+  return true;
+}
+
+/**
+ * Clear the team member list cache
+ */
+function clearTeamMemberCache() {
+  try {
+    localStorage.removeItem(TEAM_MEMBER_CACHE_KEY);
+    localStorage.removeItem(TEAM_MEMBER_CACHE_TIME_KEY);
+  } catch (err) {
+    console.error('[Auth Utils] Error clearing team member cache:', err);
+  }
+}
+
+/**
+ * Get all team member emails (hardcoded + from JSON file/cache)
+ * @returns {Promise<Array<string>>} - Array of all team member emails
+ */
+async function getAllTeamMembers() {
+  const hardcoded = HARDCODED_TEAM_MEMBERS.map(normalizeEmail);
+  const stored = await getTeamMemberList();
+  
+  // Combine and deduplicate
+  const all = [...hardcoded, ...stored];
+  return [...new Set(all)];
+}
+
+/**
+ * Get all team member emails synchronously (hardcoded + cache/localStorage)
+ * @returns {Array<string>} - Array of all team member emails
+ */
+function getAllTeamMembersSync() {
+  const hardcoded = HARDCODED_TEAM_MEMBERS.map(normalizeEmail);
+  const stored = getTeamMemberListSync();
+  
+  // Combine and deduplicate
+  const all = [...hardcoded, ...stored];
+  return [...new Set(all)];
+}
+
+/**
+ * Check if a team member email is hardcoded (cannot be removed)
+ * @param {string} email - Email address to check
+ * @returns {boolean} - True if hardcoded
+ */
+function isHardcodedTeamMember(email) {
+  if (!email) return false;
+  const normalized = normalizeEmail(email);
+  return HARDCODED_TEAM_MEMBERS.some(member => normalizeEmail(member) === normalized);
+}
+
+/**
  * Check if welcome overlay has been shown for current user
  * @param {string} email - User email
  * @returns {boolean} - True if already shown
@@ -624,6 +887,14 @@ if (typeof module !== 'undefined' && module.exports) {
     getAllDevelopersSync,
     isHardcodedDeveloper,
     clearDeveloperCache,
+    getTeamMemberList,
+    getTeamMemberListSync,
+    addTeamMember,
+    removeTeamMember,
+    getAllTeamMembers,
+    getAllTeamMembersSync,
+    isHardcodedTeamMember,
+    clearTeamMemberCache,
     hasWelcomeBeenShown,
     markWelcomeAsShown,
     showWelcomeOverlay,

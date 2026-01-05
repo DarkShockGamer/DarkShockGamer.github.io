@@ -120,7 +120,7 @@
     .task-list { flex: 1; }
 
     /* Task card */
-    .task-card { background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; box-shadow: 0 1px 1px rgba(2, 6, 23, 0.04); transition: box-shadow 150ms, border-color 150ms; }
+    .task-card { position: relative; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; padding-bottom: 2.5rem; box-shadow: 0 1px 1px rgba(2, 6, 23, 0.04); transition: box-shadow 150ms, border-color 150ms; }
     .task-card:hover { box-shadow: 0 6px 16px rgba(2,132,199,0.12); border-color: #93c5fd; transform: translateY(-1px); }
 
     /* Custom checkbox styling for description checklist */
@@ -1402,6 +1402,15 @@ function createTaskEl(task, colId) {
       </div>
     ` : ""}
 
+    <!-- Archive button positioned at bottom-right -->
+    <button class="archive-btn absolute bottom-2 right-2 p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors" 
+            aria-label="Archive" 
+            title="Archive">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+      </svg>
+    </button>
+
     <div class="mt-3">
       <button class="text-xs text-sky-600 dark:text-sky-400 underline toggle-comments">Show Notes</button>
       <div class="comments-section hidden mt-2 border-t border-slate-100 dark:border-slate-800 pt-2 space-y-2">
@@ -1473,6 +1482,29 @@ function createTaskEl(task, colId) {
       }, { merge: true });
       div.remove();
       renderBoard();
+    }, 300);
+  };
+
+  /* Archive */
+  div.querySelector(".archive-btn").onclick = async (e) => {
+    e.stopPropagation(); // Prevent event bubbling
+    if (!confirm(`Archive "${task.title}"?\n\nArchived tasks will be moved to the Archive section in the menu.`)) return;
+    
+    div.classList.add("transition", "duration-300", "opacity-0", "scale-95");
+    setTimeout(async () => {
+      try {
+        await setDoc(doc(db, "tasks", task.id), {
+          archived: true,
+          archivedAt: Date.now()
+        }, { merge: true });
+        div.remove();
+        renderBoard();
+        showToast('success', `Task "${task.title}" archived successfully!`);
+      } catch (err) {
+        console.error("Failed to archive task:", err);
+        showToast('error', `Failed to archive task: ${err?.message || err}`);
+        div.classList.remove("transition", "duration-300", "opacity-0", "scale-95");
+      }
     }, 300);
   };
 

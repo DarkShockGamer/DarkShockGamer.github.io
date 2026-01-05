@@ -1,0 +1,335 @@
+/**
+ * Portal Overlay Menu Styles
+ * Responsive modal overlay for team and developer navigation
+ */
+
+/* ====== Portal Overlay ====== */
+.portal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  padding: 1rem;
+}
+
+.portal-overlay.open {
+  display: flex;
+  opacity: 1;
+}
+
+/* ====== Portal Modal ====== */
+.portal-modal {
+  background: linear-gradient(135deg, #0a1f44, #1f4d7a);
+  color: #f4f8fb;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  border: 2px solid #4fa3d1;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  transform: scale(0.9);
+  transition: transform 0.3s ease-out;
+}
+
+.portal-overlay.open .portal-modal {
+  transform: scale(1);
+}
+
+/* ====== Portal Header ====== */
+.portal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  border-bottom: 2px solid rgba(79, 163, 209, 0.3);
+}
+
+.portal-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffd700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.portal-role-badge {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  background: rgba(79, 163, 209, 0.2);
+  color: #4fa3d1;
+  border: 1px solid #4fa3d1;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.portal-close {
+  background: transparent;
+  border: none;
+  color: #f4f8fb;
+  font-size: 2rem;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s, transform 0.2s;
+  line-height: 1;
+  padding: 0;
+}
+
+.portal-close:hover,
+.portal-close:focus {
+  background: rgba(255, 255, 255, 0.1);
+  transform: rotate(90deg);
+  outline: none;
+}
+
+/* ====== Portal Content ====== */
+.portal-content {
+  padding: 2rem;
+}
+
+.portal-description {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.05rem;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+/* ====== Portal Links Grid ====== */
+.portal-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.portal-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: rgba(10, 31, 68, 0.6);
+  border: 2px solid rgba(79, 163, 209, 0.3);
+  border-radius: 12px;
+  text-decoration: none;
+  color: #f4f8fb;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.portal-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(79, 163, 209, 0.2), transparent);
+  transition: left 0.4s ease;
+}
+
+.portal-link:hover::before,
+.portal-link:focus::before {
+  left: 100%;
+}
+
+.portal-link:hover,
+.portal-link:focus {
+  background: rgba(31, 77, 122, 0.8);
+  border-color: #4fa3d1;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 163, 209, 0.3);
+  outline: none;
+}
+
+.portal-link:active {
+  transform: translateY(0);
+}
+
+.portal-link-icon {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.portal-link-text {
+  flex: 1;
+}
+
+.portal-link-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  color: #ffd700;
+}
+
+.portal-link-desc {
+  font-size: 0.9rem;
+  margin: 0;
+  opacity: 0.85;
+  line-height: 1.3;
+}
+
+/* ====== Not Logged In State ====== */
+.portal-not-logged-in {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.portal-not-logged-in-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.portal-not-logged-in h3 {
+  font-size: 1.5rem;
+  color: #ffd700;
+  margin-bottom: 1rem;
+}
+
+.portal-not-logged-in p {
+  font-size: 1.05rem;
+  opacity: 0.9;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.portal-login-prompt {
+  display: inline-block;
+  background: #ffd700;
+  color: #0a1f44;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.05rem;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+.portal-login-prompt:hover,
+.portal-login-prompt:focus {
+  background: #e6c200;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+  outline: none;
+}
+
+/* ====== Mobile Responsive ====== */
+@media (max-width: 768px) {
+  .portal-overlay {
+    padding: 0.5rem;
+  }
+
+  .portal-modal {
+    max-width: 100%;
+    max-height: 95vh;
+    border-radius: 16px;
+  }
+
+  .portal-header {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .portal-title {
+    font-size: 1.5rem;
+    gap: 0.5rem;
+  }
+
+  .portal-role-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .portal-content {
+    padding: 1.5rem;
+  }
+
+  .portal-description {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .portal-links {
+    grid-template-columns: 1fr;
+    gap: 0.875rem;
+  }
+
+  .portal-link {
+    padding: 1rem;
+  }
+
+  .portal-link-icon {
+    font-size: 1.5rem;
+  }
+
+  .portal-link-title {
+    font-size: 1rem;
+  }
+
+  .portal-link-desc {
+    font-size: 0.85rem;
+  }
+
+  .portal-not-logged-in {
+    padding: 2rem 1.5rem;
+  }
+
+  .portal-not-logged-in-icon {
+    font-size: 3rem;
+  }
+
+  .portal-not-logged-in h3 {
+    font-size: 1.25rem;
+  }
+
+  .portal-not-logged-in p {
+    font-size: 0.95rem;
+  }
+}
+
+/* ====== Accessibility ====== */
+.portal-link:focus-visible,
+.portal-close:focus-visible {
+  outline: 3px solid #ffd700;
+  outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .portal-overlay,
+  .portal-modal,
+  .portal-link,
+  .portal-close {
+    transition: none;
+  }
+
+  .portal-link::before {
+    display: none;
+  }
+}
+
+/* ====== Body Scroll Lock ====== */
+body.portal-open {
+  overflow: hidden;
+}

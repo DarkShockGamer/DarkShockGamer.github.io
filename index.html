@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
   <!-- Keep navbar compact: show avatar only -->
   <link rel="stylesheet" href="/assets/css/avatar-only.css">
+  <!-- Portal overlay menu -->
+  <link rel="stylesheet" href="/assets/css/portal.css">
   <!-- Privacy-friendly analytics by Plausible -->
   <script async src="https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js"></script>
   <script>
@@ -74,13 +76,14 @@
   // Helper: storage key for the credential
   // Note: G_CRED_KEY is defined in auth-config.js
 
-  // Toggle tasks visibility based on email allowed list/domains
-  function updateTasksVisibility(email) {
-    const tasksDesktop = document.getElementById("tasksLink");
-    const tasksMobile = document.getElementById("tasksLinkMobile");
+  // Toggle portal visibility based on email allowed list/domains
+  function updatePortalVisibility(email) {
+    const portalDesktop = document.getElementById("portalLink");
+    const portalMobile = document.getElementById("portalLinkMobile");
     if (!email) {
-      if (tasksDesktop) tasksDesktop.style.display = "none";
-      if (tasksMobile) tasksMobile.style.display = "none";
+      // Show portal even when not logged in (will show login prompt)
+      if (portalDesktop) portalDesktop.style.display = "none";
+      if (portalMobile) portalMobile.style.display = "none";
       return;
     }
     
@@ -89,11 +92,11 @@
                      (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized(email));
     
     if (allowed) {
-      if (tasksDesktop) tasksDesktop.style.display = "inline-block";
-      if (tasksMobile) tasksMobile.style.display = "block";
+      if (portalDesktop) portalDesktop.style.display = "inline-block";
+      if (portalMobile) portalMobile.style.display = "block";
     } else {
-      if (tasksDesktop) tasksDesktop.style.display = "none";
-      if (tasksMobile) tasksMobile.style.display = "none";
+      if (portalDesktop) portalDesktop.style.display = "none";
+      if (portalMobile) portalMobile.style.display = "none";
     }
   }
 
@@ -111,8 +114,8 @@
     if (emailSpan) emailSpan.textContent = profile.email || profile.name || 'Signed in';
     if (avatarImg) avatarImg.src = profile.picture || '/assets/icon.png';
 
-    // Update tasks visibility
-    updateTasksVisibility(profile.email);
+    // Update portal visibility
+    updatePortalVisibility(profile.email);
   }
 
   // Set UI for signed-out state
@@ -123,8 +126,8 @@
     if (signInContainer) signInContainer.style.display = 'block';
     if (signedContainer) signedContainer.style.display = 'none';
 
-    // Hide tasks link if needed
-    updateTasksVisibility(null);
+    // Hide portal link if needed
+    updatePortalVisibility(null);
   }
 
   // Handle the credential response when user signs in
@@ -757,8 +760,8 @@
         <a href="/calendar">Calendar</a>
         <a href="/sponsors">Sponsors</a>
         <a href="/faq">FAQ</a>
-        <!-- Tasks link will appear here dynamically -->
-        <a href="/tasks" id="tasksLink" style="display:none;">Tasks</a>
+        <!-- Portal replaces Tasks link -->
+        <a href="#" data-portal-trigger id="portalLink" style="display:none;">Portal</a>
       </div>
 
       <!-- Mobile-only nav links -->
@@ -769,7 +772,8 @@
         <a href="/calendar">Calendar</a>
         <a href="/sponsors">Sponsors</a>
         <a href="/faq">FAQ</a>
-        <a href="/tasks" id="tasksLinkMobile" style="display:none;">Tasks</a>
+        <!-- Portal replaces Tasks link -->
+        <a href="#" data-portal-trigger id="portalLinkMobile" style="display:none;">Portal</a>
       </div>
 
       <div class="nav-login">
@@ -1134,5 +1138,6 @@
     });
   </script>
   <script src="/assets/js/theme.js"></script>
+  <script src="/assets/js/portal.js"></script>
 </body>
 </html>

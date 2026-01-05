@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trident Robotics — Docs &amp; Links</title>
+
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <link rel="stylesheet" href="/assets/css/adaptive-themes.css" />
+
+    <!-- Privacy-friendly analytics by Plausible -->
+    <script async src="https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js"></script>
+    <script>
+      window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},
+      plausible.init=plausible.init||function(i){plausible.o=i||{}};
+      plausible.init();
+    </script>
+
+    <!-- Pre-paint theme application to prevent FOUC (same pattern as other pages) -->
+    <script>
+      (function () {
+        const migrationMap = { sunrise: "light", daylight: "light", sunset: "dark", midnight: "dark" };
+        const validAdaptiveThemes = ["light", "dark", "high-contrast-light", "high-contrast-dark"];
+        let adaptiveTheme = localStorage.getItem("site-adaptive-theme");
+
+        if (adaptiveTheme && migrationMap[adaptiveTheme]) {
+          adaptiveTheme = migrationMap[adaptiveTheme];
+          localStorage.setItem("site-adaptive-theme", adaptiveTheme);
+        }
+
+        const html = document.documentElement;
+        html.classList.remove(
+          "theme-light","theme-dark","theme-high-contrast",
+          "theme-high-contrast-light","theme-high-contrast-dark",
+          "theme-sunrise","theme-daylight","theme-sunset","theme-midnight"
+        );
+
+        if (adaptiveTheme && validAdaptiveThemes.includes(adaptiveTheme)) {
+          html.classList.add("theme-" + adaptiveTheme);
+        } else {
+          adaptiveTheme = "light";
+          localStorage.setItem("site-adaptive-theme", adaptiveTheme);
+          html.classList.add("theme-light");
+        }
+      })();
+    </script>
+
+    <!-- Auth (match protected pages like /tasks) -->
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
+    <script src="/assets/js/auth-config.js"></script>
+    <script src="/assets/js/auth-guard.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, sans-serif; }
+      @media (prefers-color-scheme: dark) {
+        html, body { color-scheme: dark; }
+        body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; }
+      }
+      /* Light/dark theme overrides like your other pages */
+      html.theme-light body { background: linear-gradient(to bottom, #f0f9ff, white); color: #1e293b; color-scheme: light; }
+      html.theme-dark body  { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; color-scheme: dark; }
+      html.theme-high-contrast body { background: #000; color: #fff; color-scheme: dark; }
+
+      .card { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 2px rgba(2,6,23,0.05); }
+      @media (prefers-color-scheme: dark) {
+        .card { background: #0f172a; border-color: #1f2937; box-shadow: 0 1px 2px rgba(2,6,23,0.30); }
+      }
+      html.theme-light .card { background: white !important; border-color: #e2e8f0 !important; }
+      html.theme-dark  .card { background: #0f172a !important; border-color: #1f2937 !important; }
+      html.theme-high-contrast .card { background: #1a1a1a !important; border: 2px solid #fff !important; box-shadow: none !important; }
+    </style>
+  </head>
+
+  <body class="min-h-screen p-6">
+    <div class="max-w-4xl mx-auto">
+      <header class="mb-6">
+        <div class="flex items-center gap-3">
+          <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-10 w-10" />
+          <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 dark:text-sky-300">
+              Trident Robotics — Docs &amp; Links
+            </h1>
+            <p class="text-sm text-sky-600 dark:text-sky-400">
+              Internal resources hub (team-member access only)
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <main class="card p-5">
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Quick Links</h2>
+
+        <ul class="space-y-3">
+          <li class="rounded-lg border border-slate-200 dark:border-slate-800 p-4 bg-white/60 dark:bg-slate-950/30">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="font-semibold text-slate-800 dark:text-slate-200">2026 GAME MANUAL</div>
+                <div class="text-sm text-slate-600 dark:text-slate-400">Don’t have yet</div>
+              </div>
+              <span class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                Coming soon
+              </span>
+            </div>
+          </li>
+
+          <li>
+            <a class="block rounded-lg border border-slate-200 dark:border-slate-800 p-4 hover:bg-sky-50 dark:hover:bg-slate-900 transition"
+               href="https://www.reca.lc/" target="_blank" rel="noopener noreferrer">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <div class="font-semibold text-slate-800 dark:text-slate-200">ReCalc ~ Mechanical Design Calculator</div>
+                  <div class="text-sm text-slate-600 dark:text-slate-400">https://www.reca.lc/</div>
+                </div>
+                <span class="text-sm text-sky-700 dark:text-sky-300">Open →</span>
+              </div>
+            </a>
+          </li>
+
+          <li>
+            <a class="block rounded-lg border border-slate-200 dark:border-slate-800 p-4 hover:bg-sky-50 dark:hover:bg-slate-900 transition"
+               href="https://www.firstinspires.org/resources/library/frc/technical-resources" target="_blank" rel="noopener noreferrer">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <div class="font-semibold text-slate-800 dark:text-slate-200">FIRST Robotics Technical Resources</div>
+                  <div class="text-sm text-slate-600 dark:text-slate-400">firstinspires.org</div>
+                </div>
+                <span class="text-sm text-sky-700 dark:text-sky-300">Open →</span>
+              </div>
+            </a>
+          </li>
+
+          <li>
+            <a class="block rounded-lg border border-slate-200 dark:border-slate-800 p-4 hover:bg-sky-50 dark:hover:bg-slate-900 transition"
+               href="https://www.firstinspires.org/resources/library/frc/season-materials?view=calendar" target="_blank" rel="noopener noreferrer">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <div class="font-semibold text-slate-800 dark:text-slate-200">FIRST Robotics Resource Library</div>
+                  <div class="text-sm text-slate-600 dark:text-slate-400">Season materials (calendar view)</div>
+                </div>
+                <span class="text-sm text-sky-700 dark:text-sky-300">Open →</span>
+              </div>
+            </a>
+          </li>
+
+          <li>
+            <a class="block rounded-lg border border-slate-200 dark:border-slate-800 p-4 hover:bg-sky-50 dark:hover:bg-slate-900 transition"
+               href="https://drive.google.com/drive/folders/0AHfM9Fpj6AkcUk9PVA" target="_blank" rel="noopener noreferrer">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <div class="font-semibold text-slate-800 dark:text-slate-200">Trident Robotics Google Drive</div>
+                  <div class="text-sm text-slate-600 dark:text-slate-400">Shared folder</div>
+                </div>
+                <span class="text-sm text-sky-700 dark:text-sky-300">Open →</span>
+              </div>
+            </a>
+          </li>
+        </ul>
+
+        <p class="mt-5 text-sm text-slate-600 dark:text-slate-400">
+          Access is restricted to team emails listed in
+          <code class="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800">/assets/data/team-members.json</code>.
+        </p>
+
+        <div class="mt-6">
+          <a href="/" class="text-sky-700 dark:text-sky-300 hover:underline">← Back to Home</a>
+        </div>
+      </main>
+
+      <footer class="mt-10 text-center text-xs text-slate-500 dark:text-slate-500">
+        © <span id="year"></span> Trident Robotics — Docs hub
+      </footer>
+    </div>
+
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>

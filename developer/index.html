@@ -1452,6 +1452,13 @@
             clearDeveloperCache();
           }
           
+          // Clear legacy localStorage key if present
+          try {
+            localStorage.removeItem('developer_emails');
+          } catch (e) {
+            console.warn('[Developer Page] Could not clear legacy developer_emails key:', e);
+          }
+          
           // Re-fetch the developer list with cache-busting and update UI
           await loadDeveloperList(true);
           // currentDeveloperData is now set by loadDeveloperList, so renderDeveloperList will use it
@@ -1790,6 +1797,13 @@
           // Clear the cache and re-fetch to confirm
           if (typeof clearTeamMemberCache === 'function') {
             clearTeamMemberCache();
+          }
+          
+          // Clear legacy localStorage key if present
+          try {
+            localStorage.removeItem('team_member_emails');
+          } catch (e) {
+            console.warn('[Developer Page] Could not clear legacy team_member_emails key:', e);
           }
           
           // Re-fetch the team member list with cache-busting and update UI

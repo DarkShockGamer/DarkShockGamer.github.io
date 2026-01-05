@@ -1488,7 +1488,7 @@ function createTaskEl(task, colId) {
   /* Archive */
   div.querySelector(".archive-btn").onclick = async (e) => {
     e.stopPropagation(); // Prevent event bubbling
-    if (!confirm(`Archive "${task.title}"?\n\nArchived tasks will be moved to the Archive section in the menu.`)) return;
+    if (!confirm(`Archive "${task.title}"?\n\nArchived tasks can be found in the Archive section (click Menu to access).`)) return;
     
     div.classList.add("transition", "duration-300", "opacity-0", "scale-95");
     setTimeout(async () => {
@@ -1503,7 +1503,10 @@ function createTaskEl(task, colId) {
       } catch (err) {
         console.error("Failed to archive task:", err);
         showToast('error', `Failed to archive task: ${err?.message || err}`);
+        // Reset visual state completely on error
         div.classList.remove("transition", "duration-300", "opacity-0", "scale-95");
+        div.style.opacity = "";
+        div.style.transform = "";
       }
     }, 300);
   };

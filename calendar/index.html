@@ -58,6 +58,19 @@
     html, body { min-height: 100%; overflow: auto; }
     body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
 
+    /* Mobile: horizontal scroll wrapper for month grid */
+    #monthGridWrapper {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+    }
+    @media (min-width: 768px) {
+      #monthGridWrapper {
+        overflow-x: visible;
+      }
+    }
+
     /* Day cell styling */
     .day-cell {
       background: white;
@@ -77,6 +90,13 @@
       transform: translateY(-1px);
     }
     .day-muted { opacity: 0.45; }
+    
+    /* Mobile: minimum column width to prevent squishing */
+    @media (max-width: 767px) {
+      #calendarGrid {
+        min-width: 700px; /* 7 cols × 100px min each */
+      }
+    }
     .today-dot {
       display: inline-block;
       width: 0.375rem;
@@ -127,6 +147,51 @@
       color: #64748b;            /* slate-500 */
     }
 
+    /* Agenda view styles */
+    #agendaView {
+      display: none;
+    }
+    #agendaView.active {
+      display: block;
+    }
+    #calendarGrid.hidden {
+      display: none;
+    }
+    #weekdayHeader.hidden {
+      display: none;
+    }
+    
+    .agenda-day {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .agenda-day-header {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #0369a1;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .agenda-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    /* View toggle button (mobile only) */
+    #viewToggle {
+      display: none;
+    }
+    @media (max-width: 767px) {
+      #viewToggle {
+        display: inline-flex;
+      }
+    }
+
     .weekday {
       font-size: 0.75rem;
       color: #0369a1; /* sky-700 */
@@ -135,9 +200,24 @@
     }
 
     /* Modal */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; z-index: 50; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; z-index: 50; padding: 1rem; }
     .modal-overlay.open { display: flex; }
-    .modal-card { background: white; border-radius: 0.75rem; width: min(720px, calc(100vw - 2rem)); max-height: min(80vh, 640px); overflow: auto; border: 1px solid #e2e8f0; }
+    .modal-card { 
+      background: white; 
+      border-radius: 0.75rem; 
+      width: min(720px, 100%); 
+      max-height: min(85vh, 720px); 
+      overflow: auto; 
+      border: 1px solid #e2e8f0; 
+    }
+    
+    /* Mobile modal improvements */
+    @media (max-width: 640px) {
+      .modal-card {
+        max-height: 90vh;
+        width: 100%;
+      }
+    }
 
     /* Dark mode to match tasks.html */
     @media (prefers-color-scheme: dark) {
@@ -159,6 +239,18 @@
       .presence-task  { background: #052e2b !important; border-color: #065f46 !important; }
 
       .modal-card { background: #0f172a !important; border-color: #1f2937 !important; }
+    }
+
+    /* Dark mode agenda view */
+    @media (prefers-color-scheme: dark) {
+      .agenda-day {
+        background: #0f172a !important;
+        border-color: #1f2937 !important;
+      }
+      .agenda-day-header {
+        color: #7dd3fc !important;
+        border-color: #1f2937 !important;
+      }
     }
 
     @media (max-width: 420px) {
@@ -232,6 +324,14 @@
     html.theme-light .weekday {
       color: #0369a1 !important;
     }
+    html.theme-light .agenda-day {
+      background: white !important;
+      border-color: #e2e8f0 !important;
+    }
+    html.theme-light .agenda-day-header {
+      color: #0369a1 !important;
+      border-color: #e2e8f0 !important;
+    }
 
     /* Dark Theme */
     html.theme-dark body {
@@ -268,6 +368,14 @@
       background: #0b1220 !important;
       color: #e5e7eb !important;
       border-color: #334155 !important;
+    }
+    html.theme-dark .agenda-day {
+      background: #0f172a !important;
+      border-color: #1f2937 !important;
+    }
+    html.theme-dark .agenda-day-header {
+      color: #7dd3fc !important;
+      border-color: #1f2937 !important;
     }
 
     /* High Contrast Theme */
@@ -438,6 +546,12 @@
 
         <div class="flex flex-wrap items-center gap-2">
           <button id="todayBtn" class="px-3 py-1 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 text-sm dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">Today</button>
+          
+          <!-- Mobile-only view toggle -->
+          <button id="viewToggle" class="px-3 py-1 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 text-sm dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">
+            <span id="viewToggleText">Agenda</span>
+          </button>
+          
           <label class="text-sm text-slate-600 dark:text-slate-300">Jump to
             <input id="monthPicker" type="month" class="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
           </label>
@@ -465,8 +579,13 @@
       <div class="weekday">Sat</div>
     </div>
 
-    <!-- Calendar grid (7 x 6) -->
-    <div id="calendarGrid" class="grid grid-cols-7 grid-rows-6 gap-2 px-2 overflow-hidden"></div>
+    <!-- Month view with horizontal scroll wrapper for mobile -->
+    <div id="monthGridWrapper">
+      <div id="calendarGrid" class="grid grid-cols-7 grid-rows-6 gap-2 px-2 overflow-hidden"></div>
+    </div>
+    
+    <!-- Agenda view (mobile alternative) -->
+    <div id="agendaView" class="px-2"></div>
 
     <footer class="mt-4 text-center py-4 border-t border-slate-100 dark:border-slate-800 flex flex-col items-center gap-1">
       <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-6 w-6" />
@@ -676,6 +795,14 @@
     const exportIcsBtn = document.getElementById("exportIcsBtn");
     const grid = document.getElementById("calendarGrid");
     const badge = document.getElementById("taskAccessBadge");
+    const viewToggle = document.getElementById("viewToggle");
+    const viewToggleText = document.getElementById("viewToggleText");
+    const weekdayHeader = document.getElementById("weekdayHeader");
+    const monthGridWrapper = document.getElementById("monthGridWrapper");
+    const agendaView = document.getElementById("agendaView");
+
+    // View state
+    let currentView = "month"; // "month" or "agenda"
 
     // Admin UI
     const adminControls = document.getElementById("adminControls");
@@ -1526,40 +1653,190 @@
       const rowPx = Math.floor(colWidth);
       grid.style.gridAutoRows = `${rowPx}px`;
     }
+    
+    // Render agenda view (mobile-friendly list)
+    function renderAgenda(year, month) {
+      agendaView.innerHTML = "";
+      
+      const cells = monthMatrix(year, month);
+      const holidays = generateUSHolidays(year);
+      const allEvents = [...events.filter(e => e.isPublic === true), ...holidays];
+      const eventsByDate = groupByDate(allEvents, e => e.date);
+      const canSeeTasks = isTaskAccessAllowed();
+      const tasksByDate = canSeeTasks ? groupByDate(tasks, t => t.due) : new Map();
+      
+      // Only show days that have events or tasks and are in current month
+      const daysWithItems = cells.filter(({ date, inMonth }) => {
+        if (!inMonth) return false;
+        const key = fmtDateKey(date);
+        const dayEvents = eventsByDate.get(key) || [];
+        const dayTasks = canSeeTasks ? (tasksByDate.get(key) || []) : [];
+        return dayEvents.length > 0 || dayTasks.length > 0;
+      });
+      
+      if (daysWithItems.length === 0) {
+        agendaView.innerHTML = '<div class="text-center py-8 text-slate-500 dark:text-slate-400">No events or tasks this month</div>';
+        return;
+      }
+      
+      for (const { date } of daysWithItems) {
+        const key = fmtDateKey(date);
+        const dayEvents = eventsByDate.get(key) || [];
+        const dayTasks = canSeeTasks ? (tasksByDate.get(key) || []) : [];
+        
+        const dayDiv = document.createElement("div");
+        dayDiv.className = "agenda-day";
+        
+        const header = document.createElement("div");
+        header.className = "agenda-day-header";
+        header.textContent = date.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+        if (isToday(date)) {
+          const todayBadge = document.createElement("span");
+          todayBadge.className = "ml-2 text-xs px-2 py-0.5 bg-sky-100 text-sky-700 rounded dark:bg-sky-900 dark:text-sky-300";
+          todayBadge.textContent = "Today";
+          header.appendChild(todayBadge);
+        }
+        dayDiv.appendChild(header);
+        
+        const itemsDiv = document.createElement("div");
+        itemsDiv.className = "agenda-items";
+        
+        // Render events
+        for (const e of dayEvents) {
+          const eventDiv = document.createElement("div");
+          eventDiv.className = "flex items-start gap-2";
+          
+          const pillSpan = document.createElement("span");
+          pillSpan.className = "event-pill flex-1";
+          applyEventColorVars(pillSpan, e.color || DEFAULT_EVENT_COLOR);
+          
+          const tr = formatTimeRange(e) || e.time || "";
+          pillSpan.textContent = tr ? `${tr} — ${e.title}` : e.title;
+          
+          eventDiv.appendChild(pillSpan);
+          itemsDiv.appendChild(eventDiv);
+          
+          if (e.location) {
+            const locDiv = document.createElement("div");
+            locDiv.className = "text-xs text-slate-500 dark:text-slate-400 ml-2";
+            locDiv.textContent = `📍 ${e.location}`;
+            itemsDiv.appendChild(locDiv);
+          }
+        }
+        
+        // Render tasks
+        for (const t of dayTasks) {
+          const taskDiv = document.createElement("div");
+          taskDiv.className = "flex items-start gap-2";
+          
+          const pillSpan = document.createElement("span");
+          pillSpan.className = "task-pill flex-1";
+          pillSpan.textContent = t.title;
+          
+          taskDiv.appendChild(pillSpan);
+          itemsDiv.appendChild(taskDiv);
+          
+          if (t.assignee) {
+            const assigneeDiv = document.createElement("div");
+            assigneeDiv.className = "text-xs text-slate-500 dark:text-slate-400 ml-2";
+            assigneeDiv.textContent = `👤 ${t.assignee}`;
+            itemsDiv.appendChild(assigneeDiv);
+          }
+        }
+        
+        dayDiv.appendChild(itemsDiv);
+        
+        // Make the whole day clickable
+        dayDiv.style.cursor = "pointer";
+        dayDiv.addEventListener("click", () => openModal(date, dayEvents, dayTasks));
+        
+        agendaView.appendChild(dayDiv);
+      }
+    }
+    
+    // Toggle between month and agenda views
+    function toggleView() {
+      if (currentView === "month") {
+        currentView = "agenda";
+        viewToggleText.textContent = "Month";
+        weekdayHeader.classList.add("hidden");
+        grid.classList.add("hidden");
+        agendaView.classList.add("active");
+        renderAgenda(current.getFullYear(), current.getMonth());
+      } else {
+        currentView = "month";
+        viewToggleText.textContent = "Agenda";
+        weekdayHeader.classList.remove("hidden");
+        grid.classList.remove("hidden");
+        agendaView.classList.remove("active");
+      }
+    }
+    
+    // View toggle event
+    viewToggle?.addEventListener("click", toggleView);
 
     async function render() {
       setBadgesAndAdminUI();
       await Promise.all([loadEvents(), loadTasksIfAllowed()]);
-      renderGrid(current.getFullYear(), current.getMonth());
-      setSquareRows();
+      
+      if (currentView === "month") {
+        renderGrid(current.getFullYear(), current.getMonth());
+        setSquareRows();
+      } else {
+        renderAgenda(current.getFullYear(), current.getMonth());
+      }
     }
 
     prevBtn.onclick = () => {
       current.setMonth(current.getMonth() - 1);
-      renderGrid(current.getFullYear(), current.getMonth());
-      setSquareRows();
+      if (currentView === "month") {
+        renderGrid(current.getFullYear(), current.getMonth());
+        setSquareRows();
+      } else {
+        renderAgenda(current.getFullYear(), current.getMonth());
+      }
+      renderMonthLabel(current.getFullYear(), current.getMonth());
     };
     nextBtn.onclick = () => {
       current.setMonth(current.getMonth() + 1);
-      renderGrid(current.getFullYear(), current.getMonth());
-      setSquareRows();
+      if (currentView === "month") {
+        renderGrid(current.getFullYear(), current.getMonth());
+        setSquareRows();
+      } else {
+        renderAgenda(current.getFullYear(), current.getMonth());
+      }
+      renderMonthLabel(current.getFullYear(), current.getMonth());
     };
     todayBtn.onclick = () => {
       const now = new Date();
       current = new Date(now.getFullYear(), now.getMonth(), 1);
-      renderGrid(current.getFullYear(), current.getMonth());
-      setSquareRows();
+      if (currentView === "month") {
+        renderGrid(current.getFullYear(), current.getMonth());
+        setSquareRows();
+      } else {
+        renderAgenda(current.getFullYear(), current.getMonth());
+      }
+      renderMonthLabel(current.getFullYear(), current.getMonth());
     };
     monthPicker.addEventListener("change", () => {
       const val = monthPicker.value; // yyyy-mm
       if (!val) return;
       const [y, m] = val.split("-").map(x => parseInt(x, 10));
       current = new Date(y, m - 1, 1);
-      renderGrid(current.getFullYear(), current.getMonth());
-      setSquareRows();
+      if (currentView === "month") {
+        renderGrid(current.getFullYear(), current.getMonth());
+        setSquareRows();
+      } else {
+        renderAgenda(current.getFullYear(), current.getMonth());
+      }
+      renderMonthLabel(current.getFullYear(), current.getMonth());
     });
 
-    window.addEventListener("resize", setSquareRows);
+    window.addEventListener("resize", () => {
+      if (currentView === "month") {
+        setSquareRows();
+      }
+    });
 
     // ICS export for visible month
     function exportVisibleMonthICS() {

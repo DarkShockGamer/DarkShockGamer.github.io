@@ -6,7 +6,6 @@
   <link rel="shortcut icon" type="image/png" href="/assets/logo.png">
   <title>Trident Robotics 4296</title>
   <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
-  <link rel="stylesheet" href="/assets/css/modern-ui.css">
   <!-- Keep navbar compact: show avatar only -->
   <link rel="stylesheet" href="/assets/css/avatar-only.css">
   <!-- Portal overlay menu -->
@@ -83,14 +82,8 @@
     const portalMobile = document.getElementById("portalLinkMobile");
     if (!email) {
       // Hide portal when not logged in
-      if (portalDesktop) {
-        portalDesktop.classList.remove("authenticated");
-        portalDesktop.hidden = true;
-      }
-      if (portalMobile) {
-        portalMobile.classList.remove("authenticated");
-        portalMobile.hidden = true;
-      }
+      if (portalDesktop) portalDesktop.style.display = "none";
+      if (portalMobile) portalMobile.style.display = "none";
       return;
     }
     
@@ -99,23 +92,11 @@
                      (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized(email));
     
     if (allowed) {
-      if (portalDesktop) {
-        portalDesktop.classList.add("authenticated");
-        portalDesktop.hidden = false;
-      }
-      if (portalMobile) {
-        portalMobile.classList.add("authenticated");
-        portalMobile.hidden = false;
-      }
+      if (portalDesktop) portalDesktop.style.display = "inline-block";
+      if (portalMobile) portalMobile.style.display = "block";
     } else {
-      if (portalDesktop) {
-        portalDesktop.classList.remove("authenticated");
-        portalDesktop.hidden = true;
-      }
-      if (portalMobile) {
-        portalMobile.classList.remove("authenticated");
-        portalMobile.hidden = true;
-      }
+      if (portalDesktop) portalDesktop.style.display = "none";
+      if (portalMobile) portalMobile.style.display = "none";
     }
   }
 
@@ -206,9 +187,8 @@
       }
     }
 
-    // Clear stored credential and related keys and update UI
+    // Clear stored credential and update UI
     localStorage.removeItem(G_CRED_KEY);
-    localStorage.removeItem('signedInEmail');
     if (google && google.accounts && google.accounts.id) {
       // Prevent automatic selection on next page load
       try { google.accounts.id.disableAutoSelect(); } catch(e){/* ignore */ }
@@ -781,7 +761,7 @@
         <a href="/sponsors">Sponsors</a>
         <a href="/faq">FAQ</a>
         <!-- Portal replaces Tasks link -->
-        <a href="#" data-portal-trigger id="portalLink" class="portal-link" hidden>Portal</a>
+        <a href="#" data-portal-trigger id="portalLink" style="display:none;">Portal</a>
       </div>
 
       <!-- Mobile-only nav links -->
@@ -793,7 +773,7 @@
         <a href="/sponsors">Sponsors</a>
         <a href="/faq">FAQ</a>
         <!-- Portal replaces Tasks link -->
-        <a href="#" data-portal-trigger id="portalLinkMobile" class="portal-link" hidden>Portal</a>
+        <a href="#" data-portal-trigger id="portalLinkMobile" style="display:none;">Portal</a>
       </div>
 
       <div class="nav-login">
@@ -832,7 +812,7 @@
   </nav>
 
   <!-- ====== About Section ====== -->
-  <section id="about" class="scroll-reveal">
+  <section id="about">
     <h2>About Us</h2>
     <p>
       We are <strong>Trident Robotics Team 4296</strong>, a student-led high school robotics team dedicated to 
@@ -851,9 +831,9 @@
   </section>
 
   <!-- ====== Team Section ====== -->
-  <section id="team" class="scroll-reveal">
+  <section id="team">
     <h2>Meet the Team</h2>
-    <div class="team-grid scroll-reveal-stagger">
+    <div class="team-grid">
       <!-- populated dynamically from data/site.json -->
     </div>
   </section>
@@ -864,7 +844,7 @@
   </section>
 
   <!-- ====== Updates Section ====== -->
-  <section id="updates" class="scroll-reveal">
+  <section id="updates">
     <h2>Team Updates</h2>
     <div class="timeline">
       <!-- populated dynamically from data/site.json -->
@@ -1159,9 +1139,5 @@
   </script>
   <script src="/assets/js/theme.js"></script>
   <script src="/assets/js/portal.js"></script>
-  <!-- Modern UI Enhancement Scripts -->
-  <script src="/assets/js/modern-ui.js"></script>
-  <script src="/assets/js/page-transitions.js"></script>
-  <script src="/assets/js/accessibility-panel.js"></script>
 </body>
 </html>

@@ -401,7 +401,9 @@
       // Only show portal button for team members and developers
       // Guests should not see the portal button at all
       if (role === 'team' || role === 'developer') {
-        // Check if this is a mobile navigation link
+        // Determine display style based on navigation context
+        // Mobile nav uses block display, desktop nav uses inline-block
+        // Check by ID (explicit) or parent container (fallback)
         const isMobile = button.id === 'portalLinkMobile' || 
                         button.closest('.nav-links-mobile');
         button.style.display = isMobile ? 'block' : 'inline-block';

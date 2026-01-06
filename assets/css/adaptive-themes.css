@@ -617,8 +617,6 @@ html.theme-retro-crt footer {
   box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
 }
 
-/* Date input calendar picker indicator visibility fixes */
-
 /* Light themes - ensure no inversion (native dark icon) */
 html.theme-light input[type="date"]::-webkit-calendar-picker-indicator,
 html.theme-high-contrast-light input[type="date"]::-webkit-calendar-picker-indicator {

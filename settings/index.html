@@ -1085,8 +1085,46 @@
               </button>
               <button type="button" class="theme-option" data-theme="high-contrast-dark">
                 🌑 High Contrast Dark
+              <button type="button" class="theme-option" data-theme="neon">
+                💜 Neon
+              </button>
+              <button type="button" class="theme-option" data-theme="oled">
+                🖤 OLED
+              </button>
+              <button type="button" class="theme-option" data-theme="paper">
+                📄 Paper
+              </button>
+              <button type="button" class="theme-option" data-theme="retro-crt">
+                💻 Retro CRT
+              </button>
               </button>
             </div>
+          </div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>🎨</span>
+            <span>Accent Color</span>
+          </div>
+          <p class="setting-description" style="margin-bottom: 1rem;">Customize the accent color used throughout the site</p>
+          <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <input 
+              type="color" 
+              id="accentColorPicker" 
+              value="#38bdf8" 
+              style="width: 60px; height: 40px; border: 2px solid #e2e8f0; border-radius: 0.5rem; cursor: pointer;"
+              aria-label="Select accent color"
+            >
+            <div style="flex: 1; min-width: 200px;">
+              <span id="accentColorValue" style="font-family: monospace; font-size: 0.9rem;">#38bdf8</span>
+            </div>
+            <button 
+              type="button" 
+              id="resetAccentColor"
+              style="padding: 0.5rem 1rem; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 0.5rem; cursor: pointer; font-size: 0.9rem;"
+            >
+              Reset
+            </button>
           </div>
         </div>
         <div class="setting-card">

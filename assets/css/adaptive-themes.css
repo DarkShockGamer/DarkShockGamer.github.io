@@ -383,6 +383,240 @@ html[class*="theme-high-contrast"] button {
 
 /* Date input calendar picker indicator visibility fixes */
 
+/* Portal link - always hidden by default, shown only when authenticated */
+.portal-link {
+  display: none !important;
+}
+
+.portal-link.authenticated {
+  display: inline-block !important;
+}
+
+.nav-links-mobile .portal-link.authenticated {
+  display: block !important;
+}
+
+/* NEON Theme - Cyberpunk aesthetic with vibrant colors */
+html.theme-neon body {
+  background: linear-gradient(to bottom, #0a0a0f 0%, #1a0a2e 100%);
+  color: #e0e0e0;
+  color-scheme: dark;
+}
+
+html.theme-neon .panel,
+html.theme-neon .setting-card {
+  background: rgba(10, 10, 20, 0.9);
+  border: 2px solid #ff00ff;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+}
+
+html.theme-neon h1,
+html.theme-neon h2,
+html.theme-neon h3,
+html.theme-neon .heading {
+  color: #00ffff;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+html.theme-neon input,
+html.theme-neon select,
+html.theme-neon textarea {
+  background: #0a0a0f;
+  border: 2px solid #ff00ff;
+  color: #e0e0e0;
+}
+
+html.theme-neon .btn-primary,
+html.theme-neon button.btn-primary {
+  background: linear-gradient(90deg, #ff00ff 0%, #00ffff 100%);
+  color: #000000;
+  font-weight: 700;
+  text-shadow: none;
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+}
+
+html.theme-neon a {
+  color: #00ffff;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+html.theme-neon .site-nav,
+html.theme-neon header {
+  background: #0a0a0f;
+  border-color: #ff00ff;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+}
+
+/* OLED Theme - Pure black for OLED screens to save battery */
+html.theme-oled body {
+  background: #000000;
+  color: #e0e0e0;
+  color-scheme: dark;
+}
+
+html.theme-oled .panel,
+html.theme-oled .setting-card {
+  background: #000000;
+  border: 1px solid #333333;
+  box-shadow: none;
+}
+
+html.theme-oled h1,
+html.theme-oled h2,
+html.theme-oled h3,
+html.theme-oled .heading {
+  color: #ffffff;
+}
+
+html.theme-oled input,
+html.theme-oled select,
+html.theme-oled textarea {
+  background: #000000;
+  border: 1px solid #444444;
+  color: #e0e0e0;
+}
+
+html.theme-oled .btn-primary,
+html.theme-oled button.btn-primary {
+  background: #1a1a1a;
+  color: #ffffff;
+  border: 1px solid #444444;
+}
+
+html.theme-oled a {
+  color: #60a5fa;
+}
+
+html.theme-oled .site-nav,
+html.theme-oled header {
+  background: #000000;
+  border-color: #333333;
+  box-shadow: none;
+}
+
+html.theme-oled .card,
+html.theme-oled .sponsor-card,
+html.theme-oled .timeline-item,
+html.theme-oled footer {
+  background: #000000;
+  border-color: #333333;
+  box-shadow: none;
+}
+
+/* Paper Theme - Clean paper-like aesthetic */
+html.theme-paper body {
+  background: #fdfdf8;
+  color: #2c2c2c;
+  color-scheme: light;
+}
+
+html.theme-paper .panel,
+html.theme-paper .setting-card {
+  background: #ffffff;
+  border: 1px solid #d4d4d0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+html.theme-paper h1,
+html.theme-paper h2,
+html.theme-paper h3,
+html.theme-paper .heading {
+  color: #1a1a1a;
+  font-family: Georgia, serif;
+}
+
+html.theme-paper input,
+html.theme-paper select,
+html.theme-paper textarea {
+  background: #fdfdf8;
+  border: 1px solid #c0c0b8;
+  color: #2c2c2c;
+}
+
+html.theme-paper .btn-primary,
+html.theme-paper button.btn-primary {
+  background: #4a4a46;
+  color: #fdfdf8;
+  border: 1px solid #3a3a36;
+}
+
+html.theme-paper a {
+  color: #5a5a54;
+  text-decoration: underline;
+}
+
+html.theme-paper .site-nav,
+html.theme-paper header {
+  background: #f8f8f0;
+  border-color: #d4d4d0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Retro CRT Theme - Vintage computer terminal aesthetic */
+html.theme-retro-crt body {
+  background: #001a00;
+  color: #00ff00;
+  color-scheme: dark;
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 0 2px #00ff00;
+}
+
+html.theme-retro-crt .panel,
+html.theme-retro-crt .setting-card {
+  background: #001a00;
+  border: 2px solid #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+html.theme-retro-crt h1,
+html.theme-retro-crt h2,
+html.theme-retro-crt h3,
+html.theme-retro-crt .heading {
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 0 5px #00ff00;
+}
+
+html.theme-retro-crt input,
+html.theme-retro-crt select,
+html.theme-retro-crt textarea {
+  background: #000000;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+}
+
+html.theme-retro-crt .btn-primary,
+html.theme-retro-crt button.btn-primary {
+  background: #003300;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 0 3px #00ff00;
+}
+
+html.theme-retro-crt a {
+  color: #00ff00;
+  text-decoration: none;
+  border-bottom: 1px solid #00ff00;
+}
+
+html.theme-retro-crt .site-nav,
+html.theme-retro-crt header {
+  background: #001a00;
+  border-color: #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+html.theme-retro-crt .card,
+html.theme-retro-crt .sponsor-card,
+html.theme-retro-crt .timeline-item,
+html.theme-retro-crt footer {
+  background: #001a00;
+  border: 1px solid #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
+}
+
 /* Light themes - ensure no inversion (native dark icon) */
 html.theme-light input[type="date"]::-webkit-calendar-picker-indicator,
 html.theme-high-contrast-light input[type="date"]::-webkit-calendar-picker-indicator {

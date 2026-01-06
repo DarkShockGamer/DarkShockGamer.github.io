@@ -219,6 +219,13 @@
       return;
     }
     
+    // Don't show accessibility sidebar on settings page - controls are integrated there
+    const isSettingsPage = window.location.pathname.includes('/settings');
+    if (isSettingsPage) {
+      console.log('Accessibility sidebar disabled on settings page');
+      return;
+    }
+    
     // Create and inject panel
     const panel = createAccessibilityPanel();
     document.body.appendChild(panel);

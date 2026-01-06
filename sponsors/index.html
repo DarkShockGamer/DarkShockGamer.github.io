@@ -9,7 +9,7 @@
   <!-- Privacy-friendly analytics by Plausible (production only) -->
   <script>
     // Only load Plausible on production domain to avoid CORS/rate limit errors in development
-    const isProduction = window.location.hostname.includes('darkshockgamer.github.io');
+    const isProduction = window.location.hostname === 'darkshockgamer.github.io';
     
     if (isProduction) {
       const script = document.createElement('script');

@@ -10,13 +10,8 @@
     'neon', 'oled', 'paper', 'retro-crt'
   ];
   
-  // Migration map: old adaptive themes -> new adaptive themes
-  const MIGRATION_MAP = {
-    'sunrise': 'light',
-    'daylight': 'light',
-    'sunset': 'dark',
-    'midnight': 'dark'
-  };
+  // Valid adaptive theme values (new system)
+  const VALID_ADAPTIVE_THEMES = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark'];
   
   // Get stored theme preference
   function get() { 
@@ -26,8 +21,8 @@
       return 'system'; 
     } 
   }
-  
-  // Get stored adaptive theme
+
+  // Get stored adaptive theme (light, dark, high-contrast-light, high-contrast-dark)
   // Automatically migrates old values if found
   function getAdaptive() {
     try {
@@ -81,11 +76,8 @@
   function apply(pref = get()) {
     const html = document.documentElement;
     
-    // Remove all theme classes (including old ones for cleanup)
     html.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast', 
                           'theme-high-contrast-light', 'theme-high-contrast-dark',
-                          'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight',
-                          'theme-neon', 'theme-oled', 'theme-paper', 'theme-retro-crt');
     
     // Skip theme application on excluded pages
     if (isExcludedPage()) {
@@ -98,7 +90,7 @@
     if (adaptiveTheme && VALID_ADAPTIVE_THEMES.includes(adaptiveTheme)) {
       html.classList.add('theme-' + adaptiveTheme);
       // Set appropriate color scheme based on adaptive theme
-      const isDark = ['dark', 'high-contrast-dark', 'neon', 'oled', 'retro-crt'].includes(adaptiveTheme);
+      const isDark = adaptiveTheme === 'dark' || adaptiveTheme === 'high-contrast-dark';
       html.style.colorScheme = isDark ? 'dark' : 'light';
     } else if (pref === 'light' || pref === 'dark' || pref === 'high-contrast') {
       html.classList.add('theme-' + pref);
@@ -126,11 +118,6 @@
     } catch {} 
   }
   
-  // Get list of all valid adaptive themes
-  function getValidThemes() {
-    return VALID_ADAPTIVE_THEMES;
-  }
-  
   // Initialize theme on load
   apply(get());
   
@@ -149,5 +136,5 @@
   });
   
   // Export API
-  window.Theme = { get, set, apply, getAdaptive, setAdaptive, getValidThemes };
+  window.Theme = { get, set, apply, getAdaptive, setAdaptive };
 })();

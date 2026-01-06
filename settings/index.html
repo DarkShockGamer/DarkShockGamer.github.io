@@ -5,6 +5,7 @@
   <link rel="icon" type="image/png" href="/assets/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
+  <link rel="stylesheet" href="/assets/css/modern-ui.css">
   <!-- Privacy-friendly analytics by Plausible -->
   <script async src="https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js"></script>
   <script>
@@ -1484,6 +1485,40 @@
       window.initThemeSelector();
     }
   </script>
+  <script>
+    // Initialize accent color picker
+    (function() {
+      const picker = document.getElementById("accentColorPicker");
+      const valueDisplay = document.getElementById("accentColorValue");
+      const resetBtn = document.getElementById("resetAccentColor");
+      
+      if (!picker || !window.ModernUI) return;
+      
+      // Set initial value from stored preference
+      const currentColor = window.ModernUI.AccentColor.get();
+      picker.value = currentColor;
+      valueDisplay.textContent = currentColor;
+      
+      // Update on color change
+      picker.addEventListener("input", (e) => {
+        const color = e.target.value;
+        valueDisplay.textContent = color;
+        window.ModernUI.AccentColor.set(color);
+      });
+      
+      // Reset to default
+      resetBtn.addEventListener("click", () => {
+        const defaultColor = "#38bdf8";
+        picker.value = defaultColor;
+        valueDisplay.textContent = defaultColor;
+        window.ModernUI.AccentColor.set(defaultColor);
+      });
+    })();
+  </script>
   <script src="/assets/js/settings.js"></script>
+  <!-- Modern UI Enhancement Scripts -->
+  <script src="/assets/js/modern-ui.js"></script>
+  <script src="/assets/js/page-transitions.js"></script>
+  <script src="/assets/js/accessibility-panel.js"></script>
 </body>
 </html>

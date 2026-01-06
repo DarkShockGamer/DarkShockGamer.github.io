@@ -4,14 +4,16 @@
   const MEDIA = '(prefers-color-scheme: dark)';
   const mql = window.matchMedia ? window.matchMedia(MEDIA) : null;
   
-  // Valid adaptive theme values (extended system with new themes)
-  const VALID_ADAPTIVE_THEMES = [
-    'light', 'dark', 'high-contrast-light', 'high-contrast-dark',
-    'neon', 'oled', 'paper', 'retro-crt'
-  ];
-  
   // Valid adaptive theme values (new system)
   const VALID_ADAPTIVE_THEMES = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark'];
+  
+  // Migration map: old adaptive themes -> new adaptive themes
+  const MIGRATION_MAP = {
+    'sunrise': 'light',
+    'daylight': 'light',
+    'sunset': 'dark',
+    'midnight': 'dark'
+  };
   
   // Get stored theme preference
   function get() { 
@@ -21,7 +23,7 @@
       return 'system'; 
     } 
   }
-
+  
   // Get stored adaptive theme (light, dark, high-contrast-light, high-contrast-dark)
   // Automatically migrates old values if found
   function getAdaptive() {
@@ -76,8 +78,10 @@
   function apply(pref = get()) {
     const html = document.documentElement;
     
+    // Remove all theme classes (including old ones for cleanup)
     html.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast', 
                           'theme-high-contrast-light', 'theme-high-contrast-dark',
+                          'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight');
     
     // Skip theme application on excluded pages
     if (isExcludedPage()) {

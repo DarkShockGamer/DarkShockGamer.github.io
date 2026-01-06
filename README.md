@@ -349,3 +349,117 @@ For questions, updates, or corrections:
 ---
 
 Focused on robotics excellence—thanks for helping build and document our journey!
+
+---
+## Modern UI Enhancements
+
+The website now includes a comprehensive set of modern UI enhancements focused on accessibility, personalization, and visual appeal.
+
+### Theme System
+
+**8 Available Themes:**
+1. **Light** - Clean, bright interface with blue accents
+2. **Dark** - Modern dark mode with indigo accents
+3. **High Contrast Light** - Maximum contrast for accessibility (white/black)
+4. **High Contrast Dark** - Maximum contrast dark mode (black/white)
+5. **Neon** - Vibrant cyberpunk aesthetic with neon colors
+6. **OLED** - Pure black background optimized for OLED displays
+7. **Paper** - Warm, paper-like aesthetic for comfortable reading
+8. **Retro CRT** - Vintage computer terminal look with green monospace text
+
+**Features:**
+- All themes persist in `localStorage`
+- Automatic color scheme detection
+- CSS custom properties allow themes to coexist with existing styles
+- Easy to switch between themes via Settings page
+
+### Accent Color Customization
+
+Users can personalize the site's accent color to match their preferences:
+- Color picker interface in Settings → Appearance
+- Live preview of color changes
+- Persists across sessions via `localStorage`
+- Affects buttons, highlights, and interactive elements
+- Reset button to restore default color
+
+### Accessibility Panel
+
+A floating accessibility panel (accessible from any page) provides:
+
+**Font Size Adjustment:**
+- Slider to scale base font size (12px - 24px)
+- Affects all text proportionally
+- Persists across sessions
+
+**Reduced Motion Toggle:**
+- Minimizes or disables animations and transitions
+- Respects system `prefers-reduced-motion` preference
+- Can be manually overridden
+- Affects scroll reveals, page transitions, and cursor glow
+
+**Dyslexia-Friendly Font:**
+- Switches to easier-to-read font stack
+- Uses Comic Sans MS, Arial, and Verdana
+- Increases letter spacing and line height
+- Persists across sessions
+
+**Cursor Glow Effect:**
+- Soft glow follows mouse cursor
+- Automatically disabled on touch devices
+- Respects reduced motion settings
+- Can be toggled on/off
+
+### Scroll Reveal Animations
+
+Subtle entrance animations for content as you scroll:
+- Elements fade in and slide up when entering viewport
+- Stagger animations for groups (e.g., team cards)
+- Automatically disabled for reduced motion preferences
+- Implemented via CSS classes: `.scroll-reveal` and `.scroll-reveal-stagger`
+
+### Page Transitions
+
+Smooth transitions between pages using modern web APIs:
+- Uses **View Transitions API** when available
+- Graceful fallback for browsers without support
+- Only intercepts same-origin internal links
+- Preserves external links, hash links, and downloads
+- Respects reduced motion preferences
+- Doesn't break modifier key behaviors (Ctrl+click, etc.)
+
+### Implementation Details
+
+**CSS Files:**
+- `/assets/css/adaptive-themes.css` - Original theme system
+- `/assets/css/modern-ui.css` - New themes, scroll reveal, accessibility styles
+
+**JavaScript Modules:**
+- `/assets/js/theme.js` - Extended theme management
+- `/assets/js/modern-ui.js` - Accent color, font size, reduced motion, dyslexia font, cursor glow
+- `/assets/js/page-transitions.js` - View Transitions API implementation
+- `/assets/js/accessibility-panel.js` - Floating accessibility panel component
+
+**Storage Keys:**
+- `site-theme` - Base theme preference
+- `site-adaptive-theme` - Specific theme variant
+- `ui-accent-color` - Custom accent color
+- `ui-font-size` - Base font size
+- `ui-reduced-motion` - Reduced motion preference
+- `ui-dyslexia-font` - Dyslexia-friendly font toggle
+- `ui-cursor-glow` - Cursor glow effect toggle
+
+### Browser Compatibility
+
+- **CSS Custom Properties:** All modern browsers
+- **View Transitions API:** Chrome/Edge 111+, Safari 18+ (with fallback)
+- **IntersectionObserver:** All modern browsers
+- **LocalStorage:** All browsers
+
+### Performance Considerations
+
+- Scroll reveal uses IntersectionObserver for efficiency
+- Cursor glow uses requestAnimationFrame throttling
+- All animations respect `prefers-reduced-motion`
+- CSS variables minimize style recalculation overhead
+- Pure CSS themes with minimal JavaScript overhead
+

@@ -401,7 +401,10 @@
       // Only show portal button for team members and developers
       // Guests should not see the portal button at all
       if (role === 'team' || role === 'developer') {
-        button.style.display = 'inline-block';
+        // Check if this is a mobile navigation link
+        const isMobile = button.id === 'portalLinkMobile' || 
+                        button.closest('.nav-links-mobile');
+        button.style.display = isMobile ? 'block' : 'inline-block';
       } else {
         button.style.display = 'none';
       }

@@ -5,7 +5,6 @@
   <link rel="icon" type="image/png" href="/assets/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
-  <link rel="stylesheet" href="/assets/css/modern-ui.css">
   <!-- Privacy-friendly analytics by Plausible -->
   <script async src="https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js"></script>
   <script>
@@ -1998,7 +1997,6 @@
         }
 
         try {
-          // Optionally remove existing events in range with same title
           if (replace) {
             const snap = await getDocs(collection(db, "events"));
             const toDelete = [];
@@ -2064,9 +2062,5 @@
   <script src="/assets/js/sound.js" defer></script>
   <script src="/assets/js/toast.js" defer></script>
   <script src="/assets/js/notifications.js" defer></script>
-  <!-- Modern UI Enhancement Scripts -->
-  <script src="/assets/js/modern-ui.js"></script>
-  <script src="/assets/js/page-transitions.js"></script>
-  <script src="/assets/js/accessibility-panel.js"></script>
 </body>
 </html>

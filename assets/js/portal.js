@@ -389,7 +389,7 @@
 
   /**
    * Update portal visibility in navigation based on login status
-   * Show/hide portal buttons based on whether user is logged in
+   * Show/hide portal buttons based on whether user is logged in and authorized
    */
   function updatePortalVisibility() {
     const email = getCurrentUserEmail();
@@ -398,8 +398,13 @@
     const portalButtons = document.querySelectorAll('[data-portal-trigger]');
     
     portalButtons.forEach(button => {
-      // Always show portal button - guests will see login prompt when clicked
-      button.style.display = 'inline-block';
+      // Only show portal button for team members and developers
+      // Guests should not see the portal button at all
+      if (role === 'team' || role === 'developer') {
+        button.style.display = 'inline-block';
+      } else {
+        button.style.display = 'none';
+      }
     });
   }
 

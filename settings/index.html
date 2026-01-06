@@ -1085,6 +1085,7 @@
               </button>
               <button type="button" class="theme-option" data-theme="high-contrast-dark">
                 🌑 High Contrast Dark
+              </button>
               <button type="button" class="theme-option" data-theme="neon">
                 💜 Neon
               </button>
@@ -1096,7 +1097,6 @@
               </button>
               <button type="button" class="theme-option" data-theme="retro-crt">
                 💻 Retro CRT
-              </button>
               </button>
             </div>
           </div>
@@ -1435,8 +1435,8 @@
     // --- Adaptive Theme Selector Logic ---
     const themeOptions = document.querySelectorAll('.theme-option');
     
-    // Valid adaptive theme values
-    const validAdaptiveThemes = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark'];
+    // Valid adaptive theme values - includes all 8 themes
+    const validAdaptiveThemes = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark', 'neon', 'oled', 'paper', 'retro-crt'];
     const DEFAULT_THEME = 'light';
     
     // Track current selected theme

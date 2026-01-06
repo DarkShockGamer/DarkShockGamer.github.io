@@ -85,11 +85,11 @@
       // Hide portal when not logged in
       if (portalDesktop) {
         portalDesktop.classList.remove("authenticated");
-        portalDesktop.style.display = "none";
+        portalDesktop.hidden = true;
       }
       if (portalMobile) {
         portalMobile.classList.remove("authenticated");
-        portalMobile.style.display = "none";
+        portalMobile.hidden = true;
       }
       return;
     }
@@ -101,20 +101,20 @@
     if (allowed) {
       if (portalDesktop) {
         portalDesktop.classList.add("authenticated");
-        portalDesktop.style.display = "inline-block";
+        portalDesktop.hidden = false;
       }
       if (portalMobile) {
         portalMobile.classList.add("authenticated");
-        portalMobile.style.display = "block";
+        portalMobile.hidden = false;
       }
     } else {
       if (portalDesktop) {
         portalDesktop.classList.remove("authenticated");
-        portalDesktop.style.display = "none";
+        portalDesktop.hidden = true;
       }
       if (portalMobile) {
         portalMobile.classList.remove("authenticated");
-        portalMobile.style.display = "none";
+        portalMobile.hidden = true;
       }
     }
   }
@@ -781,7 +781,7 @@
         <a href="/sponsors">Sponsors</a>
         <a href="/faq">FAQ</a>
         <!-- Portal replaces Tasks link -->
-        <a href="#" data-portal-trigger id="portalLink" class="portal-link" style="display:none;">Portal</a>
+        <a href="#" data-portal-trigger id="portalLink" class="portal-link" hidden>Portal</a>
       </div>
 
       <!-- Mobile-only nav links -->
@@ -793,7 +793,7 @@
         <a href="/sponsors">Sponsors</a>
         <a href="/faq">FAQ</a>
         <!-- Portal replaces Tasks link -->
-        <a href="#" data-portal-trigger id="portalLinkMobile" class="portal-link" style="display:none;">Portal</a>
+        <a href="#" data-portal-trigger id="portalLinkMobile" class="portal-link" hidden>Portal</a>
       </div>
 
       <div class="nav-login">

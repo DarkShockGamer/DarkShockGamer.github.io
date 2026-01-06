@@ -464,6 +464,12 @@ document.addEventListener("DOMContentLoaded", async function() {
   const appearanceForm = document.getElementById("tabPanel3");
   const reduceMotionToggle = document.getElementById("toggleReduceMotion");
   const reduceMotionLabel = document.getElementById("labelReduceMotion");
+  const fontSizeSlider = document.getElementById("fontSize-slider");
+  const fontSizeValue = document.getElementById("fontSize-value");
+  const dyslexiaFontToggle = document.getElementById("dyslexiaFont-toggle");
+  const dyslexiaFontLabel = document.getElementById("labelDyslexiaFont");
+  const cursorGlowToggle = document.getElementById("cursorGlow-toggle");
+  const cursorGlowLabel = document.getElementById("labelCursorGlow");
 
   if (appearanceForm) {
     // Store reduce motion state and update UI
@@ -481,6 +487,57 @@ document.addEventListener("DOMContentLoaded", async function() {
         reduceMotionToggle.classList.toggle('on', newState);
         reduceMotionToggle.setAttribute('aria-checked', newState.toString());
         if (reduceMotionLabel) reduceMotionLabel.textContent = newState ? "On" : "Off";
+      }, { capture: true });
+    }
+
+    // Initialize font size slider
+    if (fontSizeSlider && window.ModernUI) {
+      const currentSize = window.ModernUI.FontSize.get();
+      fontSizeSlider.value = currentSize;
+      if (fontSizeValue) fontSizeValue.textContent = currentSize;
+      
+      fontSizeSlider.addEventListener('input', (e) => {
+        const size = e.target.value;
+        if (fontSizeValue) fontSizeValue.textContent = size;
+        window.ModernUI.FontSize.set(parseInt(size));
+      });
+    }
+
+    // Initialize dyslexia font toggle
+    if (dyslexiaFontToggle && window.ModernUI) {
+      const isEnabled = window.ModernUI.DyslexiaFont.get();
+      dyslexiaFontToggle._enabled = isEnabled;
+      dyslexiaFontToggle.classList.toggle('on', isEnabled);
+      dyslexiaFontToggle.setAttribute('aria-checked', isEnabled.toString());
+      if (dyslexiaFontLabel) dyslexiaFontLabel.textContent = isEnabled ? "On" : "Off";
+      
+      dyslexiaFontToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const newState = !dyslexiaFontToggle._enabled;
+        dyslexiaFontToggle._enabled = newState;
+        dyslexiaFontToggle.classList.toggle('on', newState);
+        dyslexiaFontToggle.setAttribute('aria-checked', newState.toString());
+        if (dyslexiaFontLabel) dyslexiaFontLabel.textContent = newState ? "On" : "Off";
+        window.ModernUI.DyslexiaFont.set(newState);
+      }, { capture: true });
+    }
+
+    // Initialize cursor glow toggle
+    if (cursorGlowToggle && window.ModernUI) {
+      const isEnabled = window.ModernUI.CursorGlow.get();
+      cursorGlowToggle._enabled = isEnabled;
+      cursorGlowToggle.classList.toggle('on', isEnabled);
+      cursorGlowToggle.setAttribute('aria-checked', isEnabled.toString());
+      if (cursorGlowLabel) cursorGlowLabel.textContent = isEnabled ? "On" : "Off";
+      
+      cursorGlowToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const newState = !cursorGlowToggle._enabled;
+        cursorGlowToggle._enabled = newState;
+        cursorGlowToggle.classList.toggle('on', newState);
+        cursorGlowToggle.setAttribute('aria-checked', newState.toString());
+        if (cursorGlowLabel) cursorGlowLabel.textContent = newState ? "On" : "Off";
+        window.ModernUI.CursorGlow.set(newState);
       }, { capture: true });
     }
 
@@ -531,6 +588,31 @@ document.addEventListener("DOMContentLoaded", async function() {
         reduceMotionToggle.classList.toggle('on', settings.reduceMotion);
         reduceMotionToggle.setAttribute('aria-checked', settings.reduceMotion.toString());
         if (reduceMotionLabel) reduceMotionLabel.textContent = settings.reduceMotion ? "On" : "Off";
+      }
+      
+      // Reset font size
+      if (fontSizeSlider && window.ModernUI) {
+        const currentSize = window.ModernUI.FontSize.get();
+        fontSizeSlider.value = currentSize;
+        if (fontSizeValue) fontSizeValue.textContent = currentSize;
+      }
+      
+      // Reset dyslexia font
+      if (dyslexiaFontToggle && window.ModernUI) {
+        const isEnabled = window.ModernUI.DyslexiaFont.get();
+        dyslexiaFontToggle._enabled = isEnabled;
+        dyslexiaFontToggle.classList.toggle('on', isEnabled);
+        dyslexiaFontToggle.setAttribute('aria-checked', isEnabled.toString());
+        if (dyslexiaFontLabel) dyslexiaFontLabel.textContent = isEnabled ? "On" : "Off";
+      }
+      
+      // Reset cursor glow
+      if (cursorGlowToggle && window.ModernUI) {
+        const isEnabled = window.ModernUI.CursorGlow.get();
+        cursorGlowToggle._enabled = isEnabled;
+        cursorGlowToggle.classList.toggle('on', isEnabled);
+        cursorGlowToggle.setAttribute('aria-checked', isEnabled.toString());
+        if (cursorGlowLabel) cursorGlowLabel.textContent = isEnabled ? "On" : "Off";
       }
       
       if(window.Sound) window.Sound.click();

@@ -83,8 +83,14 @@
     const portalMobile = document.getElementById("portalLinkMobile");
     if (!email) {
       // Hide portal when not logged in
-      if (portalDesktop) portalDesktop.style.display = "none";
-      if (portalMobile) portalMobile.style.display = "none";
+      if (portalDesktop) {
+        portalDesktop.classList.remove("authenticated");
+        portalDesktop.style.display = "none";
+      }
+      if (portalMobile) {
+        portalMobile.classList.remove("authenticated");
+        portalMobile.style.display = "none";
+      }
       return;
     }
     
@@ -93,11 +99,23 @@
                      (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized(email));
     
     if (allowed) {
-      if (portalDesktop) portalDesktop.style.display = "inline-block";
-      if (portalMobile) portalMobile.style.display = "block";
+      if (portalDesktop) {
+        portalDesktop.classList.add("authenticated");
+        portalDesktop.style.display = "inline-block";
+      }
+      if (portalMobile) {
+        portalMobile.classList.add("authenticated");
+        portalMobile.style.display = "block";
+      }
     } else {
-      if (portalDesktop) portalDesktop.style.display = "none";
-      if (portalMobile) portalMobile.style.display = "none";
+      if (portalDesktop) {
+        portalDesktop.classList.remove("authenticated");
+        portalDesktop.style.display = "none";
+      }
+      if (portalMobile) {
+        portalMobile.classList.remove("authenticated");
+        portalMobile.style.display = "none";
+      }
     }
   }
 
@@ -188,8 +206,9 @@
       }
     }
 
-    // Clear stored credential and update UI
+    // Clear stored credential and related keys and update UI
     localStorage.removeItem(G_CRED_KEY);
+    localStorage.removeItem('signedInEmail');
     if (google && google.accounts && google.accounts.id) {
       // Prevent automatic selection on next page load
       try { google.accounts.id.disableAutoSelect(); } catch(e){/* ignore */ }
@@ -762,7 +781,7 @@
         <a href="/sponsors">Sponsors</a>
         <a href="/faq">FAQ</a>
         <!-- Portal replaces Tasks link -->
-        <a href="#" data-portal-trigger id="portalLink" style="display:none;">Portal</a>
+        <a href="#" data-portal-trigger id="portalLink" class="portal-link" style="display:none;">Portal</a>
       </div>
 
       <!-- Mobile-only nav links -->
@@ -774,7 +793,7 @@
         <a href="/sponsors">Sponsors</a>
         <a href="/faq">FAQ</a>
         <!-- Portal replaces Tasks link -->
-        <a href="#" data-portal-trigger id="portalLinkMobile" style="display:none;">Portal</a>
+        <a href="#" data-portal-trigger id="portalLinkMobile" class="portal-link" style="display:none;">Portal</a>
       </div>
 
       <div class="nav-login">

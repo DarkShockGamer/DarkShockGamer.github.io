@@ -1140,6 +1140,49 @@
           </div>
           <p class="setting-description">Minimize animations for better accessibility</p>
         </div>
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>📏</span>
+            <span>Font Size: <span id="fontSize-value">16</span>px</span>
+          </div>
+          <input 
+            type="range" 
+            id="fontSize-slider" 
+            class="w-full" 
+            min="12" 
+            max="24" 
+            value="16"
+            style="cursor: pointer;"
+            aria-label="Adjust font size"
+          >
+          <p class="setting-description">Adjust base font size for better readability</p>
+        </div>
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>📖</span>
+            <span>Dyslexia-Friendly Font</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div id="dyslexiaFont-toggle" class="toggle" tabindex="0" role="switch" aria-checked="false">
+              <div class="toggle-knob"></div>
+            </div>
+            <span id="labelDyslexiaFont" class="text-sm text-slate-700 dark:text-slate-200">Off</span>
+          </div>
+          <p class="setting-description">Use easier-to-read font styles for better accessibility</p>
+        </div>
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>✨</span>
+            <span>Cursor Glow Effect</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div id="cursorGlow-toggle" class="toggle on" tabindex="0" role="switch" aria-checked="true">
+              <div class="toggle-knob"></div>
+            </div>
+            <span id="labelCursorGlow" class="text-sm text-slate-700 dark:text-slate-200">On</span>
+          </div>
+          <p class="setting-description">Soft glow effect follows your cursor for better visibility</p>
+        </div>
         <div class="flex justify-end">
           <button type="submit" class="save-btn btn-primary">Save</button>
           <button type="reset" class="cancel-btn">Cancel</button>
@@ -1386,6 +1429,8 @@
     setupToggleSound('toggleReminders');
     setupToggleSound('toggleReduceMotion');
     setupToggleSound('toggleDataCollection');
+    setupToggleSound('dyslexiaFont-toggle');
+    setupToggleSound('cursorGlow-toggle');
 
     // --- Adaptive Theme Selector Logic ---
     const themeOptions = document.querySelectorAll('.theme-option');

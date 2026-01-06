@@ -6,7 +6,6 @@
   <link rel="shortcut icon" type="image/png" href="/assets/logo.png">
   <title>Trident Robotics 4296 - Sponsors</title>
   <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
-  <link rel="stylesheet" href="/assets/css/modern-ui.css">
   <!-- Privacy-friendly analytics by Plausible (production only) -->
   <script>
     // Only load Plausible on production domain to avoid CORS/rate limit errors in development
@@ -481,7 +480,7 @@
         <a href="/sponsors" aria-current="page">Sponsors</a>
         <a href="/faq">FAQ</a>
         <!-- Portal replaces Tasks link -->
-        <a href="#" data-portal-trigger id="portalLink" class="portal-link" hidden>Portal</a>
+        <a href="#" data-portal-trigger id="portalLink" style="display:none;">Portal</a>
       </div>
 
       <div class="nav-links-mobile" id="navLinksMobile">
@@ -492,7 +491,7 @@
         <a href="/sponsors" aria-current="page">Sponsors</a>
         <a href="/faq">FAQ</a>
         <!-- Portal replaces Tasks link -->
-        <a href="#" data-portal-trigger id="portalLinkMobile" class="portal-link" hidden>Portal</a>
+        <a href="#" data-portal-trigger id="portalLinkMobile" style="display:none;">Portal</a>
       </div>
 
       <div class="nav-login">
@@ -593,40 +592,13 @@
     function updatePortalVisibility(email) {
       const portalDesktop = document.getElementById("portalLink");
       const portalMobile = document.getElementById("portalLinkMobile");
-      if (!email) {
-        if (portalDesktop) {
-          portalDesktop.classList.remove("authenticated");
-          portalDesktop.hidden = true;
-        }
-        if (portalMobile) {
-          portalMobile.classList.remove("authenticated");
-          portalMobile.hidden = true;
-        }
-        return;
-      }
+      if (!email) { if (portalDesktop) portalDesktop.style.display = "none"; if (portalMobile) portalMobile.style.display = "none"; return; }
       
       // Use isTeamMember from auth-utils for consistent role checking
       const allowed = (typeof isTeamMember === 'function') ? isTeamMember(email) : 
                        (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized && AUTH_CONFIG.isAuthorized(email));
-      if (allowed) {
-        if (portalDesktop) {
-          portalDesktop.classList.add("authenticated");
-          portalDesktop.hidden = false;
-        }
-        if (portalMobile) {
-          portalMobile.classList.add("authenticated");
-          portalMobile.hidden = false;
-        }
-      } else {
-        if (portalDesktop) {
-          portalDesktop.classList.remove("authenticated");
-          portalDesktop.hidden = true;
-        }
-        if (portalMobile) {
-          portalMobile.classList.remove("authenticated");
-          portalMobile.hidden = true;
-        }
-      }
+      if (allowed) { if (portalDesktop) portalDesktop.style.display = "inline-block"; if (portalMobile) portalMobile.style.display = "block"; }
+      else { if (portalDesktop) portalDesktop.style.display = "none"; if (portalMobile) portalMobile.style.display = "none"; }
     }
     function setSignedInUI(profile) {
       const signInContainer = document.getElementById('googleSignIn');
@@ -666,7 +638,6 @@
         } catch(e){}
       }
       localStorage.removeItem(window.G_CRED_KEY);
-      localStorage.removeItem('signedInEmail');
       try { google?.accounts?.id?.disableAutoSelect(); } catch(e){}
       setSignedOutUI();
     }
@@ -764,9 +735,5 @@
   <script src="/assets/js/theme.js"></script>
   <script src="/assets/js/portal.js"></script>
   <script src="/assets/js/sound.js" defer></script>
-  <!-- Modern UI Enhancement Scripts -->
-  <script src="/assets/js/modern-ui.js"></script>
-  <script src="/assets/js/page-transitions.js"></script>
-  <script src="/assets/js/accessibility-panel.js"></script>
 </body>
 </html>

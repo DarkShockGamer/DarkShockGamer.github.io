@@ -24,7 +24,7 @@
       };
       
       // Valid new adaptive themes
-      const validAdaptiveThemes = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark'];
+      const validAdaptiveThemes = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark', 'oled', 'neon', 'paper', 'retro-crt'];
       
       // Check for adaptive theme first
       let adaptiveTheme = localStorage.getItem('site-adaptive-theme');
@@ -39,7 +39,8 @@
       const html = document.documentElement;
       html.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast',
                             'theme-high-contrast-light', 'theme-high-contrast-dark',
-                            'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight');
+                            'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight',
+                            'theme-oled', 'theme-neon', 'theme-paper', 'theme-retro-crt');
       
       if (adaptiveTheme && validAdaptiveThemes.includes(adaptiveTheme)) {
         html.classList.add('theme-' + adaptiveTheme);
@@ -503,6 +504,15 @@
       color: white;
       box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
     }
+    /* Custom themes get purple-pink gradient */
+    .theme-option[data-theme="oled"].active,
+    .theme-option[data-theme="neon"].active,
+    .theme-option[data-theme="paper"].active,
+    .theme-option[data-theme="retro-crt"].active {
+      background: linear-gradient(90deg, #a855f7 60%, #ec4899 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(168, 85, 247, 0.15);
+    }
     @media (prefers-color-scheme: dark) {
       .theme-option {
         color: #94a3b8;
@@ -541,6 +551,15 @@
       border: 3px solid #000000;
       box-shadow: none;
     }
+    html.theme-high-contrast-light .theme-option[data-theme="oled"].active,
+    html.theme-high-contrast-light .theme-option[data-theme="neon"].active,
+    html.theme-high-contrast-light .theme-option[data-theme="paper"].active,
+    html.theme-high-contrast-light .theme-option[data-theme="retro-crt"].active {
+      background: #9333ea;
+      color: #ffffff;
+      border: 3px solid #000000;
+      box-shadow: none;
+    }
     html.theme-high-contrast-dark .theme-option {
       color: #ffffff;
       border: 2px solid transparent;
@@ -559,6 +578,15 @@
     html.theme-high-contrast-dark .theme-option[data-theme="high-contrast-light"].active,
     html.theme-high-contrast-dark .theme-option[data-theme="high-contrast-dark"].active {
       background: #22c55e;
+      color: #000000;
+      border: 3px solid #ffffff;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-dark .theme-option[data-theme="oled"].active,
+    html.theme-high-contrast-dark .theme-option[data-theme="neon"].active,
+    html.theme-high-contrast-dark .theme-option[data-theme="paper"].active,
+    html.theme-high-contrast-dark .theme-option[data-theme="retro-crt"].active {
+      background: #a855f7;
       color: #000000;
       border: 3px solid #ffffff;
       box-shadow: none;
@@ -584,6 +612,15 @@
     html.theme-high-contrast .theme-option[data-theme="high-contrast-light"].active,
     html.theme-high-contrast .theme-option[data-theme="high-contrast-dark"].active {
       background: #22c55e;
+      color: #000000;
+      border: 3px solid #ffffff;
+      box-shadow: none;
+    }
+    html.theme-high-contrast .theme-option[data-theme="oled"].active,
+    html.theme-high-contrast .theme-option[data-theme="neon"].active,
+    html.theme-high-contrast .theme-option[data-theme="paper"].active,
+    html.theme-high-contrast .theme-option[data-theme="retro-crt"].active {
+      background: #a855f7;
       color: #000000;
       border: 3px solid #ffffff;
       box-shadow: none;

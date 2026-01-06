@@ -1,0 +1,564 @@
+/* Modern UI Enhancements - CSS Custom Properties & Extended Themes */
+
+/* ===== CSS Custom Properties (Variables) ===== */
+:root {
+  /* Base font size for accessibility */
+  --ui-base-font-size: 16px;
+  
+  /* Accent color (customizable) */
+  --ui-accent-color: #38bdf8;
+  --ui-accent-color-dark: #0284c7;
+  --ui-accent-color-light: #7dd3fc;
+  
+  /* Motion preferences */
+  --ui-motion-duration: 300ms;
+  --ui-motion-distance: 20px;
+}
+
+/* Apply base font size */
+html {
+  font-size: var(--ui-base-font-size);
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ui-motion-duration: 0.01ms;
+    --ui-motion-distance: 0px;
+  }
+}
+
+/* Force reduced motion when manually toggled */
+html.reduced-motion {
+  --ui-motion-duration: 0.01ms !important;
+  --ui-motion-distance: 0px !important;
+}
+
+html.reduced-motion *,
+html.reduced-motion *::before,
+html.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ===== Extended Theme System ===== */
+
+/* Neon Theme - Vibrant cyberpunk aesthetic */
+html.theme-neon body {
+  background: linear-gradient(to bottom, #0a0e27 0%, #1a0033 100%);
+  color: #00ffff;
+  color-scheme: dark;
+}
+
+html.theme-neon .panel,
+html.theme-neon .setting-card {
+  background: rgba(10, 14, 39, 0.95);
+  border: 2px solid #ff00ff;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.3), 0 0 40px rgba(0, 255, 255, 0.2);
+}
+
+html.theme-neon h1,
+html.theme-neon h2,
+html.theme-neon h3,
+html.theme-neon .heading {
+  color: #ff00ff;
+  text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+}
+
+html.theme-neon input,
+html.theme-neon select,
+html.theme-neon textarea {
+  background: #0a0e27;
+  border: 2px solid #00ffff;
+  color: #00ffff;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+html.theme-neon .btn-primary,
+html.theme-neon button.btn-primary {
+  background: linear-gradient(90deg, #ff00ff 0%, #00ffff 100%);
+  color: #0a0e27;
+  font-weight: 700;
+  border: 2px solid #ff00ff;
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+}
+
+html.theme-neon .btn-success {
+  background: #00ff00;
+  color: #0a0e27;
+  border: 2px solid #00ff00;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+}
+
+html.theme-neon .btn-danger {
+  background: #ff0055;
+  color: #ffffff;
+  border: 2px solid #ff0055;
+  box-shadow: 0 0 15px rgba(255, 0, 85, 0.5);
+}
+
+html.theme-neon .btn-warning {
+  background: #ffff00;
+  color: #0a0e27;
+  border: 2px solid #ffff00;
+  box-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
+}
+
+html.theme-neon .btn-neutral {
+  background: #9d00ff;
+  color: #ffffff;
+  border: 2px solid #9d00ff;
+  box-shadow: 0 0 15px rgba(157, 0, 255, 0.5);
+}
+
+html.theme-neon a {
+  color: #00ffff;
+  text-shadow: 0 0 5px #00ffff;
+}
+
+/* OLED Theme - Pure black for OLED displays */
+html.theme-oled body {
+  background: #000000;
+  color: #e5e5e5;
+  color-scheme: dark;
+}
+
+html.theme-oled .panel,
+html.theme-oled .setting-card {
+  background: #000000;
+  border: 1px solid #333333;
+  box-shadow: none;
+}
+
+html.theme-oled h1,
+html.theme-oled h2,
+html.theme-oled h3,
+html.theme-oled .heading {
+  color: #ffffff;
+}
+
+html.theme-oled input,
+html.theme-oled select,
+html.theme-oled textarea {
+  background: #000000;
+  border: 1px solid #444444;
+  color: #e5e5e5;
+}
+
+html.theme-oled .btn-primary,
+html.theme-oled button.btn-primary {
+  background: #1a73e8;
+  color: #ffffff;
+  border: none;
+}
+
+html.theme-oled .btn-success {
+  background: #0f9d58;
+  color: #ffffff;
+}
+
+html.theme-oled .btn-danger {
+  background: #d93025;
+  color: #ffffff;
+}
+
+html.theme-oled .btn-warning {
+  background: #f9ab00;
+  color: #000000;
+}
+
+html.theme-oled .btn-neutral {
+  background: #5f6368;
+  color: #ffffff;
+}
+
+html.theme-oled a {
+  color: #8ab4f8;
+}
+
+/* Paper Theme - Clean paper-like aesthetic */
+html.theme-paper body {
+  background: linear-gradient(to bottom, #fdfbf7 0%, #f5f1e8 100%);
+  color: #2c2416;
+  color-scheme: light;
+}
+
+html.theme-paper .panel,
+html.theme-paper .setting-card {
+  background: #ffffff;
+  border: 1px solid #d4c5a9;
+  box-shadow: 0 2px 8px rgba(44, 36, 22, 0.08), 0 1px 3px rgba(44, 36, 22, 0.06);
+}
+
+html.theme-paper h1,
+html.theme-paper h2,
+html.theme-paper h3,
+html.theme-paper .heading {
+  color: #5c4a2f;
+  font-weight: 600;
+}
+
+html.theme-paper input,
+html.theme-paper select,
+html.theme-paper textarea {
+  background: #fdfbf7;
+  border: 1px solid #c9b896;
+  color: #2c2416;
+}
+
+html.theme-paper .btn-primary,
+html.theme-paper button.btn-primary {
+  background: linear-gradient(90deg, #8b7355 0%, #6d5d4b 100%);
+  color: #ffffff;
+  border: none;
+}
+
+html.theme-paper .btn-success {
+  background: linear-gradient(90deg, #6b8e23 0%, #556b2f 100%);
+  color: #ffffff;
+}
+
+html.theme-paper .btn-danger {
+  background: linear-gradient(90deg, #a0522d 0%, #8b4513 100%);
+  color: #ffffff;
+}
+
+html.theme-paper .btn-warning {
+  background: linear-gradient(90deg, #daa520 0%, #b8860b 100%);
+  color: #ffffff;
+}
+
+html.theme-paper .btn-neutral {
+  background: linear-gradient(90deg, #808080 0%, #696969 100%);
+  color: #ffffff;
+}
+
+html.theme-paper a {
+  color: #6d5d4b;
+}
+
+/* Retro CRT Theme - Vintage computer terminal */
+html.theme-retro-crt body {
+  background: #001100;
+  color: #00ff00;
+  color-scheme: dark;
+  font-family: 'Courier New', 'Courier', monospace;
+}
+
+html.theme-retro-crt .panel,
+html.theme-retro-crt .setting-card {
+  background: #000000;
+  border: 2px solid #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3), inset 0 0 10px rgba(0, 255, 0, 0.1);
+}
+
+html.theme-retro-crt h1,
+html.theme-retro-crt h2,
+html.theme-retro-crt h3,
+html.theme-retro-crt .heading {
+  color: #00ff00;
+  text-shadow: 0 0 5px #00ff00;
+  font-family: 'Courier New', 'Courier', monospace;
+}
+
+html.theme-retro-crt input,
+html.theme-retro-crt select,
+html.theme-retro-crt textarea {
+  background: #000000;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  font-family: 'Courier New', 'Courier', monospace;
+}
+
+html.theme-retro-crt .btn-primary,
+html.theme-retro-crt button.btn-primary {
+  background: #003300;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+  font-family: 'Courier New', 'Courier', monospace;
+  font-weight: 700;
+}
+
+html.theme-retro-crt .btn-success {
+  background: #003300;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+}
+
+html.theme-retro-crt .btn-danger {
+  background: #330000;
+  color: #ff0000;
+  border: 2px solid #ff0000;
+}
+
+html.theme-retro-crt .btn-warning {
+  background: #333300;
+  color: #ffff00;
+  border: 2px solid #ffff00;
+}
+
+html.theme-retro-crt .btn-neutral {
+  background: #001100;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+}
+
+html.theme-retro-crt a {
+  color: #00ff00;
+  text-decoration: underline;
+}
+
+/* ===== Scroll Reveal System ===== */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(var(--ui-motion-distance));
+  transition: opacity var(--ui-motion-duration) ease, transform var(--ui-motion-duration) ease;
+}
+
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger animation support */
+.scroll-reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(var(--ui-motion-distance));
+  transition: opacity var(--ui-motion-duration) ease, transform var(--ui-motion-duration) ease;
+}
+
+.scroll-reveal-stagger.revealed > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-reveal-stagger.revealed > *:nth-child(1) { transition-delay: 0ms; }
+.scroll-reveal-stagger.revealed > *:nth-child(2) { transition-delay: 50ms; }
+.scroll-reveal-stagger.revealed > *:nth-child(3) { transition-delay: 100ms; }
+.scroll-reveal-stagger.revealed > *:nth-child(4) { transition-delay: 150ms; }
+.scroll-reveal-stagger.revealed > *:nth-child(5) { transition-delay: 200ms; }
+.scroll-reveal-stagger.revealed > *:nth-child(6) { transition-delay: 250ms; }
+.scroll-reveal-stagger.revealed > *:nth-child(7) { transition-delay: 300ms; }
+.scroll-reveal-stagger.revealed > *:nth-child(8) { transition-delay: 350ms; }
+.scroll-reveal-stagger.revealed > *:nth-child(9) { transition-delay: 400ms; }
+.scroll-reveal-stagger.revealed > *:nth-child(10) { transition-delay: 450ms; }
+
+/* Disable scroll reveal for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal,
+  .scroll-reveal-stagger > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+html.reduced-motion .scroll-reveal,
+html.reduced-motion .scroll-reveal-stagger > * {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* ===== Cursor Follow Accent ===== */
+#cursor-glow {
+  position: fixed;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  background: radial-gradient(circle, var(--ui-accent-color) 0%, transparent 70%);
+  mix-blend-mode: screen;
+  transition: opacity 0.3s ease;
+  will-change: transform, opacity;
+}
+
+#cursor-glow.active {
+  opacity: 0.15;
+}
+
+/* Disable cursor glow for reduced motion or touch devices */
+@media (prefers-reduced-motion: reduce), (hover: none) {
+  #cursor-glow {
+    display: none;
+  }
+}
+
+html.reduced-motion #cursor-glow {
+  display: none !important;
+}
+
+/* ===== Dyslexia-Friendly Font ===== */
+html.dyslexia-font,
+html.dyslexia-font body,
+html.dyslexia-font input,
+html.dyslexia-font textarea,
+html.dyslexia-font select,
+html.dyslexia-font button {
+  font-family: 'Comic Sans MS', 'Arial', 'Verdana', sans-serif !important;
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+}
+
+/* ===== Accessibility Panel Styles ===== */
+.accessibility-panel {
+  position: fixed;
+  top: 50%;
+  right: -400px;
+  transform: translateY(-50%);
+  width: 350px;
+  max-width: 90vw;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-right: none;
+  border-radius: 1rem 0 0 1rem;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: right 0.3s ease;
+  z-index: 10000;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.accessibility-panel.open {
+  right: 0;
+}
+
+.accessibility-toggle {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  background: var(--ui-accent-color);
+  color: white;
+  border: none;
+  border-radius: 0.5rem 0 0 0.5rem;
+  padding: 1rem 0.5rem;
+  cursor: pointer;
+  z-index: 10001;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: background 0.2s ease;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.accessibility-toggle:hover {
+  background: var(--ui-accent-color-dark);
+}
+
+.accessibility-toggle:focus {
+  outline: 2px solid white;
+  outline-offset: -2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .accessibility-panel {
+    background: #0f172a;
+    border-color: #1f2937;
+    color: #e5e7eb;
+  }
+}
+
+html.theme-dark .accessibility-panel {
+  background: #0f172a;
+  border-color: #1f2937;
+  color: #e5e7eb;
+}
+
+html.theme-neon .accessibility-panel {
+  background: rgba(10, 14, 39, 0.95);
+  border-color: #ff00ff;
+  color: #00ffff;
+}
+
+html.theme-oled .accessibility-panel {
+  background: #000000;
+  border-color: #333333;
+  color: #e5e5e5;
+}
+
+html.theme-paper .accessibility-panel {
+  background: #ffffff;
+  border-color: #d4c5a9;
+  color: #2c2416;
+}
+
+html.theme-retro-crt .accessibility-panel {
+  background: #000000;
+  border-color: #00ff00;
+  color: #00ff00;
+}
+
+/* Slider styling */
+.slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #e2e8f0;
+  outline: none;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ui-accent-color);
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ui-accent-color);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* View Transitions API support */
+@view-transition {
+  navigation: auto;
+}
+
+/* Customize page transitions */
+::view-transition-old(root) {
+  animation: fade-out 0.3s ease-out;
+}
+
+::view-transition-new(root) {
+  animation: fade-in 0.3s ease-in;
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Disable view transitions for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}

@@ -336,7 +336,7 @@ html[class*="theme-high-contrast"] .nav-links-mobile a {
   border-bottom-color: transparent;
 }
 
-html.theme-high-contrast-light .nav-links a:hover,
+html.theme-high-contrast-light -links a:hover,
 html.theme-high-contrast-light .nav-links-mobile a:hover {
   color: #000000;
   border-bottom-color: #000000;
@@ -383,13 +383,18 @@ html[class*="theme-high-contrast"] button {
 
 /* Date input calendar picker indicator visibility fixes */
 
-/* Portal link - always hidden by default, shown only when authenticated */
-.portal-link {
+/* Only hide the Portal NAV trigger(s) by default (not the modal links) */
+.nav-links .portal-link,
+.nav-links-mobile .portal-link {
   display: none !important;
 }
 
-.portal-link.authenticated {
+.nav-links .portal-link.authenticated {
   display: inline-block !important;
+}
+
+.nav-links-mobile .portal-link.authenticated {
+  display: block !important;
 }
 
 .nav-links-mobile .portal-link.authenticated {

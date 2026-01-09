@@ -1297,6 +1297,9 @@
     const tabIndicator = document.querySelector('.tab-indicator');
     
     // Track scrolling state to prevent click events during/after scroll
+    const SCROLL_SETTLE_DELAY = 150; // ms to wait after scroll before allowing clicks
+    const TOUCH_SETTLE_DELAY = 200; // ms to wait after touch scroll before allowing clicks
+    const TOUCH_SCROLL_THRESHOLD = 10; // px minimum movement to detect scroll
     let isScrolling = false;
     let scrollTimeout = null;
     const tabsContainer = document.querySelector('.tabs');
@@ -1336,7 +1339,7 @@
           if (activeIdx !== -1) {
             updateTabIndicator(activeIdx);
           }
-        }, 150); // Wait 150ms after last scroll event
+        }, SCROLL_SETTLE_DELAY);
       }, { passive: true });
       
       // Handle touch events to detect scroll gestures
@@ -1358,7 +1361,7 @@
           const deltaY = Math.abs(touchY - touchStartY);
           
           // If horizontal movement is greater, it's a horizontal scroll
-          if (deltaX > deltaY && deltaX > 10) {
+          if (deltaX > deltaY && deltaX > TOUCH_SCROLL_THRESHOLD) {
             isTouchScrolling = true;
             isScrolling = true;
           }
@@ -1377,7 +1380,7 @@
             if (activeIdx !== -1) {
               updateTabIndicator(activeIdx);
             }
-          }, 200);
+          }, TOUCH_SETTLE_DELAY);
         }
       }, { passive: true });
     }
@@ -1416,7 +1419,7 @@
     
     tabBtns.forEach((btn, idx) => {
       btn.addEventListener('click', () => {
-        // Prevent click if scrolling just occurred (within 200ms window)
+        // Prevent click if scrolling just occurred
         if (isScrolling) {
           return;
         }

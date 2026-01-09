@@ -243,13 +243,6 @@
       html.theme-light .dropdown-btn .placeholder {
         color: #94a3b8 !important;
       }
-      
-      /* Media query fallback for calendar picker when no explicit theme class is set */
-      html:not(.theme-light):not(.theme-dark):not(.theme-high-contrast):not(.theme-high-contrast-light):not(.theme-high-contrast-dark) input[type="date"]::-webkit-calendar-picker-indicator {
-        filter: invert(1) brightness(1.2);
-        opacity: 1;
-        cursor: pointer;
-      }
     }
 
     /* Old description styling utilities - No longer used but kept for backwards compatibility */
@@ -604,20 +597,6 @@
       .comment-toggle-calendar:hover {
         background-color: rgba(14, 165, 233, 0.15) !important;
       }
-    }
-    
-    /* Light themes - ensure no inversion (native dark icon is visible on light backgrounds) */
-    html.theme-light input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: none;
-      opacity: 1;
-      cursor: pointer;
-    }
-    
-    /* Dark theme - invert with brightness boost for better visibility */
-    html.theme-dark input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(1) brightness(1.2);
-      opacity: 1;
-      cursor: pointer;
     }
     
     /* Legacy high contrast theme calendar picker - backwards compatibility for tasks page */

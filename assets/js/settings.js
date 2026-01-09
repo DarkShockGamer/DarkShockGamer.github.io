@@ -468,8 +468,6 @@ document.addEventListener("DOMContentLoaded", async function() {
   const fontSizeValue = document.getElementById("fontSize-value");
   const dyslexiaFontToggle = document.getElementById("dyslexiaFont-toggle");
   const dyslexiaFontLabel = document.getElementById("labelDyslexiaFont");
-  const cursorGlowToggle = document.getElementById("cursorGlow-toggle");
-  const cursorGlowLabel = document.getElementById("labelCursorGlow");
 
   if (appearanceForm) {
     // Store reduce motion state and update UI
@@ -519,25 +517,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         dyslexiaFontToggle.setAttribute('aria-checked', newState.toString());
         if (dyslexiaFontLabel) dyslexiaFontLabel.textContent = newState ? "On" : "Off";
         window.ModernUI.DyslexiaFont.set(newState);
-      }, { capture: true });
-    }
-
-    // Initialize cursor glow toggle
-    if (cursorGlowToggle && window.ModernUI) {
-      const isEnabled = window.ModernUI.CursorGlow.get();
-      cursorGlowToggle._enabled = isEnabled;
-      cursorGlowToggle.classList.toggle('on', isEnabled);
-      cursorGlowToggle.setAttribute('aria-checked', isEnabled.toString());
-      if (cursorGlowLabel) cursorGlowLabel.textContent = isEnabled ? "On" : "Off";
-      
-      cursorGlowToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const newState = !cursorGlowToggle._enabled;
-        cursorGlowToggle._enabled = newState;
-        cursorGlowToggle.classList.toggle('on', newState);
-        cursorGlowToggle.setAttribute('aria-checked', newState.toString());
-        if (cursorGlowLabel) cursorGlowLabel.textContent = newState ? "On" : "Off";
-        window.ModernUI.CursorGlow.set(newState);
       }, { capture: true });
     }
 
@@ -604,15 +583,6 @@ document.addEventListener("DOMContentLoaded", async function() {
         dyslexiaFontToggle.classList.toggle('on', isEnabled);
         dyslexiaFontToggle.setAttribute('aria-checked', isEnabled.toString());
         if (dyslexiaFontLabel) dyslexiaFontLabel.textContent = isEnabled ? "On" : "Off";
-      }
-      
-      // Reset cursor glow
-      if (cursorGlowToggle && window.ModernUI) {
-        const isEnabled = window.ModernUI.CursorGlow.get();
-        cursorGlowToggle._enabled = isEnabled;
-        cursorGlowToggle.classList.toggle('on', isEnabled);
-        cursorGlowToggle.setAttribute('aria-checked', isEnabled.toString());
-        if (cursorGlowLabel) cursorGlowLabel.textContent = isEnabled ? "On" : "Off";
       }
       
       if(window.Sound) window.Sound.click();

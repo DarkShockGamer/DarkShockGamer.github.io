@@ -397,7 +397,72 @@ html[class*="theme-high-contrast"] button {
   box-shadow: none !important;
 }
 
+/* ============================= */
 /* Date input calendar picker indicator visibility fixes */
+/* Comprehensive fixes for all themes and dark modes */
+/* ============================= */
+
+/* Light themes - native dark icon is visible on light backgrounds */
+html.theme-light input[type="date"]::-webkit-calendar-picker-indicator,
+html.theme-high-contrast-light input[type="date"]::-webkit-calendar-picker-indicator,
+html.theme-paper input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: none;
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* Dark theme - invert with brightness boost for better visibility */
+html.theme-dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.2);
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* High contrast dark - maximum visibility with full inversion and brightness */
+html.theme-high-contrast-dark input[type="date"]::-webkit-calendar-picker-indicator,
+html.theme-high-contrast input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(2);
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* OLED theme - invert for visibility on pure black */
+html.theme-oled input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.5);
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* Neon theme - cyan tint for cyberpunk aesthetic */
+html.theme-neon input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.3) sepia(1) hue-rotate(140deg) saturate(3);
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* Retro CRT theme - green tint for terminal aesthetic */
+html.theme-retro-crt input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.5) sepia(1) hue-rotate(60deg) saturate(4);
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* Media query fallback for browsers using system preference (only when no explicit theme class is set) */
+@media (prefers-color-scheme: dark) {
+  html:not([class*="theme-"]) input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(1.2);
+    opacity: 1;
+    cursor: pointer;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  html:not([class*="theme-"]) input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: none;
+    opacity: 1;
+    cursor: pointer;
+  }
+}
 
 /* Only hide the Portal NAV trigger(s) by default (not the modal links) */
 .nav-links .portal-link,
@@ -655,43 +720,4 @@ html.theme-retro-crt footer {
   background: #001a00;
   border: 1px solid #00ff00;
   box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
-}
-
-/* Light themes - ensure no inversion (native dark icon is visible on light backgrounds) */
-html.theme-light input[type="date"]::-webkit-calendar-picker-indicator,
-html.theme-high-contrast-light input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: none;
-  opacity: 1;
-  cursor: pointer;
-}
-
-/* Dark theme - invert with brightness boost for better visibility */
-html.theme-dark input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1) brightness(1.2);
-  opacity: 1;
-  cursor: pointer;
-}
-
-/* High contrast dark - maximum visibility */
-html.theme-high-contrast-dark input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1) brightness(2);
-  opacity: 1;
-  cursor: pointer;
-}
-
-/* Media query fallback for browsers using system preference (only when no explicit theme class is set) */
-@media (prefers-color-scheme: dark) {
-  html:not(.theme-light):not(.theme-dark):not(.theme-high-contrast):not(.theme-high-contrast-light):not(.theme-high-contrast-dark) input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1) brightness(1.2);
-    opacity: 1;
-    cursor: pointer;
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  html:not(.theme-light):not(.theme-dark):not(.theme-high-contrast):not(.theme-high-contrast-light):not(.theme-high-contrast-dark) input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: none;
-    opacity: 1;
-    cursor: pointer;
-  }
 }

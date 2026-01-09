@@ -1296,6 +1296,14 @@
     const tabPanels = [document.getElementById('tabPanel1'), document.getElementById('tabPanel2'), document.getElementById('tabPanel3'), document.getElementById('tabPanel4')];
     const tabIndicator = document.querySelector('.tab-indicator');
     
+    // Track scrolling state to prevent click events during/after scroll
+    const SCROLL_SETTLE_DELAY = 150; // ms to wait after scroll before allowing clicks
+    const TOUCH_SETTLE_DELAY = 200; // ms to wait after touch scroll before allowing clicks
+    const TOUCH_SCROLL_THRESHOLD = 10; // px minimum movement to detect scroll
+    let isScrolling = false;
+    let scrollTimeout = null;
+    const tabsContainer = document.querySelector('.tabs');
+    
     // Function to update the indicator position
     function updateTabIndicator(index) {
       const activeBtn = tabBtns[index];
@@ -1310,6 +1318,71 @@
         };
         requestAnimationFrame(applyPosition);
       }
+    }
+    
+    // Handle scroll events on the tabs container to track scrolling state
+    if (tabsContainer) {
+      tabsContainer.addEventListener('scroll', () => {
+        isScrolling = true;
+        
+        // Clear any existing timeout
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
+        }
+        
+        // Set a timeout to mark scrolling as complete after scroll settles
+        scrollTimeout = setTimeout(() => {
+          isScrolling = false;
+          
+          // Update indicator position after scroll settles
+          const activeIdx = tabBtns.findIndex(btn => btn.getAttribute('aria-selected') === 'true');
+          if (activeIdx !== -1) {
+            updateTabIndicator(activeIdx);
+          }
+        }, SCROLL_SETTLE_DELAY);
+      }, { passive: true });
+      
+      // Handle touch events to detect scroll gestures
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let isTouchScrolling = false;
+      
+      tabsContainer.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        isTouchScrolling = false;
+      }, { passive: true });
+      
+      tabsContainer.addEventListener('touchmove', (e) => {
+        if (!isTouchScrolling) {
+          const touchX = e.touches[0].clientX;
+          const touchY = e.touches[0].clientY;
+          const deltaX = Math.abs(touchX - touchStartX);
+          const deltaY = Math.abs(touchY - touchStartY);
+          
+          // If horizontal movement is greater, it's a horizontal scroll
+          if (deltaX > deltaY && deltaX > TOUCH_SCROLL_THRESHOLD) {
+            isTouchScrolling = true;
+            isScrolling = true;
+          }
+        }
+      }, { passive: true });
+      
+      tabsContainer.addEventListener('touchend', () => {
+        // Wait a bit after touch ends for momentum scrolling to settle
+        if (isTouchScrolling) {
+          setTimeout(() => {
+            isScrolling = false;
+            isTouchScrolling = false;
+            
+            // Update indicator after touch scroll settles
+            const activeIdx = tabBtns.findIndex(btn => btn.getAttribute('aria-selected') === 'true');
+            if (activeIdx !== -1) {
+              updateTabIndicator(activeIdx);
+            }
+          }, TOUCH_SETTLE_DELAY);
+        }
+      }, { passive: true });
     }
     
     // Restore active tab from localStorage on page load
@@ -1346,6 +1419,11 @@
     
     tabBtns.forEach((btn, idx) => {
       btn.addEventListener('click', () => {
+        // Prevent click if scrolling just occurred
+        if (isScrolling) {
+          return;
+        }
+        
         tabBtns.forEach((b,i) => {
           b.setAttribute('aria-selected', i === idx);
           b.tabIndex = i === idx ? 0 : -1;

@@ -1,6 +1,6 @@
 /**
  * Modern UI Enhancements
- * Handles enhanced theming, accent colors, scroll reveal, cursor glow, and accessibility features
+ * Handles enhanced theming, scroll reveal, and accessibility features (font size, dyslexia font, reduced motion)
  */
 
 (function() {

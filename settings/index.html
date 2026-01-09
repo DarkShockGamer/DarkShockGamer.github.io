@@ -1322,19 +1322,21 @@
       }
     }
     
-    // Initialize with saved tab
-    if (initialTab > 0) {
-      tabBtns.forEach((b, i) => {
-        b.setAttribute('aria-selected', i === initialTab);
-        b.tabIndex = i === initialTab ? 0 : -1;
-      });
-      tabPanels.forEach((panel, i) => {
-        panel.classList.toggle('active', i === initialTab);
-      });
-    }
+    // Always initialize all tabs and panels to ensure only one is selected
+    // This fixes the "between pages" bug by explicitly setting all states
+    tabBtns.forEach((b, i) => {
+      b.setAttribute('aria-selected', i === initialTab ? 'true' : 'false');
+      b.tabIndex = i === initialTab ? 0 : -1;
+    });
+    tabPanels.forEach((panel, i) => {
+      panel.classList.toggle('active', i === initialTab);
+    });
     
-    // Initialize indicator on correct tab
-    updateTabIndicator(initialTab);
+    // Initialize indicator on correct tab after a brief delay to ensure layout is ready
+    // This fixes potential race conditions on mobile where layout might not be complete
+    requestAnimationFrame(() => {
+      updateTabIndicator(initialTab);
+    });
     
     // Update indicator on window resize
     window.addEventListener('resize', () => {

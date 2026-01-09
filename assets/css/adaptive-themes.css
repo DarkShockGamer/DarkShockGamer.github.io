@@ -657,7 +657,7 @@ html.theme-retro-crt footer {
   box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
 }
 
-/* Light themes - ensure no inversion (native dark icon) */
+/* Light themes - ensure no inversion (native dark icon is visible on light backgrounds) */
 html.theme-light input[type="date"]::-webkit-calendar-picker-indicator,
 html.theme-high-contrast-light input[type="date"]::-webkit-calendar-picker-indicator {
   filter: none;
@@ -665,14 +665,14 @@ html.theme-high-contrast-light input[type="date"]::-webkit-calendar-picker-indic
   cursor: pointer;
 }
 
-/* Dark theme - invert for visibility */
+/* Dark theme - invert with brightness boost for better visibility */
 html.theme-dark input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
+  filter: invert(1) brightness(1.2);
   opacity: 1;
   cursor: pointer;
 }
 
-/* High contrast dark - invert with brightness boost for maximum visibility */
+/* High contrast dark - maximum visibility */
 html.theme-high-contrast-dark input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1) brightness(2);
   opacity: 1;
@@ -682,7 +682,7 @@ html.theme-high-contrast-dark input[type="date"]::-webkit-calendar-picker-indica
 /* Media query fallback for browsers using system preference (only when no explicit theme class is set) */
 @media (prefers-color-scheme: dark) {
   html:not(.theme-light):not(.theme-dark):not(.theme-high-contrast):not(.theme-high-contrast-light):not(.theme-high-contrast-dark) input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
+    filter: invert(1) brightness(1.2);
     opacity: 1;
     cursor: pointer;
   }

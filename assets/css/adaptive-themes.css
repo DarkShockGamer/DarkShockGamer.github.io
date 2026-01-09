@@ -1,6 +1,22 @@
 /* Adaptive Theme Variants - Modern background treatments */
 /* These styles provide contemporary, clean backgrounds for all adaptive theme variants */
 
+/* Global Font Settings - Applied to all pages */
+:root {
+  --ui-base-font-size: 16px;
+}
+
+html, body {
+  font-size: var(--ui-base-font-size, 16px);
+}
+
+/* Dyslexia-friendly font - OpenDyslexic or fallback to clear sans-serif */
+html.dyslexia-font,
+html.dyslexia-font body,
+html.dyslexia-font * {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', 'Arial', sans-serif !important;
+}
+
 /* Base button normalization - Fix vertical text alignment */
 .btn,
 button.btn,
@@ -562,8 +578,12 @@ html.theme-retro-crt body {
   background: #001a00;
   color: #00ff00;
   color-scheme: dark;
-  font-family: 'Courier New', monospace;
   text-shadow: 0 0 2px #00ff00;
+}
+
+/* Retro CRT theme uses monospace font by default, but respects dyslexia font when enabled */
+html.theme-retro-crt:not(.dyslexia-font) body {
+  font-family: 'Courier New', monospace;
 }
 
 html.theme-retro-crt .panel,
@@ -578,8 +598,14 @@ html.theme-retro-crt h2,
 html.theme-retro-crt h3,
 html.theme-retro-crt .heading {
   color: #00ff00;
-  font-family: 'Courier New', monospace;
   text-shadow: 0 0 5px #00ff00;
+}
+
+html.theme-retro-crt:not(.dyslexia-font) h1,
+html.theme-retro-crt:not(.dyslexia-font) h2,
+html.theme-retro-crt:not(.dyslexia-font) h3,
+html.theme-retro-crt:not(.dyslexia-font) .heading {
+  font-family: 'Courier New', monospace;
 }
 
 html.theme-retro-crt input,
@@ -588,6 +614,11 @@ html.theme-retro-crt textarea {
   background: #000000;
   border: 1px solid #00ff00;
   color: #00ff00;
+}
+
+html.theme-retro-crt:not(.dyslexia-font) input,
+html.theme-retro-crt:not(.dyslexia-font) select,
+html.theme-retro-crt:not(.dyslexia-font) textarea {
   font-family: 'Courier New', monospace;
 }
 
@@ -596,8 +627,12 @@ html.theme-retro-crt button.btn-primary {
   background: #003300;
   color: #00ff00;
   border: 2px solid #00ff00;
-  font-family: 'Courier New', monospace;
   text-shadow: 0 0 3px #00ff00;
+}
+
+html.theme-retro-crt:not(.dyslexia-font) .btn-primary,
+html.theme-retro-crt:not(.dyslexia-font) button.btn-primary {
+  font-family: 'Courier New', monospace;
 }
 
 html.theme-retro-crt a {

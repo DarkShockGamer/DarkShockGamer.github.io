@@ -1434,14 +1434,16 @@
         
         // Additional safety: ensure this button is actually at the click position
         // This prevents accidental activations during momentum scroll
-        const rect = btn.getBoundingClientRect();
-        const clickX = e.clientX || rect.left + rect.width / 2;
-        
-        // Check if click is actually within the button bounds
-        if (clickX < rect.left || clickX > rect.right) {
-          e.preventDefault();
-          e.stopPropagation();
-          return;
+        if (e.clientX !== undefined) {
+          const rect = btn.getBoundingClientRect();
+          const clickX = e.clientX;
+          
+          // Check if click is actually within the button bounds
+          if (clickX < rect.left || clickX > rect.right) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+          }
         }
         
         tabBtns.forEach((b,i) => {

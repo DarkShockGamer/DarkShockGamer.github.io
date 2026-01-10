@@ -641,6 +641,32 @@ function getAllTeamMembersSync() {
 }
 
 /**
+ * Preload both developer and team member lists from JSON files
+ * This ensures the lists are cached before any authorization checks
+ * @returns {Promise<{developers: Array<string>, teamMembers: Array<string>}>}
+ */
+async function preloadAllowlists() {
+  try {
+    // Fetch both lists in parallel
+    const [developers, teamMembers] = await Promise.all([
+      getDeveloperList(),
+      getTeamMemberList()
+    ]);
+    
+    console.log('[Auth Utils] Preloaded allowlists:', {
+      developers: developers.length,
+      teamMembers: teamMembers.length
+    });
+    
+    return { developers, teamMembers };
+  } catch (err) {
+    console.error('[Auth Utils] Error preloading allowlists:', err);
+    // Return empty arrays as fallback
+    return { developers: [], teamMembers: [] };
+  }
+}
+
+/**
  * Check if a team member email is hardcoded (cannot be removed)
  * @param {string} email - Email address to check
  * @returns {boolean} - True if hardcoded
@@ -902,6 +928,7 @@ if (typeof module !== 'undefined' && module.exports) {
     hasWelcomeBeenShown,
     markWelcomeAsShown,
     showWelcomeOverlay,
-    initWelcomeOverlay
+    initWelcomeOverlay,
+    preloadAllowlists
   };
 }

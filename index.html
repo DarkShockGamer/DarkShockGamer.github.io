@@ -92,7 +92,8 @@
   // Note: G_CRED_KEY is defined in auth-config.js
 
   // Toggle portal visibility based on email allowed list/domains
-  function updatePortalVisibility(email) {
+  // This function now handles async allowlist loading
+  async function updatePortalVisibility(email) {
     const portalDesktop = document.getElementById("portalLink");
     const portalMobile = document.getElementById("portalLinkMobile");
     if (!email) {
@@ -102,6 +103,16 @@
       return;
     }
     
+    // Ensure allowlists are loaded before checking
+    // This prevents race conditions where the check happens before JSON files are fetched
+    if (typeof preloadAllowlists === 'function') {
+      try {
+        await preloadAllowlists();
+      } catch (err) {
+        console.warn('[Portal] Error preloading allowlists:', err);
+      }
+    }
+    
     // Use isTeamMember from auth-utils for consistent role checking
     const allowed = (typeof isTeamMember === 'function') ? isTeamMember(email) : 
                      (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized(email));
@@ -109,14 +120,16 @@
     if (allowed) {
       if (portalDesktop) portalDesktop.style.display = "inline-block";
       if (portalMobile) portalMobile.style.display = "block";
+      console.log('[Portal] Portal link shown for:', email);
     } else {
       if (portalDesktop) portalDesktop.style.display = "none";
       if (portalMobile) portalMobile.style.display = "none";
+      console.log('[Portal] Portal link hidden for:', email);
     }
   }
 
   // Set UI for signed-in user
-  function setSignedInUI(profile, rawCredential) {
+  async function setSignedInUI(profile, rawCredential) {
     const signInContainer = document.getElementById('googleSignIn');
     const signedContainer = document.getElementById('googleSignedIn');
     const emailSpan = document.getElementById('googleEmail');
@@ -129,8 +142,8 @@
     if (emailSpan) emailSpan.textContent = profile.email || profile.name || 'Signed in';
     if (avatarImg) avatarImg.src = profile.picture || '/assets/icon.png';
 
-    // Update portal visibility
-    updatePortalVisibility(profile.email);
+    // Update portal visibility (now async)
+    await updatePortalVisibility(profile.email);
   }
 
   // Set UI for signed-out state
@@ -146,20 +159,24 @@
   }
 
   // Handle the credential response when user signs in
-  function handleCredentialResponse(response) {
+  async function handleCredentialResponse(response) {
     try {
       const data = jwt_decode(response.credential);
       const email = data.email;
       // Save credential to localStorage for persistence
       localStorage.setItem(G_CRED_KEY, response.credential);
       localStorage.setItem('signedInEmail', email); // <-- fixed line
-      // Update UI
-      setSignedInUI(data, response.credential);
+      // Update UI (now async to handle allowlist loading)
+      await setSignedInUI(data, response.credential);
       
       // Check if there's a return URL and redirect if user is authorized
       const urlParams = new URLSearchParams(window.location.search);
       const returnUrl = urlParams.get('return');
       if (returnUrl) {
+        // Ensure allowlists are loaded before checking authorization
+        if (typeof preloadAllowlists === 'function') {
+          await preloadAllowlists();
+        }
         // Check if user is authorized for tasks
         const isAuthorized = (typeof isTeamMember === 'function') ? isTeamMember(email) : 
                             (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized(email));
@@ -212,7 +229,7 @@
   }
 
   // Initialize Google Sign-In, render button if not already signed in
-  window.onload = function() {
+  window.onload = async function() {
     // Initialize the client (always do this so revoke/disableAutoSelect are available)
     google.accounts.id.initialize({
       client_id: "635936985251-tj5uq36b5altf4qmk7019r3u504mm1fs.apps.googleusercontent.com",
@@ -226,6 +243,13 @@
         signOut();
       }
     });
+
+    // Preload allowlists early to avoid race conditions
+    if (typeof preloadAllowlists === 'function') {
+      preloadAllowlists().catch(err => {
+        console.warn('[Portal] Failed to preload allowlists on page load:', err);
+      });
+    }
 
     // If credential saved in localStorage, restore UI
     const saved = localStorage.getItem(G_CRED_KEY);
@@ -260,8 +284,8 @@
             }
           }
         } else {
-          // Token is valid - restore signed-in UI
-          setSignedInUI(data, saved);
+          // Token is valid - restore signed-in UI (now async)
+          await setSignedInUI(data, saved);
           try { google.accounts.id.disableAutoSelect(); } catch(e){/* ignore */ }
           
           // Check if there's a return URL and user is already signed in
@@ -269,6 +293,10 @@
           const returnUrl = urlParams.get('return');
           if (returnUrl) {
             const email = data.email;
+            // Ensure allowlists are loaded before checking
+            if (typeof preloadAllowlists === 'function') {
+              await preloadAllowlists();
+            }
             const isAuthorized = (typeof isTeamMember === 'function') ? isTeamMember(email) : 
                                 (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized(email));
             if (isAuthorized) {

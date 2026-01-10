@@ -1382,12 +1382,8 @@
               updateTabIndicator(activeIdx);
             }
           }, TOUCH_SETTLE_DELAY);
-        } else {
-          // No scrolling detected - allow immediate interaction
-          // This ensures taps without scrolling work normally
-          isScrolling = false;
-          isTouchScrolling = false;
         }
+        // Note: No else needed - if no scrolling detected, states are already false
       }, { passive: true });
     }
     
@@ -1434,12 +1430,13 @@
         
         // Additional safety: ensure this button is actually at the click position
         // This prevents accidental activations during momentum scroll
-        if (e.clientX !== undefined) {
+        if (e.clientX !== undefined && e.clientY !== undefined) {
           const rect = btn.getBoundingClientRect();
           const clickX = e.clientX;
+          const clickY = e.clientY;
           
-          // Check if click is actually within the button bounds
-          if (clickX < rect.left || clickX > rect.right) {
+          // Check if click is actually within the button bounds (both horizontal and vertical)
+          if (clickX < rect.left || clickX > rect.right || clickY < rect.top || clickY > rect.bottom) {
             e.preventDefault();
             e.stopPropagation();
             return;

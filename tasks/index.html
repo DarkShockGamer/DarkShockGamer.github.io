@@ -626,9 +626,9 @@
       filter: invert(1);
     }
     
-    /* High contrast dark: extra brightness for better visibility */
+    /* High contrast dark: add extra brightness for better visibility */
     html.theme-high-contrast-dark input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: brightness(2);
+      filter: invert(1) brightness(2);
     }
 
     /* ===== FIX 3: Comments input layout - prevent overflow on small screens ===== */

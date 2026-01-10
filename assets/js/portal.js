@@ -98,14 +98,8 @@
     isInitialized = true;
 
     // Preload allowlists to ensure they're cached before any checks
-    if (typeof preloadAllowlists === 'function') {
-      try {
-        await preloadAllowlists();
-        console.log('[Portal] Allowlists preloaded successfully');
-      } catch (err) {
-        console.warn('[Portal] Failed to preload allowlists:', err);
-      }
-    }
+    await safePreloadAllowlists();
+    console.log('[Portal] Allowlists preloaded successfully');
 
     // Create portal modal HTML
     createPortalModal();
@@ -403,13 +397,7 @@
    */
   async function updatePortalVisibility() {
     // Ensure allowlists are loaded before checking roles
-    if (typeof preloadAllowlists === 'function') {
-      try {
-        await preloadAllowlists();
-      } catch (err) {
-        console.warn('[Portal] Failed to preload allowlists in updatePortalVisibility:', err);
-      }
-    }
+    await safePreloadAllowlists();
     
     const email = getCurrentUserEmail();
     const role = getUserRole(email);

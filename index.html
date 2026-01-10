@@ -105,13 +105,7 @@
     
     // Ensure allowlists are loaded before checking
     // This prevents race conditions where the check happens before JSON files are fetched
-    if (typeof preloadAllowlists === 'function') {
-      try {
-        await preloadAllowlists();
-      } catch (err) {
-        console.warn('[Portal] Error preloading allowlists:', err);
-      }
-    }
+    await safePreloadAllowlists();
     
     // Use isTeamMember from auth-utils for consistent role checking
     const allowed = (typeof isTeamMember === 'function') ? isTeamMember(email) : 
@@ -174,9 +168,7 @@
       const returnUrl = urlParams.get('return');
       if (returnUrl) {
         // Ensure allowlists are loaded before checking authorization
-        if (typeof preloadAllowlists === 'function') {
-          await preloadAllowlists();
-        }
+        await safePreloadAllowlists();
         // Check if user is authorized for tasks
         const isAuthorized = (typeof isTeamMember === 'function') ? isTeamMember(email) : 
                             (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized(email));
@@ -245,11 +237,7 @@
     });
 
     // Preload allowlists early to avoid race conditions
-    if (typeof preloadAllowlists === 'function') {
-      preloadAllowlists().catch(err => {
-        console.warn('[Portal] Failed to preload allowlists on page load:', err);
-      });
-    }
+    await safePreloadAllowlists();
 
     // If credential saved in localStorage, restore UI
     const saved = localStorage.getItem(G_CRED_KEY);
@@ -294,9 +282,7 @@
           if (returnUrl) {
             const email = data.email;
             // Ensure allowlists are loaded before checking
-            if (typeof preloadAllowlists === 'function') {
-              await preloadAllowlists();
-            }
+            await safePreloadAllowlists();
             const isAuthorized = (typeof isTeamMember === 'function') ? isTeamMember(email) : 
                                 (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized(email));
             if (isAuthorized) {

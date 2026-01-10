@@ -153,40 +153,43 @@
   }
 
   // Handle the credential response when user signs in
-  async function handleCredentialResponse(response) {
-    try {
-      const data = jwt_decode(response.credential);
-      const email = data.email;
-      // Save credential to localStorage for persistence
-      localStorage.setItem(G_CRED_KEY, response.credential);
-      localStorage.setItem('signedInEmail', email); // <-- fixed line
-      // Update UI (now async to handle allowlist loading)
-      await setSignedInUI(data, response.credential);
-      
-      // Check if there's a return URL and redirect if user is authorized
-      const urlParams = new URLSearchParams(window.location.search);
-      const returnUrl = urlParams.get('return');
-      if (returnUrl) {
-        // Ensure allowlists are loaded before checking authorization
-        await safePreloadAllowlists();
-        // Check if user is authorized for tasks
-        const isAuthorized = (typeof isTeamMember === 'function') ? isTeamMember(email) : 
-                            (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized(email));
-        if (isAuthorized) {
-          // Redirect to the return URL
-          window.location.href = returnUrl;
+  function handleCredentialResponse(response) {
+    // Google Sign-In callbacks should not be async, so we handle the async work separately
+    (async () => {
+      try {
+        const data = jwt_decode(response.credential);
+        const email = data.email;
+        // Save credential to localStorage for persistence
+        localStorage.setItem(G_CRED_KEY, response.credential);
+        localStorage.setItem('signedInEmail', email);
+        // Update UI (now async to handle allowlist loading)
+        await setSignedInUI(data, response.credential);
+        
+        // Check if there's a return URL and redirect if user is authorized
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnUrl = urlParams.get('return');
+        if (returnUrl) {
+          // Ensure allowlists are loaded before checking authorization
+          await safePreloadAllowlists();
+          // Check if user is authorized for tasks
+          const isAuthorized = (typeof isTeamMember === 'function') ? isTeamMember(email) : 
+                              (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized(email));
+          if (isAuthorized) {
+            // Redirect to the return URL
+            window.location.href = returnUrl;
+          }
+        } else {
+          // No return URL - show welcome overlay if first time
+          if (typeof initWelcomeOverlay === 'function') {
+            // Wait a bit for the page to settle before showing overlay
+            setTimeout(() => initWelcomeOverlay(email), 500);
+          }
         }
-      } else {
-        // No return URL - show welcome overlay if first time
-        if (typeof initWelcomeOverlay === 'function') {
-          // Wait a bit for the page to settle before showing overlay
-          setTimeout(() => initWelcomeOverlay(email), 500);
-        }
+      } catch (err) {
+        console.error('Error decoding credential:', err);
+        alert('Sign-in failed (invalid token).');
       }
-    } catch (err) {
-      console.error('Error decoding credential:', err);
-      alert('Sign-in failed (invalid token).');
-    }
+    })();
   }
 
   // Sign out user: remove local storage, optionally revoke and disable auto select

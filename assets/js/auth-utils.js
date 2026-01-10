@@ -675,12 +675,10 @@ async function preloadAllowlists() {
  * @returns {Promise<void>}
  */
 async function safePreloadAllowlists() {
-  if (typeof preloadAllowlists === 'function') {
-    try {
-      await preloadAllowlists();
-    } catch (err) {
-      console.warn('[Auth Utils] Failed to preload allowlists:', err);
-    }
+  try {
+    await preloadAllowlists();
+  } catch (err) {
+    console.warn('[Auth Utils] Failed to preload allowlists:', err);
   }
 }
 

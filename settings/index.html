@@ -23,8 +23,8 @@
         'midnight': 'dark'
       };
       
-      // Valid new adaptive themes
-      const validAdaptiveThemes = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark'];
+      // Valid adaptive themes - all 8 themes supported
+      const validAdaptiveThemes = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark', 'neon', 'oled', 'paper', 'retro-crt'];
       
       // Check for adaptive theme first
       let adaptiveTheme = localStorage.getItem('site-adaptive-theme');
@@ -39,6 +39,7 @@
       const html = document.documentElement;
       html.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast',
                             'theme-high-contrast-light', 'theme-high-contrast-dark',
+                            'theme-neon', 'theme-oled', 'theme-paper', 'theme-retro-crt',
                             'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight');
       
       if (adaptiveTheme && validAdaptiveThemes.includes(adaptiveTheme)) {

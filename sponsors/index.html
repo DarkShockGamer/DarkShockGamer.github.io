@@ -638,6 +638,7 @@
         } catch(e){}
       }
       localStorage.removeItem(window.G_CRED_KEY);
+      localStorage.removeItem('signedInEmail');
       try { google?.accounts?.id?.disableAutoSelect(); } catch(e){}
       setSignedOutUI();
     }
@@ -652,16 +653,52 @@
       if (saved) {
         try {
           const data = jwt_decode(saved);
-          setSignedInUI(data);
-          try { google.accounts.id.disableAutoSelect(); } catch(e){}
+          
+          // Check if token is expired
+          const now = Math.floor(Date.now() / 1000);
+          if (data.exp && data.exp < now) {
+            // Token expired - clear it and prompt for re-auth
+            console.log('Token expired, prompting for re-authentication');
+            localStorage.removeItem(window.G_CRED_KEY);
+            localStorage.removeItem('signedInEmail');
+            setSignedOutUI();
+            
+            // Render sign-in button
+            google.accounts.id.renderButton(
+              document.getElementById("googleSignIn"),
+              { theme: "outline", size: "medium", text: "signin_with" }
+            );
+            
+            // Auto-prompt for re-authentication to seamlessly restore login
+            try {
+              google.accounts.id.prompt();
+            } catch(e) {
+              console.warn('Could not auto-prompt for re-auth:', e);
+            }
+          } else {
+            // Token is valid - restore signed-in UI
+            setSignedInUI(data);
+            try { google.accounts.id.disableAutoSelect(); } catch(e){}
+          }
         }
         catch (err) {
+          // Invalid token (malformed JWT) - clear and show sign-in
           console.warn('Stored credential invalid, clearing', err);
           localStorage.removeItem(window.G_CRED_KEY);
+          localStorage.removeItem('signedInEmail');
+          setSignedOutUI();
+          
           google.accounts.id.renderButton(
             document.getElementById("googleSignIn"),
             { theme: "outline", size: "medium", text: "signin_with" }
           );
+          
+          // Auto-prompt for re-authentication to seamlessly restore login
+          try {
+            google.accounts.id.prompt();
+          } catch(e) {
+            console.warn('Could not auto-prompt for re-auth:', e);
+          }
         }
       } else {
         google.accounts.id.renderButton(

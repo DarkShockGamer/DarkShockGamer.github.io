@@ -1301,6 +1301,7 @@
     const TOUCH_SETTLE_DELAY = 200; // ms to wait after touch scroll before allowing clicks
     const TOUCH_SCROLL_THRESHOLD = 10; // px minimum movement to detect scroll
     let isScrolling = false;
+    let isTouchScrolling = false; // Moved to broader scope for access in click handlers
     let scrollTimeout = null;
     const tabsContainer = document.querySelector('.tabs');
     
@@ -1345,7 +1346,6 @@
       // Handle touch events to detect scroll gestures
       let touchStartX = 0;
       let touchStartY = 0;
-      let isTouchScrolling = false;
       
       tabsContainer.addEventListener('touchstart', (e) => {
         touchStartX = e.touches[0].clientX;

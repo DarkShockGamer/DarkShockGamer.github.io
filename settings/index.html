@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
   <link rel="stylesheet" href="/assets/css/modern-ui.css">
-  <link rel="stylesheet" href="/assets/css/theme-components.css">
   <!-- Privacy-friendly analytics by Plausible -->
   <script async src="https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js"></script>
   <script>
@@ -35,7 +34,30 @@
     /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
     .panel { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05); }
     /* Panel dark mode styles are now controlled by theme classes in adaptive-themes.css */
-    /* Tabs styles moved to theme-components.css */
+    .tabs { 
+      display: flex; gap: 2px; background: #f1f5f9; border-radius: 0.5rem; padding: 4px; 
+      overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative;
+    }
+    .tab-btn {
+      flex: 1 1 auto; padding: 0.5rem 1rem; border-radius: 0.5rem; background: none; border: none;
+      font-weight: 600; color: #64748b; transition: color 180ms;
+      cursor: pointer; white-space: nowrap; min-width: max-content; position: relative; z-index: 1;
+    }
+    .tab-btn[aria-selected="true"] {
+      color: white;
+    }
+    .tab-indicator {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      height: calc(100% - 8px);
+      border-radius: 0.5rem;
+      background: linear-gradient(90deg, #38bdf8 60%, #818cf8 100%);
+      box-shadow: 0 2px 8px rgba(56,189,248,0.09);
+      transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1), width 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      z-index: 0;
+    }
     /* Tabs dark mode styles are now controlled by theme classes in adaptive-themes.css */
     .tab-panel {
       transition: opacity 320ms cubic-bezier(.45,1.5,.65,1), transform 320ms cubic-bezier(.45,1.5,.65,1);
@@ -136,7 +158,12 @@
       border-color: #e2e8f0;
       box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05);
     }
-    /* Tabs styles moved to theme-components.css */
+    html.theme-light .tabs {
+      background: #f1f5f9;
+    }
+    html.theme-light .tab-btn {
+      color: #64748b;
+    }
     html.theme-light .cancel-btn {
       border-color: #e2e8f0;
       color: #64748b;
@@ -157,7 +184,12 @@
       border-color: #1f2937;
       box-shadow: 0 1px 2px rgba(2, 6, 23, 0.30);
     }
-    /* Tabs styles moved to theme-components.css */
+    html.theme-dark .tabs {
+      background: #1e293b;
+    }
+    html.theme-dark .tab-btn {
+      color: #94a3b8;
+    }
     html.theme-dark .cancel-btn {
       border-color: #374151;
       color: #94a3b8;
@@ -178,7 +210,23 @@
       border: 3px solid #ffffff;
       box-shadow: none;
     }
-    /* Tabs styles moved to theme-components.css */
+    html.theme-high-contrast .tabs {
+      background: #000000;
+      border: 3px solid #ffffff;
+    }
+    html.theme-high-contrast .tab-btn {
+      color: #ffffff;
+      border: 2px solid transparent;
+      font-weight: 700;
+    }
+    html.theme-high-contrast .tab-btn[aria-selected="true"] {
+      background: #22c55e;
+      color: #000000;
+      border: 3px solid #ffffff;
+    }
+    html.theme-high-contrast .tab-indicator {
+      display: none; /* Hide gradient indicator in high contrast */
+    }
     html.theme-high-contrast .cancel-btn {
       border: 3px solid #ffffff;
       color: #ffffff;
@@ -338,9 +386,146 @@
     .theme-selector-container {
       margin-top: 1rem;
     }
-    /* Theme selector styles moved to theme-components.css */
+    .theme-selector {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      background: #f1f5f9;
+      border-radius: 0.75rem;
+      padding: 0.5rem;
+    }
     /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
-    /* Theme option styles moved to theme-components.css */
+    html.theme-light .theme-selector {
+      background: #f1f5f9;
+    }
+    html.theme-dark .theme-selector {
+      background: #1e293b;
+    }
+    html.theme-high-contrast-light .theme-selector {
+      background: #e5e5e5;
+      border: 3px solid #000000;
+    }
+    html.theme-high-contrast-dark .theme-selector {
+      background: #000000;
+      border: 3px solid #ffffff;
+    }
+    html.theme-high-contrast .theme-selector {
+      background: #000000;
+      border: 3px solid #ffffff;
+    }
+    
+    .theme-option {
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      border: none;
+      background: none;
+      font-weight: 600;
+      color: #64748b;
+      transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      text-align: center;
+      font-size: 0.875rem;
+    }
+    .theme-option:hover {
+      background: rgba(56, 189, 248, 0.1);
+      color: #38bdf8;
+    }
+    /* Light and Dark themes get blue-indigo gradient */
+    .theme-option[data-theme="light"].active,
+    .theme-option[data-theme="dark"].active {
+      background: linear-gradient(90deg, #38bdf8 60%, #818cf8 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
+    }
+    /* High Contrast themes get blue-green gradient */
+    .theme-option[data-theme="high-contrast-light"].active,
+    .theme-option[data-theme="high-contrast-dark"].active {
+      background: linear-gradient(90deg, #38bdf8 60%, #10b981 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
+    }
+    /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
+      .theme-option:hover {
+        background: rgba(56, 189, 248, 0.15);
+        color: #7dd3fc;
+      }
+    }
+    html.theme-dark .theme-option {
+      color: #94a3b8;
+    }
+    html.theme-dark .theme-option:hover {
+      background: rgba(56, 189, 248, 0.15);
+      color: #7dd3fc;
+    }
+    html.theme-high-contrast-light .theme-option {
+      color: #000000;
+      border: 2px solid transparent;
+    }
+    html.theme-high-contrast-light .theme-option:hover {
+      background: #d4d4d4;
+      border-color: #000000;
+    }
+    html.theme-high-contrast-light .theme-option[data-theme="light"].active,
+    html.theme-high-contrast-light .theme-option[data-theme="dark"].active {
+      background: #0284c7;
+      color: #ffffff;
+      border: 3px solid #000000;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-light .theme-option[data-theme="high-contrast-light"].active,
+    html.theme-high-contrast-light .theme-option[data-theme="high-contrast-dark"].active {
+      background: #16a34a;
+      color: #ffffff;
+      border: 3px solid #000000;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-dark .theme-option {
+      color: #ffffff;
+      border: 2px solid transparent;
+    }
+    html.theme-high-contrast-dark .theme-option:hover {
+      background: #2a2a2a;
+      border-color: #ffffff;
+    }
+    html.theme-high-contrast-dark .theme-option[data-theme="light"].active,
+    html.theme-high-contrast-dark .theme-option[data-theme="dark"].active {
+      background: #0284c7;
+      color: #000000;
+      border: 3px solid #ffffff;
+      box-shadow: none;
+    }
+    html.theme-high-contrast-dark .theme-option[data-theme="high-contrast-light"].active,
+    html.theme-high-contrast-dark .theme-option[data-theme="high-contrast-dark"].active {
+      background: #22c55e;
+      color: #000000;
+      border: 3px solid #ffffff;
+      box-shadow: none;
+    }
+    
+    /* Also add styles for old theme-high-contrast class for theme options */
+    html.theme-high-contrast .theme-option {
+      color: #ffffff;
+      border: 2px solid transparent;
+      font-weight: 700;
+    }
+    html.theme-high-contrast .theme-option:hover {
+      background: #1a1a1a;
+      border-color: #ffffff;
+    }
+    html.theme-high-contrast .theme-option[data-theme="light"].active,
+    html.theme-high-contrast .theme-option[data-theme="dark"].active {
+      background: #0284c7;
+      color: #000000;
+      border: 3px solid #ffffff;
+      box-shadow: none;
+    }
+    html.theme-high-contrast .theme-option[data-theme="high-contrast-light"].active,
+    html.theme-high-contrast .theme-option[data-theme="high-contrast-dark"].active {
+      background: #22c55e;
+      color: #000000;
+      border: 3px solid #ffffff;
+      box-shadow: none;
+    }
     
     /* Hide/adjust decorative elements in high-contrast modes */
     html.theme-high-contrast .tab-indicator,
@@ -365,7 +550,20 @@
       border: 3px solid #000000;
       box-shadow: none;
     }
-    /* Tabs styles moved to theme-components.css */
+    html.theme-high-contrast-light .tabs {
+      background: #e5e5e5;
+      border: 3px solid #000000;
+    }
+    html.theme-high-contrast-light .tab-btn {
+      color: #000000;
+      border: 2px solid transparent;
+      font-weight: 700;
+    }
+    html.theme-high-contrast-light .tab-btn[aria-selected="true"] {
+      background: #16a34a;
+      color: #ffffff;
+      border: 3px solid #000000;
+    }
     html.theme-high-contrast-light .cancel-btn {
       border: 3px solid #000000;
       color: #000000;
@@ -438,7 +636,20 @@
       border: 3px solid #ffffff;
       box-shadow: none;
     }
-    /* Tabs styles moved to theme-components.css */
+    html.theme-high-contrast-dark .tabs {
+      background: #000000;
+      border: 3px solid #ffffff;
+    }
+    html.theme-high-contrast-dark .tab-btn {
+      color: #ffffff;
+      border: 2px solid transparent;
+      font-weight: 700;
+    }
+    html.theme-high-contrast-dark .tab-btn[aria-selected="true"] {
+      background: #22c55e;
+      color: #000000;
+      border: 3px solid #ffffff;
+    }
     html.theme-high-contrast-dark .cancel-btn {
       border: 3px solid #ffffff;
       color: #ffffff;

@@ -15,12 +15,17 @@
   </script>
   <title>Trident Robotics — FAQ</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configure Tailwind to use class-based dark mode instead of media query
+    tailwind.config = {
+      darkMode: \'class\'
+    }
+  </script>
   <style>
     body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, sans-serif; }
     .faq-card { background: white; border: 1px solid #e2e8f0; transition: box-shadow 150ms, border-color 150ms; }
     .faq-card:hover { box-shadow: 0 6px 16px rgba(2,132,199,0.12); border-color: #93c5fd; }
-    @media (prefers-color-scheme: dark) {
-      html, body { color-scheme: dark; }
+    /* Dark mode styles controlled by theme classes */
       body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; }
       .faq-card { background: #0b1220 !important; border-color: #1f2937 !important; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.6); }
       .faq-card:hover { border-color: #0ea5e9 !important; box-shadow: 0 6px 16px rgba(14,165,233,0.18); }

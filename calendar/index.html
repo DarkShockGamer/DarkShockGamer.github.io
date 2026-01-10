@@ -15,6 +15,12 @@
   </script>
   <title>Trident Robotics — Calendar</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configure Tailwind to use class-based dark mode instead of media query
+    tailwind.config = {
+      darkMode: \'class\'
+    }
+  </script>
   <style>
     /* Match tasks.html overall vibe */
     /* Allow full-page scrolling instead of locking to viewport */
@@ -183,8 +189,7 @@
     }
 
     /* Dark mode to match tasks.html */
-    @media (prefers-color-scheme: dark) {
-      html, body { color-scheme: dark; }
+    /* Dark mode styles controlled by theme classes */
       body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; }
       .day-cell { background: #0f172a !important; border-color: #1f2937 !important; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.3); }
       .day-cell:hover { border-color: #0ea5e9 !important; box-shadow: 0 6px 16px rgba(14,165,233,0.18); }
@@ -205,11 +210,7 @@
     }
 
     /* Dark mode agenda view */
-    @media (prefers-color-scheme: dark) {
-      .agenda-day {
-        background: #0f172a !important;
-        border-color: #1f2937 !important;
-      }
+    /* Dark mode styles controlled by theme classes */
       .agenda-day-header {
         color: #7dd3fc !important;
         border-color: #1f2937 !important;
@@ -258,8 +259,7 @@
     .toast.info    { border-color: #bae6fd; background: #eff6ff; color: #075985; }
     .toast.warn    { border-color: #fde68a; background: #fffbea; color: #92400e; }
     .toast.error   { border-color: #fecaca; background: #fef2f2; color: #7f1d1d; }
-    @media (prefers-color-scheme: dark) {
-      .toast { background: #0f172a; border-color: #1f2937; color: #e5e7eb; box-shadow: 0 10px 24px rgba(14,165,233,.18); }
+    /* Dark mode styles controlled by theme classes */
       .toast.success { border-color: #064e3b; background: #052e2b; color: #bbf7d0; }
       .toast.info    { border-color: #0c4a6e; background: #052335; color: #bae6fd; }
       .toast.warn    { border-color: #78350f; background: #2f1f05; color: #fde68a; }

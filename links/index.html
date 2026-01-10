@@ -24,11 +24,16 @@
     <script src="/assets/js/auth-guard.js"></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configure Tailwind to use class-based dark mode instead of media query
+    tailwind.config = {
+      darkMode: \'class\'
+    }
+  </script>
 
     <style>
       body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, sans-serif; }
-      @media (prefers-color-scheme: dark) {
-        html, body { color-scheme: dark; }
+      /* Dark mode styles controlled by theme classes */
         body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; }
       }
       /* Light/dark theme overrides like your other pages */
@@ -37,8 +42,7 @@
       html.theme-high-contrast body { background: #000; color: #fff; color-scheme: dark; }
 
       .card { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 2px rgba(2,6,23,0.05); }
-      @media (prefers-color-scheme: dark) {
-        .card { background: #0f172a; border-color: #1f2937; box-shadow: 0 1px 2px rgba(2,6,23,0.30); }
+      /* Dark mode styles controlled by theme classes */
       }
       html.theme-light .card { background: white !important; border-color: #e2e8f0 !important; }
       html.theme-dark  .card { background: #0f172a !important; border-color: #1f2937 !important; }

@@ -84,6 +84,9 @@
                           'theme-neon', 'theme-oled', 'theme-paper', 'theme-retro-crt',
                           'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight');
     
+    // Also remove Tailwind dark class
+    html.classList.remove('dark');
+    
     // Skip theme application on excluded pages
     if (isExcludedPage()) {
       html.style.colorScheme = '';
@@ -100,9 +103,17 @@
       const lightThemes = ['light', 'high-contrast-light', 'paper'];
       const isDark = !lightThemes.includes(adaptiveTheme);
       html.style.colorScheme = isDark ? 'dark' : 'light';
+      // Apply Tailwind dark class for dark themes (for pages using Tailwind dark: variants)
+      if (isDark) {
+        html.classList.add('dark');
+      }
     } else if (pref === 'light' || pref === 'dark' || pref === 'high-contrast') {
       html.classList.add('theme-' + pref);
       html.style.colorScheme = (pref === 'dark' || pref === 'high-contrast') ? 'dark' : 'light';
+      // Apply Tailwind dark class for dark theme
+      if (pref === 'dark' || pref === 'high-contrast') {
+        html.classList.add('dark');
+      }
     } else {
       // System preference
       html.style.colorScheme = '';

@@ -22,6 +22,12 @@
   <!-- Developer-specific auth guard -->
   <script src="/assets/js/auth-guard-developer.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configure Tailwind to use class-based dark mode instead of media query
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
   <style>
     /* Extra polish to complement Tailwind */
     .pill {

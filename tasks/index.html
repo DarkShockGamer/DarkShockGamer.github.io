@@ -606,6 +606,30 @@
       cursor: pointer;
     }
 
+    /* ===== Calendar Icon Dark Mode Fix ===== */
+    /* Force calendar icon to be visible in dark mode */
+    @media (prefers-color-scheme: dark) {
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        opacity: 1;
+        cursor: pointer;
+      }
+    }
+    
+    /* Dark theme override for calendar icon */
+    html.theme-dark input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      opacity: 1;
+      cursor: pointer;
+    }
+    
+    /* High contrast dark theme calendar icon */
+    html.theme-high-contrast-dark input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1) brightness(2);
+      opacity: 1;
+      cursor: pointer;
+    }
+
     /* ===== FIX 3: Comments input layout - prevent overflow on small screens ===== */
     .comments-section .flex.gap-2 {
       flex-wrap: wrap;
@@ -2324,10 +2348,19 @@ filterInput.oninput = () => { renderBoard(); };
       }
     }
 
-    document.addEventListener('DOMContentLoaded', bootstrap);
+    // Ensure bootstrap only runs once
+    let bootstrapExecuted = false;
+    
+    async function runBootstrapOnce() {
+      if (bootstrapExecuted) return;
+      bootstrapExecuted = true;
+      await bootstrap();
+    }
+    
+    document.addEventListener('DOMContentLoaded', runBootstrapOnce);
     if (document.readyState === 'interactive' || document.readyState === 'complete') {
       // DOM already ready if script injected late
-      bootstrap();
+      runBootstrapOnce();
     }
 
 

@@ -13,47 +13,15 @@
     plausible.init()
   </script>
   <!-- Pre-paint theme application to prevent FOUC -->
-  <script>
-    (function() {
-      // Migration map for old adaptive themes
-      const migrationMap = {
-        'sunrise': 'light',
-        'daylight': 'light',
-        'sunset': 'dark',
-        'midnight': 'dark'
-      };
-      
-      // Valid adaptive themes - all 8 themes supported
-      const validAdaptiveThemes = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark', 'neon', 'oled', 'paper', 'retro-crt'];
-      
-      // Check for adaptive theme first
-      let adaptiveTheme = localStorage.getItem('site-adaptive-theme');
-      
-      // Migrate old theme if found
-      if (adaptiveTheme && migrationMap[adaptiveTheme]) {
-        adaptiveTheme = migrationMap[adaptiveTheme];
-        localStorage.setItem('site-adaptive-theme', adaptiveTheme);
-      }
-      
-      // Remove all existing theme classes to prevent conflicts
-      const html = document.documentElement;
-      html.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast',
-                            'theme-high-contrast-light', 'theme-high-contrast-dark',
-                            'theme-neon', 'theme-oled', 'theme-paper', 'theme-retro-crt',
-                            'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight');
-      
-      if (adaptiveTheme && validAdaptiveThemes.includes(adaptiveTheme)) {
-        html.classList.add('theme-' + adaptiveTheme);
-      } else {
-        // If no valid adaptive theme, default to light
-        adaptiveTheme = 'light';
-        localStorage.setItem('site-adaptive-theme', adaptiveTheme);
-        html.classList.add('theme-light');
-      }
-    })();
-  </script>
+  <script src="/assets/js/theme-prepaint.js"></script>
   <title>Settings — Trident Robotics</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configure Tailwind to use class-based dark mode instead of media query
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
   <style>
     body {
@@ -63,14 +31,9 @@
       position: relative;
       overflow-x: hidden;
     }
-    @media (prefers-color-scheme: dark) {
-      html, body { color-scheme: dark; }
-      body { background: linear-gradient(to bottom, #192132 60%, #0b1220 100%); color: #e5e7eb; }
-    }
+    /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
     .panel { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05); }
-    @media (prefers-color-scheme: dark) {
-      .panel { background: #0f172a; border-color: #1f2937; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.30); }
-    }
+    /* Panel dark mode styles are now controlled by theme classes in adaptive-themes.css */
     .tabs { 
       display: flex; gap: 2px; background: #f1f5f9; border-radius: 0.5rem; padding: 4px; 
       overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative;
@@ -95,10 +58,7 @@
       pointer-events: none;
       z-index: 0;
     }
-    @media (prefers-color-scheme: dark) {
-      .tabs { background: #1e293b; }
-      .tab-btn { color: #94a3b8; }
-    }
+    /* Tabs dark mode styles are now controlled by theme classes in adaptive-themes.css */
     .tab-panel {
       transition: opacity 320ms cubic-bezier(.45,1.5,.65,1), transform 320ms cubic-bezier(.45,1.5,.65,1);
       opacity: 0;
@@ -121,9 +81,7 @@
     .save-btn { background: linear-gradient(90deg, #38bdf8 60%, #818cf8 100%); color: white; font-weight: 600; border: none; border-radius: 0.5rem; padding: 0.5rem 1.5rem; transition: background 180ms, box-shadow 180ms; box-shadow: 0 2px 8px rgba(56,189,248,0.09);}
     .save-btn:active { background: linear-gradient(90deg, #818cf8 0%, #38bdf8 80%);}
     .cancel-btn { background: none; border: 1px solid #e2e8f0; color: #64748b; font-weight: 600; border-radius: 0.5rem; padding: 0.5rem 1.5rem; margin-left: 0.5rem;}
-    @media (prefers-color-scheme: dark) {
-      .cancel-btn { border-color: #374151; color: #94a3b8;}
-    }
+    /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
     .fadein { animation: fadein 700ms cubic-bezier(.4,2.5,.5,1.1); }
     @keyframes fadein { from { opacity: 0; transform: translateY(24px);} to { opacity: 1; transform: none;} }
     /* Responsive body padding for very small screens */
@@ -146,9 +104,7 @@
       will-change: transform;
       transition: opacity 0.4s;
     }
-    @media (prefers-color-scheme: dark) {
-      .gear { opacity: 0.20; }
-    }
+    /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
 
     /* Toasts: Slide-in + Sound-ready */
     .toast-stack {
@@ -184,8 +140,7 @@
     .toast.info    { border-color: #bae6fd; background: #eff6ff; color: #075985; }
     .toast.warn    { border-color: #fde68a; background: #fffbea; color: #92400e; }
     .toast.error   { border-color: #fecaca; background: #fef2f2; color: #7f1d1d; }
-    @media (prefers-color-scheme: dark) {
-      .toast { background: #0f172a; border-color: #1f2937; color: #e5e7eb; box-shadow: 0 10px 24px rgba(14,165,233,.18); }
+    /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
       .toast.success { border-color: #064e3b; background: #052e2b; color: #bbf7d0; }
       .toast.info    { border-color: #0c4a6e; background: #052335; color: #bae6fd; }
       .toast.warn    { border-color: #78350f; background: #2f1f05; color: #fde68a; }
@@ -355,12 +310,7 @@
       box-shadow: 0 8px 24px rgba(56, 189, 248, 0.12);
       border-color: rgba(56, 189, 248, 0.3);
     }
-    @media (prefers-color-scheme: dark) {
-      .setting-card {
-        background: rgba(15, 23, 42, 0.85);
-        border-color: rgba(31, 41, 55, 0.8);
-        box-shadow: 0 4px 16px rgba(14, 165, 233, 0.12);
-      }
+    /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
       .setting-card:hover {
         box-shadow: 0 8px 24px rgba(14, 165, 233, 0.18);
         border-color: rgba(56, 189, 248, 0.3);
@@ -409,13 +359,7 @@
       color: #0369a1;
       border: 1px solid rgba(56, 189, 248, 0.2);
     }
-    @media (prefers-color-scheme: dark) {
-      .chip {
-        background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(129, 140, 248, 0.2));
-        color: #7dd3fc;
-        border-color: rgba(56, 189, 248, 0.3);
-      }
-    }
+    /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
     html.theme-light .chip {
       background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(129, 140, 248, 0.15));
       color: #0369a1;
@@ -450,11 +394,7 @@
       border-radius: 0.75rem;
       padding: 0.5rem;
     }
-    @media (prefers-color-scheme: dark) {
-      .theme-selector {
-        background: #1e293b;
-      }
-    }
+    /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
     html.theme-light .theme-selector {
       background: #f1f5f9;
     }
@@ -504,10 +444,7 @@
       color: white;
       box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
     }
-    @media (prefers-color-scheme: dark) {
-      .theme-option {
-        color: #94a3b8;
-      }
+    /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
       .theme-option:hover {
         background: rgba(56, 189, 248, 0.15);
         color: #7dd3fc;
@@ -851,10 +788,7 @@
       color: #38bdf8;
       transform: scale(1.1);
     }
-    @media (prefers-color-scheme: dark) {
-      .theme-label {
-        color: #94a3b8;
-      }
+    /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
       .theme-label.active {
         color: #7dd3fc;
       }
@@ -925,11 +859,7 @@
       margin-bottom: 0.75rem;
       color: #1e293b;
     }
-    @media (prefers-color-scheme: dark) {
-      .setting-label {
-        color: #e5e7eb;
-      }
-    }
+    /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
     html.theme-light .setting-label {
       color: #1e293b;
     }
@@ -951,11 +881,7 @@
       color: #64748b;
       margin-top: 0.25rem;
     }
-    @media (prefers-color-scheme: dark) {
-      .setting-description {
-        color: #94a3b8;
-      }
-    }
+    /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
     html.theme-dark .setting-description {
       color: #94a3b8;
     }

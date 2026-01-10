@@ -98,6 +98,47 @@ html.theme-light a {
   color: #0284c7;
 }
 
+/* Extended surface styling for Tailwind-styled pages (developer, settings, etc.) */
+html.theme-light section,
+html.theme-light .bg-white {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(56, 189, 248, 0.2) !important;
+}
+
+html.theme-light .text-slate-700,
+html.theme-light .text-slate-800 {
+  color: #0c4a6e !important;
+}
+
+html.theme-light .text-slate-600 {
+  color: #334155 !important;
+}
+
+html.theme-light .text-slate-500,
+html.theme-light .text-slate-400 {
+  color: #64748b !important;
+}
+
+/* Timeline entries and cards */
+html.theme-light .timeline-entry {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(56, 189, 248, 0.2) !important;
+}
+
+/* Pill/badge styling */
+html.theme-light .pill {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
+}
+
+html.theme-light .pill button,
+html.theme-light .pill select {
+  background: white !important;
+  color: #0369a1 !important;
+  border-color: rgba(2,132,199,0.25) !important;
+}
+
 /* Dark Theme - Modern dark background with INDIGO accent */
 html.theme-dark body {
   background: linear-gradient(to bottom, #192132 60%, #0b1220 100%);
@@ -156,6 +197,104 @@ html.theme-dark .btn-neutral {
 
 html.theme-dark a {
   color: #a5b4fc;
+}
+
+/* Extended surface styling for Tailwind-styled pages (developer, settings, etc.) */
+html.theme-dark section,
+html.theme-dark .bg-white {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+html.theme-dark .text-slate-700,
+html.theme-dark .text-slate-800 {
+  color: #e0e7ff !important;
+}
+
+html.theme-dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+html.theme-dark .text-slate-500,
+html.theme-dark .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+html.theme-dark .text-slate-300 {
+  color: #cbd5e1 !important;
+}
+
+html.theme-dark .text-slate-200 {
+  color: #e5e7eb !important;
+}
+
+/* Timeline entries and cards */
+html.theme-dark .timeline-entry {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+/* Pill/badge styling */
+html.theme-dark .pill {
+  background: #0c4a6e !important;
+  color: #e0f2fe !important;
+  border-color: #075985 !important;
+}
+
+html.theme-dark .pill button,
+html.theme-dark .pill select {
+  background: #0b1220 !important;
+  color: #e0f2fe !important;
+  border-color: #075985 !important;
+}
+
+/* Border colors for dark theme */
+html.theme-dark .border-slate-200 {
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+html.theme-dark .border-slate-300 {
+  border-color: #475569 !important;
+}
+
+html.theme-dark .border-slate-700 {
+  border-color: #334155 !important;
+}
+
+html.theme-dark .border-slate-800 {
+  border-color: #1e293b !important;
+}
+
+/* Toast styling for dark theme */
+html.theme-dark .toast {
+  background: #0f172a !important;
+  border-color: #1f2937 !important;
+  color: #e5e7eb !important;
+  box-shadow: 0 10px 24px rgba(14,165,233,.18) !important;
+}
+
+html.theme-dark .toast.success {
+  border-color: #064e3b !important;
+  background: #052e2b !important;
+  color: #bbf7d0 !important;
+}
+
+html.theme-dark .toast.info {
+  border-color: #0c4a6e !important;
+  background: #052335 !important;
+  color: #bae6fd !important;
+}
+
+html.theme-dark .toast.warn {
+  border-color: #78350f !important;
+  background: #2f1f05 !important;
+  color: #fde68a !important;
+}
+
+html.theme-dark .toast.error {
+  border-color: #7f1d1d !important;
+  background: #2b0b0b !important;
+  color: #fecaca !important;
 }
 
 /* High Contrast Light Theme - Maximum contrast for accessibility with GREEN accent */
@@ -233,6 +372,44 @@ html.theme-high-contrast-light a {
   font-weight: 600;
 }
 
+/* Extended surface styling for high-contrast-light */
+html.theme-high-contrast-light section,
+html.theme-high-contrast-light .bg-white {
+  background: #ffffff !important;
+  border: 3px solid #000000 !important;
+}
+
+html.theme-high-contrast-light .text-slate-700,
+html.theme-high-contrast-light .text-slate-800,
+html.theme-high-contrast-light .text-slate-600,
+html.theme-high-contrast-light .text-slate-500 {
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+html.theme-high-contrast-light .timeline-entry {
+  background: #ffffff !important;
+  border: 3px solid #000000 !important;
+}
+
+html.theme-high-contrast-light .pill {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+}
+
+html.theme-high-contrast-light .border-slate-200,
+html.theme-high-contrast-light .border-slate-300 {
+  border-color: #000000 !important;
+  border-width: 2px !important;
+}
+
+html.theme-high-contrast-light .toast {
+  background: #ffffff !important;
+  border: 3px solid #000000 !important;
+  color: #000000 !important;
+}
+
 /* High Contrast Dark Theme - Maximum contrast for accessibility in dark mode with GREEN accent */
 html.theme-high-contrast-dark body {
   background: #000000;
@@ -306,6 +483,49 @@ html.theme-high-contrast-dark a {
   color: #4ade80;
   text-decoration: underline;
   font-weight: 600;
+}
+
+/* Extended surface styling for high-contrast-dark */
+html.theme-high-contrast-dark section,
+html.theme-high-contrast-dark .bg-white {
+  background: #000000 !important;
+  border: 3px solid #ffffff !important;
+}
+
+html.theme-high-contrast-dark .text-slate-700,
+html.theme-high-contrast-dark .text-slate-800,
+html.theme-high-contrast-dark .text-slate-600,
+html.theme-high-contrast-dark .text-slate-500,
+html.theme-high-contrast-dark .text-slate-400,
+html.theme-high-contrast-dark .text-slate-300,
+html.theme-high-contrast-dark .text-slate-200 {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+html.theme-high-contrast-dark .timeline-entry {
+  background: #000000 !important;
+  border: 3px solid #ffffff !important;
+}
+
+html.theme-high-contrast-dark .pill {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+html.theme-high-contrast-dark .border-slate-200,
+html.theme-high-contrast-dark .border-slate-300,
+html.theme-high-contrast-dark .border-slate-700,
+html.theme-high-contrast-dark .border-slate-800 {
+  border-color: #ffffff !important;
+  border-width: 2px !important;
+}
+
+html.theme-high-contrast-dark .toast {
+  background: #000000 !important;
+  border: 3px solid #ffffff !important;
+  color: #ffffff !important;
 }
 
 /* Shared palette overrides so existing pages pick up accessible colors */
@@ -533,6 +753,57 @@ html.theme-neon header {
   box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
 }
 
+/* Extended surface styling for neon theme */
+html.theme-neon section,
+html.theme-neon .bg-white {
+  background: rgba(10, 10, 20, 0.9) !important;
+  border: 2px solid #ff00ff !important;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.3) !important;
+}
+
+html.theme-neon .text-slate-700,
+html.theme-neon .text-slate-800 {
+  color: #00ffff !important;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+}
+
+html.theme-neon .text-slate-600,
+html.theme-neon .text-slate-500 {
+  color: #ff00ff !important;
+}
+
+html.theme-neon .text-slate-400,
+html.theme-neon .text-slate-300,
+html.theme-neon .text-slate-200 {
+  color: #e0e0e0 !important;
+}
+
+html.theme-neon .timeline-entry {
+  background: rgba(10, 10, 20, 0.9) !important;
+  border: 2px solid #ff00ff !important;
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.3) !important;
+}
+
+html.theme-neon .pill {
+  background: #1a0a2e !important;
+  color: #00ffff !important;
+  border: 2px solid #ff00ff !important;
+}
+
+html.theme-neon .border-slate-200,
+html.theme-neon .border-slate-300,
+html.theme-neon .border-slate-700,
+html.theme-neon .border-slate-800 {
+  border-color: #ff00ff !important;
+}
+
+html.theme-neon .toast {
+  background: #0a0a0f !important;
+  border: 2px solid #ff00ff !important;
+  color: #00ffff !important;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.5) !important;
+}
+
 /* OLED Theme - Pure black for OLED screens to save battery */
 html.theme-oled body {
   background: #000000;
@@ -589,6 +860,53 @@ html.theme-oled footer {
   box-shadow: none;
 }
 
+/* Extended surface styling for oled theme */
+html.theme-oled section,
+html.theme-oled .bg-white {
+  background: #000000 !important;
+  border-color: #333333 !important;
+  box-shadow: none !important;
+}
+
+html.theme-oled .text-slate-700,
+html.theme-oled .text-slate-800,
+html.theme-oled .text-slate-600,
+html.theme-oled .text-slate-500 {
+  color: #ffffff !important;
+}
+
+html.theme-oled .text-slate-400,
+html.theme-oled .text-slate-300,
+html.theme-oled .text-slate-200 {
+  color: #e0e0e0 !important;
+}
+
+html.theme-oled .timeline-entry {
+  background: #000000 !important;
+  border-color: #333333 !important;
+  box-shadow: none !important;
+}
+
+html.theme-oled .pill {
+  background: #1a1a1a !important;
+  color: #e0e0e0 !important;
+  border-color: #444444 !important;
+}
+
+html.theme-oled .border-slate-200,
+html.theme-oled .border-slate-300,
+html.theme-oled .border-slate-700,
+html.theme-oled .border-slate-800 {
+  border-color: #333333 !important;
+}
+
+html.theme-oled .toast {
+  background: #000000 !important;
+  border-color: #444444 !important;
+  color: #e0e0e0 !important;
+  box-shadow: none !important;
+}
+
 /* Paper Theme - Clean paper-like aesthetic */
 html.theme-paper body {
   background: #fdfdf8;
@@ -636,6 +954,54 @@ html.theme-paper header {
   background: #f8f8f0;
   border-color: #d4d4d0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Extended surface styling for paper theme */
+html.theme-paper section,
+html.theme-paper .bg-white {
+  background: #ffffff !important;
+  border-color: #d4d4d0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+html.theme-paper .text-slate-700,
+html.theme-paper .text-slate-800,
+html.theme-paper .text-slate-600 {
+  color: #1a1a1a !important;
+}
+
+html.theme-paper .text-slate-500,
+html.theme-paper .text-slate-400 {
+  color: #5a5a54 !important;
+}
+
+html.theme-paper .text-slate-300,
+html.theme-paper .text-slate-200 {
+  color: #2c2c2c !important;
+}
+
+html.theme-paper .timeline-entry {
+  background: #ffffff !important;
+  border-color: #d4d4d0 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+html.theme-paper .pill {
+  background: #f8f8f0 !important;
+  color: #2c2c2c !important;
+  border-color: #c0c0b8 !important;
+}
+
+html.theme-paper .border-slate-200,
+html.theme-paper .border-slate-300 {
+  border-color: #d4d4d0 !important;
+}
+
+html.theme-paper .toast {
+  background: #ffffff !important;
+  border-color: #c0c0b8 !important;
+  color: #2c2c2c !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Retro CRT Theme - Vintage computer terminal aesthetic */
@@ -720,4 +1086,50 @@ html.theme-retro-crt footer {
   background: #001a00;
   border: 1px solid #00ff00;
   box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
+}
+
+/* Extended surface styling for retro-crt theme */
+html.theme-retro-crt section,
+html.theme-retro-crt .bg-white {
+  background: #001a00 !important;
+  border: 2px solid #00ff00 !important;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3) !important;
+}
+
+html.theme-retro-crt .text-slate-700,
+html.theme-retro-crt .text-slate-800,
+html.theme-retro-crt .text-slate-600,
+html.theme-retro-crt .text-slate-500,
+html.theme-retro-crt .text-slate-400,
+html.theme-retro-crt .text-slate-300,
+html.theme-retro-crt .text-slate-200 {
+  color: #00ff00 !important;
+  text-shadow: 0 0 3px #00ff00;
+}
+
+html.theme-retro-crt .timeline-entry {
+  background: #001a00 !important;
+  border: 2px solid #00ff00 !important;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.25) !important;
+}
+
+html.theme-retro-crt .pill {
+  background: #003300 !important;
+  color: #00ff00 !important;
+  border: 1px solid #00ff00 !important;
+}
+
+html.theme-retro-crt .border-slate-200,
+html.theme-retro-crt .border-slate-300,
+html.theme-retro-crt .border-slate-700,
+html.theme-retro-crt .border-slate-800 {
+  border-color: #00ff00 !important;
+}
+
+html.theme-retro-crt .toast {
+  background: #001a00 !important;
+  border: 2px solid #00ff00 !important;
+  color: #00ff00 !important;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.4) !important;
+  text-shadow: 0 0 2px #00ff00;
 }

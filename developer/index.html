@@ -22,6 +22,12 @@
   <!-- Developer-specific auth guard -->
   <script src="/assets/js/auth-guard-developer.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configure Tailwind to use class-based dark mode instead of media query
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
   <style>
     /* Extra polish to complement Tailwind */
     .pill {
@@ -71,61 +77,8 @@
     }
     textarea { min-height: 120px; font-family: inherit; }
 
-    /* Dark mode (system preference) */
-    @media (prefers-color-scheme: dark) {
-      html, body { color-scheme: dark; }
-      body { color: #e5e7eb; } /* slate-200 */
-
-      .muted { color: #94a3b8 !important; } /* slate-400 */
-
-      .pill {
-        background: #0c4a6e !important; /* sky-900-ish */
-        color: #e0f2fe !important;      /* sky-100 */
-        border-color: #075985 !important; /* sky-700 */
-      }
-      .pill button {
-        background: #0b1220 !important;
-        color: #e0f2fe !important;
-        border-color: #075985 !important;
-      }
-      .pill select {
-        background: #0b1220 !important;
-        color: #e5e7eb !important;
-        border-color: #0ea5e9 !important;
-      }
-
-      .timeline-entry {
-        background: #0f172a !important; /* slate-900 */
-        border-color: #1f2937 !important; /* slate-800 */
-        box-shadow: 0 1px 1px rgba(2, 6, 23, 0.6);
-      }
-      .timeline-entry:hover {
-        border-color: #0ea5e9 !important; /* sky-500 */
-        box-shadow: 0 6px 16px rgba(14,165,233,0.18);
-      }
-
-      /* Inputs and selects */
-      input[type="text"],
-      input[type="password"],
-      input[type="date"],
-      input:not([type]),
-      select,
-      textarea {
-        background: #0b1220 !important;  /* near slate-950 */
-        color: #e5e7eb !important;
-        border-color: #334155 !important; /* slate-600 */
-      }
-      input::placeholder { color: #94a3b8 !important; }
-
-      /* Generic border buttons */
-      button.border {
-        border-color: #374151 !important; /* slate-700 */
-        color: #e5e7eb !important;
-      }
-      button.border:hover {
-        background: #1f2937 !important; /* slate-800 */
-      }
-    }
+    /* Styles are now controlled by theme classes in adaptive-themes.css */
+    /* Removed @media (prefers-color-scheme: dark) to allow theme system to work */
 
     /* Toasts: Slide-in + Sound-ready */
     .toast-stack {
@@ -157,13 +110,7 @@
     .toast.info    { border-color: #bae6fd; background: #eff6ff; color: #075985; }
     .toast.warn    { border-color: #fde68a; background: #fffbea; color: #92400e; }
     .toast.error   { border-color: #fecaca; background: #fef2f2; color: #7f1d1d; }
-    @media (prefers-color-scheme: dark) {
-      .toast { background: #0f172a; border-color: #1f2937; color: #e5e7eb; box-shadow: 0 10px 24px rgba(14,165,233,.18); }
-      .toast.success { border-color: #064e3b; background: #052e2b; color: #bbf7d0; }
-      .toast.info    { border-color: #0c4a6e; background: #052335; color: #bae6fd; }
-      .toast.warn    { border-color: #78350f; background: #2f1f05; color: #fde68a; }
-      .toast.error   { border-color: #7f1d1d; background: #2b0b0b; color: #fecaca; }
-    }
+    /* Toast dark mode styles are now in adaptive-themes.css */
   </style>
 </head>
 <body class="min-h-screen bg-gradient-to-b from-sky-50 to-white dark:from-slate-900 dark:to-slate-950 font-sans text-slate-800 dark:text-slate-200">

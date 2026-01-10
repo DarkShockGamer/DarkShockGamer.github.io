@@ -23,15 +23,19 @@
   <!-- Developer-specific auth guard -->
   <script src="/assets/js/auth-guard-developer.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configure Tailwind to use class-based dark mode instead of media query
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
   <style>
     body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    @media (prefers-color-scheme: dark) {
-      html, body { color-scheme: dark; }
+    /* Dark mode styles controlled by theme classes */
       body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; }
     }
     .panel { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05); }
-    @media (prefers-color-scheme: dark) {
-      .panel { background: #0f172a; border-color: #1f2937; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.30); }
+    /* Dark mode styles controlled by theme classes */
     }
     .btn-ripple { position: relative; overflow: hidden; }
     .btn-ripple:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
@@ -56,16 +60,14 @@
     .drawer.open { right: 0; }
     .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
     .drawer-overlay.active { display: block; }
-    @media (prefers-color-scheme: dark) {
-      .drawer { background: #0f172a; border-left: 1px solid #1f2937; }
+    /* Dark mode styles controlled by theme classes */
     }
 
     /* Modal */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1002; }
     .modal-panel { width: 92vw; max-width: 480px; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; transform: scale(0.96); opacity: 0; transition: all 180ms cubic-bezier(.4,0,.2,1); }
     .modal-panel.show { transform: scale(1); opacity: 1; }
-    @media (prefers-color-scheme: dark) {
-      .modal-panel { background: #0f172a; border-color: #1f2937; }
+    /* Dark mode styles controlled by theme classes */
     }
 
     /* Toasts */
@@ -81,8 +83,7 @@
     .toast.info    { border-color: #bae6fd; background: #eff6ff; color: #075985; }
     .toast.warn    { border-color: #fde68a; background: #fffbeb; color: #92400e; }
     .toast.error   { border-color: #fecaca; background: #fef2f2; color: #7f1d1d; }
-    @media (prefers-color-scheme: dark) {
-      .toast { background: #0f172a; border-color: #1f2937; color: #e5e7eb; box-shadow: 0 10px 24px rgba(14,165,233,0.18); }
+    /* Dark mode styles controlled by theme classes */
       .toast.success { border-color: #064e3b; background: #052e2b; color: #bbf7d0; }
       .toast.info    { border-color: #0c4a6e; background: #052335; color: #bae6fd; }
       .toast.warn    { border-color: #78350f; background: #2f1f05; color: #fde68a; }
@@ -96,8 +97,7 @@
     /* Progress demo */
     .progress-wrap { height: 10px; background: #e5e7eb; border-radius: 9999px; overflow: hidden; border: 1px solid #e5e7eb; }
     .progress-bar { height: 100%; background: linear-gradient(90deg, #0ea5e9, #22d3ee); width: 0%; transition: width 120ms linear; }
-    @media (prefers-color-scheme: dark) {
-      .progress-wrap { background: #111827; border-color: #1f2937; }
+    /* Dark mode styles controlled by theme classes */
     }
 
     /* Morphing button */
@@ -141,8 +141,7 @@
       color: white;
       box-shadow: 0 2px 8px rgba(56,189,248,0.09);
     }
-    @media (prefers-color-scheme: dark) {
-      .tabs { background: #1e293b; }
+    /* Dark mode styles controlled by theme classes */
       .tab-btn { color: #94a3b8; }
     }
     .tab-panel {
@@ -339,8 +338,7 @@
       box-shadow: 0 10px 26px rgba(56,189,248,0.14);
     }
     .seg-btn:active { transform: scale(0.98); }
-    @media (prefers-color-scheme: dark) {
-      .segmented { background: rgba(30,41,59,0.9); border-color: rgba(51,65,85,0.9); }
+    /* Dark mode styles controlled by theme classes */
       .seg-btn { color: #94a3b8; }
     }
 
@@ -370,8 +368,7 @@
       padding: 0 0.9rem 0.9rem;
       color: #475569;
     }
-    @media (prefers-color-scheme: dark) {
-      .acc { border-color: rgba(51,65,85,0.9); }
+    /* Dark mode styles controlled by theme classes */
       .acc-item + .acc-item { border-color: rgba(51,65,85,0.9); }
       .acc-btn { background: rgba(15,23,42,0.7); }
       .acc-panel { color: #cbd5e1; }
@@ -383,8 +380,7 @@
     table.lab-table th, table.lab-table td { padding: 0.65rem 0.75rem; border-bottom: 1px solid rgba(226,232,240,0.9); white-space: nowrap; }
     table.lab-table th { text-align: left; font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: #64748b; background: rgba(241,245,249,0.85); position: sticky; top: 0; }
     table.lab-table tr:hover td { background: rgba(56,189,248,0.06); }
-    @media (prefers-color-scheme: dark) {
-      .table-wrap { border-color: rgba(51,65,85,0.9); }
+    /* Dark mode styles controlled by theme classes */
       table.lab-table th { color: #94a3b8; background: rgba(30,41,59,0.85); }
       table.lab-table th, table.lab-table td { border-color: rgba(51,65,85,0.9); }
       table.lab-table tr:hover td { background: rgba(56,189,248,0.09); }
@@ -415,8 +411,7 @@
       background: rgba(226,232,240,0.9);
       border-radius: 999px;
     }
-    @media (prefers-color-scheme: dark) {
-      .step-dot { border-color: rgba(51,65,85,0.9); background: rgba(15,23,42,0.7); color: #cbd5e1; }
+    /* Dark mode styles controlled by theme classes */
       .step-line { background: rgba(51,65,85,0.9); }
     }
 
@@ -480,8 +475,7 @@
       font-size: 0.75rem;
       color: #475569;
     }
-    @media (prefers-color-scheme: dark) {
-      .chip { border-color: rgba(51,65,85,0.9); background: rgba(30,41,59,0.7); color: #cbd5e1; }
+    /* Dark mode styles controlled by theme classes */
     }
   </style>
 </head>

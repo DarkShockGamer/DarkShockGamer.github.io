@@ -46,9 +46,17 @@
                         'theme-neon', 'theme-oled', 'theme-paper', 'theme-retro-crt',
                         'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight');
   
+  // Also remove Tailwind dark class
+  html.classList.remove('dark');
+  
   // Apply theme if valid, otherwise default to light
   if (adaptiveTheme && validAdaptiveThemes.includes(adaptiveTheme)) {
     html.classList.add('theme-' + adaptiveTheme);
+    // Apply Tailwind dark class for dark themes
+    const lightThemes = ['light', 'high-contrast-light', 'paper'];
+    if (!lightThemes.includes(adaptiveTheme)) {
+      html.classList.add('dark');
+    }
   } else {
     // If no valid adaptive theme, default to light
     adaptiveTheme = 'light';

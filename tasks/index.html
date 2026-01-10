@@ -22,6 +22,12 @@
   <script src="/assets/js/auth-guard.js"></script>
   
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configure Tailwind to use class-based dark mode instead of media query
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
   <style>
     body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, sans-serif; }
     .dragging { opacity: 0.5; transform: scale(1.02); }
@@ -121,8 +127,7 @@
     }
 
     /* Dark mode */
-    @media (prefers-color-scheme: dark) {
-      html, body { color-scheme: dark; }
+    /* Dark mode styles controlled by theme classes */
       body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; }
 
       .dropdown-btn { background: #0b1220 !important; border-color: #334155 !important; color: #e5e7eb !important; }
@@ -276,13 +281,7 @@
     .toast button:hover { opacity: 1; background: rgba(0,0,0,0.03); border-radius: 4px; }
 
     /* Dark theme */
-    @media (prefers-color-scheme: dark) {
-      .toast {
-        background: #0b1220;
-        border-color: #1f2937;
-        color: #e6eef6;
-        box-shadow: 0 10px 24px rgba(14,165,233,0.18);
-      }
+    /* Dark mode styles controlled by theme classes */
       .toast.success { background: #052e2b; border-color: #064e3b; color: #bbf7d0; }
       .toast.info    { background: #052335; border-color: #0c4a6e; color: #bae6fd; }
       .toast.warn    { background: #281a05; border-color: #78350f; color: #fde68a; }
@@ -556,10 +555,7 @@
     html.theme-dark .comment-toggle-calendar:hover {
       background-color: rgba(14, 165, 233, 0.15) !important;
     }
-    @media (prefers-color-scheme: dark) {
-      .comment-toggle-calendar:hover {
-        background-color: rgba(14, 165, 233, 0.15) !important;
-      }
+    /* Dark mode styles controlled by theme classes */
     }
     
     /* Legacy high contrast theme calendar picker - backwards compatibility for tasks page */
@@ -581,11 +577,7 @@
     }
     
     /* Dark mode: invert icon to make it visible against dark backgrounds */
-    @media (prefers-color-scheme: dark) {
-      input[type="date"]::-webkit-calendar-picker-indicator {
-        filter: invert(1) !important;
-        opacity: 1 !important;
-      }
+    /* Dark mode styles controlled by theme classes */
     }
     
     /* Explicit dark theme class - highest priority */
@@ -692,11 +684,7 @@
     .stat-dot-backlog { background: #94a3b8; }
 
     /* Dark theme for completion bar */
-    @media (prefers-color-scheme: dark) {
-      .completion-bar-container {
-        background: #0f172a !important;
-        border-color: #1f2937 !important;
-      }
+    /* Dark mode styles controlled by theme classes */
       .completion-bar-label {
         color: #e5e7eb !important;
       }

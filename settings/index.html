@@ -1300,6 +1300,8 @@
     const SCROLL_SETTLE_DELAY = 300; // ms to wait after scroll before allowing clicks (increased from 150)
     const TOUCH_SETTLE_DELAY = 350; // ms to wait after touch scroll before allowing clicks (increased from 200)
     const TOUCH_SCROLL_THRESHOLD = 5; // px minimum movement to detect scroll (decreased from 10 for better detection)
+    const HORIZONTAL_DOMINANCE_RATIO = 0.7; // Horizontal movement must be 70% greater than vertical to be considered horizontal scroll
+    const QUICK_TAP_THRESHOLD = 200; // ms - touches shorter than this are considered quick taps, not scrolls
     let isScrolling = false;
     let isTouchScrolling = false;
     let scrollTimeout = null;
@@ -1372,7 +1374,7 @@
         }
         
         // If horizontal movement is detected (prioritizing horizontal over vertical)
-        if (deltaX > TOUCH_SCROLL_THRESHOLD && deltaX > deltaY * 0.7) {
+        if (deltaX > TOUCH_SCROLL_THRESHOLD && deltaX > deltaY * HORIZONTAL_DOMINANCE_RATIO) {
           isTouchScrolling = true;
           isScrolling = true;
         }
@@ -1407,7 +1409,7 @@
           // Quick tap with no scroll - allow it through
           // but add a small delay to ensure it's really a tap
           const touchDuration = Date.now() - touchStartTime;
-          if (touchDuration < 200) {
+          if (touchDuration < QUICK_TAP_THRESHOLD) {
             // Very quick touch, likely a tap - reset immediately
             isScrolling = false;
             isTouchScrolling = false;

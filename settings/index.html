@@ -1297,12 +1297,13 @@
     const tabIndicator = document.querySelector('.tab-indicator');
     
     // Track scrolling state to prevent click events during/after scroll
-    const SCROLL_SETTLE_DELAY = 150; // ms to wait after scroll before allowing clicks
-    const TOUCH_SETTLE_DELAY = 200; // ms to wait after touch scroll before allowing clicks
-    const TOUCH_SCROLL_THRESHOLD = 10; // px minimum movement to detect scroll
+    const SCROLL_SETTLE_DELAY = 300; // ms to wait after scroll before allowing clicks (increased from 150)
+    const TOUCH_SETTLE_DELAY = 350; // ms to wait after touch scroll before allowing clicks (increased from 200)
+    const TOUCH_SCROLL_THRESHOLD = 5; // px minimum movement to detect scroll (decreased from 10 for better detection)
     let isScrolling = false;
-    let isTouchScrolling = false; // Moved to broader scope for access in click handlers
+    let isTouchScrolling = false;
     let scrollTimeout = null;
+    let touchSettleTimeout = null;
     const tabsContainer = document.querySelector('.tabs');
     
     // Function to update the indicator position
@@ -1346,35 +1347,55 @@
       // Handle touch events to detect scroll gestures
       let touchStartX = 0;
       let touchStartY = 0;
+      let touchStartTime = 0;
+      let hasMoved = false;
       
       tabsContainer.addEventListener('touchstart', (e) => {
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
-        isTouchScrolling = false;
+        touchStartTime = Date.now();
+        hasMoved = false;
+        
+        // Don't reset isTouchScrolling immediately - wait for touchend
+        // This prevents rapid tap-scroll-tap sequences from working
       }, { passive: true });
       
       tabsContainer.addEventListener('touchmove', (e) => {
-        if (!isTouchScrolling) {
-          const touchX = e.touches[0].clientX;
-          const touchY = e.touches[0].clientY;
-          const deltaX = Math.abs(touchX - touchStartX);
-          const deltaY = Math.abs(touchY - touchStartY);
-          
-          // If horizontal movement is greater, it's a horizontal scroll
-          if (deltaX > deltaY && deltaX > TOUCH_SCROLL_THRESHOLD) {
-            isTouchScrolling = true;
-            isScrolling = true;
-          }
+        const touchX = e.touches[0].clientX;
+        const touchY = e.touches[0].clientY;
+        const deltaX = Math.abs(touchX - touchStartX);
+        const deltaY = Math.abs(touchY - touchStartY);
+        
+        // Mark as moved if any significant movement detected
+        if (deltaX > TOUCH_SCROLL_THRESHOLD || deltaY > TOUCH_SCROLL_THRESHOLD) {
+          hasMoved = true;
+        }
+        
+        // If horizontal movement is detected (prioritizing horizontal over vertical)
+        if (deltaX > TOUCH_SCROLL_THRESHOLD && deltaX > deltaY * 0.7) {
+          isTouchScrolling = true;
+          isScrolling = true;
         }
       }, { passive: true });
       
-      tabsContainer.addEventListener('touchend', (e) => {
-        // Wait a bit after touch ends for momentum scrolling to settle
-        if (isTouchScrolling) {
-          // Keep isScrolling true to prevent immediate clicks
-          setTimeout(() => {
+      // Handle both touchend and touchcancel to ensure cleanup
+      const handleTouchEnd = (e) => {
+        // Clear any existing settle timeout
+        if (touchSettleTimeout) {
+          clearTimeout(touchSettleTimeout);
+        }
+        
+        // If scrolling was detected OR there was significant movement
+        if (isTouchScrolling || hasMoved) {
+          // Keep scrolling flags active during settle period
+          isScrolling = true;
+          isTouchScrolling = true;
+          
+          // Wait for momentum scrolling to complete
+          touchSettleTimeout = setTimeout(() => {
             isScrolling = false;
             isTouchScrolling = false;
+            hasMoved = false;
             
             // Update indicator after touch scroll settles
             const activeIdx = tabBtns.findIndex(btn => btn.getAttribute('aria-selected') === 'true');
@@ -1382,9 +1403,28 @@
               updateTabIndicator(activeIdx);
             }
           }, TOUCH_SETTLE_DELAY);
+        } else {
+          // Quick tap with no scroll - allow it through
+          // but add a small delay to ensure it's really a tap
+          const touchDuration = Date.now() - touchStartTime;
+          if (touchDuration < 200) {
+            // Very quick touch, likely a tap - reset immediately
+            isScrolling = false;
+            isTouchScrolling = false;
+            hasMoved = false;
+          } else {
+            // Longer touch, be more conservative
+            touchSettleTimeout = setTimeout(() => {
+              isScrolling = false;
+              isTouchScrolling = false;
+              hasMoved = false;
+            }, 100);
+          }
         }
-        // Note: No else needed - if no scrolling detected, states are already false
-      }, { passive: true });
+      };
+      
+      tabsContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
+      tabsContainer.addEventListener('touchcancel', handleTouchEnd, { passive: true });
     }
     
     // Restore active tab from localStorage on page load
@@ -1421,10 +1461,11 @@
     
     tabBtns.forEach((btn, idx) => {
       btn.addEventListener('click', (e) => {
-        // Prevent click if scrolling just occurred
+        // Prevent click if scrolling just occurred or is occurring
         if (isScrolling || isTouchScrolling) {
           e.preventDefault();
           e.stopPropagation();
+          e.stopImmediatePropagation();
           return;
         }
         
@@ -1435,16 +1476,29 @@
           const clickX = e.clientX;
           const clickY = e.clientY;
           
-          // Check if click is actually within the button bounds (both horizontal and vertical)
-          if (clickX < rect.left || clickX > rect.right || clickY < rect.top || clickY > rect.bottom) {
+          // Check if click is actually within the button bounds with a small margin
+          const margin = 2; // Allow 2px margin for border effects
+          if (clickX < (rect.left - margin) || clickX > (rect.right + margin) || 
+              clickY < (rect.top - margin) || clickY > (rect.bottom + margin)) {
             e.preventDefault();
             e.stopPropagation();
+            e.stopImmediatePropagation();
             return;
           }
         }
         
+        // Double-check: if this button is not the one currently at the pointer position, ignore the click
+        // This handles edge cases where the DOM position has changed during scroll
+        if (e.target !== btn && !btn.contains(e.target)) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          return;
+        }
+        
+        // All checks passed - proceed with tab switch
         tabBtns.forEach((b,i) => {
-          b.setAttribute('aria-selected', i === idx);
+          b.setAttribute('aria-selected', i === idx ? 'true' : 'false');
           b.tabIndex = i === idx ? 0 : -1;
         });
         tabPanels.forEach((panel,i) => {
@@ -1455,7 +1509,8 @@
         
         // Save current tab to localStorage
         localStorage.setItem('settings-active-tab', idx.toString());
-      });
+      }, { capture: false }); // Use bubbling phase to let other handlers run first
+      
       btn.addEventListener('keydown', function(e) {
         if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
           let dir = e.key === "ArrowLeft" ? -1 : 1;

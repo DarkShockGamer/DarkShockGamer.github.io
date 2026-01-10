@@ -248,7 +248,7 @@
             { theme: "outline", size: "medium", text: "signin_with" }
           );
           
-          // Auto-prompt for re-authentication (Option 1 from requirements)
+          // Auto-prompt for re-authentication to seamlessly restore login
           // Only prompt if no return URL to avoid interrupting navigation flow
           const urlParams = new URLSearchParams(window.location.search);
           const returnUrl = urlParams.get('return');
@@ -296,7 +296,7 @@
           { theme: "outline", size: "medium", text: "signin_with" }
         );
         
-        // Auto-prompt for re-authentication if no return URL
+        // Auto-prompt for re-authentication to seamlessly restore login if no return URL
         const urlParams = new URLSearchParams(window.location.search);
         const returnUrl = urlParams.get('return');
         if (!returnUrl) {

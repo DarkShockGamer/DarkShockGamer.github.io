@@ -95,8 +95,8 @@
     if (adaptiveTheme && VALID_ADAPTIVE_THEMES.includes(adaptiveTheme)) {
       html.classList.add('theme-' + adaptiveTheme);
       // Set appropriate color scheme based on adaptive theme
-      // Light themes: light, high-contrast-light, paper
-      // Dark themes: dark, high-contrast-dark, neon, oled, retro-crt
+      // Light themes: light, high-contrast-light, paper (light backgrounds)
+      // Dark themes: dark, high-contrast-dark, neon, oled, retro-crt (dark backgrounds)
       const lightThemes = ['light', 'high-contrast-light', 'paper'];
       const isDark = !lightThemes.includes(adaptiveTheme);
       html.style.colorScheme = isDark ? 'dark' : 'light';

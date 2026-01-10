@@ -669,7 +669,7 @@
               { theme: "outline", size: "medium", text: "signin_with" }
             );
             
-            // Auto-prompt for re-authentication (Option 1 from requirements)
+            // Auto-prompt for re-authentication to seamlessly restore login
             try {
               google.accounts.id.prompt();
             } catch(e) {
@@ -693,7 +693,7 @@
             { theme: "outline", size: "medium", text: "signin_with" }
           );
           
-          // Auto-prompt for re-authentication
+          // Auto-prompt for re-authentication to seamlessly restore login
           try {
             google.accounts.id.prompt();
           } catch(e) {

@@ -608,26 +608,26 @@
 
     /* ===== Calendar Icon Dark Mode Fix ===== */
     /* Force calendar icon to be visible in dark mode */
+    /* Base styling for all calendar picker indicators */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      opacity: 1;
+      cursor: pointer;
+    }
+    
+    /* Dark mode: invert icon to make it visible */
     @media (prefers-color-scheme: dark) {
       input[type="date"]::-webkit-calendar-picker-indicator {
         filter: invert(1);
-        opacity: 1;
-        cursor: pointer;
       }
     }
     
-    /* Dark theme override for calendar icon */
     html.theme-dark input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(1);
-      opacity: 1;
-      cursor: pointer;
     }
     
-    /* High contrast dark theme calendar icon */
+    /* High contrast dark: extra brightness for better visibility */
     html.theme-high-contrast-dark input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(1) brightness(2);
-      opacity: 1;
-      cursor: pointer;
     }
 
     /* ===== FIX 3: Comments input layout - prevent overflow on small screens ===== */

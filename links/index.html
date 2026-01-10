@@ -9,6 +9,7 @@
     <!-- Pre-paint theme application to prevent FOUC - must be before CSS -->
     <script src="/assets/js/theme-prepaint.js"></script>
     <link rel="stylesheet" href="/assets/css/adaptive-themes.css" />
+    <link rel="stylesheet" href="/assets/css/theme-components.css" />
 
     <!-- Privacy-friendly analytics by Plausible -->
     <script async src="https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js"></script>
@@ -41,12 +42,7 @@
       html.theme-dark body  { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; color-scheme: dark; }
       html.theme-high-contrast body { background: #000; color: #fff; color-scheme: dark; }
 
-      .card { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 2px rgba(2,6,23,0.05); }
-      /* Dark mode styles controlled by theme classes */
-      }
-      html.theme-light .card { background: white !important; border-color: #e2e8f0 !important; }
-      html.theme-dark  .card { background: #0f172a !important; border-color: #1f2937 !important; }
-      html.theme-high-contrast .card { background: #1a1a1a !important; border: 2px solid #fff !important; box-shadow: none !important; }
+      /* Card styles moved to theme-components.css */
     </style>
   </head>
 

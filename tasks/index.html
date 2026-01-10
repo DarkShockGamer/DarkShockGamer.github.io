@@ -600,11 +600,34 @@
     }
     
     /* Legacy high contrast theme calendar picker - backwards compatibility for tasks page */
-    html.theme-high-contrast input[type="date"]::-webkit-calendar-picker-indicator {
+    /* Legacy high-contrast and new high-contrast-dark themes need extra brightness */
+    html.theme-high-contrast input[type="date"]::-webkit-calendar-picker-indicator,
+    html.theme-high-contrast-dark input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(1) brightness(2);
       opacity: 1;
       cursor: pointer;
     }
+
+    /* ===== Calendar Icon Dark Mode Fix ===== */
+    /* Force calendar icon to be visible in dark mode */
+    /* Base styling for all calendar picker indicators */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      opacity: 1;
+      cursor: pointer;
+    }
+    
+    /* Dark mode: invert icon to make it visible */
+    @media (prefers-color-scheme: dark) {
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+      }
+    }
+    
+    html.theme-dark input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+    }
+    
+    /* High contrast modes already handled above with combined selector */
 
     /* ===== FIX 3: Comments input layout - prevent overflow on small screens ===== */
     .comments-section .flex.gap-2 {
@@ -2324,10 +2347,19 @@ filterInput.oninput = () => { renderBoard(); };
       }
     }
 
-    document.addEventListener('DOMContentLoaded', bootstrap);
+    // Ensure bootstrap only runs once
+    let bootstrapExecuted = false;
+    
+    async function runBootstrapOnce() {
+      if (bootstrapExecuted) return;
+      bootstrapExecuted = true;
+      await bootstrap();
+    }
+    
+    document.addEventListener('DOMContentLoaded', runBootstrapOnce);
     if (document.readyState === 'interactive' || document.readyState === 'complete') {
       // DOM already ready if script injected late
-      bootstrap();
+      runBootstrapOnce();
     }
 
 

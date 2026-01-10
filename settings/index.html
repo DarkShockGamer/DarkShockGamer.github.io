@@ -1368,9 +1368,10 @@
         }
       }, { passive: true });
       
-      tabsContainer.addEventListener('touchend', () => {
+      tabsContainer.addEventListener('touchend', (e) => {
         // Wait a bit after touch ends for momentum scrolling to settle
         if (isTouchScrolling) {
+          // Keep isScrolling true to prevent immediate clicks
           setTimeout(() => {
             isScrolling = false;
             isTouchScrolling = false;
@@ -1382,6 +1383,7 @@
             }
           }, TOUCH_SETTLE_DELAY);
         }
+        // Note: No else needed - if no scrolling detected, states are already false
       }, { passive: true });
     }
     
@@ -1418,10 +1420,27 @@
     });
     
     tabBtns.forEach((btn, idx) => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
         // Prevent click if scrolling just occurred
-        if (isScrolling) {
+        if (isScrolling || isTouchScrolling) {
+          e.preventDefault();
+          e.stopPropagation();
           return;
+        }
+        
+        // Additional safety: ensure this button is actually at the click position
+        // This prevents accidental activations during momentum scroll
+        if (e.clientX !== undefined && e.clientY !== undefined) {
+          const rect = btn.getBoundingClientRect();
+          const clickX = e.clientX;
+          const clickY = e.clientY;
+          
+          // Check if click is actually within the button bounds (both horizontal and vertical)
+          if (clickX < rect.left || clickX > rect.right || clickY < rect.top || clickY > rect.bottom) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+          }
         }
         
         tabBtns.forEach((b,i) => {

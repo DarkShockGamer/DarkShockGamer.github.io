@@ -4,8 +4,8 @@
   const MEDIA = '(prefers-color-scheme: dark)';
   const mql = window.matchMedia ? window.matchMedia(MEDIA) : null;
   
-  // Valid adaptive theme values (new system)
-  const VALID_ADAPTIVE_THEMES = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark'];
+  // Valid adaptive theme values (new system) - all 8 themes supported
+  const VALID_ADAPTIVE_THEMES = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark', 'neon', 'oled', 'paper', 'retro-crt'];
   
   // Migration map: old adaptive themes -> new adaptive themes
   const MIGRATION_MAP = {
@@ -81,6 +81,7 @@
     // Remove all theme classes (including old ones for cleanup)
     html.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast', 
                           'theme-high-contrast-light', 'theme-high-contrast-dark',
+                          'theme-neon', 'theme-oled', 'theme-paper', 'theme-retro-crt',
                           'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight');
     
     // Skip theme application on excluded pages
@@ -94,7 +95,10 @@
     if (adaptiveTheme && VALID_ADAPTIVE_THEMES.includes(adaptiveTheme)) {
       html.classList.add('theme-' + adaptiveTheme);
       // Set appropriate color scheme based on adaptive theme
-      const isDark = adaptiveTheme === 'dark' || adaptiveTheme === 'high-contrast-dark';
+      // Light themes: light, high-contrast-light, paper
+      // Dark themes: dark, high-contrast-dark, neon, oled, retro-crt
+      const lightThemes = ['light', 'high-contrast-light', 'paper'];
+      const isDark = !lightThemes.includes(adaptiveTheme);
       html.style.colorScheme = isDark ? 'dark' : 'light';
     } else if (pref === 'light' || pref === 'dark' || pref === 'high-contrast') {
       html.classList.add('theme-' + pref);

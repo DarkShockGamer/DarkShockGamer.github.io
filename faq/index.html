@@ -4,51 +4,14 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/assets/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Pre-paint theme application to prevent FOUC - must be before CSS -->
+  <script src="/assets/js/theme-prepaint.js"></script>
   <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
   <!-- Privacy-friendly analytics by Plausible -->
   <script async src="https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js"></script>
   <script>
     window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
     plausible.init()
-  </script>
-  <!-- Pre-paint theme application to prevent FOUC -->
-  <script>
-    (function() {
-      // Migration map for old adaptive themes
-      const migrationMap = {
-        'sunrise': 'light',
-        'daylight': 'light',
-        'sunset': 'dark',
-        'midnight': 'dark'
-      };
-      
-      // Valid new adaptive themes
-      const validAdaptiveThemes = ['light', 'dark', 'high-contrast-light', 'high-contrast-dark'];
-      
-      // Check for adaptive theme first
-      let adaptiveTheme = localStorage.getItem('site-adaptive-theme');
-      
-      // Migrate old theme if found
-      if (adaptiveTheme && migrationMap[adaptiveTheme]) {
-        adaptiveTheme = migrationMap[adaptiveTheme];
-        localStorage.setItem('site-adaptive-theme', adaptiveTheme);
-      }
-      
-      // Remove all existing theme classes to prevent conflicts
-      const html = document.documentElement;
-      html.classList.remove('theme-light', 'theme-dark', 'theme-high-contrast',
-                            'theme-high-contrast-light', 'theme-high-contrast-dark',
-                            'theme-sunrise', 'theme-daylight', 'theme-sunset', 'theme-midnight');
-      
-      if (adaptiveTheme && validAdaptiveThemes.includes(adaptiveTheme)) {
-        html.classList.add('theme-' + adaptiveTheme);
-      } else {
-        // If no valid adaptive theme, default to light
-        adaptiveTheme = 'light';
-        localStorage.setItem('site-adaptive-theme', adaptiveTheme);
-        html.classList.add('theme-light');
-      }
-    })();
   </script>
   <title>Trident Robotics — FAQ</title>
   <script src="https://cdn.tailwindcss.com"></script>

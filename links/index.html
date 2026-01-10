@@ -6,6 +6,8 @@
     <title>Trident Robotics — Links</title>
 
     <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <!-- Pre-paint theme application to prevent FOUC - must be before CSS -->
+    <script src="/assets/js/theme-prepaint.js"></script>
     <link rel="stylesheet" href="/assets/css/adaptive-themes.css" />
 
     <!-- Privacy-friendly analytics by Plausible -->
@@ -14,35 +16,6 @@
       window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},
       plausible.init=plausible.init||function(i){plausible.o=i||{}};
       plausible.init();
-    </script>
-
-    <!-- Pre-paint theme application to prevent FOUC (same pattern as other pages) -->
-    <script>
-      (function () {
-        const migrationMap = { sunrise: "light", daylight: "light", sunset: "dark", midnight: "dark" };
-        const validAdaptiveThemes = ["light", "dark", "high-contrast-light", "high-contrast-dark"];
-        let adaptiveTheme = localStorage.getItem("site-adaptive-theme");
-
-        if (adaptiveTheme && migrationMap[adaptiveTheme]) {
-          adaptiveTheme = migrationMap[adaptiveTheme];
-          localStorage.setItem("site-adaptive-theme", adaptiveTheme);
-        }
-
-        const html = document.documentElement;
-        html.classList.remove(
-          "theme-light","theme-dark","theme-high-contrast",
-          "theme-high-contrast-light","theme-high-contrast-dark",
-          "theme-sunrise","theme-daylight","theme-sunset","theme-midnight"
-        );
-
-        if (adaptiveTheme && validAdaptiveThemes.includes(adaptiveTheme)) {
-          html.classList.add("theme-" + adaptiveTheme);
-        } else {
-          adaptiveTheme = "light";
-          localStorage.setItem("site-adaptive-theme", adaptiveTheme);
-          html.classList.add("theme-light");
-        }
-      })();
     </script>
 
     <!-- Auth (match protected pages like /tasks) -->

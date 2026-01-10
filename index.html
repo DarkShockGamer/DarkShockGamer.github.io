@@ -232,35 +232,80 @@
     if (saved) {
       try {
         const data = jwt_decode(saved);
-        setSignedInUI(data, saved);
-        try { google.accounts.id.disableAutoSelect(); } catch(e){/* ignore */ }
         
-        // Check if there's a return URL and user is already signed in
-        const urlParams = new URLSearchParams(window.location.search);
-        const returnUrl = urlParams.get('return');
-        if (returnUrl) {
-          const email = data.email;
-          const isAuthorized = (typeof isTeamMember === 'function') ? isTeamMember(email) : 
-                              (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized(email));
-          if (isAuthorized) {
-            // Redirect to the return URL
-            window.location.href = returnUrl;
+        // Check if token is expired
+        const now = Math.floor(Date.now() / 1000);
+        if (data.exp && data.exp < now) {
+          // Token expired - clear it and prompt for re-auth
+          console.log('Token expired, prompting for re-authentication');
+          localStorage.removeItem(G_CRED_KEY);
+          localStorage.removeItem('signedInEmail');
+          setSignedOutUI();
+          
+          // Render sign-in button
+          google.accounts.id.renderButton(
+            document.getElementById("googleSignIn"),
+            { theme: "outline", size: "medium", text: "signin_with" }
+          );
+          
+          // Auto-prompt for re-authentication (Option 1 from requirements)
+          // Only prompt if no return URL to avoid interrupting navigation flow
+          const urlParams = new URLSearchParams(window.location.search);
+          const returnUrl = urlParams.get('return');
+          if (!returnUrl) {
+            try {
+              google.accounts.id.prompt();
+            } catch(e) {
+              console.warn('Could not auto-prompt for re-auth:', e);
+            }
           }
         } else {
-          // No return URL - show welcome overlay if first time (on page load with saved credential)
-          // Only show if user just refreshed/came back to the page
-          if (typeof initWelcomeOverlay === 'function') {
-            setTimeout(() => initWelcomeOverlay(data.email), 500);
+          // Token is valid - restore signed-in UI
+          setSignedInUI(data, saved);
+          try { google.accounts.id.disableAutoSelect(); } catch(e){/* ignore */ }
+          
+          // Check if there's a return URL and user is already signed in
+          const urlParams = new URLSearchParams(window.location.search);
+          const returnUrl = urlParams.get('return');
+          if (returnUrl) {
+            const email = data.email;
+            const isAuthorized = (typeof isTeamMember === 'function') ? isTeamMember(email) : 
+                                (window.AUTH_CONFIG && AUTH_CONFIG.isAuthorized(email));
+            if (isAuthorized) {
+              // Redirect to the return URL
+              window.location.href = returnUrl;
+            }
+          } else {
+            // No return URL - show welcome overlay if first time (on page load with saved credential)
+            // Only show if user just refreshed/came back to the page
+            if (typeof initWelcomeOverlay === 'function') {
+              setTimeout(() => initWelcomeOverlay(data.email), 500);
+            }
           }
         }
       } catch (err) {
+        // Invalid token (malformed JWT) - clear and show sign-in
         console.warn('Stored credential invalid, clearing', err);
         localStorage.removeItem(G_CRED_KEY);
-        // render sign-in button below
+        localStorage.removeItem('signedInEmail');
+        setSignedOutUI();
+        
+        // render sign-in button
         google.accounts.id.renderButton(
           document.getElementById("googleSignIn"),
           { theme: "outline", size: "medium", text: "signin_with" }
         );
+        
+        // Auto-prompt for re-authentication if no return URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnUrl = urlParams.get('return');
+        if (!returnUrl) {
+          try {
+            google.accounts.id.prompt();
+          } catch(e) {
+            console.warn('Could not auto-prompt for re-auth:', e);
+          }
+        }
       }
     } else {
       // Not signed in: render the button

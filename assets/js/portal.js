@@ -93,9 +93,13 @@
    * Initialize the portal system
    * Creates modal HTML and sets up event listeners
    */
-  function initPortal() {
+  async function initPortal() {
     if (isInitialized) return;
     isInitialized = true;
+
+    // Preload allowlists to ensure they're cached before any checks
+    await safePreloadAllowlists();
+    console.log('[Portal] Allowlists preloaded successfully');
 
     // Create portal modal HTML
     createPortalModal();
@@ -391,7 +395,10 @@
    * Update portal visibility in navigation based on login status
    * Show/hide portal buttons based on whether user is logged in and authorized
    */
-  function updatePortalVisibility() {
+  async function updatePortalVisibility() {
+    // Ensure allowlists are loaded before checking roles
+    await safePreloadAllowlists();
+    
     const email = getCurrentUserEmail();
     const role = getUserRole(email);
     
@@ -407,21 +414,26 @@
         const isMobile = button.id === 'portalLinkMobile' || 
                         button.closest('.nav-links-mobile');
         button.style.display = isMobile ? 'block' : 'inline-block';
+        console.log('[Portal] Showing portal button for role:', role, 'email:', email);
       } else {
         button.style.display = 'none';
+        console.log('[Portal] Hiding portal button for role:', role, 'email:', email);
       }
     });
   }
 
   // Initialize portal when DOM is ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      initPortal();
-      updatePortalVisibility();
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initPortal();
+      await updatePortalVisibility();
     });
   } else {
-    initPortal();
-    updatePortalVisibility();
+    // DOM already loaded
+    (async () => {
+      await initPortal();
+      await updatePortalVisibility();
+    })();
   }
 
   // Also update visibility when user signs in/out

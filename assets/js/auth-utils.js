@@ -641,6 +641,48 @@ function getAllTeamMembersSync() {
 }
 
 /**
+ * Preload both developer and team member lists from JSON files
+ * This ensures the lists are cached before any authorization checks
+ * @returns {Promise<{developers: Array<string>, teamMembers: Array<string>}>}
+ * 
+ * Note: Returns empty arrays on error, which means authorization will fall back
+ * to hardcoded lists only. This is intentional to prevent blocking the UI.
+ */
+async function preloadAllowlists() {
+  try {
+    // Fetch both lists in parallel
+    const [developers, teamMembers] = await Promise.all([
+      getDeveloperList(),
+      getTeamMemberList()
+    ]);
+    
+    console.log('[Auth Utils] Preloaded allowlists:', {
+      developers: developers.length,
+      teamMembers: teamMembers.length
+    });
+    
+    return { developers, teamMembers };
+  } catch (err) {
+    console.error('[Auth Utils] Error preloading allowlists:', err);
+    // Return empty arrays as fallback - authorization will use hardcoded lists only
+    return { developers: [], teamMembers: [] };
+  }
+}
+
+/**
+ * Safely preload allowlists with proper error handling
+ * Helper function to reduce code duplication
+ * @returns {Promise<void>}
+ */
+async function safePreloadAllowlists() {
+  try {
+    await preloadAllowlists();
+  } catch (err) {
+    console.warn('[Auth Utils] Failed to preload allowlists:', err);
+  }
+}
+
+/**
  * Check if a team member email is hardcoded (cannot be removed)
  * @param {string} email - Email address to check
  * @returns {boolean} - True if hardcoded
@@ -902,6 +944,8 @@ if (typeof module !== 'undefined' && module.exports) {
     hasWelcomeBeenShown,
     markWelcomeAsShown,
     showWelcomeOverlay,
-    initWelcomeOverlay
+    initWelcomeOverlay,
+    preloadAllowlists,
+    safePreloadAllowlists
   };
 }

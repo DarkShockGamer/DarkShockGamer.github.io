@@ -16,7 +16,7 @@
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
       <div class="flex flex-col gap-1">
         <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">Trident Robotics — Team Timeline</h1>
-        <p class="text-sm text-sky-600 dark:text-sky-400">Fixed weeks; one segment per team</p>
+        <p class="text-sm text-sky-600 dark:text-sky-400">Fixed weeks; one non-movable segment per team</p>
       </div>
 
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
@@ -76,7 +76,7 @@
         </button>
       </div>
       <div class="space-y-3 text-sm text-slate-600 dark:text-slate-400">
-        <p>One segment per team. Drag to move; handles resize. Segments snap to whole weeks.</p>
+        <p>One segment per team. Resize from the left/right handles to adjust duration. Bars are pinned to their team row.</p>
         <p>Use Export/Import to share or back up timelines.</p>
       </div>
     </div>
@@ -84,10 +84,10 @@
 
   <script>
     // Fixed weeks
-    const WEEK_COUNT = 8; // plus "8+" overflow column handled as 9
-    const TOTAL_COLS = WEEK_COUNT + 1; // 1..8 + 8+
+    const WEEK_COUNT = 8;           // plus "8+" overflow column handled as 9
+    const TOTAL_COLS = WEEK_COUNT + 1;
 
-    // Teams shown on the left
+    // Teams on the left (names clearly printed)
     const TEAMS = [
       { name: 'Design',      color: '#1e40af', chip: '#dbeafe' },
       { name: 'Mechanical',  color: '#991b1b', chip: '#fee2e2' },
@@ -98,7 +98,7 @@
       { name: 'Drive',       color: '#9a3412', chip: '#fed7aa' }
     ];
 
-    const LS_KEY = 'trident_team_timeline_v2';
+    const LS_KEY = 'trident_team_timeline_v3';
 
     // UI refs
     const yearDropdownBtn = document.getElementById('yearDropdownBtn');
@@ -135,7 +135,7 @@
     function saveStore(obj){ localStorage.setItem(LS_KEY, JSON.stringify(obj)); }
 
     function defaultData(){
-      // One segment per team; defaults loosely match your reference spans
+      // One segment per team; defaults aligned to your reference
       return {
         rows: TEAMS.map((t, idx) => {
           const presets = [
@@ -143,8 +143,8 @@
             {start:2, end:5}, // Mechanical
             {start:4, end:6}, // Electrical
             {start:2, end:6}, // Programming
-            {start:6, end:7}, // Website (testing slot)
-            {start:5, end:7}, // Business (finalizing period)
+            {start:6, end:7}, // Website
+            {start:5, end:7}, // Business
             {start:7, end:9}  // Drive (8+)
           ];
           const p = presets[idx] || {start:1, end:2};
@@ -191,19 +191,19 @@
       const html = data.rows.map((row, rIdx) => {
         const seg = row.segment;
         const startCol = seg.start + 1;              // +1 for team label column
-        const endCol   = Math.min(seg.end + 1, 10);  // 9 = 8+, but grid-column end is exclusive; cap for safety
+        const endCol   = Math.min(seg.end + 1, 10);  // cap within grid
+
         return `
           <div class="timeline-row">
             <div class="activity-cell">
               <span class="activity-name">${row.team}</span>
-              <div class="team-chip" style="background:${teamChip(row.team)}"></div>
             </div>
             <div class="segment" style="grid-column:${startCol} / ${endCol}; background:${seg.color}"
                  data-row="${rIdx}" title="${row.team}: Week ${seg.start}–${seg.end}">
               <div class="handle handle-l" data-row="${rIdx}"></div>
               <div class="handle handle-r" data-row="${rIdx}"></div>
               <div class="seg-actions">
-                <button class="seg-color" data-row="${rIdx}" title="Color"></button>
+                <button class="seg-color" data-row="${rIdx}" title="Change color"></button>
               </div>
             </div>
           </div>
@@ -212,12 +212,8 @@
       timelineGrid.innerHTML = html;
       bindSegmentControls(data);
     }
-    function teamChip(team){
-      const found = TEAMS.find(t=>t.name===team);
-      return found?.chip || '#e0f2fe';
-    }
 
-    // Drag/resize snapped to week columns
+    // Geometry helpers (snap to whole weeks)
     function trackRect(){ return timelineGrid.getBoundingClientRect(); }
     function pxToCol(x){
       const rect = trackRect();
@@ -225,11 +221,12 @@
       const colWidth = (rect.width - labelWidth) / TOTAL_COLS;
       const rel = Math.max(0, Math.min(rect.width - labelWidth, x - rect.left - labelWidth));
       const idx = Math.round(rel / colWidth); // 0..TOTAL_COLS
-      return Math.max(0, Math.min(TOTAL_COLS, idx)); // snapped column index starting at 0
+      return Math.max(0, Math.min(TOTAL_COLS, idx));
     }
 
+    // Only resizing, no moving
     function bindSegmentControls(data){
-      // Color
+      // Color change
       timelineGrid.querySelectorAll('.seg-color').forEach(btn=>{
         btn.onclick = () => {
           const r = parseInt(btn.dataset.row,10);
@@ -242,38 +239,18 @@
         };
       });
 
-      // Drag whole bar
+      // Resize handles
       timelineGrid.querySelectorAll('.segment').forEach(segEl=>{
         const r = parseInt(segEl.dataset.row,10);
-        let dragging = false;
-        segEl.addEventListener('mousedown',(e)=>{
-          if (e.target.classList.contains('handle')) return;
-          dragging = true;
-          document.body.classList.add('select-none');
-        });
-        document.addEventListener('mousemove',(e)=>{
-          if (!dragging) return;
-          const col = pxToCol(e.clientX);        // 0..TOTAL_COLS
-          const seg = data.rows[r].segment;
-          const span = seg.end - seg.start;
-          let start = Math.max(1, col);          // convert col index to week start (1-based)
-          let end   = Math.min(9, start + span); // 9 == 8+
-          if (end - start < 1) end = start + 1;
-          seg.start = start; seg.end = end;
-          setYearData(currentYear, data);
-          renderRows(data);
-        });
-        document.addEventListener('mouseup',()=>{
-          if (dragging){
-            dragging = false;
-            document.body.classList.remove('select-none');
-          }
-        });
-
-        // Resize handles (whole weeks only)
         const hl = segEl.querySelector('.handle-l');
         const hr = segEl.querySelector('.handle-r');
         let resizingL = false, resizingR = false;
+
+        // Prevent moving when clicking the bar
+        segEl.addEventListener('mousedown', (e) => {
+          // Do nothing unless it's a handle; bars cannot move
+          e.preventDefault();
+        });
 
         hl?.addEventListener('mousedown',(e)=>{ e.stopPropagation(); resizingL = true; document.body.classList.add('select-none'); });
         hr?.addEventListener('mousedown',(e)=>{ e.stopPropagation(); resizingR = true; document.body.classList.add('select-none'); });
@@ -290,6 +267,7 @@
           setYearData(currentYear, data);
           renderRows(data);
         });
+
         document.addEventListener('mouseup',()=>{
           if (resizingL || resizingR){
             resizingL = false; resizingR = false;

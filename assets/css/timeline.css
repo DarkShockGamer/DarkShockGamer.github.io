@@ -46,14 +46,11 @@ body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: syst
 .timeline-row { display:contents; }
 .activity-cell {
   background:white; border:1px solid #e2e8f0; border-radius:.75rem; padding:.5rem .75rem;
-  display:flex; justify-content:space-between; align-items:center;
+  display:flex; justify-content:flex-start; align-items:center; gap:.5rem;
 }
 .activity-name { font-weight:600; color:#0f172a; }
-.team-chip {
-  width:16px; height:16px; border-radius:50%; border:1px solid #cbd5e1;
-}
 
-/* Track cell (the week columns background) */
+/* Track cells visualize week grid */
 .timeline-row > :not(.activity-cell) {
   position:relative;
   height: var(--row-height);
@@ -62,7 +59,7 @@ body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: syst
   border-radius:.75rem;
 }
 
-/* Segment bars via grid-column */
+/* Segment bars via grid-column, pinned to row */
 .segment {
   height: calc(var(--row-height) - 12px);
   margin: 6px 6px;
@@ -70,6 +67,7 @@ body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: syst
   box-shadow: 0 6px 16px rgba(2,132,199,0.12);
   border: 1px solid rgba(2,132,199,0.35);
   position: relative;
+  cursor: default; /* no drag moving */
 }
 .segment:hover { box-shadow: 0 10px 24px rgba(2,132,199,0.2); }
 
@@ -88,7 +86,7 @@ body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: syst
   background: rgba(255,255,255,0.7);
 }
 
-/* Legend chip style used for team chips (color values set inline) */
+/* Legend-style chip class retained if needed */
 .legend-chip {
   display:inline-block; background:#e0f2fe; color:#0369a1; padding:.125rem .5rem; border-radius:9999px;
   margin-right:.25rem; margin-bottom:.25rem; font-size:.75rem; line-height:1.25rem; white-space:nowrap; border:1px solid #bae6fd;

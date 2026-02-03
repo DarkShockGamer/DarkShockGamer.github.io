@@ -341,7 +341,7 @@
         activity.duration -= maxShrink;
       } else {
         // Expand from right
-        const maxExpansion = WEEKS.length - activity.startWeek + 1 - activity.duration;
+        const maxExpansion = WEEKS.length - (activity.startWeek + activity.duration - 1);
         const actualStep = Math.min(step, maxExpansion);
         activity.duration += actualStep;
       }

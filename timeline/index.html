@@ -4,26 +4,22 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/assets/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Apply your site themes -->
   <script src="/assets/js/theme-prepaint.js"></script>
   <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
   <link rel="stylesheet" href="/assets/css/timeline.css">
-
   <title>Trident Robotics — Team Timeline</title>
-
-  <!-- Tailwind for utility classes (same approach as tasks page) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' };</script>
 </head>
 <body class="min-h-screen p-6">
   <header class="max-w-7xl mx-auto mb-6 px-2">
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0 min-w-0">
-      <div class="flex flex-col gap-1 w-full md:w-auto min-w-0">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
+      <div class="flex flex-col gap-1">
         <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">Trident Robotics — Team Timeline</h1>
-        <p class="text-sm text-sky-600 dark:text-sky-400">Yearly build season plan with week-aligned segments</p>
+        <p class="text-sm text-sky-600 dark:text-sky-400">Fixed weeks; one segment per team</p>
       </div>
 
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto min-w-0">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
         <!-- Year selector -->
         <div class="dropdown w-full sm:w-48" id="yearDropdown">
           <div class="dropdown-btn" id="yearDropdownBtn"><span class="placeholder">Select year...</span></div>
@@ -49,42 +45,11 @@
   </header>
 
   <main class="max-w-7xl mx-auto">
-    <!-- Legend and Activities -->
-    <section class="mb-4 grid gap-4 md:grid-cols-2">
-      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 dark:bg-slate-900 dark:border-slate-800">
-        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">Legend</h2>
-        <div class="flex flex-wrap gap-2">
-          <span class="legend-chip" data-tag="strategy">Strategy</span>
-          <span class="legend-chip" data-tag="brainstorm">Brainstorm</span>
-          <span class="legend-chip" data-tag="prototype">Prototyping</span>
-          <span class="legend-chip" data-tag="design">Detailed Design</span>
-          <span class="legend-chip" data-tag="fabrication">Fabrication</span>
-          <span class="legend-chip" data-tag="assembly">Assembly</span>
-          <span class="legend-chip" data-tag="programming">Programming</span>
-          <span class="legend-chip" data-tag="testing">Testing</span>
-          <span class="legend-chip" data-tag="iterating">Iterating</span>
-        </div>
-      </div>
-
-      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 dark:bg-slate-900 dark:border-slate-800">
-        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">Activities</h2>
-        <div class="flex flex-wrap gap-2 items-center">
-          <input id="newActivityInput" type="text" class="rounded-md border border-slate-300 px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Add activity (e.g., Initial Strategy)">
-          <button id="addActivityBtn" class="px-3 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700 text-sm">Add Activity</button>
-          <button id="resetGridBtn" class="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm">Clear Segments</button>
-          <span class="text-xs text-slate-500 dark:text-slate-400">Drag to move; resize with handles; snap to weeks</span>
-        </div>
-      </div>
-    </section>
-
     <!-- Timeline -->
     <section id="timelineSection" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 dark:bg-slate-900 dark:border-slate-800">
       <div class="flex items-baseline justify-between mb-2">
         <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200">Build Season Timeline</h2>
-        <div class="flex items-center gap-2">
-          <label class="text-sm text-slate-600 dark:text-slate-400">Weeks</label>
-          <input id="weekCountInput" type="number" min="4" max="16" value="8" class="w-20 rounded-md border border-slate-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-        </div>
+        <div class="text-sm text-slate-600 dark:text-slate-400">Weeks are fixed: 1–8 and 8+</div>
       </div>
 
       <div id="timelineWrapper" class="timeline-wrapper">
@@ -110,20 +75,32 @@
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
-      <div class="space-y-4 text-sm text-slate-600 dark:text-slate-400">
-        <p>Timelines are stored per year in your browser (localStorage). Use Export/Import to share.</p>
-        <ul class="list-disc ml-5 space-y-1">
-          <li>Drag segments to move; handles resize.</li>
-          <li>Segments snap to whole weeks to match the reference image.</li>
-        </ul>
+      <div class="space-y-3 text-sm text-slate-600 dark:text-slate-400">
+        <p>One segment per team. Drag to move; handles resize. Segments snap to whole weeks.</p>
+        <p>Use Export/Import to share or back up timelines.</p>
       </div>
     </div>
   </div>
 
-  <!-- App logic -->
   <script>
-    // Simple per-year store (localStorage)
-    const LS_KEY = 'trident_timeline_v1';
+    // Fixed weeks
+    const WEEK_COUNT = 8; // plus "8+" overflow column handled as 9
+    const TOTAL_COLS = WEEK_COUNT + 1; // 1..8 + 8+
+
+    // Teams shown on the left
+    const TEAMS = [
+      { name: 'Design',      color: '#1e40af', chip: '#dbeafe' },
+      { name: 'Mechanical',  color: '#991b1b', chip: '#fee2e2' },
+      { name: 'Electrical',  color: '#92400e', chip: '#fef3c7' },
+      { name: 'Programming', color: '#6b21a8', chip: '#f3e8ff' },
+      { name: 'Website',     color: '#155e75', chip: '#cffafe' },
+      { name: 'Business',    color: '#475569', chip: '#f1f5f9' },
+      { name: 'Drive',       color: '#9a3412', chip: '#fed7aa' }
+    ];
+
+    const LS_KEY = 'trident_team_timeline_v2';
+
+    // UI refs
     const yearDropdownBtn = document.getElementById('yearDropdownBtn');
     const yearDropdownList = document.getElementById('yearDropdownList');
     const newYearInput = document.getElementById('newYearInput');
@@ -132,11 +109,6 @@
     const exportJSONBtn = document.getElementById('exportJSONBtn');
     const importJSONInput = document.getElementById('importJSONInput');
 
-    const addActivityBtn = document.getElementById('addActivityBtn');
-    const resetGridBtn = document.getElementById('resetGridBtn');
-    const newActivityInput = document.getElementById('newActivityInput');
-
-    const weekCountInput = document.getElementById('weekCountInput');
     const timelineHeader = document.getElementById('timelineHeader');
     const timelineGrid = document.getElementById('timelineGrid');
 
@@ -144,23 +116,6 @@
     const drawer = document.getElementById('drawer');
     const drawerOverlay = document.getElementById('drawerOverlay');
     const closeDrawerBtn = document.getElementById('closeDrawerBtn');
-
-    let weekCount = 8;
-    let currentYear = null;
-    const memory = new Map(); // year -> { weekCount, rows }
-
-    const defaults = [
-      { name: 'Initial Strategy (~First 2-3 days)', segments: [{ start:1, end:2, color:'#06b6d4' }] },
-      { name: 'Mechanism Brainstorming + Choosing prototype concepts (~2 days)', segments: [{ start:1, end:2, color:'#06b6d4' }] },
-      { name: 'Prototyping', segments: [{ start:2, end:4, color:'#60a5fa' }] },
-      { name: 'Detailed Design', segments: [{ start:2, end:5, color:'#93c5fd' }] },
-      { name: 'Mechanism Fabrication', segments: [{ start:4, end:6, color:'#f59e0b' }] },
-      { name: 'Assembly (includes wiring)', segments: [{ start:3, end:6, color:'#22c55e' }] },
-      { name: 'Initial Programming', segments: [{ start:2, end:6, color:'#a78bfa' }] },
-      { name: 'Test and Finalize Programming', segments: [{ start:5, end:7, color:'#7c3aed' }] },
-      { name: 'Practice/Testing', segments: [{ start:6, end:7, color:'#0ea5e9' }] },
-      { name: 'Iterating', segments: [{ start:7, end:9, color:'#06b6d4' }] } // 9 = 8+
-    ];
 
     // Drawer
     menuBtn.onclick = () => { drawer.classList.add('open'); drawerOverlay.classList.add('active'); };
@@ -172,177 +127,113 @@
       yearDropdownList.style.display = yearDropdownList.style.display === 'block' ? 'none' : 'block';
     });
     document.addEventListener('click', (e) => {
-      if (!document.getElementById('yearDropdown').contains(e.target)) {
-        yearDropdownList.style.display = 'none';
-      }
+      if (!document.getElementById('yearDropdown').contains(e.target)) yearDropdownList.style.display = 'none';
     });
 
-    // Storage
-    function loadStore() {
-      const raw = localStorage.getItem(LS_KEY);
-      if (!raw) return {};
-      try { return JSON.parse(raw); } catch { return {}; }
-    }
-    function saveStore(obj) {
-      localStorage.setItem(LS_KEY, JSON.stringify(obj));
+    // Store helpers
+    function loadStore(){ try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch { return {}; } }
+    function saveStore(obj){ localStorage.setItem(LS_KEY, JSON.stringify(obj)); }
+
+    function defaultData(){
+      // One segment per team; defaults loosely match your reference spans
+      return {
+        rows: TEAMS.map((t, idx) => {
+          const presets = [
+            {start:1, end:2}, // Design
+            {start:2, end:5}, // Mechanical
+            {start:4, end:6}, // Electrical
+            {start:2, end:6}, // Programming
+            {start:6, end:7}, // Website (testing slot)
+            {start:5, end:7}, // Business (finalizing period)
+            {start:7, end:9}  // Drive (8+)
+          ];
+          const p = presets[idx] || {start:1, end:2};
+          return { team: t.name, segment: { start: p.start, end: p.end, color: t.color } };
+        })
+      };
     }
 
-    function getYears() {
-      const store = loadStore();
-      return Object.keys(store).map(n => parseInt(n,10)).sort((a,b)=>b-a);
-    }
+    let currentYear = null;
+    const memory = new Map(); // year -> data
 
-    function setYearData(year, data) {
+    function ensureYear(y){
       const store = loadStore();
-      store[year] = data;
+      let data = store[y];
+      if (!data) data = defaultData();
+      memory.set(y, data);
+      store[y] = data;
       saveStore(store);
-      memory.set(year, data);
-    }
-
-    function getYearData(year) {
-      if (memory.has(year)) return memory.get(year);
-      const store = loadStore();
-      return store[year] || null;
-    }
-
-    function ensureYear(year) {
-      let data = getYearData(year);
-      if (!data) data = { weekCount: 8, rows: JSON.parse(JSON.stringify(defaults)) };
-      memory.set(year, data);
-      setYearData(year, data);
       return data;
     }
-
-    // UI render
-    function renderHeader() {
-      const cols = [];
-      for (let w=1; w<=weekCount; w++) cols.push(`<div class="week-col">${w}</div>`);
-      cols.push(`<div class="week-col">8+</div>`);
-      timelineHeader.innerHTML = `
-        <div class="activity-col"><span class="font-semibold">Activity</span></div>
-        ${cols.join('')}
-      `;
+    function setYearData(y, data){
+      const store = loadStore();
+      store[y] = data;
+      saveStore(store);
+      memory.set(y, data);
+    }
+    function getYears(){
+      return Object.keys(loadStore()).map(n=>parseInt(n,10)).sort((a,b)=>b-a);
     }
 
-    function renderRows(data) {
-      // Each row is a grid: first col for label, then weeks
+    // Layout
+    function applyGridTemplate(){
+      const cols = `320px repeat(${TOTAL_COLS}, minmax(64px, 1fr))`;
+      timelineHeader.style.gridTemplateColumns = cols;
+      timelineGrid.style.gridTemplateColumns = cols;
+    }
+    function renderHeader(){
+      const weekCols = [];
+      for (let w=1; w<=WEEK_COUNT; w++) weekCols.push(`<div class="week-col">${w}</div>`);
+      weekCols.push(`<div class="week-col">8+</div>`);
+      timelineHeader.innerHTML = `<div class="activity-col"><span class="font-semibold">Team</span></div>${weekCols.join('')}`;
+    }
+    function renderRows(data){
       const html = data.rows.map((row, rIdx) => {
-        const segs = row.segments.map((seg, sIdx) => {
-          const startCol = seg.start + 1; // +1 for label column
-          const endCol = Math.min(seg.end + 1, weekCount + 2); // include 8+ col
-          return `
-            <div class="segment" style="grid-column:${startCol} / ${endCol}; background:${seg.color}" 
-                 data-row="${rIdx}" data-seg="${sIdx}" title="${row.name}: Week ${seg.start}–${seg.end}">
-              <div class="handle handle-l" data-row="${rIdx}" data-seg="${sIdx}"></div>
-              <div class="handle handle-r" data-row="${rIdx}" data-seg="${sIdx}"></div>
-              <div class="seg-actions">
-                <button class="seg-color" data-row="${rIdx}" data-seg="${sIdx}" title="Color"></button>
-                <button class="seg-dup" data-row="${rIdx}" data-seg="${sIdx}" title="Duplicate">D</button>
-                <button class="seg-del" data-row="${rIdx}" data-seg="${sIdx}" title="Delete">×</button>
-              </div>
-            </div>`;
-        }).join('');
-
+        const seg = row.segment;
+        const startCol = seg.start + 1;              // +1 for team label column
+        const endCol   = Math.min(seg.end + 1, 10);  // 9 = 8+, but grid-column end is exclusive; cap for safety
         return `
           <div class="timeline-row">
             <div class="activity-cell">
-              <span class="activity-name">${row.name}</span>
-              <button class="add-seg" data-row="${rIdx}" title="Add segment">+ segment</button>
+              <span class="activity-name">${row.team}</span>
+              <div class="team-chip" style="background:${teamChip(row.team)}"></div>
             </div>
-            ${segs}
+            <div class="segment" style="grid-column:${startCol} / ${endCol}; background:${seg.color}"
+                 data-row="${rIdx}" title="${row.team}: Week ${seg.start}–${seg.end}">
+              <div class="handle handle-l" data-row="${rIdx}"></div>
+              <div class="handle handle-r" data-row="${rIdx}"></div>
+              <div class="seg-actions">
+                <button class="seg-color" data-row="${rIdx}" title="Color"></button>
+              </div>
+            </div>
           </div>
         `;
       }).join('');
       timelineGrid.innerHTML = html;
-      bindRowControls(data);
       bindSegmentControls(data);
     }
-
-    // Controls
-    createYearBtn.onclick = async () => {
-      const y = parseInt(newYearInput.value,10);
-      if (!y) return;
-      ensureYear(y);
-      fillYearDropdown();
-      loadYear(y);
-    };
-
-    duplicateYearBtn.onclick = () => {
-      if (!currentYear) return;
-      const y = parseInt(newYearInput.value,10);
-      if (!y) return;
-      const src = getYearData(currentYear);
-      setYearData(y, JSON.parse(JSON.stringify(src)));
-      fillYearDropdown();
-      loadYear(y);
-    };
-
-    exportJSONBtn.onclick = () => {
-      const data = getYearData(currentYear);
-      const blob = new Blob([JSON.stringify({ year: currentYear, ...data }, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `timeline-${currentYear}.json`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-    };
-
-    importJSONInput.onchange = async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const txt = await file.text();
-      const json = JSON.parse(txt);
-      const year = json.year || new Date().getFullYear();
-      const data = { weekCount: json.weekCount || 8, rows: json.rows || JSON.parse(JSON.stringify(defaults)) };
-      setYearData(year, data);
-      fillYearDropdown();
-      loadYear(year);
-    };
-
-    addActivityBtn.onclick = () => {
-      const name = newActivityInput.value.trim();
-      if (!name) return;
-      const data = getYearData(currentYear);
-      data.rows.push({ name, segments: [] });
-      setYearData(currentYear, data);
-      renderRows(data);
-      newActivityInput.value = '';
-    };
-
-    resetGridBtn.onclick = () => {
-      const data = getYearData(currentYear);
-      data.rows.forEach(r => r.segments = []);
-      setYearData(currentYear, data);
-      renderRows(data);
-    };
-
-    weekCountInput.oninput = () => {
-      weekCount = Math.max(4, Math.min(16, parseInt(weekCountInput.value || '8',10)));
-      const data = getYearData(currentYear);
-      data.weekCount = weekCount;
-      setYearData(currentYear, data);
-      applyGridTemplate();
-      renderHeader();
-      renderRows(data);
-    };
-
-    function bindRowControls(data) {
-      timelineGrid.querySelectorAll('.add-seg').forEach(btn => {
-        btn.onclick = () => {
-          const r = parseInt(btn.dataset.row,10);
-          data.rows[r].segments.push({ start:1, end:2, color:'#0ea5e9' });
-          setYearData(currentYear, data);
-          renderRows(data);
-        };
-      });
+    function teamChip(team){
+      const found = TEAMS.find(t=>t.name===team);
+      return found?.chip || '#e0f2fe';
     }
 
-    function bindSegmentControls(data) {
-      // Color, duplicate, delete
-      timelineGrid.querySelectorAll('.seg-color').forEach(btn => {
+    // Drag/resize snapped to week columns
+    function trackRect(){ return timelineGrid.getBoundingClientRect(); }
+    function pxToCol(x){
+      const rect = trackRect();
+      const labelWidth = 320; // first column width
+      const colWidth = (rect.width - labelWidth) / TOTAL_COLS;
+      const rel = Math.max(0, Math.min(rect.width - labelWidth, x - rect.left - labelWidth));
+      const idx = Math.round(rel / colWidth); // 0..TOTAL_COLS
+      return Math.max(0, Math.min(TOTAL_COLS, idx)); // snapped column index starting at 0
+    }
+
+    function bindSegmentControls(data){
+      // Color
+      timelineGrid.querySelectorAll('.seg-color').forEach(btn=>{
         btn.onclick = () => {
-          const r = parseInt(btn.dataset.row,10), s = parseInt(btn.dataset.seg,10);
-          const seg = data.rows[r].segments[s];
+          const r = parseInt(btn.dataset.row,10);
+          const seg = data.rows[r].segment;
           const c = prompt('Hex color (e.g., #06b6d4):', seg.color || '#06b6d4');
           if (!c) return;
           seg.color = c;
@@ -350,78 +241,48 @@
           renderRows(data);
         };
       });
-      timelineGrid.querySelectorAll('.seg-dup').forEach(btn => {
-        btn.onclick = () => {
-          const r = parseInt(btn.dataset.row,10), s = parseInt(btn.dataset.seg,10);
-          const seg = data.rows[r].segments[s];
-          data.rows[r].segments.splice(s+1,0,JSON.parse(JSON.stringify(seg)));
-          setYearData(currentYear, data);
-          renderRows(data);
-        };
-      });
-      timelineGrid.querySelectorAll('.seg-del').forEach(btn => {
-        btn.onclick = () => {
-          const r = parseInt(btn.dataset.row,10), s = parseInt(btn.dataset.seg,10);
-          data.rows[r].segments.splice(s,1);
-          setYearData(currentYear, data);
-          renderRows(data);
-        };
-      });
 
-      // Dragging & resizing by columns (snap to whole weeks)
-      function trackRect() { return timelineGrid.getBoundingClientRect(); }
-      function pxToCol(x) {
-        const rect = trackRect();
-        const totalCols = weekCount + 1; // plus 8+ col
-        const colWidth = (rect.width - 320) / totalCols; // subtract label column
-        const rel = Math.max(0, Math.min(rect.width - 320, x - rect.left - 320));
-        const idx = Math.round(rel / colWidth) + 1; // +1 because week 1 starts after label
-        return Math.max(1, Math.min(totalCols + 1, idx)); // grid-column index including 8+
-      }
-
-      timelineGrid.querySelectorAll('.segment').forEach(segEl => {
+      // Drag whole bar
+      timelineGrid.querySelectorAll('.segment').forEach(segEl=>{
         const r = parseInt(segEl.dataset.row,10);
-        const s = parseInt(segEl.dataset.seg,10);
-
-        // Drag
         let dragging = false;
-        segEl.addEventListener('mousedown', (e) => {
-          if (e.target.classList.contains('handle')) return; // resize only
+        segEl.addEventListener('mousedown',(e)=>{
+          if (e.target.classList.contains('handle')) return;
           dragging = true;
           document.body.classList.add('select-none');
         });
-        document.addEventListener('mousemove', (e) => {
+        document.addEventListener('mousemove',(e)=>{
           if (!dragging) return;
-          const col = pxToCol(e.clientX);
-          const seg = data.rows[r].segments[s];
+          const col = pxToCol(e.clientX);        // 0..TOTAL_COLS
+          const seg = data.rows[r].segment;
           const span = seg.end - seg.start;
-          let start = Math.max(1, col);
-          let end = Math.min(9, start + span);
+          let start = Math.max(1, col);          // convert col index to week start (1-based)
+          let end   = Math.min(9, start + span); // 9 == 8+
           if (end - start < 1) end = start + 1;
           seg.start = start; seg.end = end;
           setYearData(currentYear, data);
           renderRows(data);
         });
-        document.addEventListener('mouseup', () => {
-          if (dragging) {
+        document.addEventListener('mouseup',()=>{
+          if (dragging){
             dragging = false;
             document.body.classList.remove('select-none');
           }
         });
 
-        // Resize handles
+        // Resize handles (whole weeks only)
         const hl = segEl.querySelector('.handle-l');
         const hr = segEl.querySelector('.handle-r');
         let resizingL = false, resizingR = false;
 
-        hl?.addEventListener('mousedown', (e) => { e.stopPropagation(); resizingL = true; document.body.classList.add('select-none'); });
-        hr?.addEventListener('mousedown', (e) => { e.stopPropagation(); resizingR = true; document.body.classList.add('select-none'); });
+        hl?.addEventListener('mousedown',(e)=>{ e.stopPropagation(); resizingL = true; document.body.classList.add('select-none'); });
+        hr?.addEventListener('mousedown',(e)=>{ e.stopPropagation(); resizingR = true; document.body.classList.add('select-none'); });
 
-        document.addEventListener('mousemove', (e) => {
+        document.addEventListener('mousemove',(e)=>{
           if (!resizingL && !resizingR) return;
-          const seg = data.rows[r].segments[s];
+          const seg = data.rows[r].segment;
           const col = pxToCol(e.clientX);
-          if (resizingL) {
+          if (resizingL){
             seg.start = Math.max(1, Math.min(seg.end - 1, col));
           } else {
             seg.end = Math.min(9, Math.max(seg.start + 1, col));
@@ -429,8 +290,8 @@
           setYearData(currentYear, data);
           renderRows(data);
         });
-        document.addEventListener('mouseup', () => {
-          if (resizingL || resizingR) {
+        document.addEventListener('mouseup',()=>{
+          if (resizingL || resizingR){
             resizingL = false; resizingR = false;
             document.body.classList.remove('select-none');
           }
@@ -438,37 +299,58 @@
       });
     }
 
-    // Apply grid template to header and grid
-    function applyGridTemplate() {
-      const cols = `320px repeat(${weekCount + 1}, minmax(64px, 1fr))`; // +1 for 8+ col
-      timelineHeader.style.gridTemplateColumns = cols;
-      timelineGrid.style.gridTemplateColumns = cols;
-    }
-
-    function fillYearDropdown() {
+    // Year dropdown
+    function fillYearDropdown(){
       const years = getYears();
       const displayYears = years.length ? years : [new Date().getFullYear()];
-      yearDropdownList.innerHTML = displayYears.map(y => `
+      yearDropdownList.innerHTML = displayYears.map(y=>`
         <label><input type="radio" name="yearSel" value="${y}" ${y===currentYear?'checked':''}/> <span>${y}</span></label>
       `).join('');
-      yearDropdownList.querySelectorAll('input[type="radio"]').forEach(r => {
-        r.addEventListener('change', () => loadYear(parseInt(r.value,10)));
+      yearDropdownList.querySelectorAll('input[type="radio"]').forEach(r=>{
+        r.addEventListener('change',()=>loadYear(parseInt(r.value,10)));
       });
     }
-
-    function loadYear(y) {
+    function loadYear(y){
       currentYear = y;
       const data = ensureYear(y);
-      weekCount = data.weekCount || 8;
-      weekCountInput.value = weekCount;
       yearDropdownBtn.innerHTML = `<span>${y}</span>`;
       applyGridTemplate();
       renderHeader();
       renderRows(data);
     }
 
+    // Actions
+    createYearBtn.onclick = () => {
+      const y = parseInt(newYearInput.value,10);
+      if (!y) return;
+      ensureYear(y);
+      fillYearDropdown();
+      loadYear(y);
+    };
+    duplicateYearBtn.onclick = () => {
+      if (!currentYear) return;
+      const y = parseInt(newYearInput.value,10);
+      if (!y) return;
+      const src = memory.get(currentYear);
+      setYearData(y, JSON.parse(JSON.stringify(src)));
+      fillYearDropdown();
+      loadYear(y);
+    };
+    exportJSONBtn.onclick = () => {
+      const data = memory.get(currentYear);
+      const blob = new Blob([JSON.stringify({ year: currentYear, ...data }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `timeline-${currentYear}.json`; a.click(); URL.revokeObjectURL(a.href);
+    };
+    importJSONInput.onchange = async (e) => {
+      const file = e.target.files?.[0]; if (!file) return;
+      const txt = await file.text(); const json = JSON.parse(txt);
+      const year = json.year || new Date().getFullYear();
+      const data = { rows: json.rows || defaultData().rows };
+      setYearData(year, data); fillYearDropdown(); loadYear(year);
+    };
+
     // Init
-    (function init() {
+    (function init(){
       const defaultYear = new Date().getFullYear();
       ensureYear(defaultYear);
       fillYearDropdown();

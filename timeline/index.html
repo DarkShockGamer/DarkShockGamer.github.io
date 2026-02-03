@@ -1,339 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="/assets/logo.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="/assets/js/theme-prepaint.js"></script>
-  <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
-  <link rel="stylesheet" href="/assets/css/timeline.css">
-  <title>Trident Robotics — Team Timeline</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config = { darkMode: 'class' };</script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Build Season Timeline</title>
+  <meta name="description" content="Interactive Build Season Timeline with draggable activity bars." />
+
+  <!-- The page pulls its colors from CSS variables. Set these globally in your site to match your theme. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Replace with your font(s) or remove if your theme already sets fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./timeline.css" />
 </head>
-<body class="min-h-screen p-6">
-  <header class="max-w-7xl mx-auto mb-6 px-2">
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
-      <div class="flex flex-col gap-1">
-        <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">Trident Robotics — Team Timeline</h1>
-        <p class="text-sm text-sky-600 dark:text-sky-400">Fixed weeks; one non-movable segment per team</p>
-      </div>
-
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-        <!-- Year selector -->
-        <div class="dropdown w-full sm:w-48" id="yearDropdown">
-          <div class="dropdown-btn" id="yearDropdownBtn"><span class="placeholder">Select year...</span></div>
-          <div class="dropdown-list" id="yearDropdownList"></div>
-        </div>
-
-        <button id="menuBtn" class="btn bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">Menu</button>
-      </div>
-    </div>
-
-    <!-- Year actions -->
-    <div class="mt-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
-      <div class="flex flex-wrap gap-2 items-center">
-        <input id="newYearInput" type="number" min="2000" max="2100" class="rounded-md border border-slate-300 px-3 py-2 w-32 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Year">
-        <button id="createYearBtn" class="px-3 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 text-sm">Create Year</button>
-        <button id="duplicateYearBtn" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm">Duplicate Year</button>
-        <button id="exportJSONBtn" class="px-3 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700 text-sm">Export JSON</button>
-        <label class="px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md text-sm cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700">
-          Import JSON<input id="importJSONInput" type="file" accept="application/json" class="hidden">
-        </label>
-      </div>
+<body>
+  <header class="header">
+    <h1 class="title">Build Season Timeline</h1>
+    <div class="header-actions">
+      <button id="resetBtn" class="btn ghost" title="Reset to defaults">Reset</button>
+      <button id="exportJsonBtn" class="btn ghost" title="Export as JSON">Export JSON</button>
+      <button id="exportPngBtn" class="btn ghost" title="Export as PNG">Export PNG</button>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto">
-    <!-- Timeline -->
-    <section id="timelineSection" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 dark:bg-slate-900 dark:border-slate-800">
-      <div class="flex items-baseline justify-between mb-2">
-        <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200">Build Season Timeline</h2>
-        <div class="text-sm text-slate-600 dark:text-slate-400">Weeks are fixed: 1–8 and 8+</div>
+  <main class="page">
+    <section class="legend">
+      <div class="legend-grid">
+        <div class="legend-item">
+          <span class="chip chip-accent"></span>
+          <span>Active work</span>
+        </div>
+        <div class="legend-item">
+          <span class="chip chip-muted"></span>
+          <span>Idle buffer</span>
+        </div>
+        <div class="legend-item">
+          <span class="chip chip-handle"></span>
+          <span>Resize handles</span>
+        </div>
       </div>
-
-      <div id="timelineWrapper" class="timeline-wrapper">
-        <div id="timelineHeader" class="timeline-header"></div>
-        <div id="timelineGrid" class="timeline-grid"></div>
-      </div>
+      <p class="subtle">Tip: drag bars to move; drag handles to resize; double-click a bar to edit the label.</p>
     </section>
 
-    <footer class="mt-12 text-center py-4 border-t border-slate-100 dark:border-slate-800 flex flex-col items-center gap-1">
-      <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-6 w-6" />
-      <span class="text-sky-600 dark:text-sky-400 text-sm">© 2026 Trident Robotics — Team Timeline</span>
-      <span class="text-xs text-sky-400">Build season planner</span>
-    </footer>
+    <section class="board-container">
+      <div class="board" id="timelineBoard" aria-label="Interactive build season timeline">
+        <!-- Week header row -->
+        <div class="board-row board-header" role="row">
+          <div class="cell cell-activity-head" role="columnheader">ACTIVITY</div>
+          <!-- Week columns injected by JS -->
+        </div>
+        <!-- Activity rows injected by JS -->
+      </div>
+    </section>
   </main>
 
-  <!-- Drawer -->
-  <div class="drawer-overlay" id="drawerOverlay"></div>
-  <div class="drawer" id="drawer">
-    <div class="p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-bold text-slate-800 dark:text-slate-300">Menu</h2>
-        <button id="closeDrawerBtn" class="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-      </div>
-      <div class="space-y-3 text-sm text-slate-600 dark:text-slate-400">
-        <p>One segment per team. Resize from the left/right handles to adjust duration. Bars are pinned to their team row.</p>
-        <p>Use Export/Import to share or back up timelines.</p>
-      </div>
-    </div>
-  </div>
+  <footer class="footer">
+    <div class="save-indicator" id="saveIndicator" aria-live="polite">Saved</div>
+  </footer>
 
-  <script>
-    // Fixed weeks
-    const WEEK_COUNT = 8;           // plus "8+" overflow column handled as 9
-    const TOTAL_COLS = WEEK_COUNT + 1;
-
-    // Teams on the left (names clearly printed)
-    const TEAMS = [
-      { name: 'Design',      color: '#1e40af', chip: '#dbeafe' },
-      { name: 'Mechanical',  color: '#991b1b', chip: '#fee2e2' },
-      { name: 'Electrical',  color: '#92400e', chip: '#fef3c7' },
-      { name: 'Programming', color: '#6b21a8', chip: '#f3e8ff' },
-      { name: 'Website',     color: '#155e75', chip: '#cffafe' },
-      { name: 'Business',    color: '#475569', chip: '#f1f5f9' },
-      { name: 'Drive',       color: '#9a3412', chip: '#fed7aa' }
-    ];
-
-    const LS_KEY = 'trident_team_timeline_v3';
-
-    // UI refs
-    const yearDropdownBtn = document.getElementById('yearDropdownBtn');
-    const yearDropdownList = document.getElementById('yearDropdownList');
-    const newYearInput = document.getElementById('newYearInput');
-    const createYearBtn = document.getElementById('createYearBtn');
-    const duplicateYearBtn = document.getElementById('duplicateYearBtn');
-    const exportJSONBtn = document.getElementById('exportJSONBtn');
-    const importJSONInput = document.getElementById('importJSONInput');
-
-    const timelineHeader = document.getElementById('timelineHeader');
-    const timelineGrid = document.getElementById('timelineGrid');
-
-    const menuBtn = document.getElementById('menuBtn');
-    const drawer = document.getElementById('drawer');
-    const drawerOverlay = document.getElementById('drawerOverlay');
-    const closeDrawerBtn = document.getElementById('closeDrawerBtn');
-
-    // Drawer
-    menuBtn.onclick = () => { drawer.classList.add('open'); drawerOverlay.classList.add('active'); };
-    closeDrawerBtn.onclick = () => { drawer.classList.remove('open'); drawerOverlay.classList.remove('active'); };
-    drawerOverlay.onclick = () => { drawer.classList.remove('open'); drawerOverlay.classList.remove('active'); };
-
-    // Dropdown behavior
-    yearDropdownBtn.addEventListener('click', () => {
-      yearDropdownList.style.display = yearDropdownList.style.display === 'block' ? 'none' : 'block';
-    });
-    document.addEventListener('click', (e) => {
-      if (!document.getElementById('yearDropdown').contains(e.target)) yearDropdownList.style.display = 'none';
-    });
-
-    // Store helpers
-    function loadStore(){ try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch { return {}; } }
-    function saveStore(obj){ localStorage.setItem(LS_KEY, JSON.stringify(obj)); }
-
-    function defaultData(){
-      // One segment per team; defaults aligned to your reference
-      return {
-        rows: TEAMS.map((t, idx) => {
-          const presets = [
-            {start:1, end:2}, // Design
-            {start:2, end:5}, // Mechanical
-            {start:4, end:6}, // Electrical
-            {start:2, end:6}, // Programming
-            {start:6, end:7}, // Website
-            {start:5, end:7}, // Business
-            {start:7, end:9}  // Drive (8+)
-          ];
-          const p = presets[idx] || {start:1, end:2};
-          return { team: t.name, segment: { start: p.start, end: p.end, color: t.color } };
-        })
-      };
-    }
-
-    let currentYear = null;
-    const memory = new Map(); // year -> data
-
-    function ensureYear(y){
-      const store = loadStore();
-      let data = store[y];
-      if (!data) data = defaultData();
-      memory.set(y, data);
-      store[y] = data;
-      saveStore(store);
-      return data;
-    }
-    function setYearData(y, data){
-      const store = loadStore();
-      store[y] = data;
-      saveStore(store);
-      memory.set(y, data);
-    }
-    function getYears(){
-      return Object.keys(loadStore()).map(n=>parseInt(n,10)).sort((a,b)=>b-a);
-    }
-
-    // Layout
-    function applyGridTemplate(){
-      const cols = `320px repeat(${TOTAL_COLS}, minmax(64px, 1fr))`;
-      timelineHeader.style.gridTemplateColumns = cols;
-      timelineGrid.style.gridTemplateColumns = cols;
-    }
-    function renderHeader(){
-      const weekCols = [];
-      for (let w=1; w<=WEEK_COUNT; w++) weekCols.push(`<div class="week-col">${w}</div>`);
-      weekCols.push(`<div class="week-col">8+</div>`);
-      timelineHeader.innerHTML = `<div class="activity-col"><span class="font-semibold">Team</span></div>${weekCols.join('')}`;
-    }
-    function renderRows(data){
-      const html = data.rows.map((row, rIdx) => {
-        const seg = row.segment;
-        const startCol = seg.start + 1;              // +1 for team label column
-        const endCol   = Math.min(seg.end + 1, 10);  // cap within grid
-
-        return `
-          <div class="timeline-row">
-            <div class="activity-cell">
-              <span class="activity-name">${row.team}</span>
-            </div>
-            <div class="segment" style="grid-column:${startCol} / ${endCol}; background:${seg.color}"
-                 data-row="${rIdx}" title="${row.team}: Week ${seg.start}–${seg.end}">
-              <div class="handle handle-l" data-row="${rIdx}"></div>
-              <div class="handle handle-r" data-row="${rIdx}"></div>
-              <div class="seg-actions">
-                <button class="seg-color" data-row="${rIdx}" title="Change color"></button>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-      timelineGrid.innerHTML = html;
-      bindSegmentControls(data);
-    }
-
-    // Geometry helpers (snap to whole weeks)
-    function trackRect(){ return timelineGrid.getBoundingClientRect(); }
-    function pxToCol(x){
-      const rect = trackRect();
-      const labelWidth = 320; // first column width
-      const colWidth = (rect.width - labelWidth) / TOTAL_COLS;
-      const rel = Math.max(0, Math.min(rect.width - labelWidth, x - rect.left - labelWidth));
-      const idx = Math.round(rel / colWidth); // 0..TOTAL_COLS
-      return Math.max(0, Math.min(TOTAL_COLS, idx));
-    }
-
-    // Only resizing, no moving
-    function bindSegmentControls(data){
-      // Color change
-      timelineGrid.querySelectorAll('.seg-color').forEach(btn=>{
-        btn.onclick = () => {
-          const r = parseInt(btn.dataset.row,10);
-          const seg = data.rows[r].segment;
-          const c = prompt('Hex color (e.g., #06b6d4):', seg.color || '#06b6d4');
-          if (!c) return;
-          seg.color = c;
-          setYearData(currentYear, data);
-          renderRows(data);
-        };
-      });
-
-      // Resize handles
-      timelineGrid.querySelectorAll('.segment').forEach(segEl=>{
-        const r = parseInt(segEl.dataset.row,10);
-        const hl = segEl.querySelector('.handle-l');
-        const hr = segEl.querySelector('.handle-r');
-        let resizingL = false, resizingR = false;
-
-        // Prevent moving when clicking the bar
-        segEl.addEventListener('mousedown', (e) => {
-          // Do nothing unless it's a handle; bars cannot move
-          e.preventDefault();
-        });
-
-        hl?.addEventListener('mousedown',(e)=>{ e.stopPropagation(); resizingL = true; document.body.classList.add('select-none'); });
-        hr?.addEventListener('mousedown',(e)=>{ e.stopPropagation(); resizingR = true; document.body.classList.add('select-none'); });
-
-        document.addEventListener('mousemove',(e)=>{
-          if (!resizingL && !resizingR) return;
-          const seg = data.rows[r].segment;
-          const col = pxToCol(e.clientX);
-          if (resizingL){
-            seg.start = Math.max(1, Math.min(seg.end - 1, col));
-          } else {
-            seg.end = Math.min(9, Math.max(seg.start + 1, col));
-          }
-          setYearData(currentYear, data);
-          renderRows(data);
-        });
-
-        document.addEventListener('mouseup',()=>{
-          if (resizingL || resizingR){
-            resizingL = false; resizingR = false;
-            document.body.classList.remove('select-none');
-          }
-        });
-      });
-    }
-
-    // Year dropdown
-    function fillYearDropdown(){
-      const years = getYears();
-      const displayYears = years.length ? years : [new Date().getFullYear()];
-      yearDropdownList.innerHTML = displayYears.map(y=>`
-        <label><input type="radio" name="yearSel" value="${y}" ${y===currentYear?'checked':''}/> <span>${y}</span></label>
-      `).join('');
-      yearDropdownList.querySelectorAll('input[type="radio"]').forEach(r=>{
-        r.addEventListener('change',()=>loadYear(parseInt(r.value,10)));
-      });
-    }
-    function loadYear(y){
-      currentYear = y;
-      const data = ensureYear(y);
-      yearDropdownBtn.innerHTML = `<span>${y}</span>`;
-      applyGridTemplate();
-      renderHeader();
-      renderRows(data);
-    }
-
-    // Actions
-    createYearBtn.onclick = () => {
-      const y = parseInt(newYearInput.value,10);
-      if (!y) return;
-      ensureYear(y);
-      fillYearDropdown();
-      loadYear(y);
-    };
-    duplicateYearBtn.onclick = () => {
-      if (!currentYear) return;
-      const y = parseInt(newYearInput.value,10);
-      if (!y) return;
-      const src = memory.get(currentYear);
-      setYearData(y, JSON.parse(JSON.stringify(src)));
-      fillYearDropdown();
-      loadYear(y);
-    };
-    exportJSONBtn.onclick = () => {
-      const data = memory.get(currentYear);
-      const blob = new Blob([JSON.stringify({ year: currentYear, ...data }, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `timeline-${currentYear}.json`; a.click(); URL.revokeObjectURL(a.href);
-    };
-    importJSONInput.onchange = async (e) => {
-      const file = e.target.files?.[0]; if (!file) return;
-      const txt = await file.text(); const json = JSON.parse(txt);
-      const year = json.year || new Date().getFullYear();
-      const data = { rows: json.rows || defaultData().rows };
-      setYearData(year, data); fillYearDropdown(); loadYear(year);
-    };
-
-    // Init
-    (function init(){
-      const defaultYear = new Date().getFullYear();
-      ensureYear(defaultYear);
-      fillYearDropdown();
-      loadYear(defaultYear);
-    })();
-  </script>
+  <script src="./timeline.js"></script>
 </body>
 </html>

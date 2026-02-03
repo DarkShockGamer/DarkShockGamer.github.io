@@ -1,0 +1,369 @@
+/* Timeline CSS - Theme-aware styles for interactive timeline */
+
+/* Body styling - let adaptive themes handle backgrounds */
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+/* Timeline Board Grid */
+.timeline-board {
+  display: grid;
+  grid-template-columns: 200px repeat(8, minmax(80px, 1fr));
+  gap: 0;
+  min-width: 900px;
+  border: 1px solid;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+/* Light theme border */
+html.theme-light .timeline-board {
+  border-color: #e2e8f0;
+}
+
+/* Dark theme border */
+html.theme-dark .timeline-board {
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+/* Timeline Header (ACTIVITY and Week columns) */
+.timeline-header {
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid;
+}
+
+.timeline-header:first-child {
+  text-align: left;
+}
+
+/* Light theme headers */
+html.theme-light .timeline-header {
+  background: rgba(241, 245, 249, 0.8);
+  border-color: #e2e8f0;
+  color: #0369a1;
+}
+
+/* Dark theme headers */
+html.theme-dark .timeline-header {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: #a5b4fc;
+}
+
+/* Timeline Row */
+.timeline-row {
+  display: contents;
+}
+
+/* Activity Label Cell */
+.activity-label {
+  padding: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 200ms;
+}
+
+.activity-label:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+/* Light theme labels */
+html.theme-light .activity-label {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Dark theme labels */
+html.theme-dark .activity-label {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: #e5e7eb;
+}
+
+/* Week Cell */
+.week-cell {
+  position: relative;
+  min-height: 60px;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+  padding: 0.5rem;
+}
+
+.week-cell:last-child {
+  border-right: none;
+}
+
+/* Light theme cells */
+html.theme-light .week-cell {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: #e2e8f0;
+}
+
+html.theme-light .week-cell:nth-child(even) {
+  background: rgba(248, 250, 252, 0.5);
+}
+
+/* Dark theme cells */
+html.theme-dark .week-cell {
+  background: rgba(15, 23, 42, 0.3);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+html.theme-dark .week-cell:nth-child(even) {
+  background: rgba(30, 41, 59, 0.4);
+}
+
+/* Activity Bar */
+.activity-bar {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 32px;
+  border-radius: 8px;
+  cursor: grab;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 200ms, box-shadow 200ms;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.activity-bar:hover {
+  transform: translateY(-50%) scale(1.02);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+}
+
+.activity-bar:active {
+  cursor: grabbing;
+}
+
+.activity-bar.dragging {
+  opacity: 0.7;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+}
+
+/* Light theme bars */
+html.theme-light .activity-bar {
+  background: linear-gradient(135deg, #38bdf8 0%, #3b82f6 100%);
+  color: white;
+}
+
+/* Dark theme bars */
+html.theme-dark .activity-bar {
+  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+  color: white;
+}
+
+/* Resize Handles */
+.resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+  z-index: 10;
+}
+
+.resize-handle.left {
+  left: 0;
+}
+
+.resize-handle.right {
+  right: 0;
+}
+
+.resize-handle:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Ripple Effect */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+  animation: ripple 600ms ease-out;
+}
+
+/* Glow effect during drag */
+.activity-bar.dragging::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #38bdf8, #818cf8);
+  opacity: 0.4;
+  filter: blur(8px);
+  z-index: -1;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Selected state */
+.activity-bar.selected {
+  outline: 2px solid;
+  outline-offset: 2px;
+}
+
+html.theme-light .activity-bar.selected {
+  outline-color: #3b82f6;
+}
+
+html.theme-dark .activity-bar.selected {
+  outline-color: #818cf8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .timeline-board {
+    grid-template-columns: 160px repeat(8, minmax(70px, 1fr));
+    min-width: 800px;
+  }
+  
+  .activity-label {
+    font-size: 0.8125rem;
+    padding: 0.625rem;
+  }
+  
+  .activity-bar {
+    font-size: 0.6875rem;
+    height: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .timeline-board {
+    grid-template-columns: 140px repeat(8, minmax(60px, 1fr));
+    min-width: 700px;
+  }
+  
+  .timeline-header {
+    font-size: 0.6875rem;
+    padding: 0.625rem 0.5rem;
+  }
+  
+  .activity-label {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+  
+  .activity-bar {
+    font-size: 0.625rem;
+    height: 26px;
+    padding: 0 0.375rem;
+  }
+}
+
+/* High contrast theme overrides */
+html.theme-high-contrast-light .timeline-board,
+html.theme-high-contrast-dark .timeline-board {
+  border-width: 3px;
+}
+
+html.theme-high-contrast-light .activity-bar,
+html.theme-high-contrast-dark .activity-bar {
+  border: 3px solid;
+  font-weight: 700;
+}
+
+html.theme-high-contrast-light .activity-bar {
+  background: #16a34a;
+  border-color: #000000;
+  color: #ffffff;
+}
+
+html.theme-high-contrast-dark .activity-bar {
+  background: #22c55e;
+  border-color: #ffffff;
+  color: #000000;
+}
+
+/* OLED theme */
+html.theme-oled .timeline-board {
+  border-color: #333333;
+}
+
+html.theme-oled .week-cell {
+  background: #000000;
+  border-color: #333333;
+}
+
+html.theme-oled .activity-bar {
+  background: #1a1a1a;
+  color: #60a5fa;
+  border: 1px solid #444444;
+}
+
+/* Neon theme */
+html.theme-neon .timeline-board {
+  border-color: #ff00ff;
+}
+
+html.theme-neon .activity-bar {
+  background: linear-gradient(90deg, #ff00ff 0%, #00ffff 100%);
+  color: #000000;
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+}
+
+/* Paper theme */
+html.theme-paper .timeline-board {
+  border-color: #d4d4d0;
+}
+
+html.theme-paper .activity-bar {
+  background: #4a4a46;
+  color: #fdfdf8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Retro CRT theme */
+html.theme-retro-crt .timeline-board {
+  border-color: #00ff00;
+}
+
+html.theme-retro-crt .activity-bar {
+  background: #003300;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+  text-shadow: 0 0 3px #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  font-family: 'Courier New', monospace;
+}

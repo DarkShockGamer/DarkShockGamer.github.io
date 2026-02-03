@@ -1,256 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Build Season Timeline</title>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Pre-paint theme application to prevent FOUC - must be before CSS -->
+  <script src="/assets/js/theme-prepaint.js"></script>
+  <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
+  <link rel="stylesheet" href="timeline.css">
+  <!-- Privacy-friendly analytics by Plausible -->
+  <script async src="https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
+  <title>Build Season Timeline — Trident Robotics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configure Tailwind to use class-based dark mode instead of media query
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
 </head>
-<body style="margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#0a0b10; color:#e6eaf5;">
-  <header style="max-width:1100px; margin:24px auto 8px; padding:0 16px;">
-    <h1 style="margin:0; font-size:1.75rem; text-align:center;">Build Season Timeline</h1>
+<body class="min-h-screen">
+  <!-- Header -->
+  <header class="max-w-7xl mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold text-center mb-2">Build Season Timeline</h1>
+    <p class="text-center text-slate-600 dark:text-slate-400">Interactive timeline for planning and tracking build season activities</p>
   </header>
 
-  <main style="max-width:1100px; margin:0 auto; padding:8px 16px 28px;">
-    <table aria-label="Build season timeline" style="
-      width:100%;
-      border-collapse:collapse;
-      background:#121421;
-      border:1px solid #2a2d3d;
-      border-radius:12px;
-      overflow:hidden;
-    ">
-      <thead>
-        <tr>
-          <th scope="col" style="text-align:left; padding:12px; background:#1a1d2b; border-bottom:1px solid #2a2d3d; width:280px; text-transform:uppercase; font-size:0.85rem; letter-spacing:1px;">
-            ACTIVITY
-          </th>
-          <!-- Week headers -->
-          <th scope="col" style="padding:12px; text-align:center; background:#1a1d2b; border-bottom:1px solid #2a2d3d;">1</th>
-          <th scope="col" style="padding:12px; text-align:center; background:#121421; border-bottom:1px solid #2a2d3d;">2</th>
-          <th scope="col" style="padding:12px; text-align:center; background:#1a1d2b; border-bottom:1px solid #2a2d3d;">3</th>
-          <th scope="col" style="padding:12px; text-align:center; background:#121421; border-bottom:1px solid #2a2d3d;">4</th>
-          <th scope="col" style="padding:12px; text-align:center; background:#1a1d2b; border-bottom:1px solid #2a2d3d;">5</th>
-          <th scope="col" style="padding:12px; text-align:center; background:#121421; border-bottom:1px solid #2a2d3d;">6</th>
-          <th scope="col" style="padding:12px; text-align:center; background:#1a1d2b; border-bottom:1px solid #2a2d3d;">7</th>
-          <th scope="col" style="padding:12px; text-align:center; background:#121421; border-bottom:1px solid #2a2d3d;">8+</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Helper: use a bar inside any active week cell -->
-        <!-- Style for bar -->
-        <!-- barStyle = display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070; -->
+  <!-- Control Bar -->
+  <div class="max-w-7xl mx-auto px-4 pb-4">
+    <div class="panel p-4 flex flex-wrap gap-3 items-center justify-between">
+      <div class="flex flex-wrap gap-2">
+        <button id="resetBtn" class="btn-neutral text-white px-4 py-2 rounded-lg font-semibold transition-all hover:scale-105" aria-label="Reset timeline to defaults">
+          Reset
+        </button>
+        <button id="exportJsonBtn" class="btn-primary text-white px-4 py-2 rounded-lg font-semibold transition-all hover:scale-105" aria-label="Export timeline as JSON">
+          Export JSON
+        </button>
+        <button id="exportPngBtn" class="btn-primary text-white px-4 py-2 rounded-lg font-semibold transition-all hover:scale-105" aria-label="Export timeline as PNG image">
+          Export PNG
+        </button>
+      </div>
+      <div id="saveStatus" class="text-sm text-slate-600 dark:text-slate-400" role="status" aria-live="polite" aria-atomic="true"></div>
+    </div>
+  </div>
 
-        <!-- Initial Strategy -->
-        <tr>
-          <th scope="row" style="padding:12px; text-align:left; font-weight:600; border-top:1px solid #2a2d3d; background:#121421;">
-            Initial Strategy <span style="color:#a1a7bb; font-weight:400;">(First 2–3 days)</span>
-          </th>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-        </tr>
-
-        <!-- Mechanism Brainstorming + Choosing prototype concepts -->
-        <tr>
-          <th scope="row" style="padding:12px; text-align:left; font-weight:600; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            Mechanism Brainstorming + Choosing prototype concepts <span style="color:#a1a7bb; font-weight:400;">(≈2 days)</span>
-          </th>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-        </tr>
-
-        <!-- Prototyping -->
-        <tr>
-          <th scope="row" style="padding:12px; text-align:left; font-weight:600; border-top:1px solid #2a2d3d; background:#121421;">
-            Prototyping
-          </th>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-        </tr>
-
-        <!-- Detailed Design -->
-        <tr>
-          <th scope="row" style="padding:12px; text-align:left; font-weight:600; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            Detailed Design
-          </th>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-        </tr>
-
-        <!-- Mechanism Fabrication -->
-        <tr>
-          <th scope="row" style="padding:12px; text-align:left; font-weight:600; border-top:1px solid #2a2d3d; background:#121421;">
-            Mechanism Fabrication
-          </th>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-        </tr>
-
-        <!-- Assembly (includes wiring) -->
-        <tr>
-          <th scope="row" style="padding:12px; text-align:left; font-weight:600; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            Assembly (includes wiring)
-          </th>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-        </tr>
-
-        <!-- Initial Programming -->
-        <tr>
-          <th scope="row" style="padding:12px; text-align:left; font-weight:600; border-top:1px solid #2a2d3d; background:#121421;">
-            Initial Programming
-          </th>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-        </tr>
-
-        <!-- Test and Finalize Programming -->
-        <tr>
-          <th scope="row" style="padding:12px; text-align:left; font-weight:600; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            Test and Finalize Programming
-          </th>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-        </tr>
-
-        <!-- Practice/Testing -->
-        <tr>
-          <th scope="row" style="padding:12px; text-align:left; font-weight:600; border-top:1px solid #2a2d3d; background:#121421;">
-            Practice/Testing
-          </th>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-        </tr>
-
-        <!-- Iterating -->
-        <tr>
-          <th scope="row" style="padding:12px; text-align:left; font-weight:600; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            Iterating
-          </th>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;"></td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#121421;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-          <td style="padding:12px; border-top:1px solid #2a2d3d; background:#1a1d2b;">
-            <span style="display:block; height:26px; border-radius:8px; background:linear-gradient(135deg,#15c2ff,#3a7bff); box-shadow:0 6px 18px -8px #43d6ff80, inset 0 1px 0 #00000070;"></span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <p style="color:#a1a7bb; margin-top:12px;">
-      Note: This HTML renders the full timeline without any external CSS/JS. For animations and drag/resize interactions, add timeline.css and timeline.js later.
-    </p>
+  <!-- Timeline Board -->
+  <main class="max-w-7xl mx-auto px-4 pb-8">
+    <div class="panel p-4 overflow-x-auto">
+      <div id="timelineBoard" class="timeline-board" role="grid" aria-label="Build season timeline grid">
+        <!-- Grid will be generated by JavaScript -->
+      </div>
+    </div>
   </main>
+
+  <!-- Instructions -->
+  <div class="max-w-7xl mx-auto px-4 pb-8">
+    <div class="panel p-4">
+      <h2 class="text-lg font-semibold mb-2">How to Use</h2>
+      <ul class="text-sm text-slate-600 dark:text-slate-400 space-y-1">
+        <li><strong>Drag:</strong> Click and drag bars to move them across weeks</li>
+        <li><strong>Resize:</strong> Drag the edges of bars to resize them</li>
+        <li><strong>Keyboard:</strong> Use arrow keys to nudge selected bars, Enter to edit labels</li>
+        <li><strong>Auto-save:</strong> Changes are automatically saved to your browser</li>
+        <li><strong>Export:</strong> Download your timeline as JSON data or PNG image</li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="timeline.js"></script>
 </body>
 </html>

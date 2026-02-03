@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Pre-paint theme application to prevent FOUC -->
+  <script src="/assets/js/theme-prepaint.js"></script>
+  <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
+  <link rel="stylesheet" href="/assets/css/timeline.css">
+
+  <!-- Privacy-friendly analytics by Plausible (optional; mirrors tasks page) -->
+  <script async src="https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
+
+  <title>Trident Robotics — Team Timeline</title>
+
+  <!-- JWT decode + shared auth -->
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
+  <script src="/assets/js/auth-config.js"></script>
+  <script src="/assets/js/auth-guard.js"></script>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+
+  <!-- Firebase (match versions used in tasks page) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+    // Same config as tasks page
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHGWZI",
+      authDomain: "tridenttaskboard.firebaseapp.com",
+      projectId: "tridenttaskboard",
+      storageBucket: "tridenttaskboard.firebasestorage.appspot.com",
+      messagingSenderId: "143400263387",
+      appId: "1:143400263387:web:66ed521ae75af588e836fe",
+      measurementId: "G-F12DRDCX87"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.firestoreDB = db;
+  </script>
+</head>
+<body class="min-h-screen p-6">
+  <header class="max-w-7xl mx-auto mb-6 px-2">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0 min-w-0">
+      <div class="flex flex-col gap-1 w-full md:w-auto min-w-0">
+        <h1 class="text-2xl md:text-3xl font-extrabold text-sky-800 leading-snug dark:text-sky-300">Trident Robotics — Team Timeline</h1>
+        <p class="text-sm text-sky-600 dark:text-sky-400">Yearly build season plan with editable activity segments</p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto min-w-0">
+        <!-- Year selector -->
+        <div class="dropdown w-full sm:w-48" id="yearDropdown">
+          <div class="dropdown-btn" id="yearDropdownBtn"><span class="placeholder">Select year...</span></div>
+          <div class="dropdown-list" id="yearDropdownList">
+            <!-- populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Compare with previous year -->
+        <button id="compareToggle" class="btn bg-sky-100 hover:bg-sky-200 text-sky-700 px-4 py-2 rounded-md font-semibold shadow-sm dark:bg-slate-900 dark:text-sky-300 dark:hover:bg-slate-800">
+          Compare previous year
+        </button>
+
+        <!-- Menu -->
+        <button id="menuBtn" class="btn bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold w-full sm:w-auto shadow-sm">
+          Menu
+        </button>
+      </div>
+    </div>
+
+    <!-- Year actions -->
+    <div class="mt-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
+      <div class="flex flex-wrap gap-2 items-center">
+        <input id="newYearInput" type="number" min="2000" max="2100" class="rounded-md border border-slate-300 px-3 py-2 w-32 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Year">
+        <button id="createYearBtn" class="px-3 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 text-sm">Create Year</button>
+        <button id="duplicateYearBtn" class="px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm">Duplicate Year</button>
+        <button id="exportJSONBtn" class="px-3 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700 text-sm">Export JSON</button>
+        <label class="px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md text-sm cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700">
+          Import JSON<input id="importJSONInput" type="file" accept="application/json" class="hidden">
+        </label>
+        <button id="exportPNGBtn" class="px-3 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 text-sm">Export PNG</button>
+        <span id="authState" class="text-xs text-slate-500 dark:text-slate-400 ml-auto">Read-only until signed in</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto">
+    <!-- Legend and activity controls -->
+    <section class="mb-4 grid gap-4 md:grid-cols-2">
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">Legend</h2>
+        <div class="flex flex-wrap gap-2">
+          <span class="legend-chip" data-tag="strategy">Strategy</span>
+          <span class="legend-chip" data-tag="brainstorm">Brainstorm</span>
+          <span class="legend-chip" data-tag="prototype">Prototyping</span>
+          <span class="legend-chip" data-tag="design">Detailed Design</span>
+          <span class="legend-chip" data-tag="fabrication">Fabrication</span>
+          <span class="legend-chip" data-tag="assembly">Assembly</span>
+          <span class="legend-chip" data-tag="programming">Programming</span>
+          <span class="legend-chip" data-tag="testing">Testing</span>
+          <span class="legend-chip" data-tag="iterating">Iterating</span>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">Activities</h2>
+        <div class="flex flex-wrap gap-2 items-center">
+          <input id="newActivityInput" type="text" class="rounded-md border border-slate-300 px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Add activity (e.g., Initial Strategy)">
+          <button id="addActivityBtn" class="px-3 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700 text-sm">Add Activity</button>
+          <button id="resetGridBtn" class="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm">Clear Segments</button>
+          <span class="text-xs text-slate-500 dark:text-slate-400">Tip: Drag bars; corners resize; hold Alt to snap 0.5 week</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Timeline grid -->
+    <section id="timelineSection" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+      <div class="flex items-baseline justify-between mb-2">
+        <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200">Build Season Timeline</h2>
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-slate-600 dark:text-slate-400">Weeks</label>
+          <input id="weekCountInput" type="number" min="4" max="16" value="8" class="w-20 rounded-md border border-slate-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+        </div>
+      </div>
+
+      <div id="timelineWrapper" class="timeline-wrapper">
+        <div id="timelineHeader" class="timeline-header"></div>
+        <div id="timelineGrid" class="timeline-grid"></div>
+      </div>
+    </section>
+
+    <footer class="mt-12 text-center py-4 border-t border-slate-100 dark:border-slate-800 flex flex-col items-center gap-1">
+      <img src="/assets/logo.png" alt="Trident Robotics Logo" class="h-6 w-6" />
+      <span class="text-sky-600 dark:text-sky-400 text-sm">© 2026 Trident Robotics — Team Timeline</span>
+      <span class="text-xs text-sky-400">Build season planner</span>
+    </footer>
+  </main>
+
+  <!-- Drawer -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <div class="drawer" id="drawer">
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-slate-800 dark:text-slate-300">Menu</h2>
+        <button id="closeDrawerBtn" class="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">Year</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400">Select, create, duplicate, and save timelines by year. If signed-in, changes persist to Firestore; otherwise, they remain local.</p>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">Editing Tips</h3>
+          <ul class="text-sm text-slate-600 dark:text-slate-400 list-disc ml-5 space-y-1">
+            <li>Drag segments to move. Resize with corner handles.</li>
+            <li>Hold Alt for half-week snapping; Shift for fine pixel movement.</li>
+            <li>Arrow keys nudge; Delete removes; D duplicates.</li>
+            <li>Change color by clicking the segment’s color dot.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App scripts -->
+  <script src="/assets/js/timeline-helpers.js"></script>
+  <script>
+    // Basic auth helpers (read-only vs edit)
+    function isUserSignedIn() {
+      const credential = localStorage.getItem('g_credential_v1');
+      if (!credential) return false;
+      try {
+        if (typeof jwt_decode === 'function') {
+          const decoded = jwt_decode(credential);
+          if (decoded.exp && decoded.exp * 1000 < Date.now()) return false;
+        }
+        return true;
+      } catch { return false; }
+    }
+
+    // UI refs
+    const menuBtn = document.getElementById('menuBtn');
+    const drawer = document.getElementById('drawer');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+    const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+    const yearDropdown = document.getElementById('yearDropdown');
+    const yearDropdownBtn = document.getElementById('yearDropdownBtn');
+    const yearDropdownList = document.getElementById('yearDropdownList');
+    const authState = document.getElementById('authState');
+    const weekCountInput = document.getElementById('weekCountInput');
+    const compareToggle = document.getElementById('compareToggle');
+
+    const newYearInput = document.getElementById('newYearInput');
+    const createYearBtn = document.getElementById('createYearBtn');
+    const duplicateYearBtn = document.getElementById('duplicateYearBtn');
+    const exportJSONBtn = document.getElementById('exportJSONBtn');
+    const importJSONInput = document.getElementById('importJSONInput');
+    const exportPNGBtn = document.getElementById('exportPNGBtn');
+
+    const newActivityInput = document.getElementById('newActivityInput');
+    const addActivityBtn = document.getElementById('addActivityBtn');
+    const resetGridBtn = document.getElementById('resetGridBtn');
+
+    const timelineHeader = document.getElementById('timelineHeader');
+    const timelineGrid = document.getElementById('timelineGrid');
+
+    // State
+    let allYears = [];           // [yearNumber]
+    let currentYear = null;      // number
+    let previousYear = null;     // number used for compare overlay
+    let weekCount = 8;           // default weeks
+    let compareEnabled = false;
+    let editingEnabled = isUserSignedIn();
+
+    const defaultActivities = [
+      { name: 'Initial Strategy (~First 2-3 days)', segments: [{ start:1, end:2, tag:'strategy', color:'#06b6d4' }] },
+      { name: 'Mechanism Brainstorming + Choosing prototype concepts (~2 days)', segments: [{ start:1, end:2, tag:'brainstorm', color:'#06b6d4' }] },
+      { name: 'Prototyping', segments: [{ start:2, end:4, tag:'prototype', color:'#60a5fa' }] },
+      { name: 'Detailed Design', segments: [{ start:2, end:5, tag:'design', color:'#93c5fd' }] },
+      { name: 'Mechanism Fabrication', segments: [{ start:4, end:6, tag:'fabrication', color:'#f59e0b' }] },
+      { name: 'Assembly (includes wiring)', segments: [{ start:3, end:6, tag:'assembly', color:'#22c55e' }] },
+      { name: 'Initial Programming', segments: [{ start:2, end:6, tag:'programming', color:'#a78bfa' }] },
+      { name: 'Test and Finalize Programming', segments: [{ start:5, end:7, tag:'programming', color:'#7c3aed' }] },
+      { name: 'Practice/Testing', segments: [{ start:6, end:7, tag:'testing', color:'#0ea5e9' }] },
+      { name: 'Iterating', segments: [{ start:7, end:9, tag:'iterating', color:'#06b6d4' }] }, // 9 == 8+
+    ];
+
+    // Drawer
+    menuBtn.onclick = () => { drawer.classList.add('open'); drawerOverlay.classList.add('active'); };
+    closeDrawerBtn.onclick = () => { drawer.classList.remove('open'); drawerOverlay.classList.remove('active'); };
+    drawerOverlay.onclick = () => { drawer.classList.remove('open'); drawerOverlay.classList.remove('active'); };
+
+    // Dropdown behavior
+    yearDropdownBtn.addEventListener('click', () => {
+      yearDropdownList.style.display = yearDropdownList.style.display === 'block' ? 'none' : 'block';
+    });
+    document.addEventListener('click', (e) => {
+      const root = yearDropdown;
+      if (!root.contains(e.target)) { yearDropdownList.style.display = 'none'; }
+    });
+
+    // Initialize header and grid layout
+    function renderHeader() {
+      const cols = [];
+      for (let w=1; w<=weekCount; w++) cols.push(`<div class="week-col">${w}</div>`);
+      cols.push(`<div class="week-col">8+</div>`); // last col acts as overflow
+      timelineHeader.innerHTML = `
+        <div class="activity-col"><span class="font-semibold">Activity</span></div>
+        ${cols.join('')}
+      `;
+    }
+
+    function renderGrid(rows, compareRows=null) {
+      // Build rows with segments
+      const gridHTML = rows.map((row, idx) => {
+        const segmentsHTML = row.segments.map((seg, sIdx) => {
+          const width = segmentWidth(seg.start, seg.end);
+          const left = segmentLeft(seg.start);
+          const handles = editingEnabled ? `
+            <div class="handle handle-l" data-row="${idx}" data-seg="${sIdx}"></div>
+            <div class="handle handle-r" data-row="${idx}" data-seg="${sIdx}"></div>
+          ` : '';
+          const actions = editingEnabled ? `
+            <div class="seg-actions">
+              <button class="seg-color" data-row="${idx}" data-seg="${sIdx}" style="background:${seg.color}"></button>
+              <button class="seg-dup" data-row="${idx}" data-seg="${sIdx}" title="Duplicate">D</button>
+              <button class="seg-del" data-row="${idx}" data-seg="${sIdx}" title="Delete">×</button>
+            </div>
+          ` : '';
+          return `
+            <div class="segment" 
+                 data-row="${idx}" data-seg="${sIdx}" 
+                 style="left:${left};width:${width};background:${seg.color}" 
+                 title="${row.name}: Week ${seg.start}–${seg.end}">
+              ${handles}
+              ${actions}
+            </div>
+          `;
+        }).join('');
+
+        const compareHTML = compareEnabled && compareRows?.[idx]
+          ? compareRows[idx].segments.map(seg => `
+              <div class="segment ghost" style="left:${segmentLeft(seg.start)};width:${segmentWidth(seg.start, seg.end)};background:${seg.color}" title="Prev: Week ${seg.start}–${seg.end}"></div>
+            `).join('')
+          : '';
+
+        return `
+          <div class="timeline-row">
+            <div class="activity-cell">
+              <span class="activity-name">${row.name}</span>
+              ${editingEnabled ? `<button class="add-seg" data-row="${idx}" title="Add segment">+ segment</button>` : ''}
+            </div>
+            <div class="row-track">
+              ${compareHTML}
+              ${segmentsHTML}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      timelineGrid.innerHTML = gridHTML;
+      bindRowControls();
+      bindSegmentControls();
+    }
+
+    // Segment geometry helpers
+    function segmentLeft(start) {
+      const colW = 1; // using CSS variable; translate to %
+      const totalCols = weekCount + 1; // 8+ overflow
+      const pct = ((start-1) / totalCols) * 100;
+      return `calc(${pct}% + var(--grid-gap))`;
+    }
+    function segmentWidth(start, end) {
+      const totalCols = weekCount + 1;
+      const span = Math.max(0.5, end - start); // allow half week
+      const pct = (span / totalCols) * 100;
+      return `calc(${pct}% - var(--grid-gap))`;
+    }
+
+    // Data per year
+    const memory = new Map(); // local cache year -> rows
+    function emptyRowsFromDefaults() {
+      return JSON.parse(JSON.stringify(defaultActivities));
+    }
+
+    async function listYears() {
+      try {
+        const snap = await getDocs(collection(window.firestoreDB, 'timelines'));
+        const years = [];
+        snap.forEach(doc => years.push(parseInt(doc.id)));
+        // Include locally created not yet saved
+        memory.forEach((_, y) => { if (!years.includes(y)) years.push(y); });
+        years.sort((a,b)=>b-a);
+        return years;
+      } catch {
+        // Offline or no perms
+        const local = [...memory.keys()].sort((a,b)=>b-a);
+        return local.length ? local : [new Date().getFullYear()];
+      }
+    }
+
+    async function loadYear(year) {
+      // Try Firestore, else memory, else defaults
+      let rows = emptyRowsFromDefaults();
+      try {
+        const ref = doc(window.firestoreDB, 'timelines', String(year));
+        const d = await getDoc(ref);
+        if (d.exists()) rows = d.data().rows || rows;
+      } catch {
+        if (memory.has(year)) rows = memory.get(year);
+      }
+      memory.set(year, rows);
+      currentYear = year;
+      previousYear = allYears.find(y => y < year) || null;
+      yearDropdownBtn.innerHTML = `<span>${year}</span>`;
+      authState.textContent = editingEnabled ? 'Edit enabled (signed in)' : 'Read-only until signed in';
+      renderHeader();
+      const compareRows = previousYear ? memory.get(previousYear) : null;
+      renderGrid(rows, compareRows);
+    }
+
+    async function saveYear(year) {
+      if (!editingEnabled) return;
+      const rows = memory.get(year) || emptyRowsFromDefaults();
+      try {
+        await setDoc(doc(window.firestoreDB, 'timelines', String(year)), { rows, weekCount });
+        plausible('timeline_save', { props: { year } });
+      } catch (e) {
+        console.warn('Save failed, kept locally', e);
+      }
+    }
+
+    // Year dropdown fill
+    async function fillYearDropdown() {
+      allYears = await listYears();
+      yearDropdownList.innerHTML = allYears.map(y => `
+        <label><input type="radio" name="yearSel" value="${y}" ${y===currentYear?'checked':''}/> <span>${y}</span></label>
+      `).join('');
+      yearDropdownList.querySelectorAll('input[type="radio"]').forEach(r => {
+        r.addEventListener('change', () => loadYear(parseInt(r.value)));
+      });
+      if (!currentYear) await loadYear(allYears[0] || new Date().getFullYear());
+    }
+
+    // Controls
+    createYearBtn.onclick = async () => {
+      const y = parseInt(newYearInput.value);
+      if (!y) return;
+      memory.set(y, emptyRowsFromDefaults());
+      await fillYearDropdown();
+      await loadYear(y);
+      await saveYear(y);
+    };
+
+    duplicateYearBtn.onclick = async () => {
+      if (!currentYear) return;
+      const y = parseInt(newYearInput.value);
+      if (!y) return;
+      const rows = JSON.parse(JSON.stringify(memory.get(currentYear)));
+      memory.set(y, rows);
+      await fillYearDropdown();
+      await loadYear(y);
+      await saveYear(y);
+    };
+
+    exportJSONBtn.onclick = () => {
+      const rows = memory.get(currentYear) || emptyRowsFromDefaults();
+      const data = { year: currentYear, weekCount, rows };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `timeline-${currentYear}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+
+    importJSONInput.onchange = async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const txt = await file.text();
+      const json = JSON.parse(txt);
+      weekCount = json.weekCount || weekCount;
+      memory.set(json.year, json.rows || emptyRowsFromDefaults());
+      await fillYearDropdown();
+      await loadYear(json.year);
+      await saveYear(json.year);
+    };
+
+    exportPNGBtn.onclick = async () => {
+      // Lazy-load html2canvas
+      if (!window.html2canvas) {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+        document.body.appendChild(s);
+        await new Promise(res => s.onload = res);
+      }
+      const node = document.getElementById('timelineSection');
+      const canvas = await window.html2canvas(node, { backgroundColor: null, scale: 2 });
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = `timeline-${currentYear}.png`;
+      a.click();
+    };
+
+    weekCountInput.oninput = () => {
+      weekCount = Math.max(4, Math.min(16, parseInt(weekCountInput.value || '8')));
+      renderHeader();
+      renderGrid(memory.get(currentYear) || emptyRowsFromDefaults(), previousYear ? memory.get(previousYear) : null);
+      saveYear(currentYear);
+    };
+
+    compareToggle.onclick = () => {
+      compareEnabled = !compareEnabled;
+      compareToggle.classList.toggle('bg-sky-200', compareEnabled);
+      renderGrid(memory.get(currentYear) || emptyRowsFromDefaults(), previousYear ? memory.get(previousYear) : null);
+    };
+
+    // Row & segment bindings
+    function bindRowControls() {
+      timelineGrid.querySelectorAll('.add-seg').forEach(btn => {
+        btn.onclick = () => {
+          const r = parseInt(btn.dataset.row);
+          const rows = memory.get(currentYear);
+          rows[r].segments.push({ start:1, end:2, tag:'prototype', color:'#60a5fa' });
+          memory.set(currentYear, rows);
+          renderGrid(rows, previousYear ? memory.get(previousYear) : null);
+          saveYear(currentYear);
+        };
+      });
+    }
+
+    function bindSegmentControls() {
+      // Color change / duplicate / delete
+      timelineGrid.querySelectorAll('.seg-color').forEach(btn => {
+        btn.onclick = () => {
+          const r = parseInt(btn.dataset.row), s = parseInt(btn.dataset.seg);
+          const rows = memory.get(currentYear);
+          const newColor = prompt('Hex color (e.g., #06b6d4):', rows[r].segments[s].color || '#06b6d4');
+          if (!newColor) return;
+          rows[r].segments[s].color = newColor;
+          memory.set(currentYear, rows);
+          renderGrid(rows, previousYear ? memory.get(previousYear) : null);
+          saveYear(currentYear);
+        };
+      });
+      timelineGrid.querySelectorAll('.seg-dup').forEach(btn => {
+        btn.onclick = () => {
+          const r = parseInt(btn.dataset.row), s = parseInt(btn.dataset.seg);
+          const rows = memory.get(currentYear);
+          const seg = rows[r].segments[s];
+          rows[r].segments.splice(s+1, 0, JSON.parse(JSON.stringify(seg)));
+          memory.set(currentYear, rows);
+          renderGrid(rows, previousYear ? memory.get(previousYear) : null);
+          saveYear(currentYear);
+        };
+      });
+      timelineGrid.querySelectorAll('.seg-del').forEach(btn => {
+        btn.onclick = () => {
+          const r = parseInt(btn.dataset.row), s = parseInt(btn.dataset.seg);
+          const rows = memory.get(currentYear);
+          rows[r].segments.splice(s,1);
+          memory.set(currentYear, rows);
+          renderGrid(rows, previousYear ? memory.get(previousYear) : null);
+          saveYear(currentYear);
+        };
+      });
+
+      // Dragging & resizing
+      const trackRect = () => document.querySelector('.row-track')?.getBoundingClientRect();
+      const totalCols = () => weekCount + 1;
+
+      function pxToWeek(x, altHalf=false) {
+        const rect = trackRect();
+        if (!rect) return 1;
+        const rel = Math.max(0, Math.min(rect.width, x - rect.left));
+        const w = (rel / rect.width) * totalCols();
+        const snap = altHalf ? 0.5 : 1;
+        return Math.max(1, Math.min(9, Math.round(w / snap) * snap)); // 9 == 8+
+      }
+
+      timelineGrid.querySelectorAll('.segment').forEach(segEl => {
+        const rowIdx = parseInt(segEl.dataset.row);
+        const segIdx = parseInt(segEl.dataset.seg);
+        const rows = () => memory.get(currentYear);
+
+        // Drag
+        let dragging = false, startX = 0, origStart = 1, origEnd = 2;
+        segEl.addEventListener('mousedown', (e) => {
+          if (!editingEnabled) return;
+          if (e.target.classList.contains('handle')) return; // resizing handled separately
+          dragging = true;
+          startX = e.clientX;
+          const seg = rows()[rowIdx].segments[segIdx];
+          origStart = seg.start; origEnd = seg.end;
+          segEl.classList.add('dragging');
+        });
+        document.addEventListener('mousemove', (e) => {
+          if (!dragging) return;
+          const half = e.altKey;
+          const widthWeeks = origEnd - origStart;
+          const newStart = pxToWeek(e.clientX, half);
+          const newEnd = Math.min(9, Math.max(newStart + widthWeeks, newStart + (half?0.5:1)));
+          const seg = rows()[rowIdx].segments[segIdx];
+          seg.start = newStart; seg.end = newEnd;
+          memory.set(currentYear, rows());
+          renderGrid(rows(), previousYear ? memory.get(previousYear) : null);
+        });
+        document.addEventListener('mouseup', () => {
+          if (dragging) {
+            dragging = false;
+            segEl.classList.remove('dragging');
+            saveYear(currentYear);
+          }
+        });
+
+        // Resize
+        ['handle-l','handle-r'].forEach(cls => {
+          const handle = segEl.querySelector('.'+cls);
+          if (!handle) return;
+          let resizing = false;
+          handle.addEventListener('mousedown', (e) => {
+            if (!editingEnabled) return;
+            e.stopPropagation();
+            resizing = true;
+            segEl.classList.add('dragging');
+          });
+          document.addEventListener('mousemove', (e) => {
+            if (!resizing) return;
+            const half = e.altKey;
+            const seg = rows()[rowIdx].segments[segIdx];
+            if (cls==='handle-l') {
+              const ns = Math.min(seg.end - (half?0.5:1), pxToWeek(e.clientX, half));
+              seg.start = Math.max(1, ns);
+            } else {
+              const ne = Math.max(seg.start + (half?0.5:1), pxToWeek(e.clientX, half));
+              seg.end = Math.min(9, ne);
+            }
+            memory.set(currentYear, rows());
+            renderGrid(rows(), previousYear ? memory.get(previousYear) : null);
+          });
+          document.addEventListener('mouseup', () => {
+            if (resizing) {
+              resizing = false;
+              segEl.classList.remove('dragging');
+              saveYear(currentYear);
+            }
+          });
+        });
+      });
+    }
+
+    // Activities
+    addActivityBtn.onclick = () => {
+      const name = newActivityInput.value.trim();
+      if (!name) return;
+      const rows = memory.get(currentYear);
+      rows.push({ name, segments: [] });
+      memory.set(currentYear, rows);
+      renderGrid(rows, previousYear ? memory.get(previousYear) : null);
+      newActivityInput.value = '';
+      saveYear(currentYear);
+    };
+    resetGridBtn.onclick = () => {
+      const rows = memory.get(currentYear);
+      rows.forEach(r => r.segments = []);
+      memory.set(currentYear, rows);
+      renderGrid(rows, previousYear ? memory.get(previousYear) : null);
+      saveYear(currentYear);
+    };
+
+    // Init
+    (async function init() {
+      editingEnabled = isUserSignedIn();
+      await fillYearDropdown();
+      // Default load current calendar year or existing
+      if (!currentYear) await loadYear(new Date().getFullYear());
+    })();
+  </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 /**
  * Interactive Timeline - Build Season Planning
- * Provides draggable, resizable activity bars with localStorage persistence
+ * Provides resizable activity bars with slider-style controls and localStorage persistence
+ * Resize-only model: no dragging, only resize handles on both ends
  */
 
 (function() {
@@ -25,8 +26,8 @@
   
   let activities = [];
   let selectedBarId = null;
-  let dragState = null;
   let resizeState = null;
+  let activeHandle = null; // Track which handle was last used for keyboard control
 
   // Initialize
   document.addEventListener('DOMContentLoaded', init);
@@ -155,7 +156,7 @@
     bar.setAttribute('data-activity-id', activity.id);
     bar.setAttribute('role', 'button');
     bar.setAttribute('tabindex', '0');
-    bar.setAttribute('aria-label', `${activity.name} bar spanning ${activity.duration} week(s) starting at week ${activity.startWeek}`);
+    bar.setAttribute('aria-label', `${activity.name} bar spanning ${activity.duration} week(s) starting at week ${activity.startWeek}. Use resize handles to adjust.`);
     bar.textContent = activity.name;
     
     // Calculate width based on duration
@@ -167,11 +168,13 @@
     const leftHandle = document.createElement('div');
     leftHandle.className = 'resize-handle left';
     leftHandle.setAttribute('aria-label', 'Resize bar from left');
+    leftHandle.setAttribute('data-direction', 'left');
     bar.appendChild(leftHandle);
 
     const rightHandle = document.createElement('div');
     rightHandle.className = 'resize-handle right';
     rightHandle.setAttribute('aria-label', 'Resize bar from right');
+    rightHandle.setAttribute('data-direction', 'right');
     bar.appendChild(rightHandle);
 
     // Attach event listeners
@@ -181,19 +184,20 @@
   }
 
   function attachBarEventListeners(bar, activity) {
-    // Pointer events for drag
-    bar.addEventListener('pointerdown', (e) => {
-      if (e.target.classList.contains('resize-handle')) {
-        startResize(e, activity, e.target.classList.contains('left') ? 'left' : 'right');
-      } else {
-        startDrag(e, activity, bar);
+    // Click on bar body for selection (not for dragging)
+    bar.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('resize-handle') && !resizeState) {
+        selectBar(activity.id);
       }
     });
 
-    // Click for selection
-    bar.addEventListener('click', (e) => {
-      if (!dragState && !resizeState) {
-        selectBar(activity.id);
+    // Pointer events for resize handles only
+    bar.addEventListener('pointerdown', (e) => {
+      if (e.target.classList.contains('resize-handle')) {
+        e.preventDefault();
+        e.stopPropagation();
+        const direction = e.target.getAttribute('data-direction');
+        startResize(e, activity, direction, e.target);
       }
     });
 
@@ -208,81 +212,13 @@
     });
   }
 
-  function startDrag(e, activity, bar) {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Create ripple effect
-    createRipple(e, bar);
-    
-    bar.classList.add('dragging');
+  function startResize(e, activity, direction, handleElement) {
+    const bar = handleElement.closest('.activity-bar');
     bar.setPointerCapture(e.pointerId);
+    bar.classList.add('resizing');
     
-    const cell = bar.closest('.week-cell');
-    const cellRect = cell.getBoundingClientRect();
-    
-    dragState = {
-      activity,
-      bar,
-      pointerId: e.pointerId,
-      startX: e.clientX,
-      startWeek: activity.startWeek,
-      offsetX: e.clientX - cellRect.left
-    };
-
-    document.addEventListener('pointermove', handleDragMove);
-    document.addEventListener('pointerup', handleDragEnd);
-  }
-
-  function handleDragMove(e) {
-    if (!dragState) return;
-    
-    const board = document.getElementById('timelineBoard');
-    const cells = board.querySelectorAll(`.week-cell[data-activity-id="${dragState.activity.id}"]`);
-    
-    // Find which cell the pointer is over
-    let targetWeek = dragState.startWeek;
-    cells.forEach((cell, index) => {
-      const rect = cell.getBoundingClientRect();
-      if (e.clientX >= rect.left && e.clientX <= rect.right) {
-        targetWeek = index + 1;
-      }
-    });
-
-    // Update visual position
-    const deltaWeeks = targetWeek - dragState.activity.startWeek;
-    if (deltaWeeks !== 0) {
-      dragState.activity.startWeek = targetWeek;
-      renderBoard();
-      
-      // Reattach drag state to new bar
-      const newBar = board.querySelector(`.activity-bar[data-activity-id="${dragState.activity.id}"]`);
-      if (newBar) {
-        newBar.classList.add('dragging');
-        dragState.bar = newBar;
-      }
-    }
-  }
-
-  function handleDragEnd(e) {
-    if (!dragState) return;
-    
-    dragState.bar.classList.remove('dragging');
-    dragState.bar.releasePointerCapture(dragState.pointerId);
-    
-    document.removeEventListener('pointermove', handleDragMove);
-    document.removeEventListener('pointerup', handleDragEnd);
-    
-    saveData();
-    dragState = null;
-  }
-
-  function startResize(e, activity, direction) {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const bar = e.target.closest('.activity-bar');
-    bar.setPointerCapture(e.pointerId);
+    // Track active handle for keyboard control
+    activeHandle = direction;
     
     resizeState = {
       activity,
@@ -309,6 +245,7 @@
     const deltaWeeks = Math.round(deltaX / cellWidth);
     
     if (resizeState.direction === 'left') {
+      // Resize from left - adjust start week
       const newStartWeek = Math.max(1, resizeState.startWeek + deltaWeeks);
       const newDuration = resizeState.startDuration - (newStartWeek - resizeState.startWeek);
       
@@ -316,13 +253,16 @@
         resizeState.activity.startWeek = newStartWeek;
         resizeState.activity.duration = newDuration;
         renderBoard();
+        selectBar(resizeState.activity.id);
       }
     } else {
+      // Resize from right - adjust duration
       const newDuration = Math.max(1, resizeState.startDuration + deltaWeeks);
       
       if (resizeState.activity.startWeek + newDuration - 1 <= WEEKS.length) {
         resizeState.activity.duration = newDuration;
         renderBoard();
+        selectBar(resizeState.activity.id);
       }
     }
   }
@@ -330,28 +270,24 @@
   function handleResizeEnd(e) {
     if (!resizeState) return;
     
-    resizeState.bar.releasePointerCapture(resizeState.pointerId);
+    const bar = resizeState.bar;
+    bar.releasePointerCapture(resizeState.pointerId);
+    bar.classList.remove('resizing');
+    
+    // Add elastic animation
+    bar.classList.add('animate-resize');
+    setTimeout(() => {
+      const currentBar = document.querySelector(`.activity-bar[data-activity-id="${resizeState.activity.id}"]`);
+      if (currentBar) {
+        currentBar.classList.remove('animate-resize');
+      }
+    }, 400);
     
     document.removeEventListener('pointermove', handleResizeMove);
     document.removeEventListener('pointerup', handleResizeEnd);
     
     saveData();
     resizeState = null;
-  }
-
-  function createRipple(e, element) {
-    const rect = element.getBoundingClientRect();
-    const ripple = document.createElement('div');
-    ripple.className = 'ripple';
-    
-    const size = Math.max(rect.width, rect.height);
-    ripple.style.width = ripple.style.height = `${size}px`;
-    ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
-    ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
-    
-    element.appendChild(ripple);
-    
-    setTimeout(() => ripple.remove(), 600);
   }
 
   function selectBar(activityId) {
@@ -375,46 +311,53 @@
       return;
     }
 
-    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+    if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) {
       return;
     }
 
     e.preventDefault();
+    
+    // Default to right handle if no active handle
+    const handle = activeHandle || 'right';
+    const step = e.shiftKey ? 2 : 1; // Shift for faster resize
 
-    switch (e.key) {
-      case 'ArrowLeft':
+    if (e.key === 'ArrowLeft') {
+      if (handle === 'left') {
+        // Expand from left (move start earlier)
         if (activity.startWeek > 1) {
-          activity.startWeek--;
-          renderBoard();
-          saveData();
-          selectBar(activity.id);
+          activity.startWeek -= step;
+          activity.duration += step;
+          if (activity.startWeek < 1) {
+            activity.duration += activity.startWeek - 1;
+            activity.startWeek = 1;
+          }
         }
-        break;
-      case 'ArrowRight':
-        if (activity.startWeek + activity.duration - 1 < WEEKS.length) {
-          activity.startWeek++;
-          renderBoard();
-          saveData();
-          selectBar(activity.id);
+      } else {
+        // Shrink from right
+        const newDuration = Math.max(1, activity.duration - step);
+        activity.duration = newDuration;
+      }
+    } else if (e.key === 'ArrowRight') {
+      if (handle === 'left') {
+        // Shrink from left (move start later)
+        const newDuration = Math.max(1, activity.duration - step);
+        const deltaWeeks = activity.duration - newDuration;
+        activity.startWeek += deltaWeeks;
+        activity.duration = newDuration;
+      } else {
+        // Expand from right
+        const newDuration = activity.duration + step;
+        if (activity.startWeek + newDuration - 1 <= WEEKS.length) {
+          activity.duration = newDuration;
+        } else {
+          activity.duration = WEEKS.length - activity.startWeek + 1;
         }
-        break;
-      case 'ArrowUp':
-        if (activity.duration < WEEKS.length - activity.startWeek + 1) {
-          activity.duration++;
-          renderBoard();
-          saveData();
-          selectBar(activity.id);
-        }
-        break;
-      case 'ArrowDown':
-        if (activity.duration > 1) {
-          activity.duration--;
-          renderBoard();
-          saveData();
-          selectBar(activity.id);
-        }
-        break;
+      }
     }
+    
+    renderBoard();
+    saveData();
+    selectBar(activity.id);
   }
 
   function editActivityName(activity) {
@@ -430,9 +373,19 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         selectedBarId = null;
+        activeHandle = null;
         document.querySelectorAll('.activity-bar').forEach(bar => {
           bar.classList.remove('selected');
         });
+      }
+      
+      // Tab/L to switch to left handle, Tab/R to switch to right handle
+      if (selectedBarId && (e.key === 'l' || e.key === 'L')) {
+        activeHandle = 'left';
+        showSaveStatus('Left handle active');
+      } else if (selectedBarId && (e.key === 'r' || e.key === 'R')) {
+        activeHandle = 'right';
+        showSaveStatus('Right handle active');
       }
     });
   }
@@ -488,8 +441,6 @@
   async function exportPNG() {
     // Check if html2canvas is available
     if (typeof html2canvas === 'undefined') {
-      // Try to load html2canvas from CDN
-      // Note: SRI not used here due to dynamic loading. Consider hosting locally in production.
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
       

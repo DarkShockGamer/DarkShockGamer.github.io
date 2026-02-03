@@ -9,7 +9,7 @@
   // Default activities matching the design requirements
   const DEFAULT_ACTIVITIES = [
     { id: 1, name: 'Initial Strategy', note: '(First 2–3 days)', startWeek: 1, duration: 1 },
-    { id: 2, name: 'Mechanism Brainstorming + Choosing concepts', note: '(≈2 days)', startWeek: 1, duration: 1 },
+    { id: 2, name: 'Mechanism Brainstorming + Choosing concepts', note: '(≈2 days)', startWeek: 1, duration: 2 },
     { id: 3, name: 'Prototyping', note: '', startWeek: 1, duration: 2 },
     { id: 4, name: 'Detailed Design', note: '', startWeek: 2, duration: 2 },
     { id: 5, name: 'Mechanism Fabrication', note: '', startWeek: 3, duration: 3 },
@@ -116,7 +116,14 @@
     const label = document.createElement('div');
     label.className = 'activity-label';
     label.setAttribute('role', 'rowheader');
-    label.innerHTML = `${activity.name} ${activity.note ? `<span style="color: #94a3b8; font-weight: 400;">${activity.note}</span>` : ''}`;
+    const nameText = document.createTextNode(activity.name + ' ');
+    label.appendChild(nameText);
+    if (activity.note) {
+      const noteSpan = document.createElement('span');
+      noteSpan.className = 'activity-note';
+      noteSpan.textContent = activity.note;
+      label.appendChild(noteSpan);
+    }
     label.title = 'Click to edit activity name';
     label.addEventListener('click', () => editActivityName(activity));
     board.appendChild(label);
@@ -482,6 +489,7 @@
     // Check if html2canvas is available
     if (typeof html2canvas === 'undefined') {
       // Try to load html2canvas from CDN
+      // Note: SRI not used here due to dynamic loading. Consider hosting locally in production.
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
       

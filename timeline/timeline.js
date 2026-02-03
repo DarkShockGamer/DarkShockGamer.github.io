@@ -156,7 +156,7 @@
     bar.setAttribute('data-activity-id', activity.id);
     bar.setAttribute('role', 'button');
     bar.setAttribute('tabindex', '0');
-    bar.setAttribute('aria-label', `${activity.name} bar spanning ${activity.duration} week(s) starting at week ${activity.startWeek}. Use resize handles to adjust.`);
+    bar.setAttribute('aria-label', `${activity.name} bar spanning ${activity.duration} week(s) starting at week ${activity.startWeek}. Use resize handles to adjust. Press L or R to switch active handle, Arrow keys to resize, Enter to edit.`);
     bar.textContent = activity.name;
     
     // Calculate width based on duration
@@ -324,14 +324,10 @@
     if (e.key === 'ArrowLeft') {
       if (handle === 'left') {
         // Expand from left (move start earlier)
-        if (activity.startWeek > 1) {
-          activity.startWeek -= step;
-          activity.duration += step;
-          if (activity.startWeek < 1) {
-            activity.duration += activity.startWeek - 1;
-            activity.startWeek = 1;
-          }
-        }
+        const newStartWeek = Math.max(1, activity.startWeek - step);
+        const actualStep = activity.startWeek - newStartWeek;
+        activity.startWeek = newStartWeek;
+        activity.duration += actualStep;
       } else {
         // Shrink from right
         const newDuration = Math.max(1, activity.duration - step);
@@ -340,18 +336,14 @@
     } else if (e.key === 'ArrowRight') {
       if (handle === 'left') {
         // Shrink from left (move start later)
-        const newDuration = Math.max(1, activity.duration - step);
-        const deltaWeeks = activity.duration - newDuration;
-        activity.startWeek += deltaWeeks;
-        activity.duration = newDuration;
+        const maxShrink = Math.min(step, activity.duration - 1);
+        activity.startWeek += maxShrink;
+        activity.duration -= maxShrink;
       } else {
         // Expand from right
-        const newDuration = activity.duration + step;
-        if (activity.startWeek + newDuration - 1 <= WEEKS.length) {
-          activity.duration = newDuration;
-        } else {
-          activity.duration = WEEKS.length - activity.startWeek + 1;
-        }
+        const maxExpansion = WEEKS.length - activity.startWeek + 1 - activity.duration;
+        const actualStep = Math.min(step, maxExpansion);
+        activity.duration += actualStep;
       }
     }
     

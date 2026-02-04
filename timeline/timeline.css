@@ -8,9 +8,9 @@ body {
 /* Timeline Board - Clean container without heavy gridlines */
 .timeline-board {
   display: grid;
-  grid-template-columns: 200px repeat(8, minmax(80px, 1fr));
+  grid-template-columns: 280px repeat(8, minmax(80px, 1fr));
   gap: 0;
-  min-width: 900px;
+  min-width: 1050px;
   border-radius: 0.75rem;
   overflow: hidden;
 }
@@ -60,6 +60,9 @@ html.theme-dark .timeline-header {
   align-items: center;
   cursor: pointer;
   transition: background-color 200ms;
+  white-space: normal;
+  line-height: 1.25;
+  word-break: break-word;
 }
 
 .activity-label:hover {
@@ -92,6 +95,7 @@ html.theme-dark .activity-label {
   border-right: 1px solid;
   border-bottom: 1px solid;
   padding: 0.5rem;
+  pointer-events: none;
 }
 
 .week-cell:last-child {
@@ -130,6 +134,7 @@ html.theme-dark .week-cell {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  pointer-events: auto;
 }
 
 .activity-bar:hover {
@@ -173,6 +178,7 @@ html.theme-dark .activity-bar:focus {
   align-items: center;
   justify-content: center;
   transition: background 200ms;
+  pointer-events: auto;
 }
 
 .resize-handle::before {
@@ -271,8 +277,8 @@ html.theme-dark .activity-bar.selected {
 /* Responsive adjustments */
 @media (max-width: 1024px) {
   .timeline-board {
-    grid-template-columns: 160px repeat(8, minmax(70px, 1fr));
-    min-width: 800px;
+    grid-template-columns: 220px repeat(8, minmax(70px, 1fr));
+    min-width: 900px;
   }
   
   .activity-label {
@@ -288,8 +294,8 @@ html.theme-dark .activity-bar.selected {
 
 @media (max-width: 768px) {
   .timeline-board {
-    grid-template-columns: 140px repeat(8, minmax(60px, 1fr));
-    min-width: 700px;
+    grid-template-columns: 180px repeat(8, minmax(60px, 1fr));
+    min-width: 800px;
   }
   
   .timeline-header {

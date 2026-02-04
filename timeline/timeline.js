@@ -125,7 +125,8 @@
       noteSpan.textContent = activity.note;
       label.appendChild(noteSpan);
     }
-    label.title = 'Click to edit activity name';
+    // Add tooltip with full text
+    label.title = activity.name + (activity.note ? ' ' + activity.note : '');
     label.addEventListener('click', () => editActivityName(activity));
     board.appendChild(label);
 
@@ -158,6 +159,8 @@
     bar.setAttribute('tabindex', '0');
     bar.setAttribute('aria-label', `${activity.name} bar spanning ${activity.duration} week(s) starting at week ${activity.startWeek}. Use resize handles to adjust. Press L or R to switch active handle, Arrow keys to resize, Enter to edit.`);
     bar.textContent = activity.name;
+    // Add tooltip with full name
+    bar.title = activity.name;
     
     // Calculate width based on duration
     const widthPercent = activity.duration * 100;

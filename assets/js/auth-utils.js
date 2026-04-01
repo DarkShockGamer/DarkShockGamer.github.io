@@ -4,11 +4,11 @@
  * and welcome overlay handling across the site.
  * 
  * Dependencies:
- * - auth-config.js must be loaded first (provides G_CRED_KEY)
+ * - auth-config.js must be loaded first (sets window.G_CRED_KEY)
  * - jwt_decode library for token decoding
  */
 
-// Storage keys (G_CRED_KEY is defined in auth-config.js)
+// Storage keys (G_CRED_KEY is set on window by auth-config.js; accessed via window.G_CRED_KEY)
 const DEVELOPER_LIST_KEY = 'developer_emails';
 const DEVELOPER_CACHE_KEY = 'developer_emails_cache';
 const DEVELOPER_CACHE_TIME_KEY = 'developer_emails_cache_time';
@@ -37,13 +37,10 @@ const CACHE_DURATION_MS = 5 * 60 * 1000;
  * @returns {string|null} - Normalized email or null if not signed in
  */
 function getCurrentEmail() {
-  // Ensure G_CRED_KEY is available from auth-config.js
-  if (typeof G_CRED_KEY === 'undefined') {
-    console.error('[Auth Utils] G_CRED_KEY not defined. Ensure auth-config.js is loaded first.');
-    return null;
-  }
-  
-  const credential = localStorage.getItem(G_CRED_KEY);
+  // Derive the key from window.G_CRED_KEY (set by auth-config.js) with a safe fallback
+  const credKey = window.G_CRED_KEY || 'g_credential_v1';
+
+  const credential = localStorage.getItem(credKey);
   if (!credential) return null;
   
   try {
@@ -59,7 +56,7 @@ function getCurrentEmail() {
     // Check if token is expired
     if (decoded.exp && decoded.exp * 1000 < Date.now()) {
       console.warn('[Auth Utils] Token expired');
-      localStorage.removeItem(G_CRED_KEY);
+      localStorage.removeItem(credKey);
       localStorage.removeItem('signedInEmail');
       return null;
     }

@@ -4,9 +4,9 @@
  */
 
 // Storage key for Google credential
-// Assigned to window so both pages can reference it as window.G_CRED_KEY
-const G_CRED_KEY = 'g_credential_v1';
-window.G_CRED_KEY = G_CRED_KEY;
+// Set on window only (not as a const) so inline scripts can declare their own
+// local const G_CRED_KEY = window.G_CRED_KEY || 'g_credential_v1' without collision
+window.G_CRED_KEY = window.G_CRED_KEY || 'g_credential_v1';
 
 // Authorization rules
 const AUTH_CONFIG = {
@@ -40,5 +40,5 @@ const AUTH_CONFIG = {
 
 // Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { G_CRED_KEY, AUTH_CONFIG };
+  module.exports = { G_CRED_KEY: window.G_CRED_KEY, AUTH_CONFIG };
 }

@@ -590,6 +590,10 @@
     // ====== Google Sign-In logic (UI only on this page) ======
     // Use window.G_CRED_KEY (set by auth-config.js) with a safe fallback for consistent key access
     const G_CRED_KEY = window.G_CRED_KEY || 'g_credential_v1';
+    // Stores {email, name, picture} so UI can be restored even after token expiry
+    const G_PROFILE_KEY = 'g_profile_v1';
+    // Flag set on explicit logout to prevent auto-restoration
+    const G_EXPLICIT_LOGOUT_KEY = 'g_explicit_logout';
     function updatePortalVisibility(email) {
       const portalDesktop = document.getElementById("portalLink");
       const portalMobile = document.getElementById("portalLinkMobile");
@@ -624,8 +628,21 @@
       updatePortalVisibility(null);
     }
     function handleCredentialResponse(response) {
-      try { const data = jwt_decode(response.credential); localStorage.setItem(G_CRED_KEY, response.credential); setSignedInUI(data); }
+      try {
+        const data = jwt_decode(response.credential);
+        localStorage.setItem(G_CRED_KEY, response.credential);
+        localStorage.setItem('signedInEmail', data.email);
+        localStorage.setItem(G_PROFILE_KEY, JSON.stringify({ email: data.email, name: data.name, picture: data.picture }));
+        // Clear any explicit-logout flag so re-auth persists on next refresh
+        localStorage.removeItem(G_EXPLICIT_LOGOUT_KEY);
+        setSignedInUI(data);
+      }
       catch (err) { console.error('Error decoding credential:', err); alert('Sign-in failed (invalid token).'); }
+    }
+    function clearAuthData() {
+      localStorage.removeItem(G_CRED_KEY);
+      localStorage.removeItem('signedInEmail');
+      localStorage.removeItem(G_PROFILE_KEY);
     }
     function signOut() {
       const raw = localStorage.getItem(G_CRED_KEY);
@@ -638,8 +655,9 @@
           }
         } catch(e){}
       }
-      localStorage.removeItem(G_CRED_KEY);
-      localStorage.removeItem('signedInEmail');
+      clearAuthData();
+      // Mark that the user explicitly logged out so auto-restore is suppressed on refresh
+      localStorage.setItem(G_EXPLICIT_LOGOUT_KEY, '1');
       try { google?.accounts?.id?.disableAutoSelect(); } catch(e){}
       setSignedOutUI();
     }
@@ -650,6 +668,42 @@
         auto_select: true
       });
       document.addEventListener('click', (e) => { if (e.target && e.target.id === 'googleSignOut') { signOut(); } });
+
+      // Helper: restore UI from stored profile and attempt silent re-auth via One Tap
+      function restoreFromProfileAndPrompt() {
+        const explicitLogout = localStorage.getItem(G_EXPLICIT_LOGOUT_KEY);
+        if (explicitLogout) {
+          google.accounts.id.renderButton(
+            document.getElementById("googleSignIn"),
+            { theme: "outline", size: "medium", text: "signin_with" }
+          );
+          return;
+        }
+        const profileRaw = localStorage.getItem(G_PROFILE_KEY);
+        if (profileRaw) {
+          try {
+            const profile = JSON.parse(profileRaw);
+            setSignedInUI(profile);
+            try {
+              google.accounts.id.renderButton(
+                document.getElementById("googleSignIn"),
+                { theme: "outline", size: "medium", text: "signin_with" }
+              );
+              google.accounts.id.prompt();
+            } catch(e) {
+              console.warn('Could not auto-prompt for re-auth:', e);
+            }
+            return;
+          } catch(e) {
+            // Corrupt profile data – fall through to signed-out UI
+          }
+        }
+        google.accounts.id.renderButton(
+          document.getElementById("googleSignIn"),
+          { theme: "outline", size: "medium", text: "signin_with" }
+        );
+      }
+
       const saved = localStorage.getItem(G_CRED_KEY);
       if (saved) {
         try {
@@ -658,53 +712,24 @@
           // Check if token is expired
           const now = Math.floor(Date.now() / 1000);
           if (data.exp && data.exp < now) {
-            // Token expired - clear it and prompt for re-auth
-            console.log('Token expired, prompting for re-authentication');
-            localStorage.removeItem(G_CRED_KEY);
-            localStorage.removeItem('signedInEmail');
-            setSignedOutUI();
-            
-            // Render sign-in button
-            google.accounts.id.renderButton(
-              document.getElementById("googleSignIn"),
-              { theme: "outline", size: "medium", text: "signin_with" }
-            );
-            
-            // Auto-prompt for re-authentication to seamlessly restore login
-            try {
-              google.accounts.id.prompt();
-            } catch(e) {
-              console.warn('Could not auto-prompt for re-auth:', e);
-            }
+            // Token expired – remove stale credential and restore from profile
+            console.log('Token expired, restoring UI from profile and prompting for re-authentication');
+            clearAuthData();
+            restoreFromProfileAndPrompt();
           } else {
             // Token is valid - restore signed-in UI
             setSignedInUI(data);
           }
         }
         catch (err) {
-          // Invalid token (malformed JWT) - clear and show sign-in
+          // Invalid token (malformed JWT) - clear and restore from profile
           console.warn('Stored credential invalid, clearing', err);
-          localStorage.removeItem(G_CRED_KEY);
-          localStorage.removeItem('signedInEmail');
-          setSignedOutUI();
-          
-          google.accounts.id.renderButton(
-            document.getElementById("googleSignIn"),
-            { theme: "outline", size: "medium", text: "signin_with" }
-          );
-          
-          // Auto-prompt for re-authentication to seamlessly restore login
-          try {
-            google.accounts.id.prompt();
-          } catch(e) {
-            console.warn('Could not auto-prompt for re-auth:', e);
-          }
+          clearAuthData();
+          restoreFromProfileAndPrompt();
         }
       } else {
-        google.accounts.id.renderButton(
-          document.getElementById("googleSignIn"),
-          { theme: "outline", size: "medium", text: "signin_with" }
-        );
+        // No saved credential – try restoring from stored profile
+        restoreFromProfileAndPrompt();
       }
     };
 

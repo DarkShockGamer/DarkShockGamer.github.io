@@ -96,6 +96,14 @@
       {
         "name": "Gus",
         "team": "Programming Team"
+      },
+      {
+        "name": "Lucas",
+        "team": "Drive Team"
+      },
+      {
+        "name": "Gabe",
+        "team": "Drive Team"
       }
     ],
     "drivers": []

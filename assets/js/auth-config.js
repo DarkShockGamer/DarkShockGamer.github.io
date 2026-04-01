@@ -4,7 +4,9 @@
  */
 
 // Storage key for Google credential
+// Assigned to window so both pages can reference it as window.G_CRED_KEY
 const G_CRED_KEY = 'g_credential_v1';
+window.G_CRED_KEY = G_CRED_KEY;
 
 // Authorization rules
 const AUTH_CONFIG = {

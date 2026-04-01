@@ -89,7 +89,8 @@
   
   <script>
   // Helper: storage key for the credential
-  // Note: G_CRED_KEY is defined in auth-config.js
+  // Use window.G_CRED_KEY (set by auth-config.js) with a safe fallback
+  const G_CRED_KEY = window.G_CRED_KEY || 'g_credential_v1';
 
   // Toggle portal visibility based on email allowed list/domains
   // This function now handles async allowlist loading
@@ -229,7 +230,7 @@
     google.accounts.id.initialize({
       client_id: "635936985251-tj5uq36b5altf4qmk7019r3u504mm1fs.apps.googleusercontent.com",
       callback: handleCredentialResponse,
-      auto_select: false
+      auto_select: true
     });
 
     // Wire up sign out button (exists in DOM)
@@ -277,7 +278,6 @@
         } else {
           // Token is valid - restore signed-in UI (now async)
           await setSignedInUI(data, saved);
-          try { google.accounts.id.disableAutoSelect(); } catch(e){/* ignore */ }
           
           // Check if there's a return URL and user is already signed in
           const urlParams = new URLSearchParams(window.location.search);

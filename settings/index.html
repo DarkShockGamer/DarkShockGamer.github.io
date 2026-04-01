@@ -936,6 +936,20 @@
     <div style="position:relative; min-height:320px;">
       <!-- Account -->
       <form id="tabPanel1" class="tab-panel active panel p-6 space-y-6" role="tabpanel" aria-labelledby="tabBtn1" autocomplete="off">
+        <!-- Profile Photo -->
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>🖼️</span>
+            <span>Profile Photo</span>
+            <span class="chip">Google</span>
+          </div>
+          <div class="flex items-center gap-4 mt-2">
+            <div id="profileAvatarWrap" style="width:64px;height:64px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#38bdf8,#818cf8);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.75rem;font-weight:700;color:white;">
+              ?
+            </div>
+            <p class="setting-description" style="margin:0;">Your Google profile photo is used automatically across the site. Sign in with Google to show your picture.</p>
+          </div>
+        </div>
         <div class="setting-card">
           <div class="setting-label">
             <span>📧</span>
@@ -948,10 +962,20 @@
         <div class="setting-card">
           <div class="setting-label">
             <span>👤</span>
-            <label for="accountName">Full Name</label>
+            <label for="accountName">Display Name</label>
           </div>
           <input id="accountName" name="fullname" type="text" class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" placeholder="Your Name" />
-          <p class="setting-description">Your display name on the platform</p>
+          <p class="setting-description">Your display name on the platform. Leave blank to show your email instead.</p>
+        </div>
+        <!-- Badges -->
+        <div class="setting-card" id="badgesCard" style="display:none;">
+          <div class="setting-label">
+            <span>🏷️</span>
+            <span>Your Badges</span>
+          </div>
+          <div id="profileBadgesWrap" class="mt-2" style="display:flex;flex-wrap:wrap;gap:6px;min-height:28px;">
+            <span class="setting-description" style="margin:0;">No badges yet.</span>
+          </div>
         </div>
         <div class="flex justify-end">
           <button type="submit" class="save-btn btn-primary">Save</button>
@@ -1611,7 +1635,65 @@
       window.initThemeSelector();
     }
   </script>
+  <script src="/assets/js/profile.js"></script>
   <script src="/assets/js/settings.js"></script>
+  <!-- Profile avatar + badges population for Account tab -->
+  <script>
+    (function () {
+      function populateProfileUI() {
+        if (typeof Profile === 'undefined') return;
+        // Determine the current user's email
+        var email = null;
+        try {
+          var credKey = window.G_CRED_KEY || 'g_credential_v1';
+          var cred = localStorage.getItem(credKey);
+          if (cred && typeof jwt_decode === 'function') {
+            var decoded = jwt_decode(cred);
+            if (decoded && decoded.email) email = decoded.email.trim().toLowerCase();
+          }
+        } catch (e) {}
+        if (!email) email = localStorage.getItem('signedInEmail');
+
+        var wrap = document.getElementById('profileAvatarWrap');
+        if (wrap && email) {
+          var picture = Profile.getPicture(email);
+          var name = Profile.getDisplayName(email);
+          var initials = (name[0] || '?').toUpperCase();
+          if (picture) {
+            wrap.innerHTML =
+              '<img src="' + picture + '" alt="Profile photo" ' +
+              'style="width:64px;height:64px;border-radius:50%;object-fit:cover;" ' +
+              'onerror="this.style.display=\'none\';" />';
+          } else {
+            wrap.textContent = initials;
+          }
+        }
+
+        // Populate badges
+        if (email) {
+          var badges = Profile.getBadges(email);
+          var badgesCard = document.getElementById('badgesCard');
+          var badgesWrap = document.getElementById('profileBadgesWrap');
+          if (badgesCard && badgesWrap) {
+            if (badges.length) {
+              badgesCard.style.display = '';
+              badgesWrap.innerHTML = Profile.renderBadges(email);
+            } else {
+              badgesCard.style.display = '';
+              badgesWrap.innerHTML = '<span class="setting-description" style="margin:0;">No badges yet.</span>';
+            }
+          }
+        }
+      }
+
+      // Run after DOM + scripts are ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', populateProfileUI);
+      } else {
+        populateProfileUI();
+      }
+    }());
+  </script>
   <!-- Modern UI Enhancement Scripts -->
   <script src="/assets/js/modern-ui.js"></script>
   <script src="/assets/js/page-transitions.js"></script>

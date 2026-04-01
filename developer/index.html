@@ -18,6 +18,7 @@
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
   <!-- Shared auth configuration and utilities -->
   <script src="/assets/js/auth-config.js"></script>
+  <script src="/assets/js/profile.js"></script>
   <script src="/assets/js/auth-utils.js"></script>
   <!-- Developer-specific auth guard -->
   <script src="/assets/js/auth-guard-developer.js"></script>
@@ -398,6 +399,55 @@
         <div id="team-list" class="space-y-2">
           <!-- Team member list will be populated here -->
         </div>
+      </div>
+    </section>
+
+    <!-- Badge Management -->
+    <section id="badgeSection" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
+      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Badge Management</h2>
+      <p class="muted mt-1">Assign or remove role badges for team members (similar to Discord roles). Changes are saved locally in each user's browser storage.</p>
+
+      <!-- User picker -->
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="badgeUserSelect" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Select Team Member</label>
+          <select id="badgeUserSelect"
+                  class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+            <option value="">-- choose a member --</option>
+          </select>
+        </div>
+        <div>
+          <label for="badgeDefSelect" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Badge to Assign</label>
+          <div class="flex gap-2 mt-1">
+            <select id="badgeDefSelect"
+                    class="flex-1 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+            </select>
+            <button id="badgeAssignBtn" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">Assign</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current badges for selected user -->
+      <div class="mt-4" id="currentBadgesArea" style="display:none;">
+        <h3 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Current badges for <span id="badgeUserLabel" class="font-bold"></span></h3>
+        <div id="currentBadgesList" class="flex flex-wrap gap-2 min-h-[28px]">
+          <span class="text-sm text-slate-400">No badges assigned.</span>
+        </div>
+      </div>
+
+      <!-- Create custom badge -->
+      <div class="mt-6 border-t border-slate-100 dark:border-slate-700 pt-4">
+        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">Create Custom Badge</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <input id="newBadgeName" type="text" placeholder="Name (e.g. MVP)"
+                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+          <input id="newBadgeEmoji" type="text" placeholder="Emoji (e.g. 🏆)"
+                 class="rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+          <input id="newBadgeColor" type="color" value="#6366f1"
+                 class="rounded-md border border-slate-300 h-10 w-full cursor-pointer dark:border-slate-700">
+          <button id="createBadgeBtn" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">Create &amp; Add</button>
+        </div>
+        <p class="text-xs muted mt-1">Custom badges are stored locally and appear in the badge list above.</p>
       </div>
     </section>
 
@@ -1838,6 +1888,136 @@
       initTeamMemberManagement();
     });
   </script>
+
+  <!-- Badge Management UI -->
+  <script>
+  (function () {
+    'use strict';
+
+    async function loadTeamEmailsForBadges() {
+      try {
+        const resp = await fetch('/assets/data/team-members.json');
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && Array.isArray(data.teamMembers)) return data.teamMembers;
+        }
+      } catch (e) {}
+      // Fallback: auth-utils sync cache
+      if (typeof getTeamMemberListSync === 'function') return getTeamMemberListSync();
+      return [];
+    }
+
+    function escHtml(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function renderCurrentBadges(email) {
+      const list = document.getElementById('currentBadgesList');
+      const area = document.getElementById('currentBadgesArea');
+      const label = document.getElementById('badgeUserLabel');
+      if (!list || !area) return;
+      if (!email) { area.style.display = 'none'; return; }
+
+      area.style.display = '';
+      if (label) label.textContent = (typeof Profile !== 'undefined') ? Profile.getDisplayName(email) : email;
+
+      const badges = (typeof Profile !== 'undefined') ? Profile.getBadges(email) : [];
+      if (!badges.length) {
+        list.innerHTML = '<span class="text-sm text-slate-400">No badges assigned.</span>';
+        return;
+      }
+
+      list.innerHTML = badges.map(function (b) {
+        return '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:9999px;font-size:0.75rem;font-weight:700;' +
+          'background:' + b.color + '22;color:' + b.color + ';border:1px solid ' + b.color + '66;">' +
+          escHtml(b.emoji) + ' ' + escHtml(b.name) +
+          '<button data-badge-id="' + escHtml(b.id) + '" class="remove-badge-btn" ' +
+          'title="Remove badge" style="margin-left:4px;background:none;border:none;cursor:pointer;color:inherit;font-size:0.9rem;line-height:1;padding:0 2px;">✕</button>' +
+          '</span>';
+      }).join('');
+
+      list.querySelectorAll('.remove-badge-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var badgeId = this.getAttribute('data-badge-id');
+          if (typeof Profile !== 'undefined') Profile.removeBadge(email, badgeId);
+          renderCurrentBadges(email);
+          if (typeof showToast === 'function') showToast('info', 'Badge removed.');
+        });
+      });
+    }
+
+    function populateBadgeDefs() {
+      var sel = document.getElementById('badgeDefSelect');
+      if (!sel || typeof Profile === 'undefined') return;
+      var defs = Profile.getBadgeDefs();
+      sel.innerHTML = defs.map(function (d) {
+        return '<option value="' + escHtml(d.id) + '">' + escHtml(d.emoji) + ' ' + escHtml(d.name) + '</option>';
+      }).join('');
+    }
+
+    async function initBadgeManagement() {
+      var userSelect = document.getElementById('badgeUserSelect');
+      var assignBtn = document.getElementById('badgeAssignBtn');
+      var createBtn = document.getElementById('createBadgeBtn');
+      if (!userSelect) return;
+
+      // Populate user list
+      var members = await loadTeamEmailsForBadges();
+      members.forEach(function (email) {
+        var opt = document.createElement('option');
+        opt.value = email;
+        opt.textContent = (typeof Profile !== 'undefined')
+          ? Profile.getDisplayName(email) + ' (' + email + ')'
+          : email;
+        userSelect.appendChild(opt);
+      });
+
+      populateBadgeDefs();
+
+      userSelect.addEventListener('change', function () {
+        renderCurrentBadges(this.value);
+      });
+
+      if (assignBtn) {
+        assignBtn.addEventListener('click', function () {
+          var email = userSelect.value;
+          var defId = document.getElementById('badgeDefSelect').value;
+          if (!email || !defId || typeof Profile === 'undefined') return;
+          var defs = Profile.getBadgeDefs();
+          var def = defs.find(function (d) { return d.id === defId; });
+          if (!def) return;
+          Profile.addBadge(email, def);
+          renderCurrentBadges(email);
+          if (typeof showToast === 'function') showToast('success', 'Badge assigned: ' + def.emoji + ' ' + def.name);
+        });
+      }
+
+      if (createBtn) {
+        createBtn.addEventListener('click', function () {
+          var name = (document.getElementById('newBadgeName').value || '').trim();
+          var emoji = (document.getElementById('newBadgeEmoji').value || '').trim();
+          var color = document.getElementById('newBadgeColor').value || '#6366f1';
+          if (!name) { if (typeof showToast === 'function') showToast('warn', 'Badge name required.'); return; }
+          if (!emoji) emoji = '🏅';
+          var id = name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+          var badge = { id: id, name: name, emoji: emoji, color: color };
+          if (typeof Profile !== 'undefined') Profile.saveBadgeDef(badge);
+          populateBadgeDefs();
+          document.getElementById('newBadgeName').value = '';
+          document.getElementById('newBadgeEmoji').value = '';
+          if (typeof showToast === 'function') showToast('success', 'Custom badge created: ' + emoji + ' ' + name);
+        });
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initBadgeManagement);
+    } else {
+      initBadgeManagement();
+    }
+  }());
+  </script>
+
   <script src="/assets/js/theme.js"></script>
   <script src="/assets/js/modern-ui.js"></script>
 </body>

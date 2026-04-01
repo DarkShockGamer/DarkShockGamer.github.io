@@ -19,6 +19,8 @@
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
   <!-- Shared auth configuration and guard -->
   <script src="/assets/js/auth-config.js"></script>
+  <script src="/assets/js/profile.js"></script>
+  <script src="/assets/js/auth-utils.js"></script>
   <script src="/assets/js/auth-guard.js"></script>
   
   <script src="https://cdn.tailwindcss.com"></script>
@@ -821,7 +823,14 @@
   <div class="mt-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
     <div class="flex flex-col sm:flex-row gap-3 flex-wrap items-start sm:items-center">
       <input id="newTitle" class="flex-1 rounded-md border border-slate-300 px-3 py-2 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Task title..." />
-      <input id="newAssign" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee..." />
+      <!-- Assignee dropdown (populated dynamically with team member profiles) -->
+      <div class="dropdown w-full sm:w-48" id="assigneeDropdown">
+        <div class="dropdown-btn" id="assigneeDropdownBtn"><span class="placeholder">Assignee...</span></div>
+        <div class="dropdown-list" id="assigneeDropdownList" style="max-height:220px;overflow-y:auto;">
+          <label><input type="radio" name="newAssignee" value="" /> <span>Unassigned</span></label>
+        </div>
+      </div>
+      <input type="hidden" id="newAssign" value="" />
       <input id="newDue" type="date" class="w-full sm:w-44 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
 
       <!-- Custom dropdown -->
@@ -1044,6 +1053,199 @@ function escHtml(str) {
     .replaceAll("'", "&#39;")
     .replaceAll('"', "&quot;")
     .replaceAll("`", "&#96;");
+}
+
+/* ── Assignee / Profile helpers ────────────────────────────────────────── */
+
+// All team members loaded on init (emails + possibly display names from profiles)
+let allTeamMembers = [];
+
+/**
+ * Returns an HTML snippet to display an assignee value.
+ * If the value looks like an email address and Profile is available,
+ * shows profile avatar + display name. Otherwise shows the raw value.
+ */
+function getAssigneeDisplay(assignee) {
+  if (!assignee || assignee === 'Unassigned') {
+    return '<span class="text-slate-400 dark:text-slate-500">Unassigned</span>';
+  }
+  if (assignee.includes('@') && typeof Profile !== 'undefined') {
+    const name = Profile.getDisplayName(assignee);
+    const avatar = Profile.renderAvatar(assignee, 16);
+    return '<span style="display:inline-flex;align-items:center;gap:4px;">' +
+      avatar + '<span>' + escHtml(name) + '</span></span>';
+  }
+  return escHtml(assignee);
+}
+
+/**
+ * Build the <label> HTML for one team member in the assignee dropdown.
+ */
+function buildAssigneeLabelHtml(email) {
+  const name = (typeof Profile !== 'undefined') ? Profile.getDisplayName(email) : email;
+  const picture = (typeof Profile !== 'undefined') ? Profile.getPicture(email) : null;
+  const initials = (name[0] || '?').toUpperCase();
+  let avatarHtml;
+  if (picture) {
+    avatarHtml =
+      '<img src="' + escHtml(picture) + '" alt="" width="20" height="20" ' +
+      'style="width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0;" ' +
+      'onerror="this.style.display=\'none\';" />';
+  } else {
+    avatarHtml =
+      '<span style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#818cf8);' +
+      'color:white;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' +
+      escHtml(initials) + '</span>';
+  }
+  return avatarHtml + '<span>' + escHtml(name) + '</span>';
+}
+
+/**
+ * Populate the "Add Task" assignee dropdown with team members.
+ */
+function populateAssigneeDropdown(members) {
+  const list = document.getElementById('assigneeDropdownList');
+  const btn = document.getElementById('assigneeDropdownBtn');
+  const hidden = document.getElementById('newAssign');
+  if (!list) return;
+
+  // Build options
+  list.innerHTML =
+    '<label style="display:flex;align-items:center;gap:0.5rem;">' +
+    '<input type="radio" name="newAssignee" value="" />' +
+    '<span class="text-slate-400">Unassigned</span></label>';
+
+  members.forEach(function (email) {
+    const label = document.createElement('label');
+    label.style.cssText = 'display:flex;align-items:center;gap:0.5rem;';
+    label.innerHTML =
+      '<input type="radio" name="newAssignee" value="' + escHtml(email) + '" />' +
+      buildAssigneeLabelHtml(email);
+    list.appendChild(label);
+  });
+
+  // Wire radio changes → update hidden input + button label
+  list.querySelectorAll('input[type="radio"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      if (!this.checked) return;
+      hidden.value = this.value;
+      if (!this.value) {
+        btn.innerHTML = '<span class="placeholder">Assignee...</span>';
+      } else {
+        btn.innerHTML = buildAssigneeLabelHtml(this.value);
+      }
+      list.style.display = 'none';
+    });
+  });
+
+  // Toggle dropdown
+  const dropBtn = document.getElementById('assigneeDropdownBtn');
+  if (dropBtn && !dropBtn.dataset.assigneeWired) {
+    dropBtn.dataset.assigneeWired = '1';
+    dropBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var isOpen = list.style.display === 'block';
+      // Close other dropdowns first
+      document.querySelectorAll('.dropdown-list').forEach(function (l) { l.style.display = 'none'; });
+      list.style.display = isOpen ? 'none' : 'block';
+    });
+  }
+}
+
+/**
+ * Build and inject an assignee dropdown into a modal container element.
+ * @param {HTMLElement} container - the element where the select should go
+ * @param {string} currentValue - the currently assigned value (email or name)
+ * @param {Array<string>} members - team member emails
+ * @param {string} hiddenInputId - ID for the hidden input that stores the value
+ */
+function buildModalAssigneeDropdown(container, currentValue, members, hiddenInputId) {
+  const uid = 'modalAssignee_' + Date.now();
+
+  // Hidden input
+  const hidden = document.createElement('input');
+  hidden.type = 'hidden';
+  hidden.id = hiddenInputId;
+  hidden.value = currentValue || '';
+
+  // Dropdown wrapper
+  const wrap = document.createElement('div');
+  wrap.className = 'dropdown';
+  wrap.style.width = '100%';
+
+  const currentName = (currentValue && currentValue.includes('@') && typeof Profile !== 'undefined')
+    ? Profile.getDisplayName(currentValue)
+    : (currentValue || '');
+
+  const btnHtml = currentValue
+    ? buildAssigneeLabelHtml(currentValue)
+    : '<span class="placeholder">Assignee</span>';
+
+  wrap.innerHTML =
+    '<div class="dropdown-btn" id="' + uid + '_btn" style="width:100%;">' + btnHtml + '</div>' +
+    '<div class="dropdown-list" id="' + uid + '_list" style="max-height:200px;overflow-y:auto;display:none;">' +
+    '<label style="display:flex;align-items:center;gap:0.5rem;">' +
+    '<input type="radio" name="' + uid + '" value="" ' + (!currentValue ? 'checked' : '') + ' />' +
+    '<span class="text-slate-400">Unassigned</span></label>' +
+    '</div>';
+
+  container.appendChild(hidden);
+  container.appendChild(wrap);
+
+  const list = wrap.querySelector('#' + uid + '_list');
+  const btn = wrap.querySelector('#' + uid + '_btn');
+
+  // Add team member options
+  members.forEach(function (email) {
+    const label = document.createElement('label');
+    label.style.cssText = 'display:flex;align-items:center;gap:0.5rem;';
+    const checked = (email === (currentValue || ''));
+    label.innerHTML =
+      '<input type="radio" name="' + uid + '" value="' + escHtml(email) + '" ' + (checked ? 'checked' : '') + ' />' +
+      buildAssigneeLabelHtml(email);
+    list.appendChild(label);
+  });
+
+  // Wire radio changes
+  list.querySelectorAll('input[type="radio"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      if (!this.checked) return;
+      hidden.value = this.value;
+      btn.innerHTML = this.value
+        ? buildAssigneeLabelHtml(this.value)
+        : '<span class="placeholder">Assignee</span>';
+      list.style.display = 'none';
+    });
+  });
+
+  // Toggle
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var isOpen = list.style.display === 'block';
+    document.querySelectorAll('.dropdown-list').forEach(function (l) { l.style.display = 'none'; });
+    list.style.display = isOpen ? 'none' : 'block';
+  });
+}
+
+/**
+ * Load team member emails from the JSON file (or fall back to auth-utils cache).
+ * Returns a deduped array of normalized emails.
+ */
+async function loadTeamMembersForDropdown() {
+  try {
+    const resp = await fetch('/assets/data/team-members.json');
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data && Array.isArray(data.teamMembers)) {
+        return data.teamMembers.map(e => e.trim().toLowerCase()).filter(Boolean);
+      }
+    }
+  } catch (e) { /* ignore, fall through */ }
+  // Fallback: use auth-utils sync cache
+  if (typeof getTeamMemberListSync === 'function') {
+    return getTeamMemberListSync();
+  }
+  return [];
 }
 
 /* Create descModel from checklist items and notes */
@@ -1367,6 +1569,7 @@ function createTaskEl(task, colId) {
   div.dataset.col = colId;
 
   const assignee = task.assignee || "Unassigned";
+  const assigneeDisplay = getAssigneeDisplay(assignee);
   
   // Use descHtml if available, otherwise generate from model or fall back to old format
   let descHtml = task.descHtml || "";
@@ -1378,7 +1581,7 @@ function createTaskEl(task, colId) {
     <div class="flex items-start justify-between gap-2">
       <div>
         <h3 class="font-medium text-slate-800 dark:text-slate-200">${task.title}</h3>
-        <div class="text-xs text-slate-500 dark:text-slate-400">${assignee} • ${formatDueDate(task.due || "")}</div>
+        <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 flex-wrap">${assigneeDisplay} • ${formatDueDate(task.due || "")}</div>
       </div>
       <div class="flex gap-2 shrink-0">
         <button class="text-xs px-2 py-1 border border-slate-300 rounded-md hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 edit-btn">Edit</button>
@@ -1693,7 +1896,7 @@ function openEditModal(task, colId) {
     <div class="bg-white p-6 rounded-xl shadow-xl w-80 max-h-[90vh] overflow-y-auto space-y-3 border border-slate-200 ring-1 ring-slate-100 modal-panel dark:bg-slate-900 dark:border-slate-800">
       <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">Edit Task</h3>
       <input id="editTitle" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Title" />
-      <input id="editAssign" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" placeholder="Assignee" />
+      <div id="editAssigneeWrap"></div>
       <input id="editDue" type="date" class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200" />
 
       <!-- Checklist + Notes Editor -->
@@ -1732,7 +1935,11 @@ function openEditModal(task, colId) {
   document.body.appendChild(modal);
 
   modal.querySelector("#editTitle").value = task.title || "";
-  modal.querySelector("#editAssign").value = task.assignee || "";
+  // Inject assignee dropdown into wrapper
+  const assigneeWrap = modal.querySelector("#editAssigneeWrap");
+  if (assigneeWrap) {
+    buildModalAssigneeDropdown(assigneeWrap, task.assignee || "", allTeamMembers, "editAssign");
+  }
   modal.querySelector("#editDue").value = task.due || "";
   
   // Populate checklist and notes
@@ -2031,6 +2238,11 @@ addBtn.onclick = async () => {
     // Clear form
     document.getElementById("newTitle").value = "";
     document.getElementById("newAssign").value = "";
+    // Reset assignee dropdown button
+    const assignBtnReset = document.getElementById("assigneeDropdownBtn");
+    if (assignBtnReset) assignBtnReset.innerHTML = '<span class="placeholder">Assignee...</span>';
+    const assignRadios = document.querySelectorAll('#assigneeDropdownList input[type="radio"]');
+    assignRadios.forEach(r => { r.checked = (r.value === ""); });
     document.getElementById("newDue").value = "";
     document.getElementById("newNotes").value = "";
     clearChecklistUI("checklistItems");
@@ -2277,6 +2489,10 @@ filterInput.oninput = () => { renderBoard(); };
       try {
         // Uncomment next line ONCE if you need to normalize existing column values:
         // await fixColumns();
+
+        // Load team members for assignee dropdown
+        allTeamMembers = await loadTeamMembersForDropdown();
+        populateAssigneeDropdown(allTeamMembers);
         
         // Run description migration (safe to run multiple times)
         await migrateDescriptions();

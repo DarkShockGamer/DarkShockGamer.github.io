@@ -60,6 +60,11 @@ async function loadSettings() {
 // Save settings to backend or localStorage
 async function saveSettings(settings) {
   setLocalSettings(settings); // Always save as backup
+  // Also persist display name to the profile store (keyed by email)
+  if (settings.fullname !== undefined && typeof Profile !== 'undefined') {
+    var email = localStorage.getItem('signedInEmail');
+    if (email) Profile.set(email, { displayName: settings.fullname });
+  }
   // --- Uncomment for backend API integration ---
   /*
   await fetch('/api/user/settings', {

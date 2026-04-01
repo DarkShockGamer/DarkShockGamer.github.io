@@ -41,6 +41,8 @@
 
   <!-- Shared auth configuration -->
   <script src="/assets/js/auth-config.js"></script>
+  <!-- Profile system (must be before auth-utils) -->
+  <script src="/assets/js/profile.js"></script>
   <!-- Shared auth utilities -->
   <script src="/assets/js/auth-utils.js"></script>
 
@@ -175,6 +177,10 @@
         localStorage.setItem(G_CRED_KEY, response.credential);
         localStorage.setItem('signedInEmail', email);
         localStorage.setItem(G_PROFILE_KEY, JSON.stringify({ email: data.email, name: data.name, picture: data.picture }));
+        // Save to profile store (keyed by email) for site-wide use
+        if (typeof Profile !== 'undefined') {
+          Profile.saveGoogleProfile(data.email, data.name, data.picture);
+        }
         // Clear any explicit-logout flag so re-auth persists on next refresh
         localStorage.removeItem(G_EXPLICIT_LOGOUT_KEY);
         // Update UI (now async to handle allowlist loading)

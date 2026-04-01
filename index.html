@@ -88,9 +88,20 @@
   </script>
   
   <script>
-  // Helper: storage key for the credential
+  // Helper: storage keys for the credential and profile data
   // Use window.G_CRED_KEY (set by auth-config.js) with a safe fallback
   const G_CRED_KEY = window.G_CRED_KEY || 'g_credential_v1';
+  // Stores {email, name, picture} so UI can be restored even after token expiry
+  const G_PROFILE_KEY = 'g_profile_v1';
+  // Flag set on explicit logout to prevent auto-restoration
+  const G_EXPLICIT_LOGOUT_KEY = 'g_explicit_logout';
+
+  // Centralized helper to clear all auth-related localStorage entries
+  function clearAuthData() {
+    localStorage.removeItem(G_CRED_KEY);
+    localStorage.removeItem('signedInEmail');
+    localStorage.removeItem(G_PROFILE_KEY);
+  }
 
   // Toggle portal visibility based on email allowed list/domains
   // This function now handles async allowlist loading
@@ -160,9 +171,12 @@
       try {
         const data = jwt_decode(response.credential);
         const email = data.email;
-        // Save credential to localStorage for persistence
+        // Save credential and profile to localStorage for persistence
         localStorage.setItem(G_CRED_KEY, response.credential);
         localStorage.setItem('signedInEmail', email);
+        localStorage.setItem(G_PROFILE_KEY, JSON.stringify({ email: data.email, name: data.name, picture: data.picture }));
+        // Clear any explicit-logout flag so re-auth persists on next refresh
+        localStorage.removeItem(G_EXPLICIT_LOGOUT_KEY);
         // Update UI (now async to handle allowlist loading)
         await setSignedInUI(data, response.credential);
         
@@ -216,7 +230,9 @@
     }
 
     // Clear stored credential and update UI
-    localStorage.removeItem(G_CRED_KEY);
+    clearAuthData();
+    // Mark that the user explicitly logged out so auto-restore is suppressed on refresh
+    localStorage.setItem(G_EXPLICIT_LOGOUT_KEY, '1');
     if (google && google.accounts && google.accounts.id) {
       // Prevent automatic selection on next page load
       try { google.accounts.id.disableAutoSelect(); } catch(e){/* ignore */ }
@@ -244,6 +260,45 @@
     await safePreloadAllowlists();
 
     // If credential saved in localStorage, restore UI
+    // Helper: restore UI from stored profile and attempt silent re-auth via One Tap
+    async function restoreFromProfileAndPrompt() {
+      const explicitLogout = localStorage.getItem(G_EXPLICIT_LOGOUT_KEY);
+      if (explicitLogout) {
+        // User explicitly logged out – show sign-in button, do not auto-restore
+        google.accounts.id.renderButton(
+          document.getElementById("googleSignIn"),
+          { theme: "outline", size: "medium", text: "signin_with" }
+        );
+        return;
+      }
+      const profileRaw = localStorage.getItem(G_PROFILE_KEY);
+      if (profileRaw) {
+        try {
+          const profile = JSON.parse(profileRaw);
+          // Restore signed-in UI from cached profile while re-auth runs in background
+          await setSignedInUI(profile, null);
+          // Silently try to get a fresh token via One Tap
+          try {
+            google.accounts.id.renderButton(
+              document.getElementById("googleSignIn"),
+              { theme: "outline", size: "medium", text: "signin_with" }
+            );
+            google.accounts.id.prompt();
+          } catch(e) {
+            console.warn('Could not auto-prompt for re-auth:', e);
+          }
+          return;
+        } catch(e) {
+          // Corrupt profile data – fall through to signed-out UI
+        }
+      }
+      // No stored profile: show sign-in button
+      google.accounts.id.renderButton(
+        document.getElementById("googleSignIn"),
+        { theme: "outline", size: "medium", text: "signin_with" }
+      );
+    }
+
     const saved = localStorage.getItem(G_CRED_KEY);
     if (saved) {
       try {
@@ -252,29 +307,10 @@
         // Check if token is expired
         const now = Math.floor(Date.now() / 1000);
         if (data.exp && data.exp < now) {
-          // Token expired - clear it and prompt for re-auth
-          console.log('Token expired, prompting for re-authentication');
-          localStorage.removeItem(G_CRED_KEY);
-          localStorage.removeItem('signedInEmail');
-          setSignedOutUI();
-          
-          // Render sign-in button
-          google.accounts.id.renderButton(
-            document.getElementById("googleSignIn"),
-            { theme: "outline", size: "medium", text: "signin_with" }
-          );
-          
-          // Auto-prompt for re-authentication to seamlessly restore login
-          // Only prompt if no return URL to avoid interrupting navigation flow
-          const urlParams = new URLSearchParams(window.location.search);
-          const returnUrl = urlParams.get('return');
-          if (!returnUrl) {
-            try {
-              google.accounts.id.prompt();
-            } catch(e) {
-              console.warn('Could not auto-prompt for re-auth:', e);
-            }
-          }
+          // Token expired – remove stale credential and restore from profile
+          console.log('Token expired, restoring UI from profile and prompting for re-authentication');
+          clearAuthData();
+          await restoreFromProfileAndPrompt();
         } else {
           // Token is valid - restore signed-in UI (now async)
           await setSignedInUI(data, saved);
@@ -301,37 +337,14 @@
           }
         }
       } catch (err) {
-        // Invalid token (malformed JWT) - clear and show sign-in
+        // Invalid token (malformed JWT) - clear and restore from profile
         console.warn('Stored credential invalid, clearing', err);
-        localStorage.removeItem(G_CRED_KEY);
-        localStorage.removeItem('signedInEmail');
-        setSignedOutUI();
-        
-        // render sign-in button
-        google.accounts.id.renderButton(
-          document.getElementById("googleSignIn"),
-          { theme: "outline", size: "medium", text: "signin_with" }
-        );
-        
-        // Auto-prompt for re-authentication to seamlessly restore login if no return URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const returnUrl = urlParams.get('return');
-        if (!returnUrl) {
-          try {
-            google.accounts.id.prompt();
-          } catch(e) {
-            console.warn('Could not auto-prompt for re-auth:', e);
-          }
-        }
+        clearAuthData();
+        await restoreFromProfileAndPrompt();
       }
     } else {
-      // Not signed in: render the button
-      google.accounts.id.renderButton(
-        document.getElementById("googleSignIn"),
-        { theme: "outline", size: "medium", text: "signin_with" }
-      );
-      // optional: prompt can be used to show One Tap - leaving commented out if undesired
-      // google.accounts.id.prompt();
+      // No saved credential – try restoring from stored profile (handles token expiry across sessions)
+      await restoreFromProfileAndPrompt();
     }
   };
   </script>

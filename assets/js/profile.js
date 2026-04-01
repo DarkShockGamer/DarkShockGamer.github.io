@@ -148,7 +148,7 @@
     size = size || 32;
     const picture = getPicture(email);
     const name = getDisplayName(email);
-    const initials = (name[0] || '?').toUpperCase();
+    const initials = ((name && name[0]) || '?').toUpperCase();
     const fontSize = Math.round(size * 0.45);
     const placeholderStyle =
       'width:' + size + 'px;height:' + size + 'px;border-radius:50%;' +

@@ -1080,11 +1080,12 @@ function getAssigneeDisplay(assignee) {
 
 /**
  * Build the <label> HTML for one team member in the assignee dropdown.
+ * Used only for the initial list rendering (static emails from team-members.json).
  */
 function buildAssigneeLabelHtml(email) {
   const name = (typeof Profile !== 'undefined') ? Profile.getDisplayName(email) : email;
   const picture = (typeof Profile !== 'undefined') ? Profile.getPicture(email) : null;
-  const initials = (name[0] || '?').toUpperCase();
+  const initials = ((name && name[0]) || '?').toUpperCase();
   let avatarHtml;
   if (picture) {
     avatarHtml =
@@ -1098,6 +1099,55 @@ function buildAssigneeLabelHtml(email) {
       escHtml(initials) + '</span>';
   }
   return avatarHtml + '<span>' + escHtml(name) + '</span>';
+}
+
+/**
+ * Set the assignee dropdown button's content using DOM methods (XSS-safe).
+ * @param {HTMLElement} btn - the button element
+ * @param {string} email - the selected email, or empty string for Unassigned
+ */
+function setAssigneeBtnContent(btn, email) {
+  // Remove all children
+  while (btn.firstChild) btn.removeChild(btn.firstChild);
+
+  if (!email) {
+    const ph = document.createElement('span');
+    ph.className = 'placeholder';
+    ph.textContent = btn.dataset.placeholder || 'Assignee...';
+    btn.appendChild(ph);
+    return;
+  }
+
+  const name = (typeof Profile !== 'undefined') ? Profile.getDisplayName(email) : email;
+  const picture = (typeof Profile !== 'undefined') ? Profile.getPicture(email) : null;
+  const initials = ((name && name[0]) || '?').toUpperCase();
+
+  const wrap = document.createElement('span');
+  wrap.style.cssText = 'display:inline-flex;align-items:center;gap:4px;';
+
+  if (picture) {
+    const img = document.createElement('img');
+    img.src = picture;
+    img.alt = '';
+    img.width = 20;
+    img.height = 20;
+    img.style.cssText = 'width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0;';
+    img.onerror = function () { this.style.display = 'none'; };
+    wrap.appendChild(img);
+  } else {
+    const sp = document.createElement('span');
+    sp.setAttribute('aria-hidden', 'true');
+    sp.style.cssText =
+      'width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#818cf8);' +
+      'color:white;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;';
+    sp.textContent = initials;
+    wrap.appendChild(sp);
+  }
+
+  const nameSpan = document.createElement('span');
+  nameSpan.textContent = name;
+  wrap.appendChild(nameSpan);
+  btn.appendChild(wrap);
 }
 
 /**
@@ -1129,20 +1179,15 @@ function populateAssigneeDropdown(members) {
     radio.addEventListener('change', function () {
       if (!this.checked) return;
       hidden.value = this.value;
-      if (!this.value) {
-        btn.innerHTML = '<span class="placeholder">Assignee...</span>';
-      } else {
-        btn.innerHTML = buildAssigneeLabelHtml(this.value);
-      }
+      setAssigneeBtnContent(btn, this.value);
       list.style.display = 'none';
     });
   });
 
-  // Toggle dropdown
-  const dropBtn = document.getElementById('assigneeDropdownBtn');
-  if (dropBtn && !dropBtn.dataset.assigneeWired) {
-    dropBtn.dataset.assigneeWired = '1';
-    dropBtn.addEventListener('click', function (e) {
+  // Toggle dropdown (btn is already the assigneeDropdownBtn reference from line above)
+  if (btn && !btn.dataset.assigneeWired) {
+    btn.dataset.assigneeWired = '1';
+    btn.addEventListener('click', function (e) {
       e.stopPropagation();
       var isOpen = list.style.display === 'block';
       // Close other dropdowns first
@@ -1173,16 +1218,8 @@ function buildModalAssigneeDropdown(container, currentValue, members, hiddenInpu
   wrap.className = 'dropdown';
   wrap.style.width = '100%';
 
-  const currentName = (currentValue && currentValue.includes('@') && typeof Profile !== 'undefined')
-    ? Profile.getDisplayName(currentValue)
-    : (currentValue || '');
-
-  const btnHtml = currentValue
-    ? buildAssigneeLabelHtml(currentValue)
-    : '<span class="placeholder">Assignee</span>';
-
   wrap.innerHTML =
-    '<div class="dropdown-btn" id="' + uid + '_btn" style="width:100%;">' + btnHtml + '</div>' +
+    '<div class="dropdown-btn" id="' + uid + '_btn" style="width:100%;"></div>' +
     '<div class="dropdown-list" id="' + uid + '_list" style="max-height:200px;overflow-y:auto;display:none;">' +
     '<label style="display:flex;align-items:center;gap:0.5rem;">' +
     '<input type="radio" name="' + uid + '" value="" ' + (!currentValue ? 'checked' : '') + ' />' +
@@ -1194,12 +1231,15 @@ function buildModalAssigneeDropdown(container, currentValue, members, hiddenInpu
 
   const list = wrap.querySelector('#' + uid + '_list');
   const btn = wrap.querySelector('#' + uid + '_btn');
+  btn.dataset.placeholder = 'Assignee';
+  // Set initial button content using DOM methods (avoids innerHTML with user data)
+  setAssigneeBtnContent(btn, currentValue || '');
 
   // Add team member options
   members.forEach(function (email) {
     const label = document.createElement('label');
     label.style.cssText = 'display:flex;align-items:center;gap:0.5rem;';
-    const checked = (email === (currentValue || ''));
+    const checked = (email === currentValue);
     label.innerHTML =
       '<input type="radio" name="' + uid + '" value="' + escHtml(email) + '" ' + (checked ? 'checked' : '') + ' />' +
       buildAssigneeLabelHtml(email);
@@ -1211,9 +1251,8 @@ function buildModalAssigneeDropdown(container, currentValue, members, hiddenInpu
     radio.addEventListener('change', function () {
       if (!this.checked) return;
       hidden.value = this.value;
-      btn.innerHTML = this.value
-        ? buildAssigneeLabelHtml(this.value)
-        : '<span class="placeholder">Assignee</span>';
+      btn.dataset.placeholder = 'Assignee';
+      setAssigneeBtnContent(btn, this.value);
       list.style.display = 'none';
     });
   });

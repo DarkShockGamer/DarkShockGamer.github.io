@@ -1658,7 +1658,7 @@
         if (wrap && email) {
           var picture = Profile.getPicture(email);
           var name = Profile.getDisplayName(email);
-          var initials = (name[0] || '?').toUpperCase();
+          var initials = ((name && name[0]) || '?').toUpperCase();
           if (picture) {
             wrap.innerHTML =
               '<img src="' + picture + '" alt="Profile photo" ' +

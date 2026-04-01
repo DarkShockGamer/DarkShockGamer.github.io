@@ -104,6 +104,10 @@
       {
         "name": "Gabe",
         "team": "Drive Team"
+      },
+      {
+        "name": "Adrian",
+        "team": "Electrical Team"
       }
     ],
     "drivers": []

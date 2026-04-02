@@ -2,36 +2,36 @@
   "title": "Trident Robotics 4296",
   "about": {
     "heading": "About Us",
-    "content": "<p>We are <strong>Trident Robotics Team 4296</strong>, a student-led high school robotics team dedicated to designing, building, and competing with innovative robots. Our mission is to spark curiosity, foster collaboration, and push the boundaries of technology through hands-on engineering experiences.</p><p>Founded in 2012, our team has grown into a community where students gain real-world skills in <em>design, mechanical engineering, electrical systems, and programming</em>. We don’t just build robots—we build future engineers, problem-solvers, and leaders.</p><p>Every season, our team comes together with one goal: to turn imagination into innovation and prove that when teamwork meets technology, the possibilities are endless.</p>"
+    "content": "<p>We are <strong>Trident Robotics Team 4296</strong>, a student-led high school robotics team dedicated to designing, building, and competing with innovative robots. Our mission is to spark curiosity, foster collaboration, and push the boundaries of technology through hands-on engineering experiences.</p><p>Founded in 2012, our team has grown into a community where students gain real-world skills in <em>design, mechanical engineering, electrical systems, and programming</em>. We don\u2019t just build robots\u2014we build future engineers, problem-solvers, and leaders.</p><p>Every season, our team comes together with one goal: to turn imagination into innovation and prove that when teamwork meets technology, the possibilities are endless.</p>"
   },
   "timeline": [
     {
       "id": "t1",
-      "date": "⚡ September 23, 2025",
+      "date": "\u26a1 September 23, 2025",
       "title": "First Robotics Meeting",
       "description": "We had our first meeting to kickoff the season!"
     },
     {
       "id": "t2",
-      "date": "👤 September 25, 2025",
+      "date": "\ud83d\udc64 September 25, 2025",
       "title": "STEM Activity Day",
       "description": "STEM activity where we try to build the tallest tower and old Team Leads talking about how subteams work."
     },
     {
       "id": "t3",
-      "date": "🔧 September 30, 2025",
+      "date": "\ud83d\udd27 September 30, 2025",
       "title": "Subteam Stations",
       "description": "Teams will set up their stations for subteam activities where new people to robotics can more easily decide what subteam they wanted to join."
     },
     {
       "id": "t4",
-      "date": "ℹ️ October 7, 2025",
+      "date": "\u2139\ufe0f October 7, 2025",
       "title": "Applications Available",
       "description": "Applications for the team became available to students."
     },
     {
       "id": "t5",
-      "date": "🏆 January 10, 2026",
+      "date": "\ud83c\udfc6 January 10, 2026",
       "title": "Kickoff Day",
       "description": "Kickoff day announces the new challenge and what our robot will need to accomplish. Is a Mandatory Event."
     }
@@ -156,6 +156,33 @@
       "name": "WW Displays Inc",
       "logo": "/assets/WWDisplays.png",
       "url": ""
+    }
+  ],
+  "links": [
+    {
+      "title": "2026 GAME MANUAL",
+      "url": "https://firstfrc.blob.core.windows.net/frc2026/Manual/2026GameManual.pdf",
+      "description": "\"Spare Parts\""
+    },
+    {
+      "title": "Trident Robotics Google Drive",
+      "url": "https://drive.google.com/drive/folders/0AHfM9Fpj6AkcUk9PVA",
+      "description": "Shared folder"
+    },
+    {
+      "title": "ReCalc ~ Mechanical Design Calculator",
+      "url": "https://www.reca.lc/",
+      "description": "https://www.reca.lc/"
+    },
+    {
+      "title": "FIRST Robotics Technical Resources",
+      "url": "https://www.firstinspires.org/resources/library/frc/technical-resources",
+      "description": "firstinspires.org"
+    },
+    {
+      "title": "FIRST Robotics Resource Library",
+      "url": "https://www.firstinspires.org/resources/library/frc/season-materials?view=calendar",
+      "description": "Season materials (calendar view)"
     }
   ]
 }

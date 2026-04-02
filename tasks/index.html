@@ -1558,6 +1558,26 @@ function updateCompletionBar(data) {
 async function renderBoard() {
   const data = await loadTasks();
   
+  // Kick off background resolution of other users' profiles from publicProfiles Firestore
+  // collection. This is non-blocking: the board renders immediately with whatever is
+  // cached, and each resolved profile fires a 'profilesHydrated' event that triggers
+  // a follow-up re-render so names/avatars update once remote data arrives.
+  if (window.FirebaseProfileSync?.resolveProfiles) {
+    const assigneeEmails = new Set();
+    for (const colId of data.order) {
+      for (const t of (data.columns[colId]?.tasks || [])) {
+        if (t.assignee && t.assignee.includes('@')) {
+          assigneeEmails.add(t.assignee.trim().toLowerCase());
+        }
+      }
+    }
+    if (assigneeEmails.size) {
+      window.FirebaseProfileSync.resolveProfiles([...assigneeEmails]).catch(e => {
+        console.warn('[Tasks] resolveProfiles error:', e);
+      });
+    }
+  }
+  
   // Update completion bar with loaded data
   updateCompletionBar(data);
   
@@ -2593,8 +2613,14 @@ filterInput.oninput = () => { renderBoard(); };
 
     // Re-render the board when cross-device profile sync completes so that
     // assignee names and avatars reflect the synced values from Firestore.
+    // Debounced to avoid redundant re-renders when multiple profiles are resolved
+    // at once (e.g. when resolveProfiles returns results for several assignees).
+    let _profilesHydratedTimer = null;
     document.addEventListener('profilesHydrated', () => {
-      if (typeof renderBoard === 'function') renderBoard();
+      clearTimeout(_profilesHydratedTimer);
+      _profilesHydratedTimer = setTimeout(() => {
+        if (typeof renderBoard === 'function') renderBoard();
+      }, 200);
     });
 
 

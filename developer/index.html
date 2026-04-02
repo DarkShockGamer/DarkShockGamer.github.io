@@ -112,6 +112,23 @@
     .toast.warn    { border-color: #fde68a; background: #fffbea; color: #92400e; }
     .toast.error   { border-color: #fecaca; background: #fef2f2; color: #7f1d1d; }
     /* Toast dark mode styles are now in adaptive-themes.css */
+
+    /* Collapsible developer-page sections */
+    .section-header {
+      cursor: pointer;
+      user-select: none;
+      outline-offset: 2px;
+    }
+    .section-header:focus-visible { outline: 2px solid #38bdf8; border-radius: 4px; }
+    .section-chevron {
+      flex-shrink: 0;
+      width: 1.25rem;
+      height: 1.25rem;
+      color: #94a3b8;
+      transition: transform 200ms ease, color 150ms ease;
+    }
+    .section-header:hover .section-chevron { color: #0ea5e9; }
+    .section-chevron.open { transform: rotate(180deg); }
   </style>
 </head>
 <body class="min-h-screen bg-gradient-to-b from-sky-50 to-white dark:from-slate-900 dark:to-slate-950 font-sans text-slate-800 dark:text-slate-200">
@@ -131,8 +148,13 @@
 
   <main class="max-w-6xl mx-auto px-4 pb-16 space-y-6">
     <!-- Site Content -->
-    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
-      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-3">Site Content</h2>
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10" data-section="site-content">
+      <div class="section-header flex items-center justify-between" tabindex="0" aria-expanded="false">
+        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Site Content</h2>
+        <svg class="section-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="section-body mt-3">
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="col-span-1">
           <label for="site-title" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Site Title</label>
@@ -151,21 +173,74 @@
         <textarea id="about-content" placeholder="<p>About text...</p>"
                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500"></textarea>
       </div>
+      </div>
+    </section>
+
+    <!-- Links Manager -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10" data-section="links-manager">
+      <div class="section-header flex items-center justify-between" tabindex="0" aria-expanded="false">
+        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Links Manager</h2>
+        <svg class="section-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="section-body mt-3">
+
+      <p class="muted mt-1">
+        Manage links shown on the <a href="/links/" class="text-sky-600 dark:text-sky-400 hover:underline">Links page</a>.
+        Changes are saved to <code>data/site.json</code> when you click "Push to GitHub".
+      </p>
+
+      <!-- Add link form -->
+      <div class="mt-4 space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Title</label>
+            <input id="new-link-title" type="text" placeholder="e.g. 2026 Game Manual"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">URL</label>
+            <input id="new-link-url" type="text" placeholder="https://..."
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Description <span class="font-normal text-slate-400">(optional subtitle)</span></label>
+          <input id="new-link-desc" type="text" placeholder='e.g. "Spare Parts"'
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+        </div>
+        <button id="add-link" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">
+          + Add Link
+        </button>
+      </div>
+
+      <!-- Existing links list -->
+      <div class="mt-4 space-y-2" id="links-list"></div>
+      </div>
     </section>
 
     <!-- Timeline -->
-    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
-      <div class="flex items-center justify-between mb-3">
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10" data-section="timeline">
+      <div class="section-header flex items-center justify-between" tabindex="0" aria-expanded="false">
         <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Timeline</h2>
-        <button id="add-timeline"
-                class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">+ Add Timeline Event</button>
+        <div class="flex items-center gap-2">
+          <button id="add-timeline"
+                  class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">+ Add Timeline Event</button>
+          <svg class="section-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+        </div>
       </div>
-      <div id="timeline-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      <div class="section-body mt-3">
+        <div id="timeline-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </div>
     </section>
 
     <!-- Leadership -->
-    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
-      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Leadership</h2>
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10" data-section="leadership">
+      <div class="section-header flex items-center justify-between" tabindex="0" aria-expanded="false">
+        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Leadership</h2>
+        <svg class="section-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="section-body mt-3">
+
 
       <!-- Leads -->
       <div class="mt-3">
@@ -192,11 +267,69 @@
                   class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">Add</button>
         </div>
       </div>
+      </div>
+    </section>
+
+    <!-- Sponsors Manager -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10" data-section="sponsors">
+      <div class="section-header flex items-center justify-between" tabindex="0" aria-expanded="false">
+        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Sponsors Manager</h2>
+        <svg class="section-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="section-body mt-3">
+
+      <p class="muted mt-1">
+        Add sponsors shown on sponsors.html. Upload a logo, set the sponsor name (and optional link), reorder, or remove.
+        <span class="ml-1 text-[0.8rem] text-amber-600 dark:text-amber-400">
+          Note: Uploaded logo files are committed immediately, but changes to the sponsors list are saved when you click “Push to GitHub”.
+        </span>
+      </p>
+
+      <!-- Add sponsor form -->
+      <div class="mt-4 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Sponsor Name</label>
+          <input id="new-sponsor-name" type="text" placeholder="Sponsor name (e.g., Baxter)"
+                 class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Optional Link URL</label>
+          <input id="new-sponsor-link" type="text" placeholder="https://example.com (optional)"
+                 class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Logo URL</label>
+          <div class="flex gap-2">
+            <input id="new-sponsor-logo" type="text" placeholder="/assets/uploads/logo.png or https://..."
+                   class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+            <button id="btn-upload-sponsor-logo" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload Logo</button>
+            <input id="file-sponsor-logo" type="file" accept="image/*" class="hidden">
+          </div>
+          <img id="preview-sponsor-logo" alt="Logo preview" class="mt-2 max-h-24 rounded-md border border-slate-200 dark:border-slate-700 hidden">
+        </div>
+
+        <div class="flex items-end">
+          <button id="add-sponsor" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm w-full">
+            + Add Sponsor
+          </button>
+        </div>
+      </div>
+
+      <!-- Existing sponsors list -->
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="sponsors-list"></div>
+      </div>
     </section>
 
     <!-- Media Manager -->
-    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
-      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Media Manager</h2>
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10" data-section="media">
+      <div class="section-header flex items-center justify-between" tabindex="0" aria-expanded="false">
+        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Media Manager</h2>
+        <svg class="section-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="section-body mt-3">
+
       <p class="muted mt-1">
         Upload images directly to this repo (using your PAT below) and choose which images appear on the site.
         <span class="ml-1 text-[0.8rem] text-amber-600 dark:text-amber-400">
@@ -256,112 +389,22 @@
       </div>
 
       <pre id="media-result" class="muted mt-3 whitespace-pre-wrap text-sm"></pre>
-    </section>
-
-    <!-- Sponsors Manager -->
-    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
-      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Sponsors Manager</h2>
-      <p class="muted mt-1">
-        Add sponsors shown on sponsors.html. Upload a logo, set the sponsor name (and optional link), reorder, or remove.
-        <span class="ml-1 text-[0.8rem] text-amber-600 dark:text-amber-400">
-          Note: Uploaded logo files are committed immediately, but changes to the sponsors list are saved when you click “Push to GitHub”.
-        </span>
-      </p>
-
-      <!-- Add sponsor form -->
-      <div class="mt-4 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Sponsor Name</label>
-          <input id="new-sponsor-name" type="text" placeholder="Sponsor name (e.g., Baxter)"
-                 class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-        </div>
-
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Optional Link URL</label>
-          <input id="new-sponsor-link" type="text" placeholder="https://example.com (optional)"
-                 class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-        </div>
-
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Logo URL</label>
-          <div class="flex gap-2">
-            <input id="new-sponsor-logo" type="text" placeholder="/assets/uploads/logo.png or https://..."
-                   class="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-            <button id="btn-upload-sponsor-logo" class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded-md px-3">Upload Logo</button>
-            <input id="file-sponsor-logo" type="file" accept="image/*" class="hidden">
-          </div>
-          <img id="preview-sponsor-logo" alt="Logo preview" class="mt-2 max-h-24 rounded-md border border-slate-200 dark:border-slate-700 hidden">
-        </div>
-
-        <div class="flex items-end">
-          <button id="add-sponsor" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm w-full">
-            + Add Sponsor
-          </button>
-        </div>
-      </div>
-
-      <!-- Existing sponsors list -->
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="sponsors-list"></div>
-    </section>
-
-    <!-- Developer Management -->
-    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
-      <div class="flex items-center gap-2 mb-3">
-        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Developer Access Management</h2>
-        <span id="dev-pending-indicator" class="hidden inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
-          Pending changes
-        </span>
-      </div>
-      <p class="muted mb-4">
-        Manage who has access to developer pages (Developer Console, UI Lab, Telemetry). 
-        The two core developers (<code>blackshocktrooper@gmail.com</code>, <code>palm4215@wths.net</code>) 
-        cannot be removed. Changes are saved to <code>assets/data/developers.json</code> when you push to GitHub.
-      </p>
-      
-      <div class="mb-4">
-        <label for="dev-email-input" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Add Developer Email</label>
-        <div class="flex flex-col sm:flex-row gap-2">
-          <input 
-            id="dev-email-input" 
-            type="email" 
-            placeholder="developer@example.com"
-            class="flex-1 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500"
-          />
-          <button 
-            id="add-dev-btn"
-            class="w-full sm:w-auto bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm whitespace-nowrap"
-          >
-            Add Developer
-          </button>
-        </div>
-        <p id="dev-add-message" class="text-xs mt-1 hidden"></p>
-      </div>
-      
-      <div class="mb-4">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-sm font-medium text-slate-700 dark:text-slate-300">Current Developers</h3>
-          <button 
-            id="push-dev-list-btn"
-            class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold shadow-sm whitespace-nowrap"
-          >
-            💾 Push Developer List to GitHub
-          </button>
-        </div>
-        <div id="dev-list" class="space-y-2">
-          <!-- Developer list will be populated here -->
-        </div>
       </div>
     </section>
 
     <!-- Team Member Access Management -->
-    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
-      <div class="flex items-center gap-2 mb-3">
-        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Team Member Access Management</h2>
-        <span id="team-pending-indicator" class="hidden inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
-          Pending changes
-        </span>
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10" data-section="team-access">
+      <div class="section-header flex items-center justify-between" tabindex="0" aria-expanded="false">
+        <div class="flex items-center gap-2">
+          <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Team Member Access Management</h2>
+          <span id="team-pending-indicator" class="hidden inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+            Pending changes
+          </span>
+        </div>
+        <svg class="section-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
       </div>
-      <p class="muted mb-4">
+      <div class="section-body mt-3">
+        <p class="muted mb-4">
         Manage who has access to the task board. Team members can view and manage tasks.
         The two core team members (<code>blackshocktrooper@gmail.com</code>, <code>palm4215@wths.net</code>) 
         cannot be removed. Changes are saved to <code>assets/data/team-members.json</code> when you push to GitHub.
@@ -400,11 +443,71 @@
           <!-- Team member list will be populated here -->
         </div>
       </div>
+      </div>
+    </section>
+
+    <!-- Developer Management -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10" data-section="dev-access">
+      <div class="section-header flex items-center justify-between" tabindex="0" aria-expanded="false">
+        <div class="flex items-center gap-2">
+          <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Developer Access Management</h2>
+          <span id="dev-pending-indicator" class="hidden inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+            Pending changes
+          </span>
+        </div>
+        <svg class="section-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="section-body mt-3">
+        <p class="muted mb-4">
+        Manage who has access to developer pages (Developer Console, UI Lab, Telemetry). 
+        The two core developers (<code>blackshocktrooper@gmail.com</code>, <code>palm4215@wths.net</code>) 
+        cannot be removed. Changes are saved to <code>assets/data/developers.json</code> when you push to GitHub.
+      </p>
+      
+      <div class="mb-4">
+        <label for="dev-email-input" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Add Developer Email</label>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input 
+            id="dev-email-input" 
+            type="email" 
+            placeholder="developer@example.com"
+            class="flex-1 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200 dark:placeholder-slate-500"
+          />
+          <button 
+            id="add-dev-btn"
+            class="w-full sm:w-auto bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm whitespace-nowrap"
+          >
+            Add Developer
+          </button>
+        </div>
+        <p id="dev-add-message" class="text-xs mt-1 hidden"></p>
+      </div>
+      
+      <div class="mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-sm font-medium text-slate-700 dark:text-slate-300">Current Developers</h3>
+          <button 
+            id="push-dev-list-btn"
+            class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold shadow-sm whitespace-nowrap"
+          >
+            💾 Push Developer List to GitHub
+          </button>
+        </div>
+        <div id="dev-list" class="space-y-2">
+          <!-- Developer list will be populated here -->
+        </div>
+      </div>
+      </div>
     </section>
 
     <!-- Badge Management -->
-    <section id="badgeSection" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
-      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Badge Management</h2>
+    <section id="badgeSection" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10" data-section="badges">
+      <div class="section-header flex items-center justify-between" tabindex="0" aria-expanded="false">
+        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Badge Management</h2>
+        <svg class="section-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+      </div>
+      <div class="section-body mt-3">
+
       <p class="muted mt-1">Assign or remove role badges for team members (similar to Discord roles). Changes are saved locally in each user's browser storage.</p>
 
       <!-- User picker -->
@@ -449,54 +552,22 @@
         </div>
         <p class="text-xs muted mt-1">Custom badges are stored locally and appear in the badge list above.</p>
       </div>
-    </section>
-
-    <!-- Links Manager -->
-    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
-      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Links Manager</h2>
-      <p class="muted mt-1">
-        Manage links shown on the <a href="/links/" class="text-sky-600 dark:text-sky-400 hover:underline">Links page</a>.
-        Changes are saved to <code>data/site.json</code> when you click "Push to GitHub".
-      </p>
-
-      <!-- Add link form -->
-      <div class="mt-4 space-y-3">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Title</label>
-            <input id="new-link-title" type="text" placeholder="e.g. 2026 Game Manual"
-                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">URL</label>
-            <input id="new-link-url" type="text" placeholder="https://..."
-                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-          </div>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Description <span class="font-normal text-slate-400">(optional subtitle)</span></label>
-          <input id="new-link-desc" type="text" placeholder='e.g. "Spare Parts"'
-                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
-        </div>
-        <button id="add-link" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">
-          + Add Link
-        </button>
       </div>
-
-      <!-- Existing links list -->
-      <div class="mt-4 space-y-2" id="links-list"></div>
     </section>
 
     <!-- Simplified GitHub Push -->
-    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
-      <div class="flex items-center gap-2">
-        <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Save Changes to GitHub</h3>
-        <!-- Live save status badge -->
-        <span id="save-status" class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
-          All changes saved
-        </span>
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10" data-section="save-github">
+      <div class="section-header flex items-center justify-between" tabindex="0" aria-expanded="false">
+        <div class="flex items-center gap-2">
+          <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Save Changes to GitHub</h3>
+          <span id="save-status" class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+            All changes saved
+          </span>
+        </div>
+        <svg class="section-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
       </div>
-      <p class="muted mt-1">
+      <div class="section-body mt-3">
+        <p class="muted mt-1">
         This editor always saves to
         <code>DarkShockGamer/DarkShockGamer.github.io</code>,
         branch <code>main</code>, file <code>data/site.json</code>.
@@ -526,6 +597,9 @@
       <span class="text-sky-600 dark:text-sky-400 text-sm">© 2025 Trident Robotics — Developer Editor</span>
       <span class="text-xs text-sky-400">Internal content management • Edits saved to data/site.json</span>
     </footer>
+      </div>
+    </section>
+
   </main>
 
   <!-- Toast stack -->
@@ -2151,6 +2225,55 @@
   }());
   </script>
 
+  <script>
+  /* Collapsible developer-page sections — default collapsed, persist via localStorage */
+  (function () {
+    var LS_KEY = 'devpage_sections_v1';
+
+    function getState() {
+      try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch (e) { return {}; }
+    }
+    function saveState(s) {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch (e) {}
+    }
+    function applyOpen(section, open) {
+      var body    = section.querySelector('.section-body');
+      var chevron = section.querySelector('.section-chevron');
+      var header  = section.querySelector('.section-header');
+      if (body)    body.style.display = open ? '' : 'none';
+      if (chevron) chevron.classList.toggle('open', !!open);
+      if (header)  header.setAttribute('aria-expanded', String(!!open));
+    }
+    function initCollapsible() {
+      var state = getState();
+      document.querySelectorAll('section[data-section]').forEach(function (section) {
+        var key    = section.dataset.section;
+        var isOpen = state[key] === true;  // default: collapsed
+        applyOpen(section, isOpen);
+        var header = section.querySelector('.section-header');
+        if (!header) return;
+        header.addEventListener('click', function (e) {
+          /* Let action buttons inside the header work without collapsing the section */
+          var btn = e.target.closest('button, a');
+          if (btn && btn !== header) return;
+          var s      = getState();
+          var nowOpen = !(s[key] === true);
+          s[key] = nowOpen;
+          saveState(s);
+          applyOpen(section, nowOpen);
+        });
+        header.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
+        });
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initCollapsible);
+    } else {
+      initCollapsible();
+    }
+  }());
+  </script>
   <script src="/assets/js/theme.js"></script>
   <script src="/assets/js/modern-ui.js"></script>
 </body>

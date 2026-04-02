@@ -1,4 +1,674 @@
-/* Timeline CSS - Slider-style bars with clean, minimal design */
+/* Build Season Timeline — Gantt Chart
+   Date-based Gantt chart for sub-team deadline management.
+   Complements adaptive-themes.css; no Tailwind dependency for chart internals. */
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+/* ── Form Controls ───────────────────────────────────────────────────────── */
+.tl-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+html.theme-light .tl-label,
+html.theme-high-contrast-light .tl-label {
+  color: #0369a1;
+}
+
+html.theme-dark .tl-label,
+html.theme-neon .tl-label,
+html.theme-oled .tl-label,
+html.theme-retro-crt .tl-label {
+  color: #a5b4fc;
+}
+
+html.theme-high-contrast-dark .tl-label {
+  color: #ffffff;
+}
+
+html.theme-paper .tl-label {
+  color: #44403c;
+}
+
+.tl-input {
+  border-radius: 0.5rem;
+  border: 1px solid;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.875rem;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.tl-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+html.theme-light .tl-input,
+html.theme-high-contrast-light .tl-input {
+  background: #f8fafc;
+  border-color: #93c5fd;
+  color: #0f172a;
+}
+
+html.theme-dark .tl-input,
+html.theme-neon .tl-input,
+html.theme-oled .tl-input {
+  background: #1e293b;
+  border-color: #818cf8;
+  color: #e5e7eb;
+}
+
+html.theme-retro-crt .tl-input {
+  background: #001100;
+  border-color: #00ff00;
+  color: #00ff00;
+}
+
+html.theme-high-contrast-dark .tl-input {
+  background: #000000;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+html.theme-paper .tl-input {
+  background: #fafaf7;
+  border-color: #a8a29e;
+  color: #1c1917;
+}
+
+.tl-color-input {
+  width: 3rem;
+  height: 2.375rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+  padding: 2px;
+  cursor: pointer;
+}
+
+html.theme-light .tl-color-input { border-color: #93c5fd; }
+html.theme-dark .tl-color-input  { border-color: #818cf8; }
+
+.tl-error {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #ef4444;
+}
+
+.tl-today-badge {
+  display: inline-block;
+  background: #ef4444;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* ── Gantt Wrapper ───────────────────────────────────────────────────────── */
+.gantt-wrapper {
+  overflow-x: auto;
+  position: relative;
+  border-radius: 0.75rem;
+}
+
+/* ── Row Layout ──────────────────────────────────────────────────────────── */
+.gantt-header-row,
+.gantt-row {
+  display: flex;
+  min-width: 640px;
+}
+
+/* ── Label Column (sticky) ───────────────────────────────────────────────── */
+.gantt-label-col {
+  flex: 0 0 180px;
+  width: 180px;
+  min-width: 180px;
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+  font-size: 0.875rem;
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.gantt-label-header {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  min-height: 2.75rem;
+  border-bottom-width: 2px;
+}
+
+html.theme-light .gantt-label-col {
+  background: rgba(255, 255, 255, 0.97);
+  border-color: rgba(226, 232, 240, 0.7);
+  color: #0f172a;
+}
+
+html.theme-light .gantt-label-header {
+  background: rgba(241, 245, 249, 0.97);
+  border-color: rgba(56, 189, 248, 0.5);
+  color: #0369a1;
+}
+
+html.theme-dark .gantt-label-col {
+  background: rgba(15, 23, 42, 0.97);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: #e5e7eb;
+}
+
+html.theme-dark .gantt-label-header {
+  background: rgba(10, 17, 32, 0.99);
+  border-color: rgba(99, 102, 241, 0.5);
+  color: #a5b4fc;
+}
+
+html.theme-high-contrast-light .gantt-label-col {
+  background: #ffffff;
+  border-color: #000000;
+  color: #000000;
+}
+
+html.theme-high-contrast-dark .gantt-label-col {
+  background: #000000;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+html.theme-neon .gantt-label-col {
+  background: rgba(0, 0, 20, 0.97);
+  border-color: #ff00ff;
+  color: #00ffff;
+}
+
+html.theme-oled .gantt-label-col {
+  background: #000000;
+  border-color: #222222;
+  color: #e5e7eb;
+}
+
+html.theme-paper .gantt-label-col {
+  background: #fafaf7;
+  border-color: #d6d3d1;
+  color: #1c1917;
+}
+
+html.theme-retro-crt .gantt-label-col {
+  background: #001100;
+  border-color: #00ff00;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+}
+
+.gantt-label-cell {
+  cursor: pointer;
+  transition: background-color 150ms;
+}
+
+.gantt-label-cell:hover {
+  background-color: rgba(59, 130, 246, 0.08) !important;
+}
+
+.gantt-row.selected .gantt-label-cell {
+  background-color: rgba(59, 130, 246, 0.13) !important;
+}
+
+/* Color swatch chip */
+.gantt-color-swatch {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* ── Track Column ────────────────────────────────────────────────────────── */
+.gantt-track-col {
+  flex: 1 1 0;
+  min-width: 460px;
+  position: relative;
+  border-bottom: 1px solid;
+}
+
+html.theme-light .gantt-track-col {
+  border-color: rgba(226, 232, 240, 0.5);
+}
+
+html.theme-dark .gantt-track-col {
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+html.theme-high-contrast-light .gantt-track-col {
+  border-color: #000000;
+}
+
+html.theme-high-contrast-dark .gantt-track-col {
+  border-color: #ffffff;
+}
+
+html.theme-neon .gantt-track-col {
+  border-color: rgba(255, 0, 255, 0.3);
+}
+
+html.theme-oled .gantt-track-col {
+  border-color: #1a1a1a;
+}
+
+html.theme-paper .gantt-track-col {
+  border-color: #d6d3d1;
+}
+
+html.theme-retro-crt .gantt-track-col {
+  border-color: rgba(0, 255, 0, 0.3);
+}
+
+/* ── Date Axis (header track) ────────────────────────────────────────────── */
+.gantt-date-axis {
+  min-height: 2.75rem;
+  overflow: visible;
+  border-bottom-width: 2px;
+}
+
+html.theme-light .gantt-date-axis {
+  background: rgba(241, 245, 249, 0.97);
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+html.theme-dark .gantt-date-axis {
+  background: rgba(10, 17, 32, 0.99);
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+html.theme-high-contrast-light .gantt-date-axis {
+  background: #f0f0f0;
+  border-color: #000000;
+}
+
+html.theme-high-contrast-dark .gantt-date-axis {
+  background: #111111;
+  border-color: #ffffff;
+}
+
+html.theme-neon .gantt-date-axis {
+  background: rgba(0, 0, 20, 0.99);
+  border-color: #ff00ff;
+}
+
+html.theme-oled .gantt-date-axis {
+  background: #000000;
+  border-color: #333333;
+}
+
+html.theme-paper .gantt-date-axis {
+  background: #f5f5f0;
+  border-color: #a8a29e;
+}
+
+html.theme-retro-crt .gantt-date-axis {
+  background: #000800;
+  border-color: #00ff00;
+}
+
+/* ── Date Tick Labels ────────────────────────────────────────────────────── */
+.gantt-date-tick {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) translateX(-50%);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+}
+
+html.theme-light .gantt-date-tick   { color: #0369a1; }
+html.theme-dark .gantt-date-tick    { color: #93c5fd; }
+html.theme-neon .gantt-date-tick    { color: #00ffff; }
+html.theme-oled .gantt-date-tick    { color: #94a3b8; }
+html.theme-paper .gantt-date-tick   { color: #44403c; }
+html.theme-retro-crt .gantt-date-tick { color: #00ff00; font-family: 'Courier New', monospace; }
+html.theme-high-contrast-light .gantt-date-tick { color: #000000; }
+html.theme-high-contrast-dark .gantt-date-tick  { color: #ffffff; }
+
+/* Minor tick (gridlines) */
+.gantt-tick-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+html.theme-light .gantt-tick-line  { background: rgba(203, 213, 225, 0.5); }
+html.theme-dark .gantt-tick-line   { background: rgba(71, 85, 105, 0.4); }
+html.theme-neon .gantt-tick-line   { background: rgba(255, 0, 255, 0.15); }
+html.theme-oled .gantt-tick-line   { background: #1a1a1a; }
+html.theme-paper .gantt-tick-line  { background: rgba(168, 162, 158, 0.3); }
+html.theme-retro-crt .gantt-tick-line { background: rgba(0, 255, 0, 0.1); }
+html.theme-high-contrast-light .gantt-tick-line { background: rgba(0, 0, 0, 0.2); }
+html.theme-high-contrast-dark .gantt-tick-line  { background: rgba(255, 255, 255, 0.2); }
+
+/* ── Today Line ──────────────────────────────────────────────────────────── */
+.gantt-today-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  z-index: 4;
+  pointer-events: none;
+}
+
+html.theme-light .gantt-today-line           { background: #ef4444; }
+html.theme-dark .gantt-today-line            { background: #f87171; }
+html.theme-neon .gantt-today-line            { background: #ff00ff; box-shadow: 0 0 6px #ff00ff; }
+html.theme-oled .gantt-today-line            { background: #f87171; }
+html.theme-paper .gantt-today-line           { background: #b91c1c; }
+html.theme-retro-crt .gantt-today-line       { background: #00ff00; box-shadow: 0 0 6px #00ff00; }
+html.theme-high-contrast-light .gantt-today-line { background: #dc2626; width: 3px; }
+html.theme-high-contrast-dark .gantt-today-line  { background: #f87171; width: 3px; }
+
+/* "TODAY" badge on the today line (shown in the axis) */
+.gantt-today-line[data-in-axis="true"]::after {
+  content: 'TODAY';
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+html.theme-light .gantt-today-line[data-in-axis="true"]::after {
+  background: #ef4444;
+  color: white;
+}
+
+html.theme-dark .gantt-today-line[data-in-axis="true"]::after {
+  background: #f87171;
+  color: #1e293b;
+}
+
+html.theme-neon .gantt-today-line[data-in-axis="true"]::after {
+  background: #ff00ff;
+  color: #000020;
+}
+
+html.theme-retro-crt .gantt-today-line[data-in-axis="true"]::after {
+  background: #003300;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+}
+
+html.theme-high-contrast-light .gantt-today-line[data-in-axis="true"]::after,
+html.theme-high-contrast-dark .gantt-today-line[data-in-axis="true"]::after {
+  background: #dc2626;
+  color: white;
+}
+
+/* ── Gantt Row Tracks ────────────────────────────────────────────────────── */
+.gantt-track {
+  min-height: 54px;
+}
+
+html.theme-light .gantt-row:nth-child(odd) .gantt-track {
+  background: rgba(248, 250, 252, 0.7);
+}
+html.theme-light .gantt-row:nth-child(even) .gantt-track {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+html.theme-dark .gantt-row:nth-child(odd) .gantt-track {
+  background: rgba(30, 41, 59, 0.45);
+}
+html.theme-dark .gantt-row:nth-child(even) .gantt-track {
+  background: rgba(15, 23, 42, 0.45);
+}
+
+html.theme-neon .gantt-track {
+  background: rgba(0, 0, 20, 0.8);
+}
+
+html.theme-oled .gantt-track {
+  background: #000000;
+}
+
+html.theme-paper .gantt-row:nth-child(odd) .gantt-track {
+  background: rgba(245, 245, 240, 0.6);
+}
+html.theme-paper .gantt-row:nth-child(even) .gantt-track {
+  background: rgba(255, 255, 250, 0.6);
+}
+
+html.theme-retro-crt .gantt-track {
+  background: #000a00;
+}
+
+html.theme-high-contrast-light .gantt-track {
+  background: #ffffff;
+}
+html.theme-high-contrast-dark .gantt-track {
+  background: #000000;
+}
+
+.gantt-row.selected .gantt-track {
+  background: rgba(59, 130, 246, 0.07) !important;
+}
+
+/* ── Gantt Bar ───────────────────────────────────────────────────────────── */
+.gantt-bar {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  transition: box-shadow 180ms, filter 150ms;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08);
+  min-width: 8px;
+  z-index: 2;
+}
+
+.gantt-bar:hover {
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.22), 0 2px 6px rgba(0, 0, 0, 0.12);
+  filter: brightness(1.08) saturate(1.1);
+  z-index: 3;
+}
+
+.gantt-bar:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgba(99, 102, 241, 0.45);
+  z-index: 3;
+}
+
+.gantt-bar.resizing {
+  filter: brightness(1.12);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.28), 0 0 0 2px rgba(255, 255, 255, 0.35);
+  z-index: 5;
+  transition: none; /* instant during drag */
+}
+
+/* selected bar highlight ring */
+.gantt-row.selected .gantt-bar {
+  box-shadow: 0 0 0 3px white, 0 0 0 5px rgba(99, 102, 241, 0.6), 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* High-contrast bar borders */
+html.theme-high-contrast-light .gantt-bar,
+html.theme-high-contrast-dark .gantt-bar {
+  border: 2px solid;
+}
+
+html.theme-high-contrast-light .gantt-bar { border-color: #000000; }
+html.theme-high-contrast-dark .gantt-bar  { border-color: #ffffff; }
+
+/* Neon glow */
+html.theme-neon .gantt-bar {
+  box-shadow: 0 0 10px var(--bar-glow, rgba(255, 0, 255, 0.6));
+}
+
+/* Retro CRT scanline-ish */
+html.theme-retro-crt .gantt-bar {
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  font-family: 'Courier New', monospace;
+}
+
+/* ── Bar Label ───────────────────────────────────────────────────────────── */
+.gantt-bar-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  padding: 0 1.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 100%;
+  letter-spacing: 0.01em;
+}
+
+/* ── Resize Handles ──────────────────────────────────────────────────────── */
+.gantt-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  cursor: ew-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 150ms;
+  pointer-events: all;
+  border-radius: 0;
+}
+
+.gantt-handle-left  { left: 0;  border-radius: 8px 0 0 8px; }
+.gantt-handle-right { right: 0; border-radius: 0 8px 8px 0; }
+
+.gantt-handle::before {
+  content: '';
+  width: 3px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 2px;
+  transition: all 180ms;
+}
+
+.gantt-handle:hover::before,
+.gantt-handle:focus::before {
+  height: 20px;
+  width: 4px;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.gantt-handle:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* ── Legend ──────────────────────────────────────────────────────────────── */
+.tl-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: background 150ms;
+  border: 1px solid transparent;
+}
+
+.tl-legend-item:hover {
+  border-color: currentColor;
+  opacity: 0.9;
+}
+
+.tl-legend-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .gantt-label-col {
+    flex: 0 0 130px;
+    width: 130px;
+    min-width: 130px;
+    font-size: 0.75rem;
+    padding: 0.5rem 0.625rem;
+  }
+
+  .gantt-bar {
+    height: 28px;
+  }
+
+  .gantt-bar-label {
+    font-size: 0.625rem;
+    padding: 0 1.375rem;
+  }
+
+  .gantt-handle {
+    width: 12px;
+  }
+
+  .gantt-date-tick {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .gantt-label-col {
+    flex: 0 0 100px;
+    width: 100px;
+    min-width: 100px;
+    font-size: 0.6875rem;
+    padding: 0.4rem 0.5rem;
+  }
+}
+
+/* ── Empty State ─────────────────────────────────────────────────────────── */
+.gantt-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  font-size: 0.9375rem;
+  opacity: 0.6;
+  font-style: italic;
+}
+
 
 /* Body styling - let adaptive themes handle backgrounds */
 body {

@@ -16,7 +16,7 @@
  * Firestore structure:
  *   Collection: publicProfiles
  *   Document ID: Firebase Auth uid
- *   Fields: { email, displayName, picture, updatedAt }
+ *   Fields: { email, displayName, picture, badges, updatedAt }
  *
  * Expected Firestore security rules (see docs/firestore-rules.md):
  *   match /publicProfiles/{uid} {
@@ -161,8 +161,9 @@ async function _fetchProfile(uid) {
  * @param {string|null} displayName
  * @param {string|null} picture
  * @param {boolean} [isSelf=false] - When true, also updates signedInEmail in localStorage
+ * @param {Array|null} [badges=null] - When provided, overwrites local badges with remote values
  */
-function _hydrateLocal(email, displayName, picture, isSelf = false) {
+function _hydrateLocal(email, displayName, picture, isSelf = false, badges = null) {
   if (!email) return;
 
   if (typeof window.Profile !== "undefined") {
@@ -173,6 +174,10 @@ function _hydrateLocal(email, displayName, picture, isSelf = false) {
     // Only overwrite local displayName if remote has a value set
     if (displayName) {
       window.Profile.set(email, { displayName });
+    }
+    // Sync badges when remote provides them (null means "not available in this context")
+    if (badges !== null && Array.isArray(badges)) {
+      window.Profile.set(email, { badges });
     }
   }
 
@@ -260,12 +265,31 @@ function hydrate(onComplete) {
       const remote = await _fetchProfile(user.uid);
       if (!remote || !remote.email) return;
 
+      const remoteBadges = Array.isArray(remote.badges) ? remote.badges : null;
+
       _hydrateLocal(
         remote.email,
         remote.displayName || "",
         remote.picture     || "",
-        true
+        true,
+        remoteBadges
       );
+
+      // If Firestore has no badges yet, push any locally-stored badges up once.
+      // This avoids losing badges already assigned on this device.
+      if (remoteBadges === null && typeof window.Profile !== "undefined") {
+        const localBadges = window.Profile.getBadges(remote.email);
+        if (localBadges.length > 0) {
+          try {
+            const ref = doc(_db, "publicProfiles", user.uid);
+            await setDoc(ref, { badges: localBadges, updatedAt: serverTimestamp() }, { merge: true });
+            console.log("[ProfileSync] Pushed local badges to Firestore:", localBadges.length, "badge(s)");
+          } catch (e) {
+            console.warn("[ProfileSync] Failed to push local badges to Firestore:", e);
+          }
+        }
+      }
+
       console.log("[ProfileSync] Hydrated profile for:", remote.email);
       if (typeof onComplete === "function") onComplete(remote);
     } catch (e) {
@@ -322,6 +346,36 @@ async function updateDisplayName(displayName) {
 
 /** Timeout (ms) to wait for Firebase Auth state when ensuring sign-in. */
 const _ENSURE_SIGNED_IN_TIMEOUT_MS = 5000;
+
+/**
+ * Update the badges field in Firestore for the currently signed-in user.
+ * Only succeeds when the provided email matches the signed-in user's email
+ * (Firestore rules only permit a user to write their own profile).
+ *
+ * @param {string} email - The user whose badges are being updated (must match signed-in user)
+ * @param {Array}  badges - Array of badge objects {id, name, emoji, color}
+ * @returns {Promise<void>}
+ */
+async function updateBadges(email, badges) {
+  const user = _auth.currentUser;
+  if (!user) {
+    console.warn("[ProfileSync] updateBadges: no signed-in Firebase user");
+    return;
+  }
+
+  // Security: only write to own profile (Firestore rules enforce this too)
+  const selfEmail = (localStorage.getItem("signedInEmail") || "").trim().toLowerCase();
+  const targetEmail = (email || "").trim().toLowerCase();
+  if (!selfEmail || selfEmail !== targetEmail) {
+    // Badge is for a different user — cannot write to their Firestore doc with current rules.
+    // The badge remains in localStorage only; it will sync when that user logs in.
+    return;
+  }
+
+  const ref = doc(_db, "publicProfiles", user.uid);
+  await setDoc(ref, { badges: Array.isArray(badges) ? badges : [], updatedAt: serverTimestamp() }, { merge: true });
+  console.log("[ProfileSync] Saved badges to Firestore for:", email, Array.isArray(badges) ? badges.length : 0, "badge(s)");
+}
 
 /**
  * Ensure there is a signed-in Firebase user before making write calls.
@@ -418,7 +472,7 @@ async function resolveProfiles(emails) {
           // Warm in-memory cache and hydrate Profile store from localStorage entry
           _resolveCache.set(email, lsData);
           const isSelf = email === (localStorage.getItem("signedInEmail") || "").trim().toLowerCase();
-          _hydrateLocal(email, lsData.displayName, lsData.picture, isSelf);
+          _hydrateLocal(email, lsData.displayName, lsData.picture, isSelf, lsData.badges || null);
           continue;
         }
       }
@@ -454,6 +508,7 @@ async function resolveProfiles(emails) {
         const entry = {
           displayName: data.displayName || null,
           picture:     data.picture     || null,
+          badges:      Array.isArray(data.badges) ? data.badges : null,
           cachedAt:    Date.now()
         };
 
@@ -465,7 +520,7 @@ async function resolveProfiles(emails) {
 
         // Seed the local Profile store → triggers UI update
         const isSelf = em === (localStorage.getItem("signedInEmail") || "").trim().toLowerCase();
-        _hydrateLocal(em, entry.displayName, entry.picture, isSelf);
+        _hydrateLocal(em, entry.displayName, entry.picture, isSelf, entry.badges);
       });
     }
   } catch (e) {
@@ -474,7 +529,7 @@ async function resolveProfiles(emails) {
 }
 
 // ── Expose API globally for consumption by non-module scripts ─────────────────
-window.FirebaseProfileSync = { signInAndSync, hydrate, signOut, updateDisplayName, resolveProfiles, ensureSignedIn };
+window.FirebaseProfileSync = { signInAndSync, hydrate, signOut, updateDisplayName, updateBadges, resolveProfiles, ensureSignedIn };
 
 // ── Auto-start hydration on module load ──────────────────────────────────────
 // This runs on every page that includes this module script, so any previously

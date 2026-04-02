@@ -11,6 +11,7 @@
  *   window.FirebaseProfileSync.hydrate()
  *   window.FirebaseProfileSync.signOut()
  *   window.FirebaseProfileSync.updateDisplayName(name)
+ *   window.FirebaseProfileSync.ensureSignedIn()
  *
  * Firestore structure:
  *   Collection: publicProfiles
@@ -319,7 +320,56 @@ async function updateDisplayName(displayName) {
   }
 }
 
-// ── resolveProfiles: look up other users' profiles by email ──────────────────
+/** Timeout (ms) to wait for Firebase Auth state when ensuring sign-in. */
+const _ENSURE_SIGNED_IN_TIMEOUT_MS = 5000;
+
+/**
+ * Ensure there is a signed-in Firebase user before making write calls.
+ *
+ * Strategy (in order):
+ *  1. Already signed in  → resolve immediately.
+ *  2. Stored GIS credential (`g_credential_v1`) exists → re-run signInAndSync.
+ *  3. Wait up to 5 s for the onAuthStateChanged listener (set up by hydrate())
+ *     to fire with a valid user (handles restored persisted sessions).
+ *  4. Still nothing → reject so callers can log a warning without a silent no-op.
+ *
+ * @returns {Promise<import("firebase/auth").User>}
+ */
+async function ensureSignedIn() {
+  if (_auth.currentUser) return _auth.currentUser;
+
+  // Try re-signing in with the stored GIS credential
+  const storedCred = localStorage.getItem('g_credential_v1');
+  if (storedCred) {
+    try {
+      await signInAndSync(storedCred);
+      if (_auth.currentUser) return _auth.currentUser;
+    } catch (e) {
+      console.warn('[ProfileSync] ensureSignedIn: re-sign-in attempt failed:', e);
+    }
+  }
+
+  // Wait for the existing onAuthStateChanged listener to fire (persisted session).
+  // `unsub` is assigned synchronously before the timer callback can fire, so it
+  // is always defined by the time it is called.
+  return new Promise((resolve, reject) => {
+    let unsub;
+    const timer = setTimeout(() => {
+      unsub();
+      reject(new Error('[ProfileSync] ensureSignedIn: timed out waiting for auth state'));
+    }, _ENSURE_SIGNED_IN_TIMEOUT_MS);
+    unsub = onAuthStateChanged(_auth, (user) => {
+      if (user) {
+        clearTimeout(timer);
+        unsub();
+        resolve(user);
+      }
+    });
+  });
+}
+
+
+
 
 /**
  * In-memory cache for resolved profiles: email -> { displayName, picture, cachedAt }
@@ -424,7 +474,7 @@ async function resolveProfiles(emails) {
 }
 
 // ── Expose API globally for consumption by non-module scripts ─────────────────
-window.FirebaseProfileSync = { signInAndSync, hydrate, signOut, updateDisplayName, resolveProfiles };
+window.FirebaseProfileSync = { signInAndSync, hydrate, signOut, updateDisplayName, resolveProfiles, ensureSignedIn };
 
 // ── Auto-start hydration on module load ──────────────────────────────────────
 // This runs on every page that includes this module script, so any previously

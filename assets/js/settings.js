@@ -67,8 +67,16 @@ async function saveSettings(settings) {
   }
   // Sync display name to Firestore for cross-device availability
   if (settings.fullname !== undefined && window.FirebaseProfileSync) {
-    window.FirebaseProfileSync.updateDisplayName(settings.fullname)
-      .catch(e => console.warn('[ProfileSync] updateDisplayName error:', e));
+    try {
+      // Ensure Firebase Auth is established before writing (handles slow session
+      // restore and re-authenticates with stored GIS credential if needed)
+      if (window.FirebaseProfileSync.ensureSignedIn) {
+        await window.FirebaseProfileSync.ensureSignedIn();
+      }
+      await window.FirebaseProfileSync.updateDisplayName(settings.fullname);
+    } catch (e) {
+      console.warn('[ProfileSync] updateDisplayName error:', e);
+    }
   }
   // Play success sound
   if(window.Sound) window.Sound.success();

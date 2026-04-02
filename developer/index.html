@@ -451,6 +451,42 @@
       </div>
     </section>
 
+    <!-- Links Manager -->
+    <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
+      <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Links Manager</h2>
+      <p class="muted mt-1">
+        Manage links shown on the <a href="/links/" class="text-sky-600 dark:text-sky-400 hover:underline">Links page</a>.
+        Changes are saved to <code>data/site.json</code> when you click "Push to GitHub".
+      </p>
+
+      <!-- Add link form -->
+      <div class="mt-4 space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Title</label>
+            <input id="new-link-title" type="text" placeholder="e.g. 2026 Game Manual"
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">URL</label>
+            <input id="new-link-url" type="text" placeholder="https://..."
+                   class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Description <span class="font-normal text-slate-400">(optional subtitle)</span></label>
+          <input id="new-link-desc" type="text" placeholder='e.g. "Spare Parts"'
+                 class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+        </div>
+        <button id="add-link" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">
+          + Add Link
+        </button>
+      </div>
+
+      <!-- Existing links list -->
+      <div class="mt-4 space-y-2" id="links-list"></div>
+    </section>
+
     <!-- Simplified GitHub Push -->
     <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ring-1 ring-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:ring-slate-900/10">
       <div class="flex items-center gap-2">
@@ -572,10 +608,13 @@
       }
       ensureMediaDefaults();
       ensureSponsorsDefaults();
+      ensureLinksDefaults();
       renderEditor();
       bindMediaManager();
       bindSponsorAddControls();
       renderSponsorsList();
+      renderLinksList();
+      bindLinkAddControls();
 
       // Loaded from disk -> clean state
       isDirty = false;
@@ -614,7 +653,93 @@
       }
     }
 
-    function teamOptionsHtml(selectedTeam) {
+    function ensureLinksDefaults() {
+      if (!Array.isArray(siteData.links)) {
+        siteData.links = [];
+      } else {
+        siteData.links = siteData.links.map(l => ({
+          title: (l && l.title) || '',
+          url: (l && l.url) || '',
+          description: (l && l.description) || ''
+        }));
+      }
+    }
+
+    function renderLinksList() {
+      const list = document.getElementById('links-list');
+      if (!list) return;
+      list.innerHTML = '';
+      if (!siteData.links || siteData.links.length === 0) {
+        list.innerHTML = '<p class="text-sm text-slate-400 dark:text-slate-500 italic">No links added yet. Add links above.</p>';
+        return;
+      }
+      (siteData.links || []).forEach((link, idx) => {
+        const card = document.createElement('div');
+        card.className = 'flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50';
+        card.innerHTML =
+          '<div class="flex-1 min-w-0">' +
+            '<div class="font-semibold text-sm text-slate-800 dark:text-slate-100 truncate">' + escapeHtml(link.title || '') + '</div>' +
+            (link.description ? '<div class="text-xs text-slate-500 dark:text-slate-400 truncate">' + escapeHtml(link.description) + '</div>' : '') +
+            '<div class="text-xs text-sky-600 dark:text-sky-400 truncate" title="' + escapeHtml(link.url || '') + '">' + escapeHtml(link.url || '') + '</div>' +
+          '</div>' +
+          '<div class="flex gap-1 shrink-0">' +
+            '<button class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded px-2 py-1 text-xs up">↑</button>' +
+            '<button class="border border-slate-300 dark:border-slate-700 dark:text-slate-200 rounded px-2 py-1 text-xs down">↓</button>' +
+            '<button class="border border-red-300 dark:border-red-900 text-red-600 dark:text-red-400 rounded px-2 py-1 text-xs remove">Remove</button>' +
+          '</div>';
+        list.appendChild(card);
+
+        card.querySelector('.up').addEventListener('click', () => {
+          if (idx > 0) {
+            const a = siteData.links[idx - 1];
+            siteData.links[idx - 1] = siteData.links[idx];
+            siteData.links[idx] = a;
+            setDirty('Links updated');
+            renderLinksList();
+          }
+        });
+        card.querySelector('.down').addEventListener('click', () => {
+          if (idx < siteData.links.length - 1) {
+            const a = siteData.links[idx + 1];
+            siteData.links[idx + 1] = siteData.links[idx];
+            siteData.links[idx] = a;
+            setDirty('Links updated');
+            renderLinksList();
+          }
+        });
+        card.querySelector('.remove').addEventListener('click', () => {
+          if (confirm('Remove this link?')) {
+            siteData.links.splice(idx, 1);
+            setDirty('Links updated');
+            renderLinksList();
+          }
+        });
+      });
+    }
+
+    function bindLinkAddControls() {
+      const addBtn = document.getElementById('add-link');
+      if (!addBtn) return;
+      addBtn.addEventListener('click', () => {
+        const title = (document.getElementById('new-link-title').value || '').trim();
+        const url   = (document.getElementById('new-link-url').value   || '').trim();
+        const desc  = (document.getElementById('new-link-desc').value  || '').trim();
+        if (!title || !url) { showToast('warn', 'Title and URL are required'); return; }
+        siteData.links.push({ title, url, description: desc });
+        document.getElementById('new-link-title').value = '';
+        document.getElementById('new-link-url').value   = '';
+        document.getElementById('new-link-desc').value  = '';
+        setDirty('Links updated');
+        renderLinksList();
+      });
+      // Enter key in title/url/desc fields triggers add
+      ['new-link-title','new-link-url','new-link-desc'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('keypress', e => { if (e.key === 'Enter') addBtn.click(); });
+      });
+    }
+
+    
       const teams = (siteData.leadership && siteData.leadership.teams) ? siteData.leadership.teams : [];
       const options = [''].concat(teams.map(t => t.team));
       return options.map(t => {

@@ -69,72 +69,8 @@
       <main class="card p-5">
         <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Quick Links</h2>
 
-        <ul class="space-y-3">
-          <li>
-            <a class="block rounded-lg border border-slate-200 dark:border-slate-800 p-4 hover:bg-sky-50 dark:hover:bg-slate-900 transition"
-               href="https://firstfrc.blob.core.windows.net/frc2026/Manual/2026GameManual.pdf" target="_blank" rel="noopener noreferrer">
-              <div class="flex items-center justify-between gap-3">
-                <div>
-                  <div class="font-semibold text-slate-800 dark:text-slate-200">2026 GAME MANUAL</div>
-                  <div class="text-sm text-slate-600 dark:text-slate-400">"Spare Parts"</div>
-                </div>
-                <span class="text-sm text-sky-700 dark:text-sky-300">Open →</span>
-              </div>
-            </a>
-          </li>
-
-          <!-- Moved Google Drive above ReCalc -->
-          <li>
-            <a class="block rounded-lg border border-slate-200 dark:border-slate-800 p-4 hover:bg-sky-50 dark:hover:bg-slate-900 transition"
-               href="https://drive.google.com/drive/folders/0AHfM9Fpj6AkcUk9PVA" target="_blank" rel="noopener noreferrer">
-              <div class="flex items-center justify-between gap-3">
-                <div>
-                  <div class="font-semibold text-slate-800 dark:text-slate-200">Trident Robotics Google Drive</div>
-                  <div class="text-sm text-slate-600 dark:text-slate-400">Shared folder</div>
-                </div>
-                <span class="text-sm text-sky-700 dark:text-sky-300">Open →</span>
-              </div>
-            </a>
-          </li>
-
-          <li>
-            <a class="block rounded-lg border border-slate-200 dark:border-slate-800 p-4 hover:bg-sky-50 dark:hover:bg-slate-900 transition"
-               href="https://www.reca.lc/" target="_blank" rel="noopener noreferrer">
-              <div class="flex items-center justify-between gap-3">
-                <div>
-                  <div class="font-semibold text-slate-800 dark:text-slate-200">ReCalc ~ Mechanical Design Calculator</div>
-                  <div class="text-sm text-slate-600 dark:text-slate-400">https://www.reca.lc/</div>
-                </div>
-                <span class="text-sm text-sky-700 dark:text-sky-300">Open →</span>
-              </div>
-            </a>
-          </li>
-
-          <li>
-            <a class="block rounded-lg border border-slate-200 dark:border-slate-800 p-4 hover:bg-sky-50 dark:hover:bg-slate-900 transition"
-               href="https://www.firstinspires.org/resources/library/frc/technical-resources" target="_blank" rel="noopener noreferrer">
-              <div class="flex items-center justify-between gap-3">
-                <div>
-                  <div class="font-semibold text-slate-800 dark:text-slate-200">FIRST Robotics Technical Resources</div>
-                  <div class="text-sm text-slate-600 dark:text-slate-400">firstinspires.org</div>
-                </div>
-                <span class="text-sm text-sky-700 dark:text-sky-300">Open →</span>
-              </div>
-            </a>
-          </li>
-
-          <li>
-            <a class="block rounded-lg border border-slate-200 dark:border-slate-800 p-4 hover:bg-sky-50 dark:hover:bg-slate-900 transition"
-               href="https://www.firstinspires.org/resources/library/frc/season-materials?view=calendar" target="_blank" rel="noopener noreferrer">
-              <div class="flex items-center justify-between gap-3">
-                <div>
-                  <div class="font-semibold text-slate-800 dark:text-slate-200">FIRST Robotics Resource Library</div>
-                  <div class="text-sm text-slate-600 dark:text-slate-400">Season materials (calendar view)</div>
-                </div>
-                <span class="text-sm text-sky-700 dark:text-sky-300">Open →</span>
-              </div>
-            </a>
-          </li>
+        <ul id="links-list" class="space-y-3">
+          <!-- Populated dynamically from data/site.json -->
         </ul>
 
         <div class="mt-6">
@@ -149,6 +85,49 @@
 
     <script>
       document.getElementById("year").textContent = new Date().getFullYear();
+
+      (async function renderLinks() {
+        const list = document.getElementById('links-list');
+        if (!list) return;
+        try {
+          const r = await fetch('/data/site.json?_=' + Date.now());
+          const data = r.ok ? await r.json() : null;
+          const links = (data && Array.isArray(data.links)) ? data.links : [];
+
+          if (links.length === 0) {
+            list.innerHTML =
+              '<li>' +
+              '<div class="block rounded-lg border border-amber-200 dark:border-amber-800/50 p-4 bg-amber-50 dark:bg-amber-950/20">' +
+              '<div class="flex items-center gap-3">' +
+              '<span style="font-size:1.25rem;" aria-hidden="true">🔗</span>' +
+              '<span class="italic text-amber-700 dark:text-amber-400 text-sm font-medium">comming soon</span>' +
+              '</div>' +
+              '</div>' +
+              '</li>';
+            return;
+          }
+
+          list.innerHTML = links.map(function(link) {
+            const title = (link.title || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            const url   = (link.url   || '').replace(/"/g,'&quot;');
+            const desc  = (link.description || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            return '<li>' +
+              '<a class="block rounded-lg border border-slate-200 dark:border-slate-800 p-4 hover:bg-sky-50 dark:hover:bg-slate-900 transition"' +
+              ' href="' + url + '" target="_blank" rel="noopener noreferrer">' +
+              '<div class="flex items-center justify-between gap-3">' +
+              '<div>' +
+              '<div class="font-semibold text-slate-800 dark:text-slate-200">' + title + '</div>' +
+              (desc ? '<div class="text-sm text-slate-600 dark:text-slate-400">' + desc + '</div>' : '') +
+              '</div>' +
+              '<span class="text-sm text-sky-700 dark:text-sky-300 shrink-0">Open \u2192</span>' +
+              '</div>' +
+              '</a>' +
+              '</li>';
+          }).join('');
+        } catch (e) {
+          console.warn('[Links] Failed to load site.json:', e);
+        }
+      })();
     </script>
     <script src="/assets/js/theme.js"></script>
     <script src="/assets/js/modern-ui.js"></script>

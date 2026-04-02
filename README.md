@@ -100,6 +100,50 @@ To deploy with attachment support:
 3. Verify that team members can authenticate via Google Sign-In
 
 ---
+## Cross-Device Profile Sync
+
+User display names and profile images are synced across devices using Firebase Auth + Firestore, so names and avatars shown on the task board and other pages are always up to date.
+
+### How it works
+
+1. **Sign-in** — When a user signs in with Google (GIS), the site exchanges the Google ID token for a Firebase custom token via the Cloudflare Worker at `https://auth-worker.darkshock-dev.workers.dev/firebaseToken`.
+2. **Firebase Auth** — `signInWithCustomToken` establishes a Firebase Auth session that persists across page loads.
+3. **Firestore profile** — The user's `displayName`, `picture`, and `email` are stored in Firestore at `users/{uid}`.  
+   - `picture` and `email` come from Google and are always kept current.  
+   - `displayName` is seeded from Google the first time only; after the user opts in and sets a custom name on the Settings page, that value is never overwritten by Google.
+4. **Hydration** — On every page load the module checks the persisted Firebase Auth session and, if signed in, fetches the Firestore profile and updates the local `window.Profile` store.  The `profilesHydrated` CustomEvent is then dispatched so pages can re-render avatars/names.
+5. **Sign-out** — Signing out via GIS also signs out of Firebase Auth so the next user on the same device starts with a clean session.
+
+### Shared module
+
+`/assets/js/firebase-profile-sync.js` is a self-contained ES module included on every page that needs sync. It exposes `window.FirebaseProfileSync` for use from non-module scripts:
+
+| Method | Description |
+|--------|-------------|
+| `signInAndSync(credentialJwt)` | Exchange GIS token → Firebase token → sign in → upsert Firestore |
+| `hydrate()` | Auto-started on load; sets up Auth listener and hydrates `Profile` |
+| `signOut()` | Signs out of Firebase Auth |
+| `updateDisplayName(name)` | Updates `displayName` in Firestore and local store |
+
+### Expected Firestore security rules
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      // A user can only read and write their own profile document.
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
+```
+
+### Local-first caching
+
+`window.Profile` (from `assets/js/profile.js`) remains the rendering cache.  Firestore is the source of truth across devices; `localStorage` keeps a copy for offline/fast first-render.
+
+---
 ## Season Content Structure
 Each season (e.g., `2025-season/`) can include:
 - `overview.html` – Game challenge summary & strategic priorities

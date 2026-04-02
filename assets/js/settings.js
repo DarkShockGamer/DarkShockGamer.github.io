@@ -65,15 +65,11 @@ async function saveSettings(settings) {
     var email = localStorage.getItem('signedInEmail');
     if (email) Profile.set(email, { displayName: settings.fullname });
   }
-  // --- Uncomment for backend API integration ---
-  /*
-  await fetch('/api/user/settings', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    credentials: 'include',
-    body: JSON.stringify(settings)
-  });
-  */
+  // Sync display name to Firestore for cross-device availability
+  if (settings.fullname !== undefined && window.FirebaseProfileSync) {
+    window.FirebaseProfileSync.updateDisplayName(settings.fullname)
+      .catch(e => console.warn('[ProfileSync] updateDisplayName error:', e));
+  }
   // Play success sound
   if(window.Sound) window.Sound.success();
 }

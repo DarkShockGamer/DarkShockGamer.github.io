@@ -433,7 +433,7 @@
 
     if (!name)  { showFieldError(errEl, 'Name cannot be empty.'); return; }
     if (!start || !end) { showFieldError(errEl, 'Start and end dates are required.'); return; }
-    if (dateToDays(end) < dateToDays(start) + MIN_BAR_DAYS - 1) {
+    if (dateToDays(end) < dateToDays(start)) {
       showFieldError(errEl, 'End date must be on or after start date.'); return;
     }
 

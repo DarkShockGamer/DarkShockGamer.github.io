@@ -1,502 +1,743 @@
 /**
- * Interactive Timeline - Build Season Planning
- * Provides resizable activity bars with slider-style controls and localStorage persistence
- * Resize-only model: no dragging, only resize handles on both ends
+ * Build Season Timeline — Date-based Gantt Chart
+ *
+ * Features:
+ *  - Sub-teams displayed as color-coded rows with a single work-window bar
+ *  - Drag handles on bar edges to resize start/end dates
+ *  - Keyboard-accessible editing (arrow keys, Enter, Escape)
+ *  - Edit panel with date pickers, name + color inputs, delete
+ *  - Season date range + zoom level (Full / 8w / 4w / 2w)
+ *  - Today indicator line
+ *  - LocalStorage persistence; Reset to defaults; Export/Import JSON
+ *  - Multi-theme support via html.theme-* classes
  */
-
-(function() {
+(function () {
   'use strict';
 
-  // Default activities matching the design requirements
-  const DEFAULT_ACTIVITIES = [
-    { id: 1, name: 'Initial Strategy', note: '(First 2–3 days)', startWeek: 1, duration: 1 },
-    { id: 2, name: 'Mechanism Brainstorming + Choosing concepts', note: '(≈2 days)', startWeek: 1, duration: 2 },
-    { id: 3, name: 'Prototyping', note: '', startWeek: 1, duration: 2 },
-    { id: 4, name: 'Detailed Design', note: '', startWeek: 2, duration: 2 },
-    { id: 5, name: 'Mechanism Fabrication', note: '', startWeek: 3, duration: 3 },
-    { id: 6, name: 'Assembly', note: '(includes wiring)', startWeek: 5, duration: 2 },
-    { id: 7, name: 'Initial Programming', note: '', startWeek: 4, duration: 2 },
-    { id: 8, name: 'Test and Finalize Programming', note: '', startWeek: 6, duration: 2 },
-    { id: 9, name: 'Practice/Testing', note: '', startWeek: 7, duration: 2 },
-    { id: 10, name: 'Iterating', note: '', startWeek: 5, duration: 4 }
+  // ── Constants ───────────────────────────────────────────────────────────────
+
+  const STORAGE_KEY  = 'timeline-gantt-v2';
+  const MIN_BAR_DAYS = 1;
+
+  /** Default FRC build-season window (adjust year as needed). */
+  const DEFAULT_SEASON = { start: '2025-01-04', end: '2025-02-17' };
+
+  /** Default sub-team roster with overlapping windows. */
+  const DEFAULT_SUBTEAMS = [
+    { id: 1, name: 'CAD / Design',    color: '#3b82f6', start: '2025-01-04', end: '2025-01-24' },
+    { id: 2, name: 'Mechanical',      color: '#ef4444', start: '2025-01-11', end: '2025-02-14' },
+    { id: 3, name: 'Electrical',      color: '#f59e0b', start: '2025-01-18', end: '2025-02-14' },
+    { id: 4, name: 'Programming',     color: '#8b5cf6', start: '2025-01-11', end: '2025-02-17' },
+    { id: 5, name: 'Drive Practice',  color: '#10b981', start: '2025-01-25', end: '2025-02-17' },
+    { id: 6, name: 'Outreach',        color: '#ec4899', start: '2025-01-04', end: '2025-02-17' },
   ];
 
-  const WEEKS = ['1', '2', '3', '4', '5', '6', '7', '8+'];
-  const STORAGE_KEY = 'timeline-data-v1';
-  
-  let activities = [];
-  let selectedBarId = null;
+  // ── State ───────────────────────────────────────────────────────────────────
+
+  let state = {
+    season:     { ...DEFAULT_SEASON },
+    zoom:       'full',
+    subteams:   [],
+    selectedId: null,
+    nextId:     DEFAULT_SUBTEAMS.length + 1,
+  };
+
+  /** Active pointer-resize interaction. */
   let resizeState = null;
-  let activeHandle = null; // Track which handle was last used for keyboard control
 
-  // Initialize
-  document.addEventListener('DOMContentLoaded', init);
+  // ── Date Helpers ────────────────────────────────────────────────────────────
 
-  function init() {
-    loadData();
-    renderBoard();
-    attachEventListeners();
-    setupKeyboardNav();
+  /**
+   * Parse "YYYY-MM-DD" → integer days since UTC epoch.
+   * Using UTC avoids DST-induced off-by-one errors.
+   */
+  function dateToDays(str) {
+    if (!str) return 0;
+    const [y, m, d] = str.split('-').map(Number);
+    return Math.floor(Date.UTC(y, m - 1, d) / 86400000);
   }
 
-  // Load data from localStorage or use defaults
-  function loadData() {
+  /** Integer days since UTC epoch → "YYYY-MM-DD". */
+  function daysToDate(days) {
+    const d = new Date(days * 86400000);
+    return [
+      d.getUTCFullYear(),
+      String(d.getUTCMonth() + 1).padStart(2, '0'),
+      String(d.getUTCDate()).padStart(2, '0'),
+    ].join('-');
+  }
+
+  /** Format a "YYYY-MM-DD" string as "Jan 4" (short) or "Jan 4, 2025". */
+  function fmtDate(str, short = false) {
+    if (!str) return '';
+    const [y, m, d] = str.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    const opts = { month: 'short', day: 'numeric', timeZone: 'UTC' };
+    if (!short) opts.year = 'numeric';
+    return dt.toLocaleDateString('en-US', opts);
+  }
+
+  /** Today as "YYYY-MM-DD" in local time. */
+  function todayStr() {
+    const n = new Date();
+    return [
+      n.getFullYear(),
+      String(n.getMonth() + 1).padStart(2, '0'),
+      String(n.getDate()).padStart(2, '0'),
+    ].join('-');
+  }
+
+  // ── View Range ──────────────────────────────────────────────────────────────
+
+  function getViewRange() {
+    const sd = dateToDays(state.season.start);
+    const ed = dateToDays(state.season.end);
+    if (state.zoom === 'full') return { s: sd, e: ed };
+    const weeks = state.zoom === '8w' ? 8 : state.zoom === '4w' ? 4 : 2;
+    return { s: sd, e: sd + weeks * 7 };
+  }
+
+  // ── Persistence ─────────────────────────────────────────────────────────────
+
+  function loadState() {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        activities = JSON.parse(stored);
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        // Merge carefully so new fields get defaults
+        state = Object.assign(state, parsed);
+        // Recompute nextId to avoid collisions
+        state.nextId = state.subteams.reduce((mx, t) => Math.max(mx, t.id + 1), state.nextId);
       } else {
-        activities = JSON.parse(JSON.stringify(DEFAULT_ACTIVITIES));
-        saveData();
+        state.subteams = clone(DEFAULT_SUBTEAMS);
+        saveState(false);
       }
     } catch (e) {
-      console.error('Failed to load timeline data:', e);
-      activities = JSON.parse(JSON.stringify(DEFAULT_ACTIVITIES));
+      console.warn('[Timeline] Load error:', e);
+      state.subteams = clone(DEFAULT_SUBTEAMS);
     }
   }
 
-  // Save data to localStorage
-  function saveData() {
+  function saveState(notify = true) {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(activities));
-      showSaveStatus('Saved');
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      if (notify) showSaveStatus('Saved ✓');
     } catch (e) {
-      console.error('Failed to save timeline data:', e);
+      console.error('[Timeline] Save error:', e);
       showSaveStatus('Save failed', true);
     }
   }
 
-  // Show save status message
-  function showSaveStatus(message, isError = false) {
-    const status = document.getElementById('saveStatus');
-    if (!status) return;
-    
-    status.textContent = message;
-    status.style.color = isError ? '#ef4444' : '#10b981';
-    
-    setTimeout(() => {
-      status.textContent = '';
-    }, 2000);
+  function showSaveStatus(msg, isError = false) {
+    const el = document.getElementById('saveStatus');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.color = isError ? '#ef4444' : '#10b981';
+    clearTimeout(showSaveStatus._t);
+    showSaveStatus._t = setTimeout(() => { el.textContent = ''; }, 2000);
   }
 
-  // Render the timeline board
-  function renderBoard() {
-    const board = document.getElementById('timelineBoard');
-    if (!board) return;
+  function clone(x) { return JSON.parse(JSON.stringify(x)); }
 
-    board.innerHTML = '';
+  // ── Render Entry Point ──────────────────────────────────────────────────────
 
-    // Add headers
-    const activityHeader = createHeader('ACTIVITY', true);
-    board.appendChild(activityHeader);
-    
-    WEEKS.forEach(week => {
-      const weekHeader = createHeader(week, false);
-      board.appendChild(weekHeader);
-    });
-
-    // Add activity rows
-    activities.forEach(activity => {
-      renderActivityRow(activity, board);
-    });
+  function render() {
+    syncControlInputs();
+    renderDateAxis();
+    renderBody();
+    renderLegend();
+    syncEditPanel();
   }
 
-  function createHeader(text, isFirst) {
-    const header = document.createElement('div');
-    header.className = 'timeline-header';
-    header.textContent = text;
-    header.setAttribute('role', 'columnheader');
-    if (!isFirst) {
-      header.setAttribute('aria-label', `Week ${text}`);
-    }
-    return header;
+  // ── Sync controls → reflect current state ──────────────────────────────────
+
+  function syncControlInputs() {
+    setVal('seasonStart', state.season.start);
+    setVal('seasonEnd',   state.season.end);
+    setVal('zoomSelect',  state.zoom);
   }
 
-  function renderActivityRow(activity, board) {
-    // Activity label cell
-    const label = document.createElement('div');
-    label.className = 'activity-label';
-    label.setAttribute('role', 'rowheader');
-    const nameText = document.createTextNode(activity.name + ' ');
-    label.appendChild(nameText);
-    if (activity.note) {
-      const noteSpan = document.createElement('span');
-      noteSpan.className = 'activity-note';
-      noteSpan.textContent = activity.note;
-      label.appendChild(noteSpan);
-    }
-    // Add tooltip with full text
-    label.title = activity.name + (activity.note ? ' ' + activity.note : '');
-    label.addEventListener('click', () => editActivityName(activity));
-    board.appendChild(label);
+  function setVal(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  }
 
-    // Week cells
-    for (let week = 1; week <= WEEKS.length; week++) {
-      const cell = document.createElement('div');
-      cell.className = 'week-cell';
-      cell.setAttribute('role', 'gridcell');
-      cell.setAttribute('data-week', week);
-      cell.setAttribute('data-activity-id', activity.id);
-      cell.setAttribute('aria-label', `Week ${WEEKS[week - 1]} for ${activity.name}`);
+  // ── Date Axis ───────────────────────────────────────────────────────────────
 
-      // Add bar if this activity spans this week
-      if (week >= activity.startWeek && week < activity.startWeek + activity.duration) {
-        if (week === activity.startWeek) {
-          const bar = createActivityBar(activity);
-          cell.appendChild(bar);
-        }
-      }
+  function renderDateAxis() {
+    const axis = document.getElementById('ganttDateAxis');
+    if (!axis) return;
+    axis.innerHTML = '';
 
-      board.appendChild(cell);
+    const { s: vs, e: ve } = getViewRange();
+    const total = ve - vs;
+    if (total <= 0) return;
+
+    // Choose tick interval based on total days
+    const tickDays = total <= 14 ? 1 : total <= 60 ? 7 : 14;
+
+    // Align first tick to a clean multiple of tickDays from epoch
+    const firstTick = tickDays === 1
+      ? vs
+      : Math.ceil(vs / tickDays) * tickDays;
+
+    // Today line inside the axis
+    addTodayLine(axis, vs, total, true);
+
+    // Tick lines + labels
+    for (let t = firstTick; t <= ve; t += tickDays) {
+      const pct = ((t - vs) / total) * 100;
+
+      // Gridline (also extends into body rows via CSS)
+      const line = document.createElement('div');
+      line.className = 'gantt-tick-line';
+      line.style.left = `${pct}%`;
+      axis.appendChild(line);
+
+      // Label
+      const lbl = document.createElement('div');
+      lbl.className = 'gantt-date-tick';
+      lbl.style.left = `${pct}%`;
+      lbl.textContent = fmtDate(daysToDate(t), true);
+      axis.appendChild(lbl);
     }
   }
 
-  function createActivityBar(activity) {
-    const bar = document.createElement('div');
-    bar.className = 'activity-bar';
-    bar.setAttribute('data-activity-id', activity.id);
-    bar.setAttribute('role', 'button');
-    bar.setAttribute('tabindex', '0');
-    bar.setAttribute('aria-label', `${activity.name} bar spanning ${activity.duration} week(s) starting at week ${activity.startWeek}. Use resize handles to adjust. Press L or R to switch active handle, Arrow keys to resize, Enter to edit.`);
-    bar.textContent = activity.name;
-    // Add tooltip with full name
-    bar.title = activity.name;
-    
-    // Calculate width based on duration
-    const widthPercent = activity.duration * 100;
-    bar.style.width = `${widthPercent}%`;
-    bar.style.left = '0';
-
-    // Add resize handles
-    const leftHandle = document.createElement('div');
-    leftHandle.className = 'resize-handle left';
-    leftHandle.setAttribute('aria-label', 'Resize bar from left');
-    leftHandle.setAttribute('data-direction', 'left');
-    bar.appendChild(leftHandle);
-
-    const rightHandle = document.createElement('div');
-    rightHandle.className = 'resize-handle right';
-    rightHandle.setAttribute('aria-label', 'Resize bar from right');
-    rightHandle.setAttribute('data-direction', 'right');
-    bar.appendChild(rightHandle);
-
-    // Attach event listeners
-    attachBarEventListeners(bar, activity);
-
-    return bar;
+  /** Create a today-indicator line and append it to `container`. */
+  function addTodayLine(container, viewStart, totalDays, inAxis) {
+    const td = dateToDays(todayStr());
+    if (td < viewStart || td > viewStart + totalDays) return;
+    const pct = ((td - viewStart) / totalDays) * 100;
+    const el = document.createElement('div');
+    el.className = 'gantt-today-line';
+    el.style.left = `${pct}%`;
+    if (inAxis) el.setAttribute('data-in-axis', 'true');
+    el.setAttribute('aria-label', `Today: ${fmtDate(todayStr())}`);
+    el.title = `Today: ${fmtDate(todayStr())}`;
+    container.appendChild(el);
   }
 
-  function attachBarEventListeners(bar, activity) {
-    // Click on bar body for selection (not for dragging)
-    bar.addEventListener('click', (e) => {
-      if (!e.target.classList.contains('resize-handle') && !resizeState) {
-        selectBar(activity.id);
-      }
-    });
+  // ── Body Rows ────────────────────────────────────────────────────────────────
 
-    // Pointer events for resize handles only
-    bar.addEventListener('pointerdown', (e) => {
-      if (e.target.classList.contains('resize-handle')) {
-        e.preventDefault();
-        e.stopPropagation();
-        const direction = e.target.getAttribute('data-direction');
-        startResize(e, activity, direction, e.target);
-      }
-    });
+  function renderBody() {
+    const body = document.getElementById('ganttBody');
+    if (!body) return;
+    body.innerHTML = '';
 
-    // Keyboard support
-    bar.addEventListener('keydown', (e) => {
-      handleBarKeydown(e, activity);
-    });
-
-    // Focus selection
-    bar.addEventListener('focus', () => {
-      selectBar(activity.id);
-    });
-  }
-
-  function startResize(e, activity, direction, handleElement) {
-    const bar = handleElement.closest('.activity-bar');
-    bar.setPointerCapture(e.pointerId);
-    bar.classList.add('resizing');
-    
-    // Track active handle for keyboard control
-    activeHandle = direction;
-    
-    resizeState = {
-      activity,
-      bar,
-      pointerId: e.pointerId,
-      direction,
-      startX: e.clientX,
-      startWeek: activity.startWeek,
-      startDuration: activity.duration
-    };
-
-    document.addEventListener('pointermove', handleResizeMove);
-    document.addEventListener('pointerup', handleResizeEnd);
-  }
-
-  function handleResizeMove(e) {
-    if (!resizeState) return;
-    
-    const board = document.getElementById('timelineBoard');
-    const cells = board.querySelectorAll(`.week-cell[data-activity-id="${resizeState.activity.id}"]`);
-    const cellWidth = cells[0].getBoundingClientRect().width;
-    
-    const deltaX = e.clientX - resizeState.startX;
-    const deltaWeeks = Math.round(deltaX / cellWidth);
-    
-    if (resizeState.direction === 'left') {
-      // Resize from left - adjust start week
-      const newStartWeek = Math.max(1, resizeState.startWeek + deltaWeeks);
-      const newDuration = resizeState.startDuration - (newStartWeek - resizeState.startWeek);
-      
-      if (newDuration >= 1 && newStartWeek + newDuration - 1 <= WEEKS.length) {
-        resizeState.activity.startWeek = newStartWeek;
-        resizeState.activity.duration = newDuration;
-        renderBoard();
-        selectBar(resizeState.activity.id);
-      }
-    } else {
-      // Resize from right - adjust duration
-      const newDuration = Math.max(1, resizeState.startDuration + deltaWeeks);
-      
-      if (resizeState.activity.startWeek + newDuration - 1 <= WEEKS.length) {
-        resizeState.activity.duration = newDuration;
-        renderBoard();
-        selectBar(resizeState.activity.id);
-      }
-    }
-  }
-
-  function handleResizeEnd(e) {
-    if (!resizeState) return;
-    
-    const bar = resizeState.bar;
-    bar.releasePointerCapture(resizeState.pointerId);
-    bar.classList.remove('resizing');
-    
-    // Add elastic animation
-    bar.classList.add('animate-resize');
-    setTimeout(() => {
-      const currentBar = document.querySelector(`.activity-bar[data-activity-id="${resizeState.activity.id}"]`);
-      if (currentBar) {
-        currentBar.classList.remove('animate-resize');
-      }
-    }, 400);
-    
-    document.removeEventListener('pointermove', handleResizeMove);
-    document.removeEventListener('pointerup', handleResizeEnd);
-    
-    saveData();
-    resizeState = null;
-  }
-
-  function selectBar(activityId) {
-    selectedBarId = activityId;
-    
-    document.querySelectorAll('.activity-bar').forEach(bar => {
-      bar.classList.remove('selected');
-    });
-    
-    const bar = document.querySelector(`.activity-bar[data-activity-id="${activityId}"]`);
-    if (bar) {
-      bar.classList.add('selected');
-      bar.focus();
-    }
-  }
-
-  function handleBarKeydown(e, activity) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      editActivityName(activity);
+    if (state.subteams.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'gantt-empty';
+      empty.textContent = 'No sub-teams yet — click "+ Add Team" to get started.';
+      body.appendChild(empty);
       return;
     }
 
-    if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) {
-      return;
-    }
+    const { s: vs, e: ve } = getViewRange();
+    const total = ve - vs;
+    if (total <= 0) return;
 
-    e.preventDefault();
-    
-    // Default to right handle if no active handle
-    const handle = activeHandle || 'right';
-    const step = e.shiftKey ? 2 : 1; // Shift for faster resize
+    state.subteams.forEach(team => {
+      const isSelected = team.id === state.selectedId;
 
-    if (e.key === 'ArrowLeft') {
-      if (handle === 'left') {
-        // Expand from left (move start earlier)
-        const newStartWeek = Math.max(1, activity.startWeek - step);
-        const actualStep = activity.startWeek - newStartWeek;
-        activity.startWeek = newStartWeek;
-        activity.duration += actualStep;
-      } else {
-        // Shrink from right
-        const newDuration = Math.max(1, activity.duration - step);
-        activity.duration = newDuration;
-      }
-    } else if (e.key === 'ArrowRight') {
-      if (handle === 'left') {
-        // Shrink from left (move start later)
-        const maxShrink = Math.min(step, activity.duration - 1);
-        activity.startWeek += maxShrink;
-        activity.duration -= maxShrink;
-      } else {
-        // Expand from right
-        const maxExpansion = WEEKS.length - (activity.startWeek + activity.duration - 1);
-        const actualStep = Math.min(step, maxExpansion);
-        activity.duration += actualStep;
-      }
-    }
-    
-    renderBoard();
-    saveData();
-    selectBar(activity.id);
-  }
+      // ── Row ──
+      const row = document.createElement('div');
+      row.className = 'gantt-row' + (isSelected ? ' selected' : '');
+      row.dataset.id = team.id;
+      row.setAttribute('role', 'row');
 
-  function editActivityName(activity) {
-    const newName = prompt('Edit activity name:', activity.name);
-    if (newName && newName.trim()) {
-      activity.name = newName.trim();
-      renderBoard();
-      saveData();
-    }
-  }
+      // ── Label cell ──
+      const label = document.createElement('div');
+      label.className = 'gantt-label-col gantt-label-cell';
+      label.setAttribute('role', 'rowheader');
+      label.setAttribute('tabindex', '0');
+      label.setAttribute('aria-label', `${team.name}: click to edit`);
+      label.title = `${team.name}\n${fmtDate(team.start)} → ${fmtDate(team.end)}`;
 
-  function setupKeyboardNav() {
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        selectedBarId = null;
-        activeHandle = null;
-        document.querySelectorAll('.activity-bar').forEach(bar => {
-          bar.classList.remove('selected');
-        });
-      }
-      
-      // Tab/L to switch to left handle, Tab/R to switch to right handle
-      if (selectedBarId && (e.key === 'l' || e.key === 'L')) {
-        activeHandle = 'left';
-        showSaveStatus('Left handle active');
-      } else if (selectedBarId && (e.key === 'r' || e.key === 'R')) {
-        activeHandle = 'right';
-        showSaveStatus('Right handle active');
-      }
-    });
-  }
+      const swatch = document.createElement('span');
+      swatch.className = 'gantt-color-swatch';
+      swatch.style.background = team.color;
+      swatch.setAttribute('aria-hidden', 'true');
 
-  function attachEventListeners() {
-    // Reset button
-    const resetBtn = document.getElementById('resetBtn');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        if (confirm('Reset timeline to default activities? This will erase all changes.')) {
-          activities = JSON.parse(JSON.stringify(DEFAULT_ACTIVITIES));
-          saveData();
-          renderBoard();
-          showSaveStatus('Reset to defaults');
+      const nameEl = document.createElement('span');
+      nameEl.textContent = team.name;
+
+      label.appendChild(swatch);
+      label.appendChild(nameEl);
+
+      label.addEventListener('click', () => selectTeam(team.id));
+      label.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectTeam(team.id);
         }
       });
-    }
 
-    // Export JSON button
-    const exportJsonBtn = document.getElementById('exportJsonBtn');
-    if (exportJsonBtn) {
-      exportJsonBtn.addEventListener('click', exportJSON);
-    }
+      // ── Track cell ──
+      const track = document.createElement('div');
+      track.className = 'gantt-track-col gantt-track';
+      track.setAttribute('role', 'gridcell');
 
-    // Export PNG button
-    const exportPngBtn = document.getElementById('exportPngBtn');
-    if (exportPngBtn) {
-      exportPngBtn.addEventListener('click', exportPNG);
+      // Today line in this row's track
+      addTodayLine(track, vs, total, false);
+
+      // ── Bar ──
+      const startD = dateToDays(team.start);
+      const endD   = dateToDays(team.end);
+
+      // Clamp to view: don't render if entirely outside
+      if (endD >= vs && startD <= ve) {
+        const leftPct  = Math.max(0, (startD - vs) / total * 100);
+        const rightPct = Math.min(100, (endD   - vs) / total * 100);
+        const widthPct = Math.max(0, rightPct - leftPct);
+
+        const bar = document.createElement('div');
+        bar.className = 'gantt-bar';
+        bar.dataset.id = team.id;
+        bar.style.left       = `${leftPct}%`;
+        bar.style.width      = `${widthPct}%`;
+        bar.style.background = team.color;
+        bar.setAttribute('role', 'button');
+        bar.setAttribute('tabindex', '0');
+        setBarAria(bar, team);
+
+        // Set neon glow CSS variable
+        bar.style.setProperty('--bar-glow', hexToGlow(team.color));
+
+        // Label inside bar
+        const barLbl = document.createElement('span');
+        barLbl.className = 'gantt-bar-label';
+        barLbl.textContent = team.name;
+        bar.appendChild(barLbl);
+
+        // Left resize handle
+        const lh = document.createElement('div');
+        lh.className = 'gantt-handle gantt-handle-left';
+        lh.setAttribute('aria-label', `Drag to change ${team.name} start date`);
+        lh.setAttribute('tabindex', '-1');
+        bar.appendChild(lh);
+
+        // Right resize handle
+        const rh = document.createElement('div');
+        rh.className = 'gantt-handle gantt-handle-right';
+        rh.setAttribute('aria-label', `Drag to change ${team.name} end date`);
+        rh.setAttribute('tabindex', '-1');
+        bar.appendChild(rh);
+
+        // Pointer events
+        bar.addEventListener('click', e => {
+          if (!resizeState) { e.stopPropagation(); selectTeam(team.id); }
+        });
+        bar.addEventListener('focus', () => { if (!resizeState) selectTeam(team.id); });
+        bar.addEventListener('keydown', e => handleBarKeydown(e, team));
+        lh.addEventListener('pointerdown', e => startResize(e, team, 'left',  track));
+        rh.addEventListener('pointerdown', e => startResize(e, team, 'right', track));
+
+        track.appendChild(bar);
+      }
+
+      row.appendChild(label);
+      row.appendChild(track);
+      body.appendChild(row);
+    });
+  }
+
+  function setBarAria(bar, team) {
+    bar.setAttribute('aria-label',
+      `${team.name}: ${fmtDate(team.start)} to ${fmtDate(team.end)}. ` +
+      'Press Enter to edit. Arrow keys adjust end date.');
+    bar.title = `${team.name}\n${fmtDate(team.start)} → ${fmtDate(team.end)}`;
+  }
+
+  /** Convert a hex color to an rgba glow string for CSS custom property. */
+  function hexToGlow(hex) {
+    try {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r},${g},${b},0.65)`;
+    } catch { return 'rgba(255,255,255,0.4)'; }
+  }
+
+  // ── Legend ───────────────────────────────────────────────────────────────────
+
+  function renderLegend() {
+    const el = document.getElementById('teamLegend');
+    if (!el) return;
+    el.innerHTML = '';
+    state.subteams.forEach(team => {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'tl-legend-item';
+      item.setAttribute('aria-label', `Select ${team.name}`);
+      item.style.color = team.color;
+
+      const sw = document.createElement('span');
+      sw.className = 'tl-legend-swatch';
+      sw.style.background = team.color;
+
+      item.appendChild(sw);
+      item.appendChild(document.createTextNode(team.name));
+      item.addEventListener('click', () => selectTeam(team.id));
+      el.appendChild(item);
+    });
+  }
+
+  // ── Selection ────────────────────────────────────────────────────────────────
+
+  function selectTeam(id) {
+    state.selectedId = id;
+    // Update row CSS
+    document.querySelectorAll('.gantt-row').forEach(row => {
+      row.classList.toggle('selected', Number(row.dataset.id) === id);
+    });
+    syncEditPanel();
+    // Scroll edit panel into view
+    const pw = document.getElementById('editPanelWrapper');
+    if (pw && !pw.hidden) {
+      requestAnimationFrame(() => pw.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
     }
   }
 
-  function exportJSON() {
-    const data = {
-      version: 1,
-      exportDate: new Date().toISOString(),
-      weeks: WEEKS,
-      activities: activities
+  // ── Edit Panel ───────────────────────────────────────────────────────────────
+
+  function syncEditPanel() {
+    const pw = document.getElementById('editPanelWrapper');
+    const team = state.subteams.find(t => t.id === state.selectedId);
+    if (!team) {
+      if (pw) pw.hidden = true;
+      return;
+    }
+    if (pw) pw.hidden = false;
+
+    const errorEl = document.getElementById('editError');
+    if (errorEl) errorEl.textContent = '';
+
+    setVal('editName',  team.name);
+    setVal('editColor', team.color);
+    setVal('editStart', team.start);
+    setVal('editEnd',   team.end);
+  }
+
+  function handleEditSubmit(e) {
+    e.preventDefault();
+    const errEl = document.getElementById('editError');
+    if (errEl) errEl.textContent = '';
+
+    const team = state.subteams.find(t => t.id === state.selectedId);
+    if (!team) return;
+
+    const name  = (document.getElementById('editName')?.value  ?? '').trim();
+    const color = document.getElementById('editColor')?.value  ?? team.color;
+    const start = document.getElementById('editStart')?.value  ?? '';
+    const end   = document.getElementById('editEnd')?.value    ?? '';
+
+    if (!name)  { showFieldError(errEl, 'Name cannot be empty.'); return; }
+    if (!start || !end) { showFieldError(errEl, 'Start and end dates are required.'); return; }
+    if (dateToDays(end) < dateToDays(start) + MIN_BAR_DAYS - 1) {
+      showFieldError(errEl, 'End date must be on or after start date.'); return;
+    }
+
+    team.name  = name;
+    team.color = color;
+    team.start = start;
+    team.end   = end;
+
+    saveState();
+    render();
+  }
+
+  function showFieldError(el, msg) {
+    if (el) el.textContent = msg;
+  }
+
+  // ── Drag Resize ──────────────────────────────────────────────────────────────
+
+  function startResize(e, team, direction, trackEl) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const bar = trackEl.querySelector(`.gantt-bar[data-id="${team.id}"]`);
+    if (!bar) return;
+
+    bar.setPointerCapture(e.pointerId);
+    bar.classList.add('resizing');
+
+    const { s: vs, e: ve } = getViewRange();
+    const trackRect = trackEl.getBoundingClientRect();
+
+    resizeState = {
+      team,
+      direction,
+      startX:       e.clientX,
+      origStart:    team.start,
+      origEnd:      team.end,
+      trackWidth:   trackRect.width,
+      viewStart:    vs,
+      viewTotalDays: ve - vs,
+      pointerId:    e.pointerId,
+      bar,
     };
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
+    document.addEventListener('pointermove', onResizeMove, { passive: false });
+    document.addEventListener('pointerup',   onResizeEnd);
+  }
+
+  function onResizeMove(e) {
+    if (!resizeState) return;
+    e.preventDefault();
+
+    const { team, direction, startX, origStart, origEnd,
+            trackWidth, viewStart, viewTotalDays, bar } = resizeState;
+
+    const deltaX    = e.clientX - startX;
+    const deltaDays = Math.round((deltaX / trackWidth) * viewTotalDays);
+
+    if (direction === 'left') {
+      const origSD  = dateToDays(origStart);
+      const origED  = dateToDays(origEnd);
+      const newSD   = Math.min(origSD + deltaDays, origED - MIN_BAR_DAYS);
+      team.start = daysToDate(newSD);
+    } else {
+      const origSD  = dateToDays(origStart);
+      const origED  = dateToDays(origEnd);
+      const newED   = Math.max(origED + deltaDays, origSD + MIN_BAR_DAYS);
+      team.end = daysToDate(newED);
+    }
+
+    // Live-update bar position (no full re-render for smoothness)
+    const { s: vs, e: ve } = getViewRange();
+    const total     = ve - vs;
+    const sd        = dateToDays(team.start);
+    const ed        = dateToDays(team.end);
+    const leftPct   = Math.max(0, (sd - vs) / total * 100);
+    const rightPct  = Math.min(100, (ed - vs) / total * 100);
+    const widthPct  = Math.max(0, rightPct - leftPct);
+
+    bar.style.left  = `${leftPct}%`;
+    bar.style.width = `${widthPct}%`;
+    setBarAria(bar, team);
+  }
+
+  function onResizeEnd() {
+    if (!resizeState) return;
+    const { bar, pointerId } = resizeState;
+    try { bar.releasePointerCapture(pointerId); } catch (_) {}
+    bar.classList.remove('resizing');
+
+    document.removeEventListener('pointermove', onResizeMove);
+    document.removeEventListener('pointerup',   onResizeEnd);
+
+    resizeState = null;
+    saveState();
+    render(); // full re-render so edit panel & legend update
+  }
+
+  // ── Keyboard ─────────────────────────────────────────────────────────────────
+
+  function handleBarKeydown(e, team) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      selectTeam(team.id);
+      requestAnimationFrame(() => document.getElementById('editName')?.focus());
+      return;
+    }
+
+    const step = e.shiftKey ? 7 : 1;
+
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      team.end = daysToDate(dateToDays(team.end) + step);
+      saveState();
+      render();
+      requestAnimationFrame(() => document.querySelector(`.gantt-bar[data-id="${team.id}"]`)?.focus());
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const newEnd = dateToDays(team.end) - step;
+      if (newEnd >= dateToDays(team.start) + MIN_BAR_DAYS) {
+        team.end = daysToDate(newEnd);
+        saveState();
+        render();
+        requestAnimationFrame(() => document.querySelector(`.gantt-bar[data-id="${team.id}"]`)?.focus());
+      }
+    }
+  }
+
+  // ── Add / Delete Team ────────────────────────────────────────────────────────
+
+  function addTeam() {
+    const palette = [
+      '#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6',
+      '#10b981', '#ec4899', '#f97316', '#06b6d4',
+      '#84cc16', '#a78bfa',
+    ];
+    const color = palette[state.subteams.length % palette.length];
+    const newTeam = {
+      id:    state.nextId++,
+      name:  `New Team ${state.subteams.length + 1}`,
+      color,
+      start: state.season.start,
+      end:   state.season.end,
+    };
+    state.subteams.push(newTeam);
+    saveState();
+    render();
+    selectTeam(newTeam.id);
+    requestAnimationFrame(() => document.getElementById('editName')?.focus());
+  }
+
+  function deleteSelectedTeam() {
+    if (!state.selectedId) return;
+    const team = state.subteams.find(t => t.id === state.selectedId);
+    if (!team) return;
+    if (!confirm(`Delete sub-team "${team.name}"?`)) return;
+    state.subteams = state.subteams.filter(t => t.id !== state.selectedId);
+    state.selectedId = null;
+    saveState();
+    render();
+  }
+
+  // ── Export / Import JSON ─────────────────────────────────────────────────────
+
+  function exportJSON() {
+    const payload = {
+      version:    2,
+      exportDate: new Date().toISOString(),
+      season:     state.season,
+      zoom:       state.zoom,
+      subteams:   state.subteams,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
     a.download = `timeline-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-
     showSaveStatus('JSON exported');
   }
 
-  async function exportPNG() {
-    // Check if html2canvas is available
-    if (typeof html2canvas === 'undefined') {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-      
-      script.onload = () => {
-        performPNGExport();
-      };
-      
-      script.onerror = () => {
-        alert('Could not load html2canvas library. Please check your internet connection and try again.');
-      };
-      
-      document.head.appendChild(script);
-    } else {
-      performPNGExport();
-    }
+  function importJSON(file) {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!Array.isArray(data.subteams)) throw new Error('Missing "subteams" array.');
+        state.subteams    = data.subteams;
+        if (data.season)  state.season = data.season;
+        if (data.zoom)    state.zoom   = data.zoom;
+        state.selectedId  = null;
+        state.nextId      = state.subteams.reduce((mx, t) => Math.max(mx, t.id + 1), 1);
+        saveState();
+        render();
+        showSaveStatus('Imported ✓');
+      } catch (err) {
+        alert('Import failed: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
   }
 
-  async function performPNGExport() {
-    const board = document.getElementById('timelineBoard');
-    if (!board) return;
+  // ── Event Wiring ─────────────────────────────────────────────────────────────
 
-    showSaveStatus('Generating PNG...');
+  function wireEvents() {
+    // Season controls
+    on('seasonStart', 'change', e => {
+      state.season.start = e.target.value;
+      saveState(); render();
+    });
+    on('seasonEnd', 'change', e => {
+      state.season.end = e.target.value;
+      saveState(); render();
+    });
+    on('zoomSelect', 'change', e => {
+      state.zoom = e.target.value;
+      saveState(); render();
+    });
 
-    try {
-      const canvas = await html2canvas(board, {
-        backgroundColor: null,
-        scale: 2,
-        logging: false
-      });
+    // Buttons
+    on('addTeamBtn',    'click', addTeam);
+    on('exportJsonBtn', 'click', exportJSON);
+    on('resetBtn',      'click', () => {
+      if (!confirm('Reset timeline to defaults? All changes will be lost.')) return;
+      state.subteams    = clone(DEFAULT_SUBTEAMS);
+      state.season      = { ...DEFAULT_SEASON };
+      state.zoom        = 'full';
+      state.selectedId  = null;
+      state.nextId      = DEFAULT_SUBTEAMS.length + 1;
+      saveState();
+      render();
+    });
 
-      canvas.toBlob((blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `timeline-${new Date().toISOString().split('T')[0]}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+    // Import
+    on('importJsonInput', 'change', e => {
+      if (e.target.files.length) {
+        importJSON(e.target.files[0]);
+        e.target.value = '';
+      }
+    });
 
-        showSaveStatus('PNG exported');
-      }, 'image/png');
-    } catch (error) {
-      console.error('PNG export failed:', error);
-      showSaveStatus('PNG export failed', true);
-    }
+    // Edit form
+    document.getElementById('editForm')?.addEventListener('submit', handleEditSubmit);
+    on('deleteTeamBtn', 'click', deleteSelectedTeam);
+    on('closeEditBtn',  'click', () => {
+      state.selectedId = null;
+      document.querySelectorAll('.gantt-row').forEach(r => r.classList.remove('selected'));
+      const pw = document.getElementById('editPanelWrapper');
+      if (pw) pw.hidden = true;
+    });
+
+    // Deselect on body background click
+    document.getElementById('ganttBody')?.addEventListener('click', e => {
+      if (!e.target.closest('.gantt-bar') && !e.target.closest('.gantt-label-cell')) {
+        clearSelection();
+      }
+    });
+
+    // Escape key
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') clearSelection();
+    });
+
+    // Re-render on window resize for accurate label positions
+    window.addEventListener('resize', () => {
+      clearTimeout(wireEvents._resizeTimer);
+      wireEvents._resizeTimer = setTimeout(render, 120);
+    });
   }
 
-  // Expose minimal API for customization
+  function clearSelection() {
+    state.selectedId = null;
+    document.querySelectorAll('.gantt-row').forEach(r => r.classList.remove('selected'));
+    const pw = document.getElementById('editPanelWrapper');
+    if (pw) pw.hidden = true;
+  }
+
+  /** Shorthand: attach event listener by element id. */
+  function on(id, evt, handler) {
+    document.getElementById(id)?.addEventListener(evt, handler);
+  }
+
+  // ── Bootstrap ────────────────────────────────────────────────────────────────
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadState();
+    wireEvents();
+    render();
+  });
+
+  // Minimal public API for console-level customisation
   window.Timeline = {
-    getActivities: () => JSON.parse(JSON.stringify(activities)),
-    setActivities: (newActivities) => {
-      activities = newActivities;
-      saveData();
-      renderBoard();
+    getSubteams:  () => clone(state.subteams),
+    setSubteams:  teams => { state.subteams = teams; saveState(); render(); },
+    getState:     () => clone(state),
+    reset:        () => {
+      state.subteams   = clone(DEFAULT_SUBTEAMS);
+      state.season     = { ...DEFAULT_SEASON };
+      state.selectedId = null;
+      saveState(); render();
     },
-    reset: () => {
-      activities = JSON.parse(JSON.stringify(DEFAULT_ACTIVITIES));
-      saveData();
-      renderBoard();
-    }
   };
 
 })();

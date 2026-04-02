@@ -1941,6 +1941,10 @@
           var badgeId = this.getAttribute('data-badge-id');
           if (typeof Profile !== 'undefined') Profile.removeBadge(email, badgeId);
           renderCurrentBadges(email);
+          if (window.FirebaseProfileSync) {
+            window.FirebaseProfileSync.updateBadges(email, (typeof Profile !== 'undefined') ? Profile.getBadges(email) : [])
+              .catch(function (e) { console.warn('[ProfileSync] updateBadges error:', e); });
+          }
           if (typeof showToast === 'function') showToast('info', 'Badge removed.');
         });
       });
@@ -1988,6 +1992,10 @@
           if (!def) return;
           Profile.addBadge(email, def);
           renderCurrentBadges(email);
+          if (window.FirebaseProfileSync) {
+            window.FirebaseProfileSync.updateBadges(email, Profile.getBadges(email))
+              .catch(function (e) { console.warn('[ProfileSync] updateBadges error:', e); });
+          }
           if (typeof showToast === 'function') showToast('success', 'Badge assigned: ' + def.emoji + ' ' + def.name);
         });
       }

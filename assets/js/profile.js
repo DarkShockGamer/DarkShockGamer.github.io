@@ -150,10 +150,12 @@
     const name = getDisplayName(email);
     const initials = ((name && name[0]) || '?').toUpperCase();
     const fontSize = Math.round(size * 0.45);
-    const placeholderStyle =
+    // Base styles shared between visible and hidden fallback span (no display property here
+    // so that display:none / display:inline-flex can be applied without being overridden)
+    const baseStyle =
       'width:' + size + 'px;height:' + size + 'px;border-radius:50%;' +
       'background:linear-gradient(135deg,#38bdf8,#818cf8);color:white;' +
-      'font-size:' + fontSize + 'px;font-weight:700;display:inline-flex;' +
+      'font-size:' + fontSize + 'px;font-weight:700;' +
       'align-items:center;justify-content:center;flex-shrink:0;';
 
     if (picture) {
@@ -161,9 +163,9 @@
         '" width="' + size + '" height="' + size + '" ' +
         'style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;object-fit:cover;flex-shrink:0;" ' +
         'onerror="this.style.display=\'none\';var s=this.nextElementSibling;if(s)s.style.display=\'inline-flex\';" />' +
-        '<span aria-hidden="true" style="display:none;' + placeholderStyle + '">' + _esc(initials) + '</span>';
+        '<span aria-hidden="true" style="display:none;' + baseStyle + '">' + _esc(initials) + '</span>';
     }
-    return '<span aria-hidden="true" style="' + placeholderStyle + '">' + _esc(initials) + '</span>';
+    return '<span aria-hidden="true" style="display:inline-flex;' + baseStyle + '">' + _esc(initials) + '</span>';
   }
 
   /** Returns HTML for a user's badge chips */

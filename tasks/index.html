@@ -940,7 +940,7 @@
 </div>
 
 <!-- Profile Modal -->
-<div id="profileModalOverlay" class="profile-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="User Profile">
+<div id="profileModalOverlay" class="profile-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
   <div class="profile-modal-panel">
     <button id="profileModalClose" class="profile-modal-close" aria-label="Close profile">&#x2715;</button>
     <div id="profileModalBody" class="profile-modal-body">
@@ -1045,7 +1045,7 @@ async function openProfileModal(email) {
     <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding-bottom:0.5rem;">
       <div style="width:72px;height:72px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">${avatarHtml}</div>
       <div style="text-align:center;">
-        <div class="font-semibold text-slate-800 dark:text-slate-200" style="font-size:1.1rem;">${escHtml(name)}</div>
+        <div id="profileModalTitle" class="font-semibold text-slate-800 dark:text-slate-200" style="font-size:1.1rem;">${escHtml(name)}</div>
         <div class="text-sm text-slate-500 dark:text-slate-400">${escHtml(email)}</div>
       </div>
       ${badgesHtml

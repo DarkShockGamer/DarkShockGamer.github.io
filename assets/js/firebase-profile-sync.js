@@ -13,13 +13,15 @@
  *   window.FirebaseProfileSync.updateDisplayName(name)
  *
  * Firestore structure:
- *   Collection: users
+ *   Collection: publicProfiles
  *   Document ID: Firebase Auth uid
  *   Fields: { email, displayName, picture, updatedAt }
  *
- * Expected Firestore security rules:
- *   match /users/{uid} {
- *     allow read, write: if request.auth != null && request.auth.uid == uid;
+ * Expected Firestore security rules (see docs/firestore-rules.md):
+ *   match /publicProfiles/{uid} {
+ *     allow read: if request.auth != null;
+ *     allow create, update: if request.auth != null && request.auth.uid == uid;
+ *     allow delete: if false;
  *   }
  *
  * This module is loaded as <script type="module"> and exposes its API via
@@ -40,6 +42,10 @@ import {
   doc,
   setDoc,
   getDoc,
+  getDocs,
+  collection,
+  query,
+  where,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
@@ -110,7 +116,7 @@ function _decodeGoogle(credentialJwt) {
  * @returns {Promise<object>} the merged doc data
  */
 async function _upsertProfile(uid, { email, name, picture }) {
-  const ref  = doc(_db, "users", uid);
+  const ref  = doc(_db, "publicProfiles", uid);
   const snap = await getDoc(ref);
   const existing = snap.exists() ? snap.data() : {};
 
@@ -140,7 +146,7 @@ async function _upsertProfile(uid, { email, name, picture }) {
  * @returns {Promise<object|null>}
  */
 async function _fetchProfile(uid) {
-  const ref  = doc(_db, "users", uid);
+  const ref  = doc(_db, "publicProfiles", uid);
   const snap = await getDoc(ref);
   return snap.exists() ? snap.data() : null;
 }
@@ -153,8 +159,9 @@ async function _fetchProfile(uid) {
  * @param {string} email
  * @param {string|null} displayName
  * @param {string|null} picture
+ * @param {boolean} [isSelf=false] - When true, also updates signedInEmail in localStorage
  */
-function _hydrateLocal(email, displayName, picture) {
+function _hydrateLocal(email, displayName, picture, isSelf = false) {
   if (!email) return;
 
   if (typeof window.Profile !== "undefined") {
@@ -168,8 +175,11 @@ function _hydrateLocal(email, displayName, picture) {
     }
   }
 
-  localStorage.setItem("signedInEmail", email);
-  window.signedInEmail = email;
+  // Only update the "currently signed-in user" markers when hydrating the own profile
+  if (isSelf) {
+    localStorage.setItem("signedInEmail", email);
+    window.signedInEmail = email;
+  }
 
   // Notify pages so they can re-render profile elements
   try {
@@ -226,7 +236,7 @@ async function signInAndSync(credentialJwt) {
   // Immediately hydrate local Profile store.
   // _upsertProfile already resolves the correct displayName (preserving user-chosen
   // names and seeding from Google only when none exists), so use saved values directly.
-  _hydrateLocal(decoded.email, saved.displayName, saved.picture);
+  _hydrateLocal(decoded.email, saved.displayName, saved.picture, true);
 
   return { uid, email: decoded.email };
 }
@@ -252,7 +262,8 @@ function hydrate(onComplete) {
       _hydrateLocal(
         remote.email,
         remote.displayName || "",
-        remote.picture     || ""
+        remote.picture     || "",
+        true
       );
       console.log("[ProfileSync] Hydrated profile for:", remote.email);
       if (typeof onComplete === "function") onComplete(remote);
@@ -294,7 +305,7 @@ async function updateDisplayName(displayName) {
     return;
   }
 
-  const ref = doc(_db, "users", user.uid);
+  const ref = doc(_db, "publicProfiles", user.uid);
   await setDoc(ref, {
     displayName: displayName || null,
     updatedAt:   serverTimestamp()
@@ -308,8 +319,112 @@ async function updateDisplayName(displayName) {
   }
 }
 
+// ── resolveProfiles: look up other users' profiles by email ──────────────────
+
+/**
+ * In-memory cache for resolved profiles: email -> { displayName, picture, cachedAt }
+ * Complements the localStorage layer to avoid redundant Firestore reads within a session.
+ * @type {Map<string, {displayName: string|null, picture: string|null, cachedAt: number}>}
+ */
+const _resolveCache = new Map();
+const _RESOLVE_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Given an array of email addresses, resolve each one to a { displayName, picture }
+ * from the shared `publicProfiles` Firestore collection, then seed the local
+ * window.Profile store so avatars/names render correctly on the task board.
+ *
+ * Results are cached in memory (for the current page session) and in localStorage
+ * (across page loads, with a 5-minute TTL) to minimise Firestore reads.
+ *
+ * Only emails that are not already cached are queried from Firestore.
+ * The function is safe to call even when the user is not yet Firebase-authenticated;
+ * it will skip Firestore queries and resolve from cache only.
+ *
+ * @param {string[]} emails - normalised email addresses to resolve
+ * @returns {Promise<void>}
+ */
+async function resolveProfiles(emails) {
+  if (!Array.isArray(emails) || emails.length === 0) return;
+
+  const now = Date.now();
+  const uncached = [];
+
+  for (const raw of emails) {
+    const email = (raw || "").trim().toLowerCase();
+    if (!email) continue;
+
+    // 1) In-memory cache
+    const mem = _resolveCache.get(email);
+    if (mem && (now - mem.cachedAt) < _RESOLVE_CACHE_TTL) continue;
+
+    // 2) localStorage cache
+    const lsKey = "trident.profileCache." + email;
+    try {
+      const lsRaw = localStorage.getItem(lsKey);
+      if (lsRaw) {
+        const lsData = JSON.parse(lsRaw);
+        if (lsData.cachedAt && (now - lsData.cachedAt) < _RESOLVE_CACHE_TTL) {
+          // Warm in-memory cache and hydrate Profile store from localStorage entry
+          _resolveCache.set(email, lsData);
+          const isSelf = email === (localStorage.getItem("signedInEmail") || "").trim().toLowerCase();
+          _hydrateLocal(email, lsData.displayName, lsData.picture, isSelf);
+          continue;
+        }
+      }
+    } catch (_) {
+      // Ignore malformed cache entries
+    }
+
+    uncached.push(email);
+  }
+
+  if (uncached.length === 0) return;
+
+  // Require Firebase Auth to query Firestore (rules: read if signed in)
+  if (!_auth.currentUser) {
+    console.warn("[ProfileSync] resolveProfiles: not signed into Firebase; skipping Firestore lookup for", uncached);
+    return;
+  }
+
+  // Query publicProfiles in batches of 30 (Firestore `in` operator limit)
+  try {
+    for (let i = 0; i < uncached.length; i += 30) {
+      const batch = uncached.slice(i, i + 30);
+      const q = query(
+        collection(_db, "publicProfiles"),
+        where("email", "in", batch)
+      );
+      const snap = await getDocs(q);
+      snap.forEach(docSnap => {
+        const data = docSnap.data();
+        const em = (data.email || "").trim().toLowerCase();
+        if (!em) return;
+
+        const entry = {
+          displayName: data.displayName || null,
+          picture:     data.picture     || null,
+          cachedAt:    Date.now()
+        };
+
+        // Update caches
+        _resolveCache.set(em, entry);
+        try {
+          localStorage.setItem("trident.profileCache." + em, JSON.stringify(entry));
+        } catch (_) {}
+
+        // Seed the local Profile store → triggers UI update
+        const isSelf = em === (localStorage.getItem("signedInEmail") || "").trim().toLowerCase();
+        _hydrateLocal(em, entry.displayName, entry.picture, isSelf);
+      });
+    }
+  } catch (e) {
+    console.warn("[ProfileSync] resolveProfiles Firestore error:", e);
+  }
+}
+
 // ── Expose API globally for consumption by non-module scripts ─────────────────
-window.FirebaseProfileSync = { signInAndSync, hydrate, signOut, updateDisplayName };
+window.FirebaseProfileSync = { signInAndSync, hydrate, signOut, updateDisplayName, resolveProfiles };
 
 // ── Auto-start hydration on module load ──────────────────────────────────────
 // This runs on every page that includes this module script, so any previously

@@ -82,10 +82,6 @@
         "team": "Electrical Team"
       },
       {
-        "name": "Illia",
-        "team": "Mechanical Team"
-      },
-      {
         "name": "Aashna",
         "team": "Programming Team"
       },
@@ -108,6 +104,10 @@
       {
         "name": "Adrian",
         "team": "Electrical Team"
+      },
+      {
+        "name": "Elliot",
+        "team": "Mechanical Team"
       }
     ],
     "drivers": []
@@ -144,11 +144,6 @@
     {
       "name": "WW Displays Inc",
       "logo": "/assets/WWDisplays.png",
-      "url": ""
-    },
-    {
-      "name": "Patel Family",
-      "logo": "/assets/PatelFamily.png",
       "url": ""
     }
   ]

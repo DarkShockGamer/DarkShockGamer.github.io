@@ -1692,8 +1692,13 @@
       } else {
         populateProfileUI();
       }
+
+      // Re-populate when cross-device profile sync hydrates the Profile store
+      document.addEventListener('profilesHydrated', populateProfileUI);
     }());
   </script>
+  <!-- Firebase Auth + Firestore cross-device profile sync -->
+  <script type="module" src="/assets/js/firebase-profile-sync.js"></script>
   <!-- Modern UI Enhancement Scripts -->
   <script src="/assets/js/modern-ui.js"></script>
   <script src="/assets/js/page-transitions.js"></script>

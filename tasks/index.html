@@ -22,6 +22,8 @@
   <script src="/assets/js/profile.js"></script>
   <script src="/assets/js/auth-utils.js"></script>
   <script src="/assets/js/auth-guard.js"></script>
+  <!-- Firebase Auth + Firestore cross-device profile sync -->
+  <script type="module" src="/assets/js/firebase-profile-sync.js"></script>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -2588,6 +2590,12 @@ filterInput.oninput = () => { renderBoard(); };
       // DOM already ready if script injected late
       runBootstrapOnce();
     }
+
+    // Re-render the board when cross-device profile sync completes so that
+    // assignee names and avatars reflect the synced values from Firestore.
+    document.addEventListener('profilesHydrated', () => {
+      if (typeof renderBoard === 'function') renderBoard();
+    });
 
 
 </script>

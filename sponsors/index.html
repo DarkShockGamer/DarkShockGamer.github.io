@@ -37,6 +37,8 @@
   <script src="/assets/js/auth-config.js"></script>
   <!-- Shared auth utilities -->
   <script src="/assets/js/auth-utils.js"></script>
+  <!-- Firebase Auth + Firestore cross-device profile sync -->
+  <script type="module" src="/assets/js/firebase-profile-sync.js"></script>
   <!-- Portal overlay menu -->
   <link rel="stylesheet" href="/assets/css/portal.css">
 
@@ -635,6 +637,11 @@
         localStorage.setItem(G_PROFILE_KEY, JSON.stringify({ email: data.email, name: data.name, picture: data.picture }));
         // Clear any explicit-logout flag so re-auth persists on next refresh
         localStorage.removeItem(G_EXPLICIT_LOGOUT_KEY);
+        // Sync profile to Firebase Auth + Firestore for cross-device availability
+        if (window.FirebaseProfileSync) {
+          window.FirebaseProfileSync.signInAndSync(response.credential)
+            .catch(e => console.warn('[ProfileSync] signInAndSync error:', e));
+        }
         setSignedInUI(data);
       }
       catch (err) { console.error('Error decoding credential:', err); alert('Sign-in failed (invalid token).'); }
@@ -656,6 +663,12 @@
         } catch(e){}
       }
       clearAuthData();
+      // Sign out of Firebase Auth (best-effort) so the next user on this device
+      // does not inherit the previous user's Firestore profile.
+      if (window.FirebaseProfileSync) {
+        window.FirebaseProfileSync.signOut()
+          .catch(e => console.warn('[ProfileSync] signOut error:', e));
+      }
       // Mark that the user explicitly logged out so auto-restore is suppressed on refresh
       localStorage.setItem(G_EXPLICIT_LOGOUT_KEY, '1');
       try { google?.accounts?.id?.disableAutoSelect(); } catch(e){}

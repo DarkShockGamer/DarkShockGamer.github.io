@@ -103,6 +103,44 @@
       border-color: #164e63;
     }
 
+    /* CTA Banner buttons */
+    .btn-cta-primary {
+      background: white;
+      color: #0369a1;
+      font-weight: 700;
+      padding: .625rem 1.75rem;
+      border-radius: .625rem;
+      border: none;
+      font-size: .9375rem;
+      cursor: pointer;
+      transition: transform 150ms, box-shadow 150ms;
+      box-shadow: 0 4px 16px rgba(0,0,0,.18);
+      display: inline-flex;
+      align-items: center;
+    }
+    .btn-cta-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.22);
+    }
+    .btn-cta-secondary {
+      background: rgba(255,255,255,.15);
+      color: white;
+      font-weight: 600;
+      padding: .625rem 1.75rem;
+      border-radius: .625rem;
+      border: 1.5px solid rgba(255,255,255,.4);
+      font-size: .9375rem;
+      cursor: pointer;
+      transition: background 150ms, transform 150ms;
+      backdrop-filter: blur(6px);
+      display: inline-flex;
+      align-items: center;
+    }
+    .btn-cta-secondary:hover {
+      background: rgba(255,255,255,.25);
+      transform: translateY(-2px);
+    }
+
     /* Morph animation keyframes */
     @keyframes morphGradient {
       0%   { background-position: 0% 50%; }
@@ -190,7 +228,7 @@
       </p>
       <div class="flex flex-wrap gap-3 items-center">
         <button class="btn-primary btn-ripple" data-sound="click">Primary Button</button>
-        <button class="btn-primary btn-ripple" data-sound="click" style="opacity:.6" disabled>Disabled</button>
+        <button class="btn-primary btn-ripple" data-sound="click" disabled>Disabled</button>
         <button class="btn-primary btn-ripple" data-sound="click" style="font-size:.8rem;padding:.375rem 1rem">Small</button>
         <button class="btn-primary btn-ripple" data-sound="click" style="font-size:1rem;padding:.65rem 1.75rem">Large</button>
       </div>
@@ -216,7 +254,7 @@
       </p>
       <div class="flex flex-wrap gap-3 items-center">
         <button class="btn-secondary btn-ripple" data-sound="click">Secondary Button</button>
-        <button class="btn-secondary btn-ripple" data-sound="click" disabled style="opacity:.5;cursor:not-allowed">Disabled</button>
+        <button class="btn-secondary btn-ripple" data-sound="click" disabled>Disabled</button>
         <button class="btn-secondary btn-ripple" data-sound="click" style="font-size:.8rem;padding:.375rem 1rem">Small</button>
         <button class="btn-secondary btn-ripple" data-sound="click" style="font-size:1rem;padding:.65rem 1.75rem">Large</button>
       </div>
@@ -243,7 +281,7 @@
       <div class="flex flex-wrap gap-3 items-center">
         <button class="btn-danger btn-ripple" data-sound="error">Delete Account</button>
         <button class="btn-danger btn-ripple" data-sound="error">🗑️ Remove</button>
-        <button class="btn-danger btn-ripple" data-sound="error" disabled style="opacity:.5;cursor:not-allowed">Disabled</button>
+        <button class="btn-danger btn-ripple" data-sound="error" disabled>Disabled</button>
       </div>
       <div class="mt-4 lab-code" style="font-size:.78rem">
 &lt;button class="btn-danger btn-ripple" data-sound="error"&gt;Delete Account&lt;/button&gt;</div>
@@ -268,7 +306,7 @@
       <div class="flex flex-wrap gap-3 items-center">
         <button class="btn-ghost btn-ripple" data-sound="click">Ghost Button</button>
         <button class="btn-ghost btn-ripple" data-sound="click">Learn More</button>
-        <button class="btn-ghost btn-ripple" data-sound="click" disabled style="opacity:.5;cursor:not-allowed">Disabled</button>
+        <button class="btn-ghost btn-ripple" data-sound="click" disabled>Disabled</button>
       </div>
       <div class="mt-4 lab-code" style="font-size:.78rem">
 &lt;button class="btn-ghost btn-ripple" data-sound="click"&gt;Ghost Button&lt;/button&gt;</div>
@@ -565,17 +603,10 @@ btn.addEventListener('click', () =&gt; {
           Explore opportunities with Trident Robotics this season. We're looking for driven students in engineering, programming, and design.
         </p>
         <div class="flex flex-wrap gap-3 justify-center">
-          <button class="btn-ripple" data-sound="success"
-            style="background:white;color:#0369a1;font-weight:700;padding:.625rem 1.75rem;border-radius:.625rem;border:none;font-size:.9375rem;cursor:pointer;transition:transform 150ms,box-shadow 150ms;box-shadow:0 4px 16px rgba(0,0,0,.18)"
-            onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.22)'"
-            onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(0,0,0,.18)'"
-            onclick="showToast('success','Welcome to Trident Robotics! 🤖')">
+          <button id="ctaGetStarted" class="btn-cta-primary btn-ripple" data-sound="success">
             Get Started
           </button>
-          <button class="btn-ripple" data-sound="click"
-            style="background:rgba(255,255,255,.15);color:white;font-weight:600;padding:.625rem 1.75rem;border-radius:.625rem;border:1.5px solid rgba(255,255,255,.4);font-size:.9375rem;cursor:pointer;transition:background 150ms,transform 150ms;backdrop-filter:blur(6px)"
-            onmouseover="this.style.background='rgba(255,255,255,.25)';this.style.transform='translateY(-2px)'"
-            onmouseout="this.style.background='rgba(255,255,255,.15)';this.style.transform=''">
+          <button id="ctaLearnMore" class="btn-cta-secondary btn-ripple" data-sound="click">
             Learn More →
           </button>
         </div>
@@ -653,6 +684,14 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   });
+
+  // ── CTA Banner buttons ──────────────────────────────────────────────────
+  const ctaGetStarted = document.getElementById('ctaGetStarted');
+  if (ctaGetStarted) {
+    ctaGetStarted.addEventListener('click', () => {
+      showToast('success', 'Welcome to Trident Robotics! 🤖');
+    });
+  }
 
   // ── Sound toggle (handled by lab.js, but ensure label sync) ────────────
   const toggleSoundBtn = document.getElementById('toggleSound');

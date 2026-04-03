@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/assets/js/theme-prepaint.js"></script>
+  <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
+  <link rel="stylesheet" href="/assets/css/modern-ui.css">
+  <title>02 · Forms & Inputs — UI Lab</title>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
+  <script src="/assets/js/auth-config.js"></script>
+  <script src="/assets/js/auth-utils.js"></script>
+  <script src="/assets/js/auth-guard-developer.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(to bottom, #f0f9ff, #ffffff);
+    }
+    .dark body {
+      background: linear-gradient(to bottom, #0a1628, #0f172a);
+    }
+
+    /* Section anchor offset for sticky header */
+    .lab-section {
+      scroll-margin-top: 70px;
+    }
+
+    /* Section meta bar */
+    .section-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .75rem;
+    }
+
+    /* Component index chip */
+    .comp-index {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: .7rem;
+      font-weight: 800;
+      border: 1px solid #bae6fd;
+      flex-shrink: 0;
+    }
+    .dark .comp-index {
+      background: #0c2d4a;
+      color: #7dd3fc;
+      border-color: #164e63;
+    }
+
+    /* ── Input wrappers ─────────────────────────────────────────────────── */
+    .input-wrapper {
+      position: relative;
+    }
+    .input-wrapper .input-icon-left {
+      position: absolute;
+      left: .65rem;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      font-size: 1rem;
+      line-height: 1;
+    }
+    .input-wrapper .input-icon-right {
+      position: absolute;
+      right: .65rem;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .input-has-left-icon {
+      padding-left: 2.2rem !important;
+    }
+    .input-has-right-icon {
+      padding-right: 2.5rem !important;
+    }
+
+    /* Show/hide password button */
+    .pw-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 0;
+      color: var(--lab-muted);
+      transition: color 150ms;
+    }
+    .pw-toggle:hover { color: var(--lab-primary); }
+
+    /* ── Character counter ──────────────────────────────────────────────── */
+    .char-counter {
+      font-size: .75rem;
+      color: var(--lab-muted);
+      text-align: right;
+      margin-top: .3rem;
+    }
+    .char-counter.near { color: var(--lab-warn); }
+    .char-counter.full { color: var(--lab-error); font-weight: 600; }
+
+    /* ── Select display ─────────────────────────────────────────────────── */
+    .select-display {
+      margin-top: .5rem;
+      font-size: .8125rem;
+      color: var(--lab-muted);
+    }
+    .select-display span {
+      color: var(--lab-primary);
+      font-weight: 600;
+    }
+
+    /* ── Custom Checkboxes ──────────────────────────────────────────────── */
+    .custom-checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      cursor: pointer;
+      user-select: none;
+      padding: .4rem 0;
+    }
+    .custom-checkbox-label input[type="checkbox"] {
+      display: none;
+    }
+    .custom-checkbox-box {
+      flex-shrink: 0;
+      width: 1.125rem;
+      height: 1.125rem;
+      border-radius: .3rem;
+      border: 2px solid var(--lab-border);
+      background: var(--lab-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 150ms, background 150ms;
+      margin-top: .05rem;
+      position: relative;
+    }
+    .custom-checkbox-box::after {
+      content: '';
+      display: block;
+      width: .35rem;
+      height: .6rem;
+      border: 2px solid white;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) scale(0);
+      transition: transform 150ms cubic-bezier(.34,1.56,.64,1);
+      position: absolute;
+      top: 1px;
+    }
+    /* Indeterminate dash */
+    .custom-checkbox-box.indeterminate {
+      border-color: var(--lab-primary);
+      background: var(--lab-primary);
+    }
+    .custom-checkbox-box.indeterminate::after {
+      width: .55rem;
+      height: 0;
+      border-top: 2px solid white;
+      border-right: none;
+      border-bottom: none;
+      border-left: none;
+      transform: rotate(0) scale(1);
+      top: auto;
+    }
+    .custom-checkbox-label input:checked + .custom-checkbox-box {
+      border-color: var(--lab-primary);
+      background: var(--lab-primary);
+    }
+    .custom-checkbox-label input:checked + .custom-checkbox-box::after {
+      transform: rotate(45deg) scale(1);
+    }
+    .custom-checkbox-text {
+      font-size: .875rem;
+      color: var(--lab-text);
+      line-height: 1.4;
+    }
+
+    /* ── Custom Radio ───────────────────────────────────────────────────── */
+    .custom-radio-label {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      cursor: pointer;
+      user-select: none;
+      padding: .5rem .75rem;
+      border-radius: .5rem;
+      border: 1.5px solid var(--lab-border);
+      background: var(--lab-surface);
+      transition: border-color 150ms, background 150ms;
+    }
+    .custom-radio-label:hover {
+      border-color: var(--lab-primary);
+      background: rgba(14,165,233,.04);
+    }
+    .custom-radio-label input[type="radio"] {
+      display: none;
+    }
+    .custom-radio-dot {
+      flex-shrink: 0;
+      width: 1.125rem;
+      height: 1.125rem;
+      border-radius: 50%;
+      border: 2px solid var(--lab-border);
+      background: var(--lab-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: .2rem;
+      transition: border-color 150ms;
+    }
+    .custom-radio-dot::after {
+      content: '';
+      width: .45rem;
+      height: .45rem;
+      border-radius: 50%;
+      background: var(--lab-primary);
+      transform: scale(0);
+      transition: transform 150ms cubic-bezier(.34,1.56,.64,1);
+    }
+    .custom-radio-label input:checked ~ .custom-radio-dot {
+      border-color: var(--lab-primary);
+    }
+    .custom-radio-label input:checked ~ .custom-radio-dot::after {
+      transform: scale(1);
+    }
+    .custom-radio-label.selected {
+      border-color: var(--lab-primary);
+      background: rgba(14,165,233,.06);
+    }
+    .dark .custom-radio-label.selected {
+      background: rgba(14,165,233,.1);
+    }
+    .custom-radio-body { flex: 1; min-width: 0; }
+    .custom-radio-title { font-size: .875rem; font-weight: 600; color: var(--lab-text); }
+    .custom-radio-desc  { font-size: .75rem; color: var(--lab-muted); margin-top: .15rem; }
+
+    /* ── Toggle state label ─────────────────────────────────────────────── */
+    .toggle-state-label {
+      font-size: .8125rem;
+      font-weight: 600;
+      padding: .15rem .5rem;
+      border-radius: 9999px;
+      border: 1px solid;
+    }
+    .toggle-state-label.on  { color: var(--lab-success); border-color: #bbf7d0; background: #f0fdf4; }
+    .toggle-state-label.off { color: var(--lab-muted);   border-color: var(--lab-border); background: var(--lab-surface); }
+    .dark .toggle-state-label.on  { background: #052e16; border-color: #14532d; }
+    .dark .toggle-state-label.off { background: #1e293b; }
+
+    /* ── Range slider ───────────────────────────────────────────────────── */
+    .lab-range {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 9999px;
+      outline: none;
+      cursor: pointer;
+      border: none;
+    }
+    .lab-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 50%;
+      background: var(--lab-primary);
+      border: 2px solid white;
+      box-shadow: 0 1px 6px rgba(14,165,233,.45);
+      cursor: pointer;
+      transition: transform 150ms cubic-bezier(.34,1.56,.64,1), box-shadow 150ms;
+    }
+    .lab-range::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 2px 10px rgba(14,165,233,.55);
+    }
+    .lab-range::-moz-range-thumb {
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 50%;
+      background: var(--lab-primary);
+      border: 2px solid white;
+      box-shadow: 0 1px 6px rgba(14,165,233,.45);
+      cursor: pointer;
+    }
+    .range-value-display {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--lab-primary);
+      background: rgba(14,165,233,.1);
+      border: 1px solid rgba(14,165,233,.25);
+      border-radius: .375rem;
+      padding: .2rem .6rem;
+    }
+
+    /* ── Validation field wrappers ──────────────────────────────────────── */
+    .field-wrap { position: relative; }
+    .field-icon {
+      position: absolute;
+      right: .65rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+    .field-hint {
+      font-size: .75rem;
+      margin-top: .3rem;
+      font-weight: 500;
+    }
+    .field-hint.success { color: var(--lab-success); }
+    .field-hint.error   { color: var(--lab-error); }
+    .field-hint.warning { color: var(--lab-warn); }
+
+    /* ── Field label ────────────────────────────────────────────────────── */
+    .field-label {
+      display: block;
+      font-size: .8125rem;
+      font-weight: 600;
+      color: var(--lab-text);
+      margin-bottom: .35rem;
+    }
+  </style>
+</head>
+<body class="min-h-screen dark:bg-slate-900">
+
+<!-- ─── Sticky Header ──────────────────────────────────────────────────────── -->
+<header class="lab-sticky-header">
+  <a href="../index.html" class="lab-back-link">← Lab</a>
+  <div class="flex-1 min-w-0">
+    <div class="font-bold truncate" style="color:var(--lab-text)">02 · Forms &amp; Inputs</div>
+    <div class="text-xs" style="color:var(--lab-muted)">10 components</div>
+  </div>
+  <button id="toggleSound" class="btn-secondary btn-ripple" style="font-size:.8rem;padding:.35rem .75rem">🔊 Sound: On</button>
+  <button id="toggleDark" onclick="document.documentElement.classList.toggle('dark')" class="btn-icon" title="Toggle dark mode">🌙</button>
+</header>
+
+<!-- ─── Main ──────────────────────────────────────────────────────────────── -->
+<main class="lab-page-wrap">
+
+  <!-- Page title -->
+  <div class="mb-8 reveal">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="comp-index" style="width:2.5rem;height:2.5rem;font-size:.85rem">02</div>
+      <h1 class="lab-section-title">Forms &amp; Inputs</h1>
+    </div>
+    <p style="color:var(--lab-muted);font-size:.9375rem;max-width:56ch">
+      Every form control your robot UI will ever need — text fields, selects, toggles, ranges,
+      checkboxes, radios, and live validation states.
+    </p>
+  </div>
+
+  <!-- ── 1. Text Input ──────────────────────────────────────────────────────── -->
+  <section id="text" class="lab-section reveal">
+    <div class="section-meta">
+      <h2 class="lab-section-title" style="font-size:1.1rem">Text Input</h2>
+      <span class="comp-index">1</span>
+    </div>
+    <div class="lab-panel">
+      <span class="lab-component-title">Basic text field</span>
+      <div class="grid gap-4 sm:grid-cols-2">
+
+        <div>
+          <label class="field-label" for="inp-username">Username</label>
+          <input id="inp-username" class="lab-input" type="text" placeholder="Enter username…" autocomplete="off">
+        </div>
+
+        <div>
+          <label class="field-label" for="inp-email">Email address</label>
+          <input id="inp-email" class="lab-input" type="email" placeholder="robot@frc.io" autocomplete="off">
+        </div>
+
+        <div>
+          <label class="field-label" for="inp-disabled">Disabled field</label>
+          <input id="inp-disabled" class="lab-input" type="text" placeholder="Disabled…" disabled value="Disabled field value">
+        </div>
+
+        <div>
+          <label class="field-label" for="inp-readonly">Read-only field</label>
+          <input id="inp-readonly" class="lab-input" type="text" readonly value="Team 9999 — Robot">
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 2. Password Input ──────────────────────────────────────────────────── -->
+  <section id="password" class="lab-section reveal">
+    <div class="section-meta">
+      <h2 class="lab-section-title" style="font-size:1.1rem">Password Input</h2>
+      <span class="comp-index">2</span>
+    </div>
+    <div class="lab-panel">
+      <span class="lab-component-title">Show / hide toggle</span>
+      <div class="max-w-sm">
+        <label class="field-label" for="inp-password">Password</label>
+        <div class="input-wrapper">
+          <input id="inp-password" class="lab-input input-has-right-icon" type="password"
+                 placeholder="Enter password…" autocomplete="new-password">
+          <button class="pw-toggle input-icon-right" id="pwToggleBtn" aria-label="Toggle password visibility"
+                  type="button" title="Show / hide password">👁️</button>
+        </div>
+        <p style="margin-top:.4rem;font-size:.75rem;color:var(--lab-muted)">
+          Click the eye to reveal your password.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 3. Search Input ────────────────────────────────────────────────────── -->
+  <section id="search" class="lab-section reveal">
+    <div class="section-meta">
+      <h2 class="lab-section-title" style="font-size:1.1rem">Search Input</h2>
+      <span class="comp-index">3</span>
+    </div>
+    <div class="lab-panel">
+      <span class="lab-component-title">Prefixed search field</span>
+      <div class="max-w-md">
+        <label class="field-label" for="inp-search">Search robots</label>
+        <div class="input-wrapper">
+          <span class="input-icon-left" aria-hidden="true">🔍</span>
+          <input id="inp-search" class="lab-input input-has-left-icon" type="search"
+                 placeholder="Search by name, team…" autocomplete="off">
+        </div>
+        <p id="searchHint" style="margin-top:.4rem;font-size:.75rem;color:var(--lab-muted)">
+          Type to filter results…
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 4. Textarea ───────────────────────────────────────────────────────── -->
+  <section id="textarea" class="lab-section reveal">
+    <div class="section-meta">
+      <h2 class="lab-section-title" style="font-size:1.1rem">Textarea</h2>
+      <span class="comp-index">4</span>
+    </div>
+    <div class="lab-panel">
+      <span class="lab-component-title">Multi-line with character counter</span>
+      <label class="field-label" for="inp-textarea">Match notes</label>
+      <textarea id="inp-textarea" class="lab-textarea" maxlength="200"
+                placeholder="Describe autonomous strategy, scoring, issues…"></textarea>
+      <div id="charCounter" class="char-counter">0 / 200 characters</div>
+    </div>
+  </section>
+
+  <!-- ── 5. Select / Dropdown ──────────────────────────────────────────────── -->
+  <section id="select" class="lab-section reveal">
+    <div class="section-meta">
+      <h2 class="lab-section-title" style="font-size:1.1rem">Select / Dropdown</h2>
+      <span class="comp-index">5</span>
+    </div>
+    <div class="lab-panel">
+      <span class="lab-component-title">Styled native select</span>
+      <div class="max-w-xs">
+        <label class="field-label" for="inp-select">Robot type</label>
+        <select id="inp-select" class="lab-select">
+          <option value="" disabled selected>Select a robot…</option>
+          <option value="frc">FRC Robot</option>
+          <option value="ftc">FTC Robot</option>
+          <option value="demo">Demo Bot</option>
+        </select>
+        <div class="select-display" id="selectDisplay">
+          Current selection: <span>—</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 6. Checkbox Group ──────────────────────────────────────────────────── -->
+  <section id="checkbox" class="lab-section reveal">
+    <div class="section-meta">
+      <h2 class="lab-section-title" style="font-size:1.1rem">Checkbox Group</h2>
+      <span class="comp-index">6</span>
+    </div>
+    <div class="lab-panel">
+      <span class="lab-component-title">Custom styled checkboxes</span>
+      <div class="flex flex-col gap-1">
+
+        <label class="custom-checkbox-label">
+          <input type="checkbox" id="chk1" checked>
+          <span class="custom-checkbox-box"></span>
+          <span class="custom-checkbox-text">
+            <span style="font-weight:600;display:block">Front sensors active</span>
+            <span style="font-size:.75rem;color:var(--lab-muted)">Ultrasonic + camera feeds enabled</span>
+          </span>
+        </label>
+
+        <label class="custom-checkbox-label">
+          <!-- data-initial-indeterminate: JS sets this checkbox to indeterminate state on page load -->
+          <input type="checkbox" id="chk2" data-initial-indeterminate>
+          <span class="custom-checkbox-box" id="chk2Box"></span>
+          <span class="custom-checkbox-text">
+            <span style="font-weight:600;display:block">Autonomous mode</span>
+            <span style="font-size:.75rem;color:var(--lab-muted)">Partially configured — review settings</span>
+          </span>
+        </label>
+
+        <label class="custom-checkbox-label">
+          <input type="checkbox" id="chk3">
+          <span class="custom-checkbox-box"></span>
+          <span class="custom-checkbox-text">
+            <span style="font-weight:600;display:block">Debug logging</span>
+            <span style="font-size:.75rem;color:var(--lab-muted)">Verbose output to console and telemetry</span>
+          </span>
+        </label>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 7. Radio Group ─────────────────────────────────────────────────────── -->
+  <section id="radio" class="lab-section reveal">
+    <div class="section-meta">
+      <h2 class="lab-section-title" style="font-size:1.1rem">Radio Group</h2>
+      <span class="comp-index">7</span>
+    </div>
+    <div class="lab-panel">
+      <span class="lab-component-title">Single-select control mode</span>
+      <div class="flex flex-col gap-2" role="radiogroup" aria-label="Control mode">
+
+        <label class="custom-radio-label" id="radio-label-manual">
+          <input type="radio" name="controlMode" value="manual" checked>
+          <span class="custom-radio-dot"></span>
+          <span class="custom-radio-body">
+            <span class="custom-radio-title">Manual Control</span>
+            <span class="custom-radio-desc">Driver station has full joystick authority over all actuators.</span>
+          </span>
+        </label>
+
+        <label class="custom-radio-label" id="radio-label-semi">
+          <input type="radio" name="controlMode" value="semi">
+          <span class="custom-radio-dot"></span>
+          <span class="custom-radio-body">
+            <span class="custom-radio-title">Semi-Autonomous</span>
+            <span class="custom-radio-desc">Driver steers; onboard routines handle targeting and scoring.</span>
+          </span>
+        </label>
+
+        <label class="custom-radio-label" id="radio-label-auto">
+          <input type="radio" name="controlMode" value="auto">
+          <span class="custom-radio-dot"></span>
+          <span class="custom-radio-body">
+            <span class="custom-radio-title">Full Auto</span>
+            <span class="custom-radio-desc">Robot operates autonomously. Driver monitors only.</span>
+          </span>
+        </label>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 8. Toggle Switch ───────────────────────────────────────────────────── -->
+  <section id="toggle" class="lab-section reveal">
+    <div class="section-meta">
+      <h2 class="lab-section-title" style="font-size:1.1rem">Toggle Switch</h2>
+      <span class="comp-index">8</span>
+    </div>
+    <div class="lab-panel">
+      <span class="lab-component-title">CSS toggle with state label</span>
+      <div class="flex flex-col gap-4">
+
+        <div class="flex items-center gap-4 flex-wrap">
+          <label class="lab-toggle" id="toggleNotif">
+            <input type="checkbox" id="toggleNotifInput" checked>
+            <span class="track"></span>
+            <span style="font-size:.875rem;color:var(--lab-text)">Notifications enabled</span>
+          </label>
+          <span class="toggle-state-label on" id="toggleNotifState">On</span>
+        </div>
+
+        <div class="flex items-center gap-4 flex-wrap">
+          <label class="lab-toggle" id="toggleWifi">
+            <input type="checkbox" id="toggleWifiInput">
+            <span class="track"></span>
+            <span style="font-size:.875rem;color:var(--lab-text)">Wi-Fi telemetry stream</span>
+          </label>
+          <span class="toggle-state-label off" id="toggleWifiState">Off</span>
+        </div>
+
+        <div class="flex items-center gap-4 flex-wrap">
+          <label class="lab-toggle" id="toggleSafe">
+            <input type="checkbox" id="toggleSafeInput" checked>
+            <span class="track"></span>
+            <span style="font-size:.875rem;color:var(--lab-text)">Safety interlock</span>
+          </label>
+          <span class="toggle-state-label on" id="toggleSafeState">On</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 9. Range Slider ────────────────────────────────────────────────────── -->
+  <section id="range" class="lab-section reveal">
+    <div class="section-meta">
+      <h2 class="lab-section-title" style="font-size:1.1rem">Range Slider</h2>
+      <span class="comp-index">9</span>
+    </div>
+    <div class="lab-panel">
+      <span class="lab-component-title">Live value with colored track fill</span>
+      <div class="flex flex-col gap-6">
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="field-label" style="margin:0" for="rangeSpeed">Drive speed</label>
+            <span class="range-value-display" id="rangeSpeedDisplay">⚡ 42%</span>
+          </div>
+          <input id="rangeSpeed" class="lab-range" type="range" min="0" max="100" value="42">
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="field-label" style="margin:0" for="rangeTurn">Turn sensitivity</label>
+            <span class="range-value-display" id="rangeTurnDisplay">🎛️ 70%</span>
+          </div>
+          <input id="rangeTurn" class="lab-range" type="range" min="0" max="100" value="70">
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="field-label" style="margin:0" for="rangeArm">Arm angle</label>
+            <span class="range-value-display" id="rangeArmDisplay">🦾 25%</span>
+          </div>
+          <input id="rangeArm" class="lab-range" type="range" min="0" max="100" value="25">
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 10. Form Validation States ────────────────────────────────────────── -->
+  <section id="validation" class="lab-section reveal">
+    <div class="section-meta">
+      <h2 class="lab-section-title" style="font-size:1.1rem">Form Validation States</h2>
+      <span class="comp-index">10</span>
+    </div>
+    <div class="lab-panel">
+      <span class="lab-component-title">Inline field-level feedback</span>
+
+      <form id="validationForm" novalidate class="flex flex-col gap-5">
+
+        <!-- Valid -->
+        <div>
+          <label class="field-label" for="val-email">Email</label>
+          <div class="field-wrap">
+            <input id="val-email" class="lab-input valid input-has-right-icon"
+                   type="email" value="pilot@frc9999.org" readonly>
+            <span class="field-icon" aria-hidden="true">✅</span>
+          </div>
+          <div class="field-hint success">Valid email address</div>
+        </div>
+
+        <!-- Invalid -->
+        <div>
+          <label class="field-label" for="val-password">Password</label>
+          <div class="field-wrap">
+            <input id="val-password" class="lab-input invalid input-has-right-icon"
+                   type="password" value="abc" readonly>
+            <span class="field-icon" aria-hidden="true">❌</span>
+          </div>
+          <div class="field-hint error">Password too short — minimum 8 characters</div>
+        </div>
+
+        <!-- Warning -->
+        <div>
+          <label class="field-label" for="val-username">Username</label>
+          <div class="field-wrap">
+            <input id="val-username" class="lab-input warning input-has-right-icon"
+                   type="text" value="robo_pilot" readonly>
+            <span class="field-icon" aria-hidden="true">⚠️</span>
+          </div>
+          <div class="field-hint warning">Username already taken — try a different one</div>
+        </div>
+
+        <!-- Submit -->
+        <div class="flex items-center gap-3 pt-1">
+          <button type="submit" class="btn-primary btn-ripple" id="valSubmitBtn">
+            Submit form
+          </button>
+          <span style="font-size:.8125rem;color:var(--lab-muted)">Triggers a toast notification</span>
+        </div>
+
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<!-- ─── Toast Stack ─────────────────────────────────────────────────────────── -->
+<div id="toastStack" class="toast-stack" aria-live="polite"></div>
+
+<script src="../assets/lab.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  // ── 2. Password show/hide ────────────────────────────────────────────────
+  const pwInput  = document.getElementById('inp-password');
+  const pwToggle = document.getElementById('pwToggleBtn');
+  if (pwInput && pwToggle) {
+    pwToggle.addEventListener('click', () => {
+      const isHidden = pwInput.type === 'password';
+      pwInput.type       = isHidden ? 'text' : 'password';
+      pwToggle.textContent = isHidden ? '🙈' : '👁️';
+      pwToggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+    });
+  }
+
+  // ── 3. Search hint ───────────────────────────────────────────────────────
+  const searchInput = document.getElementById('inp-search');
+  const searchHint  = document.getElementById('searchHint');
+  if (searchInput && searchHint) {
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim();
+      searchHint.textContent = q
+        ? `Searching for "${q}"…`
+        : 'Type to filter results…';
+    });
+  }
+
+  // ── 4. Char counter ──────────────────────────────────────────────────────
+  const textarea    = document.getElementById('inp-textarea');
+  const charCounter = document.getElementById('charCounter');
+  const MAX_CHARS   = 200;
+  if (textarea && charCounter) {
+    const update = () => {
+      const len = textarea.value.length;
+      charCounter.textContent = `${len} / ${MAX_CHARS} characters`;
+      charCounter.classList.toggle('near', len >= MAX_CHARS * 0.8 && len < MAX_CHARS);
+      charCounter.classList.toggle('full', len >= MAX_CHARS);
+    };
+    textarea.addEventListener('input', update);
+    update();
+  }
+
+  // ── 5. Select display ───────────────────────────────────────────────────
+  const sel     = document.getElementById('inp-select');
+  const selDisp = document.getElementById('selectDisplay');
+  const labels  = { frc: 'FRC Robot', ftc: 'FTC Robot', demo: 'Demo Bot' };
+  if (sel && selDisp) {
+    sel.addEventListener('change', () => {
+      selDisp.innerHTML = `Current selection: <span>${labels[sel.value] || '—'}</span>`;
+      if (window.Sound) Sound.click();
+    });
+  }
+
+  // ── 6. Checkbox indeterminate ────────────────────────────────────────────
+  const chk2    = document.getElementById('chk2');
+  const chk2Box = document.getElementById('chk2Box');
+  if (chk2) {
+    chk2.indeterminate = true;
+    if (chk2Box) chk2Box.classList.add('indeterminate');
+
+    // When clicked, exit indeterminate state
+    chk2.addEventListener('change', () => {
+      chk2Box.classList.remove('indeterminate');
+    });
+  }
+
+  // ── 7. Radio group — highlight selected card ─────────────────────────────
+  const radioLabels = {
+    manual : document.getElementById('radio-label-manual'),
+    semi   : document.getElementById('radio-label-semi'),
+    auto   : document.getElementById('radio-label-auto'),
+  };
+  const radios = document.querySelectorAll('input[name="controlMode"]');
+
+  function updateRadioHighlight() {
+    radios.forEach(r => {
+      const lbl = document.getElementById(`radio-label-${r.value}`);
+      if (lbl) lbl.classList.toggle('selected', r.checked);
+    });
+  }
+  radios.forEach(r => r.addEventListener('change', () => {
+    updateRadioHighlight();
+    if (window.Sound) Sound.click();
+  }));
+  updateRadioHighlight();
+
+  // ── 8. Toggle switches ───────────────────────────────────────────────────
+  function setupToggle(inputId, stateId) {
+    const inp   = document.getElementById(inputId);
+    const state = document.getElementById(stateId);
+    if (!inp || !state) return;
+    const refresh = () => {
+      const on = inp.checked;
+      state.textContent = on ? 'On' : 'Off';
+      state.className   = `toggle-state-label ${on ? 'on' : 'off'}`;
+    };
+    inp.addEventListener('change', () => {
+      refresh();
+      if (window.Sound) Sound.toggle();
+    });
+    refresh();
+  }
+  setupToggle('toggleNotifInput', 'toggleNotifState');
+  setupToggle('toggleWifiInput',  'toggleWifiState');
+  setupToggle('toggleSafeInput',  'toggleSafeState');
+
+  // ── 9. Range slider track fill ───────────────────────────────────────────
+  function setupRange(sliderId, displayId, prefix) {
+    const slider  = document.getElementById(sliderId);
+    const display = document.getElementById(displayId);
+    if (!slider || !display) return;
+
+    const fill = () => {
+      const pct = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+      slider.style.background =
+        `linear-gradient(to right, var(--lab-primary) ${pct}%, var(--lab-border) ${pct}%)`;
+      display.textContent = `${prefix} ${slider.value}%`;
+    };
+    slider.addEventListener('input', fill);
+    fill();
+  }
+  setupRange('rangeSpeed', 'rangeSpeedDisplay', '⚡');
+  setupRange('rangeTurn',  'rangeTurnDisplay',  '🎛️');
+  setupRange('rangeArm',   'rangeArmDisplay',   '🦾');
+
+  // Fix dark-mode range track
+  const matchDark = window.matchMedia('(prefers-color-scheme: dark)');
+  function updateRangeTrackColor() {
+    document.querySelectorAll('.lab-range').forEach(r => {
+      const pct = ((r.value - r.min) / (r.max - r.min)) * 100;
+      r.style.background =
+        `linear-gradient(to right, var(--lab-primary) ${pct}%, var(--lab-border) ${pct}%)`;
+    });
+  }
+
+  // Re-paint range tracks when dark mode toggled via header button
+  const darkToggleBtn = document.getElementById('toggleDark');
+  if (darkToggleBtn) {
+    darkToggleBtn.addEventListener('click', () => setTimeout(updateRangeTrackColor, 50));
+  }
+
+  // ── 10. Validation form submit ───────────────────────────────────────────
+  const valForm = document.getElementById('validationForm');
+  if (valForm) {
+    valForm.addEventListener('submit', e => {
+      e.preventDefault();
+      if (window.showToast) showToast('success', 'Form submitted!');
+    });
+  }
+
+});
+</script>
+</body>
+</html>

@@ -535,7 +535,7 @@
               <li>
                 <div class="bc-dropdown-wrap" id="bcDropWrap">
                   <button class="bc-dropdown-btn" id="bcDropBtn" aria-haspopup="true" aria-expanded="false">
-                    📋 Specifications <span style="font-size:.7em;opacity:.6">▾</span>
+                    <span id="bcDropLabel">📋 Specifications</span><span style="font-size:.7em;opacity:.6"> ▾</span>
                   </button>
                   <div class="bc-dropdown-list" id="bcDropMenu" role="menu">
                     <button role="menuitem" onclick="bcSelectItem(this,'📋 Specifications')">📋 Specifications</button>
@@ -709,7 +709,8 @@
       // Remove existing numbered buttons
       ctrl.querySelectorAll('.page-num-btn').forEach(b => b.remove());
 
-      for (let p = TOTAL_PAGES; p >= 1; p--) {
+      const fragment = document.createDocumentFragment();
+      for (let p = 1; p <= TOTAL_PAGES; p++) {
         const btn = document.createElement('button');
         btn.className = 'page-btn page-num-btn' + (p === currentPage ? ' active' : '');
         btn.textContent = p;
@@ -720,9 +721,10 @@
           updatePagination();
           if (window.Sound) Sound.click();
         });
-        // Insert before nextBtn
-        ctrl.insertBefore(btn, nextBtn);
+        fragment.appendChild(btn);
       }
+      // Insert all numbered buttons before the Next button in one operation
+      ctrl.insertBefore(fragment, nextBtn);
     }
 
     function buildRows() {
@@ -769,7 +771,7 @@
   });
 
   window.bcSelectItem = function (el, label) {
-    bcBtn.childNodes[0].textContent = label + ' ';
+    document.getElementById('bcDropLabel').textContent = label;
     bcMenu.classList.remove('open');
     bcBtn.setAttribute('aria-expanded', 'false');
     if (window.Sound) Sound.tab();

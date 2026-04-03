@@ -52,6 +52,51 @@ The site includes optional profile syncing for signed-in users using Firebase Au
 Main module:
 - `assets/js/firebase-profile-sync.js`
 
+## Build Season Timeline auto-sync
+The [Build Season Timeline](/timeline/) uses **Firebase Firestore** to keep the
+Gantt chart in sync across all devices and users automatically.
+
+### How it works
+- On page load the latest state is fetched from Firestore and rendered.
+- An `onSnapshot` real-time listener keeps all open tabs / devices in sync
+  without requiring a page reload (~1 s update latency).
+- Every local change is debounced (800 ms) then written to Firestore.
+- `localStorage` is updated on every save and used as an offline fallback when
+  Firestore is unreachable.
+- A small status indicator (Syncing… / Synced ✓ / Offline (cached) / Sync error)
+  appears next to the action buttons.
+
+### Firebase project
+The timeline uses the same Firebase project as the task board and calendar:
+`tridenttaskboard` (Project ID).  No additional Firebase project is needed.
+
+### Required Firestore rules
+You **must** add the `timeline` collection to the Firestore security rules.
+Open the [Firebase Console](https://console.firebase.google.com/) →
+**Firestore Database → Rules** and add:
+
+```
+match /timeline/{docId} {
+  allow read:  if true;
+  allow write: if true;
+}
+```
+
+See [`docs/firestore-rules.md`](docs/firestore-rules.md) for the full
+recommended rule set and guidance on restricting writes to authenticated users.
+
+### Firestore data structure
+```
+collection: timeline
+document:   buildSeasonGantt
+fields:
+  state.season      – { start, end } ISO date strings
+  state.zoom        – "full" | "8w" | "4w" | "2w"
+  state.subteams    – array of { id, name, color, start, end }
+  state.nextId      – next auto-increment ID counter
+  updatedAt         – server timestamp
+```
+
 ## Local development
 Because some pages fetch JSON, you should run a local server (not `file://`).
 

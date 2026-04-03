@@ -37,6 +37,17 @@ service cloud.firestore {
       allow read, write: if request.auth != null;
     }
 
+    // ── Build Season Timeline ─────────────────────────────────────────────
+    // The timeline is a single shared document (timeline/buildSeasonGantt).
+    // Public read is intentional — the page is accessible without sign-in.
+    // Writes are also open so any team member can edit without signing in.
+    // If you want to restrict writes to signed-in users only, change the
+    // write rule to:  allow write: if request.auth != null;
+    match /timeline/{docId} {
+      allow read:  if true;
+      allow write: if true;
+    }
+
     // ── Deny everything else by default ───────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
@@ -85,3 +96,44 @@ loading tasks. The function queries `publicProfiles` for any emails not already
 in the local (in-memory + localStorage) cache and seeds `window.Profile` so
 avatars and names render correctly. Results are cached for 5 minutes to reduce
 Firestore reads.
+
+---
+
+## Build Season Timeline sync (`timeline/buildSeasonGantt`)
+
+The timeline stores a single JSON snapshot in:
+
+```
+collection: timeline
+document:   buildSeasonGantt
+fields:
+  state.season      – { start, end } ISO date strings
+  state.zoom        – "full" | "8w" | "4w" | "2w"
+  state.subteams    – array of { id, name, color, start, end }
+  state.nextId      – next auto-increment ID to prevent collisions
+  updatedAt         – server timestamp set on every write
+```
+
+The `timeline-sync.js` module:
+1. Fetches the document on page load and applies it via `window.Timeline.applyRemoteState()`.
+2. Keeps an `onSnapshot` real-time listener so edits by other clients appear
+   within ~1 s on all open tabs / devices.
+3. Debounces writes by 800 ms to avoid excess Firestore operations during
+   rapid drag-resize interactions.
+4. Falls back to localStorage when Firestore is unreachable (offline mode).
+
+### Restricting timeline writes to authenticated users
+
+By default the rule above allows anyone to write.  To restrict edits to
+signed-in team members, change the `timeline` match block to:
+
+```
+match /timeline/{docId} {
+  allow read:  if true;
+  allow write: if request.auth != null;
+}
+```
+
+You will also need to ensure users sign in via `firebase-profile-sync.js`
+before any timeline saves are attempted.
+

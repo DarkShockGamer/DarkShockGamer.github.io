@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/assets/js/theme-prepaint.js"></script>
+  <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
+  <link rel="stylesheet" href="/assets/css/modern-ui.css">
+  <title>04 · Navigation — UI Lab</title>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
+  <script src="/assets/js/auth-config.js"></script>
+  <script src="/assets/js/auth-utils.js"></script>
+  <script src="/assets/js/auth-guard-developer.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <style>
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+
+    /* ── Section anchors ── */
+    .nav-section {
+      scroll-margin-top: 4.5rem;
+    }
+
+    /* ── Tab panel transition ── */
+    .tab-panel {
+      display: none;
+      animation: tabFadeIn 220ms ease both;
+    }
+    .tab-panel.active { display: block; }
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Stepper layout ── */
+    .stepper {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      width: 100%;
+    }
+    .step-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    /* connector line between steps */
+    .step-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 1.125rem;
+      left: calc(50% + 1.25rem);
+      right: calc(-50% + 1.25rem);
+      height: 2px;
+      background: var(--lab-border);
+      transition: background 300ms;
+      z-index: 0;
+    }
+    .step-item.done:not(:last-child)::after {
+      background: var(--lab-primary);
+    }
+    .step-circle {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 9999px;
+      border: 2px solid var(--lab-border);
+      background: var(--lab-surface);
+      color: var(--lab-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .875rem;
+      font-weight: 700;
+      transition: background 250ms, border-color 250ms, color 250ms;
+      position: relative;
+      z-index: 1;
+    }
+    .step-item.done .step-circle {
+      background: var(--lab-primary);
+      border-color: var(--lab-primary);
+      color: #fff;
+    }
+    .step-item.active .step-circle {
+      border-color: var(--lab-primary);
+      color: var(--lab-primary);
+      box-shadow: 0 0 0 4px rgba(14,165,233,.18);
+    }
+    .step-label {
+      margin-top: .5rem;
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--lab-muted);
+      text-align: center;
+      transition: color 250ms;
+    }
+    .step-item.active .step-label { color: var(--lab-primary); }
+    .step-item.done .step-label { color: var(--lab-text); }
+
+    /* ── Pagination ── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: .25rem;
+      flex-wrap: wrap;
+    }
+    .page-btn {
+      min-width: 2.25rem;
+      height: 2.25rem;
+      padding: 0 .5rem;
+      border-radius: .5rem;
+      border: 1.5px solid var(--lab-border);
+      background: var(--lab-surface);
+      color: var(--lab-text);
+      font-size: .875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 150ms, border-color 150ms, color 150ms;
+    }
+    .page-btn:hover:not(:disabled):not(.active) {
+      border-color: var(--lab-primary);
+      color: var(--lab-primary);
+    }
+    .page-btn.active {
+      background: var(--lab-primary);
+      border-color: var(--lab-primary);
+      color: #fff;
+    }
+    .page-btn:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    /* ── Breadcrumb dropdown variant ── */
+    .bc-dropdown-wrap {
+      position: relative;
+      display: inline-block;
+    }
+    .bc-dropdown-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--lab-primary);
+      font-size: .875rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      padding: .15rem .35rem;
+      border-radius: .35rem;
+      transition: background 140ms;
+    }
+    .bc-dropdown-btn:hover { background: rgba(14,165,233,.08); }
+    .bc-dropdown-list {
+      position: absolute;
+      top: calc(100% + .35rem);
+      left: 0;
+      background: var(--lab-surface);
+      border: 1.5px solid var(--lab-border);
+      border-radius: .6rem;
+      box-shadow: var(--lab-shadow);
+      min-width: 11rem;
+      z-index: 100;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-4px);
+      transition: opacity 160ms, transform 160ms;
+    }
+    .bc-dropdown-list.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .bc-dropdown-list button {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      width: 100%;
+      padding: .55rem .9rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: .85rem;
+      color: var(--lab-text);
+      text-align: left;
+      transition: background 140ms;
+    }
+    .bc-dropdown-list button:hover { background: #f0f9ff; color: var(--lab-primary); }
+    .dark .bc-dropdown-list button:hover { background: #0c2d4a; }
+
+    /* ── Dropdown menu ── */
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + .4rem);
+      left: 0;
+      min-width: 12rem;
+      background: var(--lab-surface);
+      border: 1.5px solid var(--lab-border);
+      border-radius: .75rem;
+      box-shadow: var(--lab-shadow);
+      z-index: 200;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-6px);
+      transition: opacity 160ms, transform 160ms;
+    }
+    .dropdown-menu.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      width: 100%;
+      padding: .6rem 1rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: .875rem;
+      color: var(--lab-text);
+      text-align: left;
+      transition: background 140ms;
+    }
+    .dropdown-item:hover { background: #f0f9ff; color: var(--lab-primary); }
+    .dark .dropdown-item:hover { background: #0c2d4a; }
+    .dropdown-item.danger { color: var(--lab-error); }
+    .dropdown-item.danger:hover { background: #fef2f2; color: var(--lab-error); }
+    .dark .dropdown-item.danger:hover { background: #2b0b0b; }
+    .dropdown-sep { border: none; border-top: 1px solid var(--lab-border); margin: .25rem 0; }
+
+    /* ── Stepper content card ── */
+    .step-content-card {
+      background: rgba(14,165,233,.05);
+      border: 1.5px solid rgba(14,165,233,.18);
+      border-radius: .75rem;
+      padding: 1.25rem 1.5rem;
+      min-height: 7rem;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    .dark .step-content-card {
+      background: rgba(14,165,233,.08);
+    }
+
+    /* ── Success banner ── */
+    #stepperSuccess {
+      display: none;
+      animation: tabFadeIn 300ms ease both;
+    }
+    #stepperSuccess.show { display: flex; }
+  </style>
+</head>
+<body class="min-h-screen" style="background:var(--lab-surface);color:var(--lab-text)">
+
+  <!-- Sticky Header -->
+  <header class="lab-sticky-header">
+    <a href="../index.html" class="lab-back-link">← Lab</a>
+    <div class="flex-1">
+      <div class="font-bold" style="color:var(--lab-text)">04 · Navigation</div>
+      <div class="text-xs" style="color:var(--lab-muted)">6 components</div>
+    </div>
+    <button id="toggleSound" class="btn-secondary btn-ripple" style="font-size:.8rem;padding:.35rem .75rem">🔊 Sound: On</button>
+    <button onclick="document.documentElement.classList.toggle('dark')" class="btn-icon">🌙</button>
+  </header>
+
+  <!-- Main content -->
+  <main class="max-w-3xl mx-auto px-4 py-8 flex flex-col gap-10">
+
+    <!-- Page title -->
+    <div class="reveal">
+      <h1 class="lab-section-title">Navigation Components</h1>
+      <p class="mt-1 text-sm" style="color:var(--lab-muted)">Tabs, accordion, stepper, pagination, breadcrumbs &amp; dropdown — all interactive.</p>
+    </div>
+
+    <!-- ──────────────────────────────────────────── -->
+    <!-- 1. TABS                                      -->
+    <!-- ──────────────────────────────────────────── -->
+    <section id="tabs" class="nav-section reveal">
+      <span class="lab-component-title">Component 01</span>
+      <h2 class="lab-section-title mb-4">Tabs</h2>
+      <div class="lab-panel">
+        <div class="tab-list" role="tablist" aria-label="Project sections">
+          <button class="tab-btn active" role="tab" aria-selected="true"  aria-controls="tab-overview" id="tbtn-overview">Overview</button>
+          <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-specs"    id="tbtn-specs">Specs</button>
+          <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-gallery"  id="tbtn-gallery">Gallery</button>
+          <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-team"     id="tbtn-team">Team</button>
+        </div>
+
+        <div class="pt-4">
+          <div class="tab-panel active" id="tab-overview" role="tabpanel" aria-labelledby="tbtn-overview">
+            <p style="color:var(--lab-text)" class="text-sm leading-relaxed">Trident Robotics is a competitive FIRST Robotics team focused on engineering excellence and community outreach. Our robot designs combine cutting-edge mechanisms with reliable software systems. We compete annually in the FRC season and mentor other local teams throughout the year.</p>
+            <div class="mt-3 flex gap-2 flex-wrap">
+              <span class="lab-badge">FRC Team</span>
+              <span class="lab-badge success">Active</span>
+              <span class="lab-badge accent">Season 2025</span>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="tab-specs" role="tabpanel" aria-labelledby="tbtn-specs">
+            <p style="color:var(--lab-text)" class="text-sm leading-relaxed">The 2025 competition robot weighs 115 lbs and stands 48 inches tall. It features a custom swerve drivetrain with four MAXSwerve modules capable of reaching 16 ft/s free speed. The intake and shooter subsystems are driven by brushless NEO motors controlled via REV Spark MAX controllers.</p>
+            <div class="mt-3 grid grid-cols-2 gap-2 text-xs" style="color:var(--lab-muted)">
+              <div>⚖️ Weight: <strong style="color:var(--lab-text)">115 lbs</strong></div>
+              <div>📏 Height: <strong style="color:var(--lab-text)">48 in</strong></div>
+              <div>⚡ Drive: <strong style="color:var(--lab-text)">Swerve</strong></div>
+              <div>🏎️ Speed: <strong style="color:var(--lab-text)">16 ft/s</strong></div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="tab-gallery" role="tabpanel" aria-labelledby="tbtn-gallery">
+            <p style="color:var(--lab-text)" class="text-sm leading-relaxed">Our gallery showcases robot builds from 2020 to present, along with photos from competitions, community events, and the build season. New photos are added after each event throughout the season.</p>
+            <div class="mt-3 grid grid-cols-3 gap-2">
+              <div style="height:4.5rem;border-radius:.5rem;background:linear-gradient(135deg,#0ea5e9,#6366f1)" class="flex items-center justify-center text-white text-xs font-bold">2025</div>
+              <div style="height:4.5rem;border-radius:.5rem;background:linear-gradient(135deg,#22c55e,#0ea5e9)" class="flex items-center justify-center text-white text-xs font-bold">2024</div>
+              <div style="height:4.5rem;border-radius:.5rem;background:linear-gradient(135deg,#f59e0b,#ef4444)" class="flex items-center justify-center text-white text-xs font-bold">2023</div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="tab-team" role="tabpanel" aria-labelledby="tbtn-team">
+            <p style="color:var(--lab-text)" class="text-sm leading-relaxed">The team is composed of 32 student members and 8 volunteer mentors. Students take on roles in mechanical, electrical, programming, and business sub-teams. Leadership rotates each season to give everyone a chance to grow.</p>
+            <div class="mt-3 flex gap-3 flex-wrap text-sm" style="color:var(--lab-muted)">
+              <span>👩‍🔧 Mechanical · 12</span>
+              <span>⚡ Electrical · 8</span>
+              <span>💻 Programming · 7</span>
+              <span>📣 Business · 5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────── -->
+    <!-- 2. ACCORDION                                 -->
+    <!-- ──────────────────────────────────────────── -->
+    <section id="accordion" class="nav-section reveal">
+      <span class="lab-component-title">Component 02</span>
+      <h2 class="lab-section-title mb-4">Accordion</h2>
+      <div class="lab-panel" style="padding:0;overflow:hidden">
+
+        <div class="accordion-item" id="acc-1">
+          <button class="accordion-trigger" aria-expanded="false" aria-controls="acc-body-1">
+            <span>What is Trident Robotics?</span>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </button>
+          <div class="accordion-body" id="acc-body-1" role="region">
+            <div class="accordion-body-inner px-5">
+              Trident Robotics is a student-led FIRST Robotics Competition team. Founded in 2017, we bring together students passionate about STEM to design, build, and program competitive robots. We're committed to gracious professionalism both on and off the field.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item" id="acc-2">
+          <button class="accordion-trigger" aria-expanded="false" aria-controls="acc-body-2">
+            <span>When do competitions happen?</span>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </button>
+          <div class="accordion-body" id="acc-body-2" role="region">
+            <div class="accordion-body-inner px-5">
+              The FRC competition season runs January through April each year. Build season kicks off in early January with the game reveal, followed by six weeks of intensive building. Regional and district events take place in March, with the World Championship in April.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item" id="acc-3">
+          <button class="accordion-trigger" aria-expanded="false" aria-controls="acc-body-3">
+            <span>How do I join?</span>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </button>
+          <div class="accordion-body" id="acc-body-3" role="region">
+            <div class="accordion-body-inner px-5">
+              <strong style="color:var(--lab-text)">Three easy steps:</strong><br>
+              1. Attend one of our open house nights in September. <br>
+              2. Complete the interest form and submit your signed waiver. <br>
+              3. Show up to kickoff in January ready to build!
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item" style="border-bottom:none" id="acc-4">
+          <button class="accordion-trigger" aria-expanded="false" aria-controls="acc-body-4">
+            <span>What do mentors do?</span>
+            <span class="chevron" aria-hidden="true">▾</span>
+          </button>
+          <div class="accordion-body" id="acc-body-4" role="region">
+            <div class="accordion-body-inner px-5">
+              Mentors are adult volunteers — engineers, programmers, teachers, and business professionals — who guide students without doing the work for them. They share expertise, run workshops, ensure safety, and help students navigate design decisions throughout the season.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────── -->
+    <!-- 3. STEPPER                                   -->
+    <!-- ──────────────────────────────────────────── -->
+    <section id="stepper" class="nav-section reveal">
+      <span class="lab-component-title">Component 03</span>
+      <h2 class="lab-section-title mb-4">Stepper Wizard</h2>
+      <div class="lab-panel flex flex-col gap-5">
+
+        <!-- Step indicators -->
+        <div class="stepper" id="stepperTrack" role="list">
+          <div class="step-item active" role="listitem" data-step="0">
+            <div class="step-circle">1</div>
+            <span class="step-label">Account</span>
+          </div>
+          <div class="step-item" role="listitem" data-step="1">
+            <div class="step-circle">2</div>
+            <span class="step-label">Profile</span>
+          </div>
+          <div class="step-item" role="listitem" data-step="2">
+            <div class="step-circle">3</div>
+            <span class="step-label">Plan</span>
+          </div>
+          <div class="step-item" role="listitem" data-step="3">
+            <div class="step-circle">4</div>
+            <span class="step-label">Payment</span>
+          </div>
+          <div class="step-item" role="listitem" data-step="4">
+            <div class="step-circle">5</div>
+            <span class="step-label">Done</span>
+          </div>
+        </div>
+
+        <!-- Step content -->
+        <div id="stepperContent">
+          <div class="step-content-card" id="step-content-0">
+            <p class="font-semibold text-sm" style="color:var(--lab-text)">Create your account</p>
+            <p class="text-sm" style="color:var(--lab-muted)">Enter your email address and choose a secure password to get started with your new account.</p>
+          </div>
+          <div class="step-content-card" id="step-content-1" style="display:none">
+            <p class="font-semibold text-sm" style="color:var(--lab-text)">Build your profile</p>
+            <p class="text-sm" style="color:var(--lab-muted)">Add your name, avatar, and a short bio so your teammates can recognize you in the system.</p>
+          </div>
+          <div class="step-content-card" id="step-content-2" style="display:none">
+            <p class="font-semibold text-sm" style="color:var(--lab-text)">Choose a plan</p>
+            <p class="text-sm" style="color:var(--lab-muted)">Pick the plan that fits your team's needs — Student, Mentor, or Full Access. All plans include a 30-day free trial.</p>
+          </div>
+          <div class="step-content-card" id="step-content-3" style="display:none">
+            <p class="font-semibold text-sm" style="color:var(--lab-text)">Payment details</p>
+            <p class="text-sm" style="color:var(--lab-muted)">Add your payment method securely. We accept all major credit cards as well as team purchase orders.</p>
+          </div>
+          <div class="step-content-card" id="step-content-4" style="display:none">
+            <p class="font-semibold text-sm" style="color:var(--lab-text)">Review &amp; confirm</p>
+            <p class="text-sm" style="color:var(--lab-muted)">Almost there! Review your details one last time and click "Finish" to complete your registration.</p>
+          </div>
+        </div>
+
+        <!-- Success banner -->
+        <div id="stepperSuccess" class="items-center gap-3 p-4 rounded-xl" style="background:#f0fdf4;border:1.5px solid #bbf7d0;color:#065f46">
+          <span class="text-2xl">🎉</span>
+          <div>
+            <p class="font-bold">Setup complete!</p>
+            <p class="text-sm opacity-80">Your account is ready. Welcome to Trident Robotics.</p>
+          </div>
+        </div>
+
+        <!-- Navigation buttons -->
+        <div class="flex justify-between items-center pt-1">
+          <button id="stepPrev" class="btn-secondary btn-ripple" disabled>← Previous</button>
+          <span id="stepCounter" class="text-xs" style="color:var(--lab-muted)">Step 1 of 5</span>
+          <button id="stepNext" class="btn-primary btn-ripple">Next →</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────── -->
+    <!-- 4. PAGINATION                                -->
+    <!-- ──────────────────────────────────────────── -->
+    <section id="pagination" class="nav-section reveal">
+      <span class="lab-component-title">Component 04</span>
+      <h2 class="lab-section-title mb-4">Pagination</h2>
+      <div class="lab-panel flex flex-col gap-4">
+
+        <!-- Simulated result count -->
+        <p class="text-sm" style="color:var(--lab-muted)">Showing results for <strong style="color:var(--lab-text)">page <span id="pageLabel">1</span></strong> of 8 · 80 total entries</p>
+
+        <!-- Simulated rows -->
+        <div id="pageRows" class="flex flex-col gap-2"></div>
+
+        <!-- Pagination controls -->
+        <div class="pagination justify-center" id="paginationCtrl" role="navigation" aria-label="Page navigation">
+          <button class="page-btn" id="pagePrev" disabled aria-label="Previous page">‹ Prev</button>
+          <!-- page buttons injected by JS -->
+          <button class="page-btn" id="pageNext" aria-label="Next page">Next ›</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────── -->
+    <!-- 5. BREADCRUMBS                               -->
+    <!-- ──────────────────────────────────────────── -->
+    <section id="breadcrumbs" class="nav-section reveal">
+      <span class="lab-component-title">Component 05</span>
+      <h2 class="lab-section-title mb-4">Breadcrumbs</h2>
+      <div class="lab-panel flex flex-col gap-6">
+
+        <!-- Simple breadcrumb -->
+        <div>
+          <p class="text-xs font-semibold mb-2" style="color:var(--lab-muted)">Standard</p>
+          <nav aria-label="Standard breadcrumb">
+            <ol class="breadcrumb">
+              <li><a href="#">🏠 Home</a></li>
+              <li><span class="sep">›</span></li>
+              <li><a href="#">🤖 Robots</a></li>
+              <li><span class="sep">›</span></li>
+              <li><a href="#">⚙️ FRC Robot</a></li>
+              <li><span class="sep">›</span></li>
+              <li><span class="current" aria-current="page">📋 Specifications</span></li>
+            </ol>
+          </nav>
+        </div>
+
+        <!-- Breadcrumb with dropdown last segment -->
+        <div>
+          <p class="text-xs font-semibold mb-2" style="color:var(--lab-muted)">With dropdown on last segment</p>
+          <nav aria-label="Breadcrumb with dropdown">
+            <ol class="breadcrumb">
+              <li><a href="#">🏠 Home</a></li>
+              <li><span class="sep">›</span></li>
+              <li><a href="#">🤖 Robots</a></li>
+              <li><span class="sep">›</span></li>
+              <li><a href="#">⚙️ FRC Robot</a></li>
+              <li><span class="sep">›</span></li>
+              <li>
+                <div class="bc-dropdown-wrap" id="bcDropWrap">
+                  <button class="bc-dropdown-btn" id="bcDropBtn" aria-haspopup="true" aria-expanded="false">
+                    📋 Specifications <span style="font-size:.7em;opacity:.6">▾</span>
+                  </button>
+                  <div class="bc-dropdown-list" id="bcDropMenu" role="menu">
+                    <button role="menuitem" onclick="bcSelectItem(this,'📋 Specifications')">📋 Specifications</button>
+                    <button role="menuitem" onclick="bcSelectItem(this,'🔩 CAD Files')">🔩 CAD Files</button>
+                    <button role="menuitem" onclick="bcSelectItem(this,'📐 Drawings')">📐 Drawings</button>
+                    <button role="menuitem" onclick="bcSelectItem(this,'🧪 Test Results')">🧪 Test Results</button>
+                  </div>
+                </div>
+              </li>
+            </ol>
+          </nav>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────── -->
+    <!-- 6. DROPDOWN MENU                             -->
+    <!-- ──────────────────────────────────────────── -->
+    <section id="dropdown" class="nav-section reveal">
+      <span class="lab-component-title">Component 06</span>
+      <h2 class="lab-section-title mb-4">Dropdown Menu</h2>
+      <div class="lab-panel flex flex-col gap-4">
+        <p class="text-sm" style="color:var(--lab-muted)">Click the button to open the context menu. Selecting an item shows a toast notification.</p>
+
+        <div class="dropdown-wrap" id="mainDropWrap">
+          <button class="btn-secondary btn-ripple" id="mainDropBtn" aria-haspopup="true" aria-expanded="false">
+            Options ▾
+          </button>
+          <div class="dropdown-menu" id="mainDropMenu" role="menu">
+            <button class="dropdown-item" role="menuitem" data-action="Edit">✏️ Edit</button>
+            <button class="dropdown-item" role="menuitem" data-action="Duplicate">📋 Duplicate</button>
+            <button class="dropdown-item" role="menuitem" data-action="Share">📤 Share</button>
+            <hr class="dropdown-sep">
+            <button class="dropdown-item danger" role="menuitem" data-action="Delete">🗑️ Delete</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast stack -->
+  <div id="toastStack" class="toast-stack" aria-live="polite"></div>
+
+  <script src="../assets/lab.js"></script>
+  <script>
+  /* ── 1. TABS ─────────────────────────────────────────────────────────────── */
+  (function () {
+    const tabBtns  = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('aria-controls');
+
+        tabBtns.forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        tabPanels.forEach(p => p.classList.remove('active'));
+
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+        const panel = document.getElementById(target);
+        if (panel) panel.classList.add('active');
+
+        if (window.Sound) Sound.tab();
+      });
+    });
+  })();
+
+  /* ── 2. ACCORDION ────────────────────────────────────────────────────────── */
+  (function () {
+    document.querySelectorAll('.accordion-trigger').forEach(trigger => {
+      trigger.addEventListener('click', () => {
+        const item = trigger.closest('.accordion-item');
+        const body = item.querySelector('.accordion-body');
+        const inner = body.querySelector('.accordion-body-inner');
+        const isOpen = item.classList.contains('open');
+
+        if (isOpen) {
+          body.style.maxHeight = '0';
+          item.classList.remove('open');
+          trigger.setAttribute('aria-expanded', 'false');
+        } else {
+          body.style.maxHeight = inner.scrollHeight + 'px';
+          item.classList.add('open');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (window.Sound) Sound.tab();
+        }
+      });
+    });
+  })();
+
+  /* ── 3. STEPPER ──────────────────────────────────────────────────────────── */
+  (function () {
+    const TOTAL = 5;
+    let currentStep = 0;
+
+    const stepItems    = document.querySelectorAll('#stepperTrack .step-item');
+    const stepContents = document.querySelectorAll('[id^="step-content-"]');
+    const prevBtn      = document.getElementById('stepPrev');
+    const nextBtn      = document.getElementById('stepNext');
+    const counter      = document.getElementById('stepCounter');
+    const successBanner = document.getElementById('stepperSuccess');
+
+    function renderStepper() {
+      stepItems.forEach((item, i) => {
+        item.classList.remove('active', 'done');
+        if (i < currentStep)  item.classList.add('done');
+        if (i === currentStep) item.classList.add('active');
+      });
+
+      stepContents.forEach((c, i) => {
+        c.style.display = i === currentStep ? '' : 'none';
+      });
+
+      prevBtn.disabled = currentStep === 0;
+      nextBtn.disabled = false;
+      nextBtn.textContent = currentStep === TOTAL - 1 ? 'Finish ✓' : 'Next →';
+      counter.textContent = `Step ${currentStep + 1} of ${TOTAL}`;
+
+      successBanner.classList.remove('show');
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (currentStep > 0) {
+        currentStep--;
+        renderStepper();
+        if (window.Sound) Sound.click();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentStep < TOTAL - 1) {
+        currentStep++;
+        renderStepper();
+        if (window.Sound) Sound.click();
+      } else {
+        // Final step: show success
+        stepItems.forEach(item => { item.classList.remove('active'); item.classList.add('done'); });
+        stepContents.forEach(c => { c.style.display = 'none'; });
+        successBanner.classList.add('show');
+        nextBtn.disabled = true;
+        prevBtn.disabled = true;
+        counter.textContent = 'Complete!';
+        if (window.Sound) Sound.success();
+        showToast('success', 'Setup complete! Welcome aboard 🎉');
+      }
+    });
+
+    renderStepper();
+  })();
+
+  /* ── 4. PAGINATION ───────────────────────────────────────────────────────── */
+  (function () {
+    const TOTAL_PAGES = 8;
+    const ROWS_PER_PAGE = 10;
+    let currentPage = 1;
+
+    const ctrl    = document.getElementById('paginationCtrl');
+    const prevBtn = document.getElementById('pagePrev');
+    const nextBtn = document.getElementById('pageNext');
+    const label   = document.getElementById('pageLabel');
+    const rowsEl  = document.getElementById('pageRows');
+
+    // Build page number buttons (between Prev and Next)
+    function buildPageBtns() {
+      // Remove existing numbered buttons
+      ctrl.querySelectorAll('.page-num-btn').forEach(b => b.remove());
+
+      for (let p = TOTAL_PAGES; p >= 1; p--) {
+        const btn = document.createElement('button');
+        btn.className = 'page-btn page-num-btn' + (p === currentPage ? ' active' : '');
+        btn.textContent = p;
+        btn.setAttribute('aria-label', `Page ${p}`);
+        if (p === currentPage) btn.setAttribute('aria-current', 'page');
+        btn.addEventListener('click', () => {
+          currentPage = p;
+          updatePagination();
+          if (window.Sound) Sound.click();
+        });
+        // Insert before nextBtn
+        ctrl.insertBefore(btn, nextBtn);
+      }
+    }
+
+    function buildRows() {
+      rowsEl.innerHTML = '';
+      const start = (currentPage - 1) * ROWS_PER_PAGE + 1;
+      for (let i = start; i < start + ROWS_PER_PAGE; i++) {
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:.45rem .75rem;border-radius:.4rem;border:1px solid var(--lab-border);font-size:.8rem;color:var(--lab-muted);display:flex;justify-content:space-between;align-items:center;';
+        row.innerHTML = `<span>Entry #${String(i).padStart(3,'0')}</span><span class="lab-badge" style="font-size:.7rem">Row ${i}</span>`;
+        rowsEl.appendChild(row);
+      }
+    }
+
+    function updatePagination() {
+      label.textContent = currentPage;
+      prevBtn.disabled = currentPage === 1;
+      nextBtn.disabled = currentPage === TOTAL_PAGES;
+
+      // Rebuild page buttons
+      buildPageBtns();
+      buildRows();
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (currentPage > 1) { currentPage--; updatePagination(); if (window.Sound) Sound.click(); }
+    });
+    nextBtn.addEventListener('click', () => {
+      if (currentPage < TOTAL_PAGES) { currentPage++; updatePagination(); if (window.Sound) Sound.click(); }
+    });
+
+    updatePagination();
+  })();
+
+  /* ── 5. BREADCRUMB DROPDOWN ──────────────────────────────────────────────── */
+  const bcBtn  = document.getElementById('bcDropBtn');
+  const bcMenu = document.getElementById('bcDropMenu');
+
+  bcBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = bcMenu.classList.contains('open');
+    bcMenu.classList.toggle('open', !isOpen);
+    bcBtn.setAttribute('aria-expanded', String(!isOpen));
+    if (!isOpen && window.Sound) Sound.click();
+  });
+
+  window.bcSelectItem = function (el, label) {
+    bcBtn.childNodes[0].textContent = label + ' ';
+    bcMenu.classList.remove('open');
+    bcBtn.setAttribute('aria-expanded', 'false');
+    if (window.Sound) Sound.tab();
+    showToast('info', `Navigated to: ${label}`);
+  };
+
+  document.addEventListener('click', (e) => {
+    if (!document.getElementById('bcDropWrap').contains(e.target)) {
+      bcMenu.classList.remove('open');
+      bcBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  /* ── 6. DROPDOWN MENU ────────────────────────────────────────────────────── */
+  (function () {
+    const wrap   = document.getElementById('mainDropWrap');
+    const btn    = document.getElementById('mainDropBtn');
+    const menu   = document.getElementById('mainDropMenu');
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = menu.classList.contains('open');
+      menu.classList.toggle('open', !isOpen);
+      btn.setAttribute('aria-expanded', String(!isOpen));
+      if (!isOpen && window.Sound) Sound.click();
+    });
+
+    menu.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const action = item.getAttribute('data-action');
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        if (window.Sound) Sound.tab();
+        const type = action === 'Delete' ? 'warn' : 'success';
+        showToast(type, `Action: <strong>${action}</strong> triggered`);
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!wrap.contains(e.target)) {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Keyboard: close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        bcMenu.classList.remove('open');
+        bcBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

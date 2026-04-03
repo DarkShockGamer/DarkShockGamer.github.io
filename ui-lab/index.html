@@ -4,1559 +4,245 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/assets/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Pre-paint theme application to prevent FOUC - must be before CSS -->
   <script src="/assets/js/theme-prepaint.js"></script>
   <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
   <link rel="stylesheet" href="/assets/css/modern-ui.css">
-  <title>Trident Robotics — UI Motion & Sound Lab</title>
-  <!-- Privacy-friendly analytics by Plausible -->
-  <script async src="https://plausible.io/js/pa-M5H8HPpMEkcSIPK4fxOhN.js"></script>
-  <script>
-    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-    plausible.init()
-  </script>
-  <!-- JWT decode library for authentication -->
+  <title>UI Component Lab — Trident Robotics</title>
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
-  <!-- Shared auth configuration and utilities -->
   <script src="/assets/js/auth-config.js"></script>
   <script src="/assets/js/auth-utils.js"></script>
-  <!-- Developer-specific auth guard -->
   <script src="/assets/js/auth-guard-developer.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    // Configure Tailwind to use class-based dark mode instead of media query
-    tailwind.config = {
-      darkMode: 'class'
-    }
-  </script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <link rel="stylesheet" href="assets/lab.css">
   <style>
-    body { background: linear-gradient(to bottom, #f0f9ff, white); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    /* Dark mode styles controlled by theme classes */
-      body { background: linear-gradient(to bottom, #0b1220, #0a0f1a); color: #e5e7eb; }
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+    .hero-grid-bg {
+      background-image: linear-gradient(rgba(14,165,233,.06) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(14,165,233,.06) 1px, transparent 1px);
+      background-size: 40px 40px;
     }
-    .panel { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 2px rgba(2, 6, 23, 0.05); }
-    /* Dark mode styles controlled by theme classes */
+    .page-card {
+      background: var(--lab-surface);
+      border: 1.5px solid var(--lab-border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      transition: transform 200ms cubic-bezier(.23,1.14,.81,1.03), box-shadow 200ms, border-color 200ms;
+      display: flex; flex-direction: column; gap: .75rem;
+      text-decoration: none; color: inherit;
     }
-    .btn-ripple { position: relative; overflow: hidden; }
-    .btn-ripple:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
-    .ripple {
-      position: absolute;
-      border-radius: 9999px;
-      transform: translate(-50%, -50%) scale(0);
-      pointer-events: none;
-      opacity: 0.25;
-      background: currentColor;
-      animation: ripple 650ms ease-out forwards;
-      mix-blend-mode: multiply;
+    .page-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 14px 36px rgba(14,165,233,.14); border-color: var(--lab-primary); }
+    .page-num { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--lab-muted); }
+    .page-icon { font-size: 2.25rem; line-height: 1; }
+    .page-title { font-size: 1.125rem; font-weight: 700; color: var(--lab-text); }
+    .page-desc { font-size: .875rem; color: var(--lab-muted); line-height: 1.55; flex: 1; }
+    .directory-chip {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .3rem .8rem; border-radius: 9999px;
+      background: var(--lab-surface); border: 1px solid var(--lab-border);
+      font-size: .78rem; font-weight: 500; color: var(--lab-text);
+      text-decoration: none; transition: background 150ms, border-color 150ms;
     }
-    @keyframes ripple {
-      to { transform: translate(-50%, -50%) scale(6); opacity: 0; }
-    }
-    .hover-lift { transition: transform 200ms cubic-bezier(.23,1.14,.81,1.03), box-shadow 200ms cubic-bezier(.23,1.14,.81,1.03), border-color 200ms; will-change: transform; }
-    .hover-lift:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 12px 28px rgba(2,132,199,0.15); border-color: #93c5fd; }
-
-    /* Drawer */
-    .drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 420px; height: 100vh; background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.15); transition: right 300ms cubic-bezier(.4,0,.2,1); z-index: 1001; }
-    .drawer.open { right: 0; }
-    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
-    .drawer-overlay.active { display: block; }
-    /* Dark mode styles controlled by theme classes */
-    }
-
-    /* Modal */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1002; }
-    .modal-panel { width: 92vw; max-width: 480px; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; transform: scale(0.96); opacity: 0; transition: all 180ms cubic-bezier(.4,0,.2,1); }
-    .modal-panel.show { transform: scale(1); opacity: 1; }
-    /* Dark mode styles controlled by theme classes */
-    }
-
-    /* Toasts */
-    .toast-stack { position: fixed; right: 1rem; top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 1003; }
-    .toast {
-      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.5rem;
-      padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid; min-width: 240px;
-      background: white; transform: translateX(16px); opacity: 0; transition: all 200ms cubic-bezier(.5,1.5,.5,1.01);
-      box-shadow: 0 10px 24px rgba(2,132,199,0.08);
-    }
-    .toast.show { transform: translateX(0); opacity: 1; }
-    .toast.success { border-color: #bbf7d0; background: #f0fdf4; color: #065f46; }
-    .toast.info    { border-color: #bae6fd; background: #eff6ff; color: #075985; }
-    .toast.warn    { border-color: #fde68a; background: #fffbeb; color: #92400e; }
-    .toast.error   { border-color: #fecaca; background: #fef2f2; color: #7f1d1d; }
-    /* Dark mode styles controlled by theme classes */
-      .toast.success { border-color: #064e3b; background: #052e2b; color: #bbf7d0; }
-      .toast.info    { border-color: #0c4a6e; background: #052335; color: #bae6fd; }
-      .toast.warn    { border-color: #78350f; background: #2f1f05; color: #fde68a; }
-      .toast.error   { border-color: #7f1d1d; background: #2b0b0b; color: #fecaca; }
-    }
-
-    /* Scroll reveal */
-    .reveal { opacity: 0; transform: translateY(10px); transition: all 400ms cubic-bezier(.45,1.5,.65,1); }
-    .reveal.in { opacity: 1; transform: translateY(0); }
-
-    /* Progress demo */
-    .progress-wrap { height: 10px; background: #e5e7eb; border-radius: 9999px; overflow: hidden; border: 1px solid #e5e7eb; }
-    .progress-bar { height: 100%; background: linear-gradient(90deg, #0ea5e9, #22d3ee); width: 0%; transition: width 120ms linear; }
-    /* Dark mode styles controlled by theme classes */
-    }
-
-    /* Morphing button */
-    .morph-btn {
-      transition: background 400ms cubic-bezier(.7,1.7,.2,1), box-shadow 400ms cubic-bezier(.7,1.7,.2,1), transform 220ms cubic-bezier(.7,1.7,.2,1);
-      background: linear-gradient(90deg, #38bdf8 40%, #818cf8 100%);
-      box-shadow: 0 8px 32px rgba(56,189,248,0.08), 0 1.5px 3px rgba(59,130,246,0.08);
-      border-radius: 999px;
-      will-change: background, box-shadow, transform;
-    }
-    .morph-btn.morphing {
-      background: linear-gradient(90deg, #818cf8 0%, #38bdf8 80%);
-      box-shadow: 0 16px 48px rgba(129,140,248,0.17), 0 3px 8px rgba(56,189,248,0.16);
-      transform: scale(1.08) rotate(-1deg);
-    }
-
-    /* Animated toggle switch */
-    .toggle-wrap { display: flex; align-items: center; gap: 0.5rem; }
-    .toggle {
-      width: 44px; height: 24px; border-radius: 9999px; background: #e0e7ef;
-      position: relative; cursor: pointer; transition: background 220ms cubic-bezier(.6,1.7,.2,1);
-      border: 1.5px solid #93c5fd; box-shadow: 0 1px 3px rgba(59,130,246,0.08);
-    }
-    .toggle.on { background: linear-gradient(90deg, #38bdf8 60%, #818cf8 100%); border-color: #818cf8; }
-    .toggle-knob {
-      position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%;
-      background: white; box-shadow: 0 2px 6px rgba(59,130,246,0.09);
-      transition: left 240ms cubic-bezier(.7,1.7,.2,1);
-    }
-    .toggle.on .toggle-knob { left: 22px; background: #818cf8; }
-
-    /* Animated tabs */
-    .tabs { display: flex; gap: 2px; background: #f1f5f9; border-radius: 0.5rem; padding: 4px; }
-    .tab-btn {
-      flex:1; padding: 0.5rem 0; border-radius: 0.5rem; background: none; border: none;
-      font-weight: 600; color: #64748b; transition: background 180ms, color 180ms;
-      cursor: pointer;
-    }
-    .tab-btn[aria-selected="true"] {
-      background: linear-gradient(90deg, #38bdf8 60%, #818cf8 100%);
-      color: white;
-      box-shadow: 0 2px 8px rgba(56,189,248,0.09);
-    }
-    /* Dark mode styles controlled by theme classes */
-      .tab-btn { color: #94a3b8; }
-    }
-    .tab-panel {
-      transition: opacity 320ms cubic-bezier(.45,1.5,.65,1), transform 320ms cubic-bezier(.45,1.5,.65,1);
-      opacity: 0;
-      transform: translateX(24px) scale(.98);
-      position: absolute; width: 100%; left: 0; top: 0; z-index: 0;
-      pointer-events: none;
-      background: inherit;
-    }
-    .tab-panel.active {
-      opacity: 1;
-      transform: translateX(0) scale(1);
-      pointer-events: auto;
-      z-index: 1;
-      position: relative;
-    }
-
-    /* Icon button micro-interaction */
-    .icon-wiggle { display: inline-block; transition: transform 180ms cubic-bezier(.9,2.5,.5,1.01); }
-    .icon-wiggle.wiggled { animation: wiggle 480ms cubic-bezier(.8,2.1,.5,1.09) both; }
-    @keyframes wiggle {
-      0% { transform: rotate(0deg);}
-      24% { transform: rotate(-24deg);}
-      44% { transform: rotate(16deg);}
-      64% { transform: rotate(-8deg);}
-      80% { transform: rotate(4deg);}
-      100% { transform: rotate(0deg);}
-    }
-
-    /* --- NEW UI LAB ELEMENTS --- */
-
-    /* Command palette */
-    .cmd-overlay {
-      position: fixed; inset: 0; background: rgba(15,23,42,0.55);
-      display: none; align-items: flex-start; justify-content: center;
-      padding-top: 10vh; z-index: 1100;
-    }
-    .cmd-overlay.open { display: flex; }
-    .cmd-panel {
-      width: 100%; max-width: 640px;
-      background: rgba(15,23,42,0.92);
-      border-radius: 0.75rem;
-      border: 1px solid rgba(148,163,184,0.5);
-      box-shadow: 0 24px 70px rgba(15,23,42,0.8);
-      backdrop-filter: blur(16px);
-      color: #e5e7eb;
-      overflow: hidden;
-      transform: translateY(8px) scale(0.98);
-      opacity: 0;
-      transition: all 180ms cubic-bezier(.4,0,.2,1);
-    }
-    .cmd-panel.show {
-      transform: translateY(0) scale(1);
-      opacity: 1;
-    }
-    .cmd-input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: inherit;
-    }
-    .cmd-input::placeholder {
-      color: rgba(148,163,184,0.8);
-    }
-    .cmd-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.45rem 0.75rem; border-radius: 0.5rem; cursor: pointer; }
-    .cmd-item:hover, .cmd-item[aria-selected="true"] {
-      background: linear-gradient(90deg, rgba(56,189,248,0.18), rgba(129,140,248,0.18));
-    }
-    .badge-key {
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.4);
-      padding: 0.1rem 0.45rem;
-      font-size: 0.675rem;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      color: #cbd5f5;
-    }
-
-    /* Stats row */
-    .stat-card {
-      border-radius: 0.9rem;
-      border: 1px solid rgba(148,163,184,0.55);
-      background: radial-gradient(circle at top left, rgba(56,189,248,0.18), transparent 50%), rgba(15,23,42,0.98);
-      color: #e5e7eb;
-      box-shadow: 0 14px 40px rgba(15,23,42,0.9);
-      transform-origin: center;
-      transition: transform 160ms cubic-bezier(.2,0.9,.3,1.3), box-shadow 160ms cubic-bezier(.2,0.9,.3,1.3);
-    }
-    .stat-card:hover {
-      transform: translateY(-4px) scale(1.02);
-      box-shadow: 0 20px 55px rgba(15,23,42,0.95);
-    }
-    .stat-spark {
-      height: 3px;
-      border-radius: 999px;
-      background: linear-gradient(90deg,#38bdf8,#22c55e,#eab308);
-      opacity: 0.9;
-    }
-
-    /* Keyboard hint bar */
-    .kbd-bar {
-      position: sticky;
-      bottom: 0;
-      z-index: 900;
-      backdrop-filter: blur(18px);
-      background: linear-gradient(to right, rgba(15,23,42,0.92), rgba(15,23,42,0.94));
-      border-radius: 999px;
-      border: 1px solid rgba(51,65,85,0.8);
-      box-shadow: 0 16px 45px rgba(15,23,42,0.85);
-      color: #cbd5f5;
-    }
-    .kbd-chip {
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.6);
-      padding: 0.16rem 0.6rem;
-      font-size: 0.7rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    /* Slider styles */
-    .setting-row {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .setting-row input[type="range"] {
-      flex: 1;
-      accent-color: #38bdf8;
-    }
-    .setting-value {
-      min-width: 2ch;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Now playing media card */
-    .media-card {
-      border-radius: 0.9rem;
-      border: 1px solid rgba(148,163,184,0.5);
-      background: radial-gradient(circle at top left, rgba(56,189,248,0.2), transparent 55%), rgba(15,23,42,0.98);
-      color: #e5e7eb;
-      box-shadow: 0 18px 50px rgba(15,23,42,0.95);
-      position: relative;
-      overflow: hidden;
-    }
-    .media-ring {
-      position: absolute;
-      inset: -40%;
-      border-radius: 999px;
-      background: conic-gradient(from 180deg, rgba(56,189,248,0.5), rgba(129,140,248,0.2), transparent 60%);
-      opacity: 0.22;
-      filter: blur(10px);
-      transform: translateX(-20%);
-    }
-    .media-card-inner {
-      position: relative;
-    }
-    .media-play-pulse {
-      box-shadow: 0 0 0 0 rgba(56,189,248,0.55);
-      transition: box-shadow 220ms ease-out, transform 180ms ease-out;
-    }
-    .media-play-pulse.playing {
-      box-shadow: 0 0 0 8px rgba(56,189,248,0);
-      transform: scale(1.05);
-    }
-
-    /* --- EVEN MORE UI LAB ELEMENTS (added) --- */
-
-    /* Segmented control */
-    .segmented {
-      display: inline-flex;
-      padding: 4px;
-      background: rgba(241,245,249,0.9);
-      border: 1px solid rgba(226,232,240,0.9);
-      border-radius: 999px;
-      gap: 4px;
-    }
-    .seg-btn {
-      border: 0;
-      background: transparent;
-      padding: 0.45rem 0.85rem;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: 0.75rem;
-      color: #475569;
-      cursor: pointer;
-      transition: transform 140ms cubic-bezier(.2,1.2,.3,1.2), background 160ms, color 160ms;
-    }
-    .seg-btn[aria-pressed="true"] {
-      background: linear-gradient(90deg, rgba(56,189,248,1), rgba(129,140,248,1));
-      color: white;
-      box-shadow: 0 10px 26px rgba(56,189,248,0.14);
-    }
-    .seg-btn:active { transform: scale(0.98); }
-    /* Dark mode styles controlled by theme classes */
-      .seg-btn { color: #94a3b8; }
-    }
-
-    /* Accordion */
-    .acc {
-      border-radius: 0.75rem;
-      border: 1px solid rgba(226,232,240,0.9);
-      overflow: hidden;
-    }
-    .acc-item + .acc-item { border-top: 1px solid rgba(226,232,240,0.9); }
-    .acc-btn {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      text-align: left;
-      padding: 0.75rem 0.9rem;
-      background: rgba(255,255,255,0.75);
-      cursor: pointer;
-      border: 0;
-    }
-    .acc-btn:focus-visible { outline: 2px solid #93c5fd; outline-offset: -2px; }
-    .acc-chevron { transition: transform 180ms cubic-bezier(.2,1.2,.3,1.2); }
-    .acc-btn[aria-expanded="true"] .acc-chevron { transform: rotate(180deg); }
-    .acc-panel {
-      padding: 0 0.9rem 0.9rem;
-      color: #475569;
-    }
-    /* Dark mode styles controlled by theme classes */
-      .acc-item + .acc-item { border-color: rgba(51,65,85,0.9); }
-      .acc-btn { background: rgba(15,23,42,0.7); }
-      .acc-panel { color: #cbd5e1; }
-    }
-
-    /* Data table */
-    .table-wrap { overflow: auto; border-radius: 0.75rem; border: 1px solid rgba(226,232,240,0.9); }
-    table.lab-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
-    table.lab-table th, table.lab-table td { padding: 0.65rem 0.75rem; border-bottom: 1px solid rgba(226,232,240,0.9); white-space: nowrap; }
-    table.lab-table th { text-align: left; font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: #64748b; background: rgba(241,245,249,0.85); position: sticky; top: 0; }
-    table.lab-table tr:hover td { background: rgba(56,189,248,0.06); }
-    /* Dark mode styles controlled by theme classes */
-      table.lab-table th { color: #94a3b8; background: rgba(30,41,59,0.85); }
-      table.lab-table th, table.lab-table td { border-color: rgba(51,65,85,0.9); }
-      table.lab-table tr:hover td { background: rgba(56,189,248,0.09); }
-    }
-
-    /* Stepper */
-    .stepper { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-    .step-dot {
-      width: 28px; height: 28px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 0.75rem;
-      border: 1px solid rgba(226,232,240,0.9);
-      background: rgba(255,255,255,0.8);
-      color: #475569;
-    }
-    .step-dot.active {
-      background: linear-gradient(90deg, rgba(56,189,248,1), rgba(129,140,248,1));
-      border-color: rgba(129,140,248,0.8);
-      color: white;
-      box-shadow: 0 10px 26px rgba(56,189,248,0.12);
-    }
-    .step-line {
-      width: 30px; height: 2px;
-      background: rgba(226,232,240,0.9);
-      border-radius: 999px;
-    }
-    /* Dark mode styles controlled by theme classes */
-      .step-line { background: rgba(51,65,85,0.9); }
-    }
-
-    /* Confetti (tiny) */
-    .confetti {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1200;
-      overflow: hidden;
-    }
-    .confetti i {
-      position: absolute;
-      width: 10px; height: 10px;
-      border-radius: 2px;
-      transform: translateY(-20px) rotate(0deg);
-      opacity: 0;
-      animation: confetti-fall 900ms cubic-bezier(.2,1.2,.3,1) forwards;
-    }
-    @keyframes confetti-fall {
-      0% { opacity: 0; transform: translateY(-20px) rotate(0deg); }
-      10% { opacity: 1; }
-      100% { opacity: 0; transform: translateY(110vh) rotate(520deg); }
-    }
-
-    /* Spotlight tutorial / coachmark */
-    .coach-overlay {
-      position: fixed; inset: 0;
-      background: rgba(2,6,23,0.56);
-      z-index: 1110;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1.25rem;
-    }
-    .coach-overlay.open { display: flex; }
-    .coach-card {
-      width: 100%;
-      max-width: 520px;
-      border-radius: 0.9rem;
-      border: 1px solid rgba(148,163,184,0.45);
-      background: rgba(15,23,42,0.92);
-      color: #e5e7eb;
-      box-shadow: 0 26px 70px rgba(2,6,23,0.85);
-      backdrop-filter: blur(18px);
-      transform: translateY(10px) scale(0.98);
-      opacity: 0;
-      transition: all 180ms cubic-bezier(.4,0,.2,1);
-    }
-    .coach-card.show { transform: translateY(0) scale(1); opacity: 1; }
-
-    /* Inline code chips */
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: 999px;
-      border: 1px solid rgba(226,232,240,0.9);
-      background: rgba(241,245,249,0.75);
-      font-size: 0.75rem;
-      color: #475569;
-    }
-    /* Dark mode styles controlled by theme classes */
-    }
+    .directory-chip:hover { background: #e0f2fe; border-color: #7dd3fc; color: var(--lab-primary); }
+    .dark .directory-chip:hover { background: #0c2d4a; }
+    .section-divider { height: 1px; background: var(--lab-border); margin: 3rem 0; }
   </style>
 </head>
-<body class="min-h-screen">
-  <header class="border-b border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-950/70 backdrop-blur-sm">
-    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div>
-        <h1 class="text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-          UI Motion &amp; Sound Lab
-        </h1>
-        <p class="text-xs text-slate-500 dark:text-slate-400">
-          Micro-interactions with motion and Web Audio feedback.
-        </p>
-      </div>
-      <div class="flex items-center gap-2">
-        <button id="openCmdPalette" class="hidden sm:inline-flex items-center gap-1 text-[11px] px-2.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 bg-white/70 dark:bg-slate-900/60">
-          <span class="text-slate-500 dark:text-slate-400">⌘</span>
-          <span class="font-medium">K</span>
-          <span class="text-slate-400 dark:text-slate-500">Command Palette</span>
-        </button>
-        <button id="toggleSound" class="text-xs px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60">
-          Sound: On
-        </button>
-      </div>
+<body class="min-h-screen" style="background:linear-gradient(to bottom,#f0f9ff,#ffffff);color:#0f172a">
+
+<!-- Sticky Header -->
+<header class="lab-sticky-header">
+  <span class="text-xl">🔬</span>
+  <div class="flex-1 min-w-0">
+    <div class="font-bold text-base leading-tight truncate" style="color:var(--lab-text)">UI Component Lab</div>
+    <div class="text-xs" style="color:var(--lab-muted)">Trident Robotics · Design System</div>
+  </div>
+  <a href="/" class="lab-back-link text-xs hidden sm:inline-flex">← Main Site</a>
+  <button id="toggleSound" class="btn-secondary btn-ripple" style="font-size:.8rem;padding:.35rem .75rem">🔊 Sound: On</button>
+  <button onclick="document.documentElement.classList.toggle('dark')" title="Toggle dark mode"
+          class="btn-icon btn-ripple" style="font-size:1.1rem">🌙</button>
+</header>
+
+<!-- Hero -->
+<section class="relative overflow-hidden hero-grid-bg" style="padding:4rem 1rem 3.5rem">
+  <div class="absolute inset-0 pointer-events-none" style="background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(14,165,233,.12),transparent)"></div>
+  <div class="relative max-w-3xl mx-auto text-center">
+    <div class="lab-badge accent mb-4 reveal" style="font-size:.8rem">🚀 Design System v2</div>
+    <h1 class="font-black tracking-tight reveal" style="font-size:clamp(2.5rem,6vw,4rem);line-height:1.1;background:linear-gradient(135deg,#0ea5e9,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+      UI Component Lab
+    </h1>
+    <p class="mt-4 text-lg reveal" style="color:var(--lab-muted);max-width:520px;margin:1rem auto 0">
+      A live showcase of every UI component used across the Trident Robotics site — interactive, accessible, and beautiful.
+    </p>
+    <div class="mt-6 flex items-center justify-center gap-3 flex-wrap reveal">
+      <span class="lab-badge" style="font-size:.85rem;padding:.35rem 1rem">48 Components · 5 Pages</span>
+      <span class="lab-badge success" style="font-size:.85rem;padding:.35rem 1rem">✅ Dark Mode Ready</span>
+      <span class="lab-badge accent" style="font-size:.85rem;padding:.35rem 1rem">♿ Accessible</span>
     </div>
-  </header>
+  </div>
+</section>
 
-  <main class="max-w-5xl mx-auto px-4 py-6 space-y-4">
-    <!-- Quick actions row -->
-    <section class="panel p-4 hover-lift reveal">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-sm font-semibold text-slate-800 dark:text-slate-200">Quick Lab Actions</h2>
-        <span class="inline-flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500">
-          <span class="hidden sm:inline">Press</span>
-          <span class="px-1.5 py-0.5 rounded border border-slate-300/70 dark:border-slate-600/70 text-[10px] uppercase tracking-[0.14em]">Cmd</span>
-          <span class="px-1.5 py-0.5 rounded border border-slate-300/70 dark:border-slate-600/70 text-[10px] uppercase tracking-[0.14em]">K</span>
-          <span class="hidden sm:inline">to open palette</span>
-        </span>
-      </div>
-      <div class="flex flex-wrap gap-2">
-        <button class="btn-ripple px-3 py-1.5 rounded-full bg-sky-600/90 hover:bg-sky-700 text-white text-xs flex items-center gap-1.5" data-sound="click" data-qa="primary">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>
-          Run all demos
-        </button>
-        <button class="btn-ripple px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-200" data-sound="info" data-qa="open-drawer">
-          Open drawer
-        </button>
-        <button class="btn-ripple px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-200" data-sound="info" data-qa="open-modal">
-          Launch modal
-        </button>
-        <button class="btn-ripple px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-200" data-sound="success" data-qa="show-toast">
-          Show success toast
-        </button>
-        <button id="openCoach" class="btn-ripple px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-200" data-sound="info">
-          Open coach
-        </button>
-        <button id="confettiBtn" class="btn-ripple px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-200" data-sound="success">
-          Confetti
-        </button>
-      </div>
-      <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
-        New additions: <span class="chip">Accordion</span> <span class="chip">Segmented</span> <span class="chip">Table</span> <span class="chip">Stepper</span> <span class="chip">Coach</span> <span class="chip">Confetti</span>
-      </p>
-    </section>
+<!-- Pages Grid -->
+<main class="lab-page-wrap">
+  <h2 class="lab-section-title mb-6 reveal">Lab Pages</h2>
+  <div class="grid gap-5 reveal" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem">
 
-    <!-- Buttons + ripple + sound -->
-    <section class="panel p-5 hover-lift reveal" style="position:relative;">
-      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Buttons: Ripple + Sonic Feedback</h2>
-      <div class="flex flex-wrap gap-2">
-        <button data-sound="click" class="btn-ripple px-4 py-2 rounded-md bg-sky-600 hover:bg-sky-700 text-white shadow-sm">Primary Click</button>
-        <button data-sound="success" class="btn-ripple px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">Confirm</button>
-        <button data-sound="warn" class="btn-ripple px-4 py-2 rounded-md bg-amber-500 hover:bg-amber-600 text-white shadow-sm">Warn</button>
-        <button data-sound="error" class="btn-ripple px-4 py-2 rounded-md bg-rose-600 hover:bg-rose-700 text-white shadow-sm">Danger</button>
+    <a href="pages/01-buttons.html" class="page-card">
+      <div class="page-num">01</div>
+      <div class="page-icon">🖱️</div>
+      <div class="page-title">Buttons & Actions</div>
+      <div class="page-desc">Primary, secondary, danger, ghost, icon buttons, loading states, groups, segmented controls, FAB, and CTAs.</div>
+      <div class="flex items-center justify-between mt-1">
+        <span class="lab-badge">11 components</span>
+        <span class="font-semibold text-sm" style="color:var(--lab-primary)">Explore →</span>
       </div>
-    </section>
+    </a>
 
-    <!-- Toasts -->
-    <section class="panel p-5 hover-lift reveal">
-      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Toasts: Slide-in + Sound</h2>
-      <div class="flex flex-wrap gap-2">
-        <button class="btn-ripple border border-slate-300 dark:border-slate-700 px-3 py-2 rounded-md" onclick="demoToast('success')">Show Success</button>
-        <button class="btn-ripple border border-slate-300 dark:border-slate-700 px-3 py-2 rounded-md" onclick="demoToast('info')">Show Info</button>
-        <button class="btn-ripple border border-slate-300 dark:border-slate-700 px-3 py-2 rounded-md" onclick="demoToast('warn')">Show Warning</button>
-        <button class="btn-ripple border border-slate-300 dark:border-slate-700 px-3 py-2 rounded-md" onclick="demoToast('error')">Show Error</button>
+    <a href="pages/02-inputs.html" class="page-card">
+      <div class="page-num">02</div>
+      <div class="page-icon">📝</div>
+      <div class="page-title">Forms & Inputs</div>
+      <div class="page-desc">Text, password, search, textarea, select, checkboxes, radio, toggle, range slider, and validation states.</div>
+      <div class="flex items-center justify-between mt-1">
+        <span class="lab-badge">10 components</span>
+        <span class="font-semibold text-sm" style="color:var(--lab-primary)">Explore →</span>
       </div>
-      <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Toasts auto-dismiss and are ARIA-live polite.</p>
-    </section>
+    </a>
 
-    <!-- Modal -->
-    <section class="panel p-5 hover-lift reveal">
-      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Modal: Scale-in + Whoosh</h2>
-      <button id="openModal" class="btn-ripple px-4 py-2 rounded-md bg-sky-600 hover:bg-sky-700 text-white shadow-sm">Open Modal</button>
-    </section>
+    <a href="pages/03-feedback.html" class="page-card">
+      <div class="page-num">03</div>
+      <div class="page-icon">💬</div>
+      <div class="page-title">Feedback & Overlays</div>
+      <div class="page-desc">Toasts, alerts, modal dialogs, drawers, progress bars, skeletons, tooltips, command palette, and coach marks.</div>
+      <div class="flex items-center justify-between mt-1">
+        <span class="lab-badge">9 components</span>
+        <span class="font-semibold text-sm" style="color:var(--lab-primary)">Explore →</span>
+      </div>
+    </a>
 
-    <!-- Drawer -->
-    <section class="panel p-5 hover-lift reveal">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Drawer: Slide-in + Whoosh</h2>
-        <button id="openDrawer" class="btn-ripple px-3 py-2 rounded-md border border-slate-300 dark:border-slate-700">
-          Open Drawer
-        </button>
+    <a href="pages/04-navigation.html" class="page-card">
+      <div class="page-num">04</div>
+      <div class="page-icon">🧭</div>
+      <div class="page-title">Navigation</div>
+      <div class="page-desc">Tabs with panels, accordion, multi-step wizard, pagination, breadcrumbs, and dropdown menus.</div>
+      <div class="flex items-center justify-between mt-1">
+        <span class="lab-badge">6 components</span>
+        <span class="font-semibold text-sm" style="color:var(--lab-primary)">Explore →</span>
       </div>
-    </section>
+    </a>
 
-    <!-- Morphing Button -->
-    <section class="panel p-5 hover-lift reveal">
-      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Morphing Button: Animated Gradient + Sonic</h2>
-      <button id="morphBtn" class="morph-btn px-8 py-3 text-white font-bold shadow-lg text-lg">Morph Me</button>
-      <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Press to animate color/shape and play a unique synth sound.</p>
-    </section>
+    <a href="pages/05-display.html" class="page-card">
+      <div class="page-num">05</div>
+      <div class="page-icon">🃏</div>
+      <div class="page-title">Display & Content</div>
+      <div class="page-desc">Cards, pricing, stats, avatars, badges, data table, timeline, code block, color palette, media card, grid demo, and event stream.</div>
+      <div class="flex items-center justify-between mt-1">
+        <span class="lab-badge">12 components</span>
+        <span class="font-semibold text-sm" style="color:var(--lab-primary)">Explore →</span>
+      </div>
+    </a>
 
-    <!-- Toggle Switch with Sound -->
-    <section class="panel p-5 hover-lift reveal">
-      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Toggle Switch: Spring Motion + Click Sound</h2>
-      <div class="toggle-wrap">
-        <div id="toggleSwitch" class="toggle" tabindex="0" role="switch" aria-checked="false">
-          <div class="toggle-knob"></div>
-        </div>
-        <span id="toggleLabel" class="text-sm text-slate-800 dark:text-slate-200">Off</span>
-      </div>
-      <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Click or tap the switch (motion-safe).</p>
-    </section>
+  </div>
 
-    <!-- Animated Tabs with Sound -->
-    <section class="panel p-5 hover-lift reveal" style="overflow:visible;">
-      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Tabs: Animated Panel + Sound</h2>
-      <div class="tabs" role="tablist" aria-label="Demo Tabs">
-        <button class="tab-btn" id="tabBtn1" aria-controls="tabPanel1" aria-selected="true" role="tab" tabindex="0">Tab 1</button>
-        <button class="tab-btn" id="tabBtn2" aria-controls="tabPanel2" aria-selected="false" role="tab" tabindex="-1">Tab 2</button>
-        <button class="tab-btn" id="tabBtn3" aria-controls="tabPanel3" aria-selected="false" role="tab" tabindex="-1">Tab 3</button>
-      </div>
-      <div style="position:relative; min-height:64px;">
-        <div id="tabPanel1" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtn1">
-          <p class="text-sm text-slate-700 dark:text-slate-300">First panel: Animated slide-in and sonic feedback.</p>
-        </div>
-        <div id="tabPanel2" class="tab-panel" role="tabpanel" aria-labelledby="tabBtn2">
-          <p class="text-sm text-slate-700 dark:text-slate-300">Second panel: Try switching quickly!</p>
-        </div>
-        <div id="tabPanel3" class="tab-panel" role="tabpanel" aria-labelledby="tabBtn3">
-          <p class="text-sm text-slate-700 dark:text-slate-300">Third panel: All transitions and sounds are motion-safe.</p>
-        </div>
-      </div>
-    </section>
+  <div class="section-divider"></div>
 
-    <!-- Icon Button Micro-interaction -->
-    <section class="panel p-5 hover-lift reveal">
-      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Icon Button: Wiggle Motion + Chime</h2>
-      <button id="iconBtn" class="btn-ripple px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2">
-        <span id="iconWiggle" class="icon-wiggle" aria-hidden="true">
-          <svg width="22" height="22" fill="none" viewBox="0 0 20 20">
-            <path fill="currentColor" d="M10 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm2.15 5.04a.75.75 0 0 0-1.06 0L10 8.13 8.91 7.04a.75.75 0 1 0-1.06 1.06L8.94 9.2 7.85 10.3a.75.75 0 1 0 1.06 1.06L10 12.43l1.09 1.09a.75.75 0 0 0 1.06-1.06L11.06 9.2l1.09-1.1a.75.75 0 0 0 0-1.06Z"/>
-          </svg>
-        </span>
-        <span>Wiggle Me!</span>
-      </button>
-      <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Click for a wiggle animation and chime sound.</p>
-    </section>
+  <!-- Component Directory -->
+  <h2 class="lab-section-title mb-2 reveal">Component Directory</h2>
+  <p class="text-sm mb-6 reveal" style="color:var(--lab-muted)">All 48 components, sorted by page</p>
 
-    <!-- Progress / Loader -->
-    <section class="panel p-5 hover-lift reveal">
-      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Progress: Smooth Fill + Success Chime</h2>
-      <div class="progress-wrap">
-        <div id="progressBar" class="progress-bar"></div>
-      </div>
-      <div class="mt-3 flex gap-2">
-        <button class="btn-ripple px-3 py-2 rounded-md bg-sky-600 hover:bg-sky-700 text-white" onclick="startProgress()">Start</button>
-        <button class="btn-ripple px-3 py-2 rounded-md border border-slate-300 dark:border-slate-700" onclick="resetProgress()">Reset</button>
-      </div>
-    </section>
-
-    <!-- Stats row (for full-site dashboard use) -->
-    <section class="panel p-5 hover-lift reveal">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Telemetry Snapshots</h2>
-        <span class="text-[11px] text-slate-400 dark:text-slate-500">Hover cards for depth</span>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="info">
-          <p class="text-[11px] uppercase tracking-[0.16em] text-sky-300/80">Live Sessions</p>
-          <p class="text-2xl font-semibold mt-1">128</p>
-          <p class="text-[11px] text-slate-400 mt-1">+18% vs. last hour</p>
-          <div class="stat-spark mt-2"></div>
-        </button>
-        <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="success">
-          <p class="text-[11px] uppercase tracking-[0.16em] text-emerald-300/80">Task Success</p>
-          <p class="text-2xl font-semibold mt-1">96%</p>
-          <p class="text-[11px] text-slate-400 mt-1">Stable</p>
-          <div class="stat-spark mt-2"></div>
-        </button>
-        <button class="stat-card px-4 py-3 text-left btn-ripple" data-sound="warn">
-          <p class="text-[11px] uppercase tracking-[0.16em] text-amber-300/80">Queue Load</p>
-          <p class="text-2xl font-semibold mt-1">7</p>
-          <p class="text-[11px] text-slate-400 mt-1">Slightly elevated</p>
-          <div class="stat-spark mt-2"></div>
-        </button>
-      </div>
-    </section>
-
-    <!-- Notification / event timeline -->
-    <section class="panel p-5 hover-lift reveal">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Notification Stream</h2>
-        <button id="demoTimelineToast" class="btn-ripple text-xs px-2.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-700">Ping Latest</button>
-      </div>
-      <ol class="relative border-l border-slate-200 dark:border-slate-700 pl-4 space-y-3 text-sm">
-        <li class="flex gap-3 items-start">
-          <span class="mt-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(16,185,129,0.18)]"></span>
-          <div>
-            <p class="text-slate-800 dark:text-slate-100 font-medium">Build #248 deployed</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Autoscaled robotics fleet controllers in region us-west.</p>
-          </div>
-          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">2m</span>
-        </li>
-        <li class="flex gap-3 items-start">
-          <span class="mt-1 w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_0_3px_rgba(56,189,248,0.18)]"></span>
-          <div>
-            <p class="text-slate-800 dark:text-slate-100 font-medium">Sensor packet burst</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Live stream switched to high-fidelity mode.</p>
-          </div>
-          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">8m</span>
-        </li>
-        <li class="flex gap-3 items-start">
-          <span class="mt-1 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_0_3px_rgba(251,191,36,0.2)]"></span>
-          <div>
-            <p class="text-slate-800 dark:text-slate-100 font-medium">Latency spike</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Route optimizer briefly rerouted jobs.</p>
-          </div>
-          <span class="ml-auto text-[11px] text-slate-400 dark:text-slate-500">21m</span>
-        </li>
-      </ol>
-    </section>
-
-    <!-- Mini settings sliders -->
-    <section class="panel p-5 hover-lift reveal">
-      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">Live Tuning Controls</h2>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">These don’t wire into real systems — they’re just motion &amp; sound explorations for future control panels.</p>
-      <div class="space-y-3 text-sm">
-        <div class="setting-row">
-          <span class="w-32 text-slate-700 dark:text-slate-200">Alert Volume</span>
-          <input id="sliderVolume" type="range" min="0" max="100" value="60" />
-          <span id="sliderVolumeVal" class="setting-value text-slate-600 dark:text-slate-300">60</span>
-        </div>
-        <div class="setting-row">
-          <span class="w-32 text-slate-700 dark:text-slate-200">Motion Intensity</span>
-          <input id="sliderMotion" type="range" min="0" max="100" value="70" />
-          <span id="sliderMotionVal" class="setting-value text-slate-600 dark:text-slate-300">70</span>
-        </div>
-        <div class="setting-row">
-          <span class="w-32 text-slate-700 dark:text-slate-200">UI Density</span>
-          <input id="sliderDensity" type="range" min="0" max="100" value="40" />
-          <span id="sliderDensityVal" class="setting-value text-slate-600 dark:text-slate-300">40</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Now playing media-style card -->
-    <section class="panel p-5 hover-lift reveal">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Now Playing: System Soundscape</h2>
-        <span class="text-[11px] text-slate-400 dark:text-slate-500">Preview of a media widget</span>
-      </div>
-      <div class="media-card p-3 sm:p-4">
-        <div class="media-ring"></div>
-        <div class="media-card-inner flex items-center gap-3 sm:gap-4">
-          <div class="relative">
-            <div class="h-12 w-12 sm:h-14 sm:w-14 rounded-xl bg-gradient-to-tr from-sky-400 via-indigo-500 to-emerald-400 shadow-lg flex items-center justify-center text-white text-xl font-semibold">
-              TR
-            </div>
-          </div>
-          <div class="min-w-0 flex-1">
-            <p class="text-xs uppercase tracking-[0.18em] text-slate-300/80 mb-0.5">Trident Robotics</p>
-            <p class="text-sm sm:text-base font-semibold">UI Motion Suite — Preview Loop</p>
-            <div class="mt-1 h-1.5 w-full rounded-full bg-slate-700/80 overflow-hidden">
-              <div id="mediaProgress" class="h-full w-2/5 bg-gradient-to-r from-sky-400 via-cyan-300 to-emerald-300"></div>
-            </div>
-          </div>
-          <button id="mediaPlayBtn" class="btn-ripple media-play-pulse h-9 w-9 rounded-full bg-sky-500 flex items-center justify-center text-white shrink-0" aria-label="Play preview">
-            <svg id="mediaPlayIcon" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M6.5 4.75a.75.75 0 0 1 1.127-.624l6 3.75a.75.75 0 0 1 0 1.248l-6 3.75A.75.75 0 0 1 6.5 12.25v-7.5Z"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- NEW: Segmented control -->
-    <section class="panel p-5 hover-lift reveal">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Segmented Control: Mode Switch + Sound</h2>
-        <span class="text-[11px] text-slate-400 dark:text-slate-500">Great for "Basic / Advanced / Pro"</span>
-      </div>
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="segmented" role="group" aria-label="Mode selector">
-          <button class="seg-btn btn-ripple" data-seg="basic" aria-pressed="true" data-sound="click">Basic</button>
-          <button class="seg-btn btn-ripple" data-seg="advanced" aria-pressed="false" data-sound="info">Advanced</button>
-          <button class="seg-btn btn-ripple" data-seg="expert" aria-pressed="false" data-sound="success">Expert</button>
-        </div>
-        <p class="text-sm text-slate-600 dark:text-slate-300">
-          Current: <span id="segValue" class="font-semibold">Basic</span>
-        </p>
-      </div>
-    </section>
-
-    <!-- NEW: Accordion -->
-    <section class="panel p-5 hover-lift reveal">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Accordion: Smooth Expand + Sonic Hint</h2>
-        <button id="expandAllAcc" class="btn-ripple text-xs px-2.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-700" data-sound="info">Expand all</button>
-      </div>
-
-      <div class="acc" id="accordion">
-        <div class="acc-item">
-          <button class="acc-btn btn-ripple" aria-expanded="false" aria-controls="accPanel1" id="accBtn1" data-sound="click">
-            <span class="font-semibold text-slate-800 dark:text-slate-100">Design tokens</span>
-            <span class="acc-chevron text-slate-500 dark:text-slate-400" aria-hidden="true">
-              <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"/></svg>
-            </span>
-          </button>
-          <div id="accPanel1" class="acc-panel" role="region" aria-labelledby="accBtn1" hidden>
-            <p class="text-sm">
-              Keep spacing, radius, and colors consistent. Add tokens once and reuse everywhere.
-            </p>
-          </div>
-        </div>
-
-        <div class="acc-item">
-          <button class="acc-btn btn-ripple" aria-expanded="false" aria-controls="accPanel2" id="accBtn2" data-sound="click">
-            <span class="font-semibold text-slate-800 dark:text-slate-100">Motion safety</span>
-            <span class="acc-chevron text-slate-500 dark:text-slate-400" aria-hidden="true">
-              <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"/></svg>
-            </span>
-          </button>
-          <div id="accPanel2" class="acc-panel" role="region" aria-labelledby="accBtn2" hidden>
-            <p class="text-sm">
-              Respect <code class="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800">prefers-reduced-motion</code> and keep transitions subtle.
-            </p>
-          </div>
-        </div>
-
-        <div class="acc-item">
-          <button class="acc-btn btn-ripple" aria-expanded="false" aria-controls="accPanel3" id="accBtn3" data-sound="click">
-            <span class="font-semibold text-slate-800 dark:text-slate-100">Audio feedback</span>
-            <span class="acc-chevron text-slate-500 dark:text-slate-400" aria-hidden="true">
-              <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"/></svg>
-            </span>
-          </button>
-          <div id="accPanel3" class="acc-panel" role="region" aria-labelledby="accBtn3" hidden>
-            <p class="text-sm">
-              Use short, quiet tones for confirmation and longer whooshes for navigational transitions.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- NEW: Data table -->
-    <section class="panel p-5 hover-lift reveal">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Data Table: Sticky Header + Hover</h2>
-        <button id="tableToast" class="btn-ripple text-xs px-2.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-700" data-sound="info">
-          Table tip
-        </button>
-      </div>
-      <div class="table-wrap">
-        <table class="lab-table" aria-label="Example table">
-          <thead>
-            <tr>
-              <th>Component</th>
-              <th>Status</th>
-              <th>Latency</th>
-              <th>Owner</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Toast stack</td>
-              <td><span class="chip">Stable</span></td>
-              <td>12ms</td>
-              <td>UI</td>
-            </tr>
-            <tr>
-              <td>Drawer</td>
-              <td><span class="chip">Stable</span></td>
-              <td>18ms</td>
-              <td>UX</td>
-            </tr>
-            <tr>
-              <td>Command palette</td>
-              <td><span class="chip">Beta</span></td>
-              <td>24ms</td>
-              <td>Dev</td>
-            </tr>
-            <tr>
-              <td>Audio synth</td>
-              <td><span class="chip">Stable</span></td>
-              <td>5ms</td>
-              <td>Core</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Scroll horizontally on small screens. Header sticks for easier scanning.</p>
-    </section>
-
-    <!-- NEW: Stepper -->
-    <section class="panel p-5 hover-lift reveal">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Stepper: Multi-step Flow + Sound</h2>
-        <div class="flex items-center gap-2">
-          <button id="stepPrev" class="btn-ripple text-xs px-2.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-700" data-sound="click">Prev</button>
-          <button id="stepNext" class="btn-ripple text-xs px-2.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-700" data-sound="click">Next</button>
-        </div>
-      </div>
-
-      <div class="stepper" aria-label="Example stepper">
-        <span class="step-dot active" data-step="1">1</span><span class="step-line"></span>
-        <span class="step-dot" data-step="2">2</span><span class="step-line"></span>
-        <span class="step-dot" data-step="3">3</span><span class="step-line"></span>
-        <span class="step-dot" data-step="4">4</span>
-      </div>
-
-      <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
-        Active step: <span id="stepValue" class="font-semibold">1</span>
-      </p>
-    </section>
-  </main>
-
-  <!-- Drawer -->
-  <div id="drawerOverlay" class="drawer-overlay"></div>
-  <aside id="drawer" class="drawer">
-    <div class="p-5">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200">Menu</h3>
-        <button id="closeDrawer" class="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Close">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
-      </div>
-      <div class="space-y-2 text-sm text-slate-600 dark:text-slate-300">
-        <p>Try other components on this page. Great candidates for reuse across your site:</p>
-        <ul class="list-disc ml-5">
-          <li>Button ripple + click sounds</li>
-          <li>Toasts for feedback</li>
-          <li>Modal for forms/details</li>
-          <li>Drawer for navigation</li>
-          <li>Progress for uploads/tasks</li>
-          <li>Morphing buttons, toggles, tabs, icon animations</li>
-          <li>Command palette and keyboard hint bar</li>
-          <li>Stats row &amp; media widget for dashboards</li>
-          <li>Segmented control, accordion, tables, steppers, coachmarks</li>
-        </ul>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Command palette -->
-  <div id="cmdOverlay" class="cmd-overlay" aria-hidden="true">
-    <div class="cmd-panel" role="dialog" aria-modal="true" aria-labelledby="cmdTitle">
-      <div class="border-b border-slate-700/60 px-3.5 py-2.5 flex items-center gap-2">
-        <span class="text-slate-400">
-          <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none">
-            <path d="M9.5 3.5a6 6 0 1 1-4.243 10.243A6 6 0 0 1 9.5 3.5Z" stroke="currentColor" stroke-width="1.3"/>
-            <path d="m13.5 13.5 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-          </svg>
-        </span>
-        <input id="cmdInput" class="cmd-input text-sm" placeholder="Search commands… (type to filter)" autocomplete="off" />
-        <span class="badge-key">esc</span>
-      </div>
-      <div class="px-2.5 py-2 text-[11px] uppercase tracking-[0.16em] text-slate-500" id="cmdTitle">Lab commands</div>
-      <div class="px-2.5 pb-2.5 space-y-0.5 text-sm max-h-72 overflow-auto">
-        <button class="cmd-item w-full text-left" data-cmd="open-modal" aria-selected="true">
-          <span class="badge-key">↵</span>
-          <div>
-            <p>Open confirmation modal</p>
-            <p class="text-[11px] text-slate-400">Preview motion-safe confirmation pattern</p>
-          </div>
-        </button>
-        <button class="cmd-item w-full text-left" data-cmd="open-drawer">
-          <span class="badge-key">⇧ D</span>
-          <div>
-            <p>Toggle navigation drawer</p>
-            <p class="text-[11px] text-slate-400">Slide-in side navigation for app layouts</p>
-          </div>
-        </button>
-        <button class="cmd-item w-full text-left" data-cmd="success-toast">
-          <span class="badge-key">T</span>
-          <div>
-            <p>Show success toast</p>
-            <p class="text-[11px] text-slate-400">High-signal feedback with sonic accent</p>
-          </div>
-        </button>
-        <button class="cmd-item w-full text-left" data-cmd="morph-button">
-          <span class="badge-key">M</span>
-          <div>
-            <p>Pulse morphing button</p>
-            <p class="text-[11px] text-slate-400">Accent primary call-to-action</p>
-          </div>
-        </button>
-
-        <!-- added: more commands -->
-        <button class="cmd-item w-full text-left" data-cmd="open-coach">
-          <span class="badge-key">G</span>
-          <div>
-            <p>Open coach overlay</p>
-            <p class="text-[11px] text-slate-400">Mini guided tour pattern</p>
-          </div>
-        </button>
-        <button class="cmd-item w-full text-left" data-cmd="confetti">
-          <span class="badge-key">C</span>
-          <div>
-            <p>Fire confetti</p>
-            <p class="text-[11px] text-slate-400">Celebration micro-interaction</p>
-          </div>
-        </button>
-      </div>
+  <!-- Page 01 -->
+  <div class="mb-5 reveal">
+    <div class="lab-component-title mb-3">01 · Buttons & Actions</div>
+    <div class="flex flex-wrap gap-2">
+      <a href="pages/01-buttons.html#primary" class="directory-chip">Primary Button</a>
+      <a href="pages/01-buttons.html#secondary" class="directory-chip">Secondary Button</a>
+      <a href="pages/01-buttons.html#danger" class="directory-chip">Danger Button</a>
+      <a href="pages/01-buttons.html#ghost" class="directory-chip">Ghost Button</a>
+      <a href="pages/01-buttons.html#icon" class="directory-chip">Icon Buttons</a>
+      <a href="pages/01-buttons.html#loading" class="directory-chip">Loading Button</a>
+      <a href="pages/01-buttons.html#group" class="directory-chip">Button Group</a>
+      <a href="pages/01-buttons.html#segmented" class="directory-chip">Segmented Control</a>
+      <a href="pages/01-buttons.html#morph" class="directory-chip">Morphing Gradient Button</a>
+      <a href="pages/01-buttons.html#fab" class="directory-chip">FAB</a>
+      <a href="pages/01-buttons.html#cta" class="directory-chip">CTA Banner</a>
     </div>
   </div>
 
-  <!-- Toast stack -->
-  <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
-
-  <!-- Coach overlay -->
-  <div id="coachOverlay" class="coach-overlay" aria-hidden="true">
-    <div class="coach-card p-4" role="dialog" aria-modal="true" aria-labelledby="coachTitle">
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <p id="coachTitle" class="text-sm uppercase tracking-[0.18em] text-slate-300/80">Guided tour</p>
-          <h3 class="text-lg font-semibold">New UI elements added</h3>
-          <p class="mt-1 text-sm text-slate-300/90">
-            Try <span class="badge-key">⌘ K</span> then press <span class="badge-key">G</span> or <span class="badge-key">C</span>.
-          </p>
-        </div>
-        <button id="coachClose" class="btn-ripple px-2 py-1.5 rounded-md border border-slate-600/80 text-sm" data-sound="click">Close</button>
-      </div>
-      <div class="mt-4 grid sm:grid-cols-2 gap-2">
-        <button id="coachGoAccordion" class="btn-ripple px-3 py-2 rounded-md bg-sky-600 hover:bg-sky-700 text-white text-sm" data-sound="info">Jump to Accordion</button>
-        <button id="coachGoTable" class="btn-ripple px-3 py-2 rounded-md border border-slate-600/80 text-sm" data-sound="info">Jump to Table</button>
-      </div>
+  <!-- Page 02 -->
+  <div class="mb-5 reveal">
+    <div class="lab-component-title mb-3">02 · Forms & Inputs</div>
+    <div class="flex flex-wrap gap-2">
+      <a href="pages/02-inputs.html#text" class="directory-chip">Text Input</a>
+      <a href="pages/02-inputs.html#password" class="directory-chip">Password Input</a>
+      <a href="pages/02-inputs.html#search" class="directory-chip">Search Input</a>
+      <a href="pages/02-inputs.html#textarea" class="directory-chip">Textarea</a>
+      <a href="pages/02-inputs.html#select" class="directory-chip">Select / Dropdown</a>
+      <a href="pages/02-inputs.html#checkbox" class="directory-chip">Checkbox Group</a>
+      <a href="pages/02-inputs.html#radio" class="directory-chip">Radio Group</a>
+      <a href="pages/02-inputs.html#toggle" class="directory-chip">Toggle Switch</a>
+      <a href="pages/02-inputs.html#range" class="directory-chip">Range Slider</a>
+      <a href="pages/02-inputs.html#validation" class="directory-chip">Form Validation States</a>
     </div>
   </div>
 
-  <!-- Confetti container -->
-  <div id="confetti" class="confetti" aria-hidden="true"></div>
-
-  <!-- Keyboard hint bar -->
-  <div class="px-4 pb-4">
-    <div class="kbd-bar max-w-5xl mx-auto px-3 py-2 flex items-center justify-between gap-3 text-xs">
-      <div class="flex items-center gap-2">
-        <span class="kbd-chip">Lab</span>
-        <span class="text-slate-300/80">Experiment playground — nothing here triggers real robots.</span>
-      </div>
-      <div class="hidden sm:flex items-center gap-1.5 text-slate-300/80">
-        <span class="kbd-chip">⌘ K</span>
-        <span class="kbd-chip">G</span>
-        <span class="kbd-chip">T</span>
-        <span class="kbd-chip">C</span>
-        <span class="text-slate-400/80">Try keyboard shortcuts</span>
-      </div>
+  <!-- Page 03 -->
+  <div class="mb-5 reveal">
+    <div class="lab-component-title mb-3">03 · Feedback & Overlays</div>
+    <div class="flex flex-wrap gap-2">
+      <a href="pages/03-feedback.html#toasts" class="directory-chip">Toast Notifications</a>
+      <a href="pages/03-feedback.html#alerts" class="directory-chip">Alert Banners</a>
+      <a href="pages/03-feedback.html#modal" class="directory-chip">Modal Dialog</a>
+      <a href="pages/03-feedback.html#drawer" class="directory-chip">Drawer / Side Panel</a>
+      <a href="pages/03-feedback.html#progress" class="directory-chip">Progress Bar</a>
+      <a href="pages/03-feedback.html#skeleton" class="directory-chip">Skeleton Loader</a>
+      <a href="pages/03-feedback.html#tooltip" class="directory-chip">Tooltip</a>
+      <a href="pages/03-feedback.html#cmdpalette" class="directory-chip">Command Palette</a>
+      <a href="pages/03-feedback.html#coachmark" class="directory-chip">Coach Mark</a>
     </div>
   </div>
 
-  <script>
-    // Sound Engine: lightweight Web Audio synth (no asset files)
-    const Sound = (() => {
-      const state = {
-        ctx: null,
-        master: null,
-        enabled: true,
-        whooshFilter: null,
-        prefersReduced: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      };
-      function ensureCtx() {
-        if (!state.ctx) {
-          const ctx = new (window.AudioContext || window.webkitAudioContext)();
-          const master = ctx.createGain();
-          master.gain.value = 0.6;
-          master.connect(ctx.destination);
-          state.ctx = ctx;
-          state.master = master;
-          const resume = () => {
-            if (ctx.state === 'suspended') ctx.resume();
-            document.removeEventListener('pointerdown', resume, true);
-          };
-          document.addEventListener('pointerdown', resume, true);
-        }
-      }
-      function setEnabled(on) {
-        state.enabled = on;
-        if (state.master) state.master.gain.value = on ? 0.6 : 0.0;
-      }
-      function tone({ freq=440, type='sine', duration=0.12, attack=0.005, decay=0.08, gain=0.3, detune=0 }) {
-        if (!state.enabled) return;
-        ensureCtx();
-        const t0 = state.ctx.currentTime;
-        const osc = state.ctx.createOscillator();
-        const g = state.ctx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, t0);
-        if (detune) osc.detune.setValueAtTime(detune, t0);
-        g.gain.setValueAtTime(0, t0);
-        g.gain.linearRampToValueAtTime(gain, t0 + attack);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + attack + decay);
-        osc.connect(g).connect(state.master);
-        osc.start(t0);
-        osc.stop(t0 + Math.max(duration, attack + decay));
-      }
-      function click() { tone({ freq: 240, type: 'triangle', duration: 0.08, attack: 0.002, decay: 0.06, gain: 0.22 }); }
-      function success() { tone({ freq: 660, type: 'sine', attack: 0.004, decay: 0.10, gain: 0.25 }); setTimeout(() => tone({ freq: 880, type: 'sine', attack: 0.004, decay: 0.12, gain: 0.23 }), 90); }
-      function warn() { tone({ freq: 320, type: 'square', attack: 0.003, decay: 0.15, gain: 0.2 }); }
-      function error() { tone({ freq: 220, type: 'square', attack: 0.002, decay: 0.2, gain: 0.25 }); setTimeout(() => tone({ freq: 180, type: 'square', attack: 0.002, decay: 0.22, gain: 0.22 }), 90); }
-      function info() { tone({ freq: 520, type: 'triangle', attack: 0.004, decay: 0.12, gain: 0.22 }); }
-      function whoosh() {
-        if (state.prefersReduced || !state.enabled) return;
-        ensureCtx();
-        const t0 = state.ctx.currentTime;
-        const bufferSize = 2 * state.ctx.sampleRate;
-        const noiseBuffer = state.ctx.createBuffer(1, bufferSize, state.ctx.sampleRate);
-        const data = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
-        const noise = state.ctx.createBufferSource();
-        noise.buffer = noiseBuffer;
-        const filter = state.ctx.createBiquadFilter();
-        filter.type = 'highpass';
-        filter.frequency.setValueAtTime(400, t0);
-        const g = state.ctx.createGain();
-        g.gain.setValueAtTime(0.0001, t0);
-        g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.08);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.45);
-        noise.connect(filter).connect(g).connect(state.master);
-        noise.start(t0);
-        noise.stop(t0 + 0.5);
-      }
-      function morph() { tone({ freq: 560, type: 'triangle', attack: 0.008, decay: 0.16, gain: 0.22 }); setTimeout(() => tone({ freq: 900, type: 'sine', attack: 0.005, decay: 0.14, gain: 0.19 }), 110); }
-      function toggle() { tone({ freq: 380, type: 'square', attack: 0.002, decay: 0.10, gain: 0.18 }); }
-      function tab() { tone({ freq: 700, type: 'triangle', attack: 0.004, decay: 0.11, gain: 0.19 }); }
-      function iconChime() { tone({ freq: 820, type: 'triangle', attack: 0.004, decay: 0.14, gain: 0.16 }); setTimeout(() => tone({ freq: 1220, type: 'sine', attack: 0.003, decay: 0.12, gain: 0.13 }), 110); }
-      return { setEnabled, click, success, warn, error, info, whoosh, morph, toggle, tab, iconChime };
-    })();
+  <!-- Page 04 -->
+  <div class="mb-5 reveal">
+    <div class="lab-component-title mb-3">04 · Navigation</div>
+    <div class="flex flex-wrap gap-2">
+      <a href="pages/04-navigation.html#tabs" class="directory-chip">Tabs</a>
+      <a href="pages/04-navigation.html#accordion" class="directory-chip">Accordion</a>
+      <a href="pages/04-navigation.html#stepper" class="directory-chip">Stepper</a>
+      <a href="pages/04-navigation.html#pagination" class="directory-chip">Pagination</a>
+      <a href="pages/04-navigation.html#breadcrumbs" class="directory-chip">Breadcrumbs</a>
+      <a href="pages/04-navigation.html#dropdown" class="directory-chip">Dropdown Menu</a>
+    </div>
+  </div>
 
-    // Ripple helper
-    function addRipple(e) {
-      const btn = e.currentTarget;
-      const rect = btn.getBoundingClientRect();
-      const size = Math.max(rect.width, rect.height);
-      const span = document.createElement('span');
-      span.className = 'ripple';
-      span.style.width = span.style.height = size + 'px';
-      span.style.left = (e.clientX - rect.left) + 'px';
-      span.style.top = (e.clientY - rect.top) + 'px';
-      btn.appendChild(span);
-      span.addEventListener('animationend', () => span.remove());
-    }
-    document.querySelectorAll('.btn-ripple').forEach(btn => {
-      btn.addEventListener('click', addRipple);
-      const soundType = btn.getAttribute('data-sound');
-      if (soundType) {
-        btn.addEventListener('click', () => {
-          if (soundType === 'click') Sound.click();
-          if (soundType === 'success') Sound.success();
-          if (soundType === 'warn') Sound.warn();
-          if (soundType === 'error') Sound.error();
-          if (soundType === 'info') Sound.info();
-        });
-      }
-    });
+  <!-- Page 05 -->
+  <div class="mb-5 reveal">
+    <div class="lab-component-title mb-3">05 · Display & Content</div>
+    <div class="flex flex-wrap gap-2">
+      <a href="pages/05-display.html#card" class="directory-chip">Basic Card</a>
+      <a href="pages/05-display.html#pricing" class="directory-chip">Pricing Card</a>
+      <a href="pages/05-display.html#stats" class="directory-chip">Stats Widgets</a>
+      <a href="pages/05-display.html#avatar" class="directory-chip">Avatar</a>
+      <a href="pages/05-display.html#badges" class="directory-chip">Badges / Chips / Tags</a>
+      <a href="pages/05-display.html#table" class="directory-chip">Data Table</a>
+      <a href="pages/05-display.html#timeline" class="directory-chip">Timeline</a>
+      <a href="pages/05-display.html#code" class="directory-chip">Code Block</a>
+      <a href="pages/05-display.html#palette" class="directory-chip">Color Palette</a>
+      <a href="pages/05-display.html#media" class="directory-chip">Media Card</a>
+      <a href="pages/05-display.html#grid" class="directory-chip">Responsive Grid Demo</a>
+      <a href="pages/05-display.html#stream" class="directory-chip">Notification Stream</a>
+    </div>
+  </div>
 
-    // Header controls
-    const toggleSoundBtn = document.getElementById('toggleSound');
-    toggleSoundBtn.addEventListener('click', () => {
-      const on = toggleSoundBtn.textContent.includes('On');
-      Sound.setEnabled(!on);
-      toggleSoundBtn.textContent = `Sound: ${on ? 'Off' : 'On'}`;
-      if (!on) Sound.info();
-    });
+  <div class="section-divider"></div>
+</main>
 
-    // Toasts
-    const toastStack = document.getElementById('toastStack');
-    function showToast(type, message, timeout = 3000) {
-      const el = document.createElement('div');
-      el.className = `toast ${type}`;
-      el.setAttribute('role', 'status');
-      el.innerHTML = `
-        <span aria-hidden="true">
-          ${
-            type === 'success' ? '✅' :
-            type === 'info' ? 'ℹ️' :
-            type === 'warn' ? '⚠️' : '⛔'
-          }
-        </span>
-        <div class="text-sm">${message}</div>
-        <button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Dismiss">✖</button>
-      `;
-      toastStack.appendChild(el);
-      requestAnimationFrame(() => el.classList.add('show'));
-      if (type === 'success') Sound.success();
-      else if (type === 'info') Sound.info();
-      else if (type === 'warn') Sound.warn();
-      else if (type === 'error') Sound.error();
-      const close = () => {
-        el.classList.remove('show');
-        setTimeout(() => el.remove(), 180);
-      };
-      el.querySelector('button').addEventListener('click', close);
-      const id = setTimeout(close, timeout);
-      el.addEventListener('pointerenter', () => clearTimeout(id), { once: true });
-    }
-    window.demoToast = (type) => {
-      const text = {
-        success: 'Saved successfully!',
-        info: 'Heads up! New update available.',
-        warn: 'Careful — unsaved changes.',
-        error: 'Something went wrong.'
-      }[type] || 'Message';
-      showToast(type, text);
-    };
+<!-- Footer -->
+<footer class="text-center py-8 text-sm" style="color:var(--lab-muted);border-top:1px solid var(--lab-border)">
+  <a href="/" class="lab-back-link mx-auto justify-center">← Back to Trident Robotics</a>
+  <p class="mt-2">UI Component Lab · Trident Robotics Design System</p>
+</footer>
 
-    // Modal
-    document.getElementById('openModal').addEventListener('click', openExampleModal);
-    function openExampleModal() {
-      Sound.whoosh();
-      const overlay = document.createElement('div');
-      overlay.className = 'modal-overlay';
-      overlay.innerHTML = `
-        <div class="modal-panel">
-          <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">Example Modal</h3>
-          <p class="text-sm text-slate-600 dark:text-slate-300">Scale-in animation with whoosh sound. Great for confirmations or quick forms.</p>
-          <div class="mt-4 flex gap-2">
-            <button class="btn-ripple px-3 py-2 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white" id="modalConfirm">Confirm</button>
-            <button class="btn-ripple px-3 py-2 rounded-md border border-slate-300 dark:border-slate-700" id="modalClose">Close</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(overlay);
-      const panel = overlay.querySelector('.modal-panel');
-      requestAnimationFrame(() => panel.classList.add('show'));
-      overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-      overlay.querySelector('#modalClose').addEventListener('click', close);
-      overlay.querySelector('#modalConfirm').addEventListener('click', () => {
-        Sound.success();
-        showToast('success', 'Confirmed!');
-        close();
-      });
-      function close() {
-        panel.classList.remove('show');
-        Sound.click();
-        setTimeout(() => overlay.remove(), 160);
-      }
-      overlay.querySelectorAll('.btn-ripple').forEach(b => b.addEventListener('click', addRipple));
-    }
-
-    // Drawer
-    const drawer = document.getElementById('drawer');
-    const drawerOverlay = document.getElementById('drawerOverlay');
-    function openAppDrawer() {
-      drawer.classList.add('open');
-      drawerOverlay.classList.add('active');
-      Sound.whoosh();
-    }
-    function closeDrawer() {
-      drawer.classList.remove('open');
-      drawerOverlay.classList.remove('active');
-      Sound.click();
-    }
-    window.openAppDrawer = openAppDrawer;
-    document.getElementById('openDrawer').addEventListener('click', openAppDrawer);
-    document.getElementById('closeDrawer').addEventListener('click', closeDrawer);
-    drawerOverlay.addEventListener('click', closeDrawer);
-
-    // Scroll reveal
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('in');
-          Sound.info();
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.2 });
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-    // Progress demo
-    let progressTimer = null;
-    function startProgress() {
-      Sound.whoosh();
-      const bar = document.getElementById('progressBar');
-      clearInterval(progressTimer);
-      let w = 0;
-      progressTimer = setInterval(() => {
-        w += Math.random() * 7 + 3;
-        if (w >= 100) {
-          w = 100;
-          clearInterval(progressTimer);
-          Sound.success();
-          showToast('success', 'All done!');
-        }
-        bar.style.width = w + '%';
-      }, 160);
-    }
-    function resetProgress() {
-      const bar = document.getElementById('progressBar');
-      bar.style.width = '0%';
-      Sound.click();
-    }
-    window.startProgress = startProgress;
-    window.resetProgress = resetProgress;
-
-    // Morphing Button
-    const morphBtn = document.getElementById('morphBtn');
-    morphBtn.addEventListener('click', function() {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return Sound.morph();
-      morphBtn.classList.add('morphing');
-      Sound.morph();
-      setTimeout(() => morphBtn.classList.remove('morphing'), 400);
-    });
-
-    // Toggle Switch
-    const toggleSwitch = document.getElementById('toggleSwitch');
-    const toggleLabel = document.getElementById('toggleLabel');
-    let toggleState = false;
-    function setToggle(state) {
-      toggleState = !!state;
-      toggleSwitch.classList.toggle('on', toggleState);
-      toggleSwitch.setAttribute('aria-checked', toggleState);
-      toggleLabel.textContent = toggleState ? 'On' : 'Off';
-    }
-    function springToggle() {
-      setToggle(!toggleState);
-      Sound.toggle();
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        toggleSwitch.animate([
-          { transform: 'scale(1)' },
-          { transform: 'scale(1.12)' },
-          { transform: 'scale(1)' }
-        ], { duration: 280, easing: 'cubic-bezier(.7,1.7,.2,1)' });
-      }
-    }
-    toggleSwitch.addEventListener('click', springToggle);
-    toggleSwitch.addEventListener('keydown', function(e) {
-      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); springToggle(); }
-    });
-
-    // Animated Tabs
-    const tabBtns = [document.getElementById('tabBtn1'), document.getElementById('tabBtn2'), document.getElementById('tabBtn3')];
-    const tabPanels = [document.getElementById('tabPanel1'), document.getElementById('tabPanel2'), document.getElementById('tabPanel3')];
-    tabBtns.forEach((btn, idx) => {
-      btn.addEventListener('click', () => {
-        tabBtns.forEach((b,i) => {
-          b.setAttribute('aria-selected', i === idx);
-          b.tabIndex = i === idx ? 0 : -1;
-        });
-        tabPanels.forEach((panel,i) => {
-          panel.classList.toggle('active', i === idx);
-        });
-        Sound.tab();
-      });
-      btn.addEventListener('keydown', function(e) {
-        if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-          let dir = e.key === "ArrowLeft" ? -1 : 1;
-          let next = (idx + dir + tabBtns.length) % tabBtns.length;
-          tabBtns[next].focus();
-        }
-      });
-    });
-
-    // Icon Button Wiggle
-    const iconBtn = document.getElementById('iconBtn');
-    const iconWiggle = document.getElementById('iconWiggle');
-    iconBtn.addEventListener('click', function() {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return Sound.iconChime();
-      iconWiggle.classList.remove('wiggled');
-      void iconWiggle.offsetWidth;
-      iconWiggle.classList.add('wiggled');
-      Sound.iconChime();
-    });
-    iconWiggle.addEventListener('animationend', () => iconWiggle.classList.remove('wiggled'));
-
-    // Timeline demo button -> toast
-    const tlBtn = document.getElementById('demoTimelineToast');
-    tlBtn.addEventListener('click', () => {
-      showToast('info', 'Simulated event stream ping.');
-    });
-
-    // --- Added behaviors: segmented control, accordion, stepper, coach, confetti, command palette button wiring ---
-
-    // Segmented
-    const segValue = document.getElementById('segValue');
-    const segBtns = Array.from(document.querySelectorAll('[data-seg]'));
-    segBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        segBtns.forEach(b => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
-        segValue.textContent = btn.textContent.trim();
-        Sound.tab();
-      });
-    });
-
-    // Accordion
-    const accButtons = Array.from(document.querySelectorAll('.acc-btn'));
-    function setAcc(btn, open) {
-      const panelId = btn.getAttribute('aria-controls');
-      const panel = document.getElementById(panelId);
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      panel.hidden = !open;
-      if (open) Sound.click();
-    }
-    accButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const isOpen = btn.getAttribute('aria-expanded') === 'true';
-        setAcc(btn, !isOpen);
-      });
-    });
-    document.getElementById('expandAllAcc').addEventListener('click', () => {
-      accButtons.forEach(btn => setAcc(btn, true));
-      showToast('info', 'Expanded all accordion panels.');
-    });
-
-    // Table button
-    document.getElementById('tableToast').addEventListener('click', () => {
-      showToast('info', 'Tip: Use sticky headers + hover rows for scan-friendly tables.');
-    });
-
-    // Stepper
-    let currentStep = 1;
-    const stepValue = document.getElementById('stepValue');
-    const stepDots = Array.from(document.querySelectorAll('.step-dot'));
-    function renderStep() {
-      stepDots.forEach(dot => dot.classList.toggle('active', Number(dot.dataset.step) === currentStep));
-      stepValue.textContent = String(currentStep);
-    }
-    document.getElementById('stepPrev').addEventListener('click', () => {
-      currentStep = Math.max(1, currentStep - 1);
-      renderStep();
-      Sound.click();
-    });
-    document.getElementById('stepNext').addEventListener('click', () => {
-      currentStep = Math.min(4, currentStep + 1);
-      renderStep();
-      Sound.success();
-    });
-    renderStep();
-
-    // Coach overlay
-    const coachOverlay = document.getElementById('coachOverlay');
-    const coachCard = coachOverlay.querySelector('.coach-card');
-    function openCoach() {
-      coachOverlay.classList.add('open');
-      coachOverlay.setAttribute('aria-hidden', 'false');
-      requestAnimationFrame(() => coachCard.classList.add('show'));
-      Sound.whoosh();
-    }
-    function closeCoach() {
-      coachCard.classList.remove('show');
-      Sound.click();
-      setTimeout(() => {
-        coachOverlay.classList.remove('open');
-        coachOverlay.setAttribute('aria-hidden', 'true');
-      }, 160);
-    }
-    document.getElementById('openCoach').addEventListener('click', openCoach);
-    document.getElementById('coachClose').addEventListener('click', closeCoach);
-    coachOverlay.addEventListener('click', (e) => { if (e.target === coachOverlay) closeCoach(); });
-
-    document.getElementById('coachGoAccordion').addEventListener('click', () => {
-      closeCoach();
-      document.getElementById('accordion').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      showToast('info', 'Jumped to Accordion.');
-    });
-    document.getElementById('coachGoTable').addEventListener('click', () => {
-      closeCoach();
-      document.querySelector('.lab-table').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      showToast('info', 'Jumped to Table.');
-    });
-
-    // Confetti
-    const confettiHost = document.getElementById('confetti');
-    function fireConfetti() {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        showToast('success', 'Celebration!');
-        return;
-      }
-      confettiHost.innerHTML = '';
-      const colors = ['#38bdf8','#818cf8','#22c55e','#eab308','#fb7185','#f97316'];
-      const pieces = 32;
-      for (let i = 0; i < pieces; i++) {
-        const p = document.createElement('i');
-        const left = Math.random() * 100;
-        const delay = Math.random() * 140;
-        const size = 6 + Math.random() * 10;
-        p.style.left = left + 'vw';
-        p.style.top = (-10 - Math.random() * 20) + 'px';
-        p.style.width = p.style.height = size + 'px';
-        p.style.background = colors[i % colors.length];
-        p.style.animationDelay = delay + 'ms';
-        confettiHost.appendChild(p);
-      }
-      Sound.success();
-      setTimeout(() => confettiHost.innerHTML = '', 1200);
-    }
-    document.getElementById('confettiBtn').addEventListener('click', fireConfetti);
-
-    // Command palette basic open/close + shortcuts
-    const cmdOverlay = document.getElementById('cmdOverlay');
-    const cmdPanel = cmdOverlay.querySelector('.cmd-panel');
-    const cmdInput = document.getElementById('cmdInput');
-    function openCmd() {
-      cmdOverlay.classList.add('open');
-      cmdOverlay.setAttribute('aria-hidden','false');
-      requestAnimationFrame(() => cmdPanel.classList.add('show'));
-      setTimeout(() => cmdInput.focus(), 50);
-      Sound.whoosh();
-    }
-    function closeCmd() {
-      cmdPanel.classList.remove('show');
-      Sound.click();
-      setTimeout(() => {
-        cmdOverlay.classList.remove('open');
-        cmdOverlay.setAttribute('aria-hidden','true');
-        cmdInput.value = '';
-        filterCmdItems('');
-      }, 160);
-    }
-    function filterCmdItems(query) {
-      const q = query.trim().toLowerCase();
-      const items = Array.from(document.querySelectorAll('.cmd-item'));
-      items.forEach((item, idx) => {
-        const text = item.textContent.toLowerCase();
-        item.style.display = text.includes(q) ? '' : 'none';
-        item.setAttribute('aria-selected', idx === 0 && text.includes(q) ? 'true' : 'false');
-      });
-    }
-    document.getElementById('openCmdPalette').addEventListener('click', openCmd);
-    cmdOverlay.addEventListener('click', (e) => { if (e.target === cmdOverlay) closeCmd(); });
-    document.addEventListener('keydown', (e) => {
-      const isMac = navigator.platform.toLowerCase().includes('mac');
-      const cmdK = (isMac && e.metaKey && e.key.toLowerCase() === 'k') || (!isMac && e.ctrlKey && e.key.toLowerCase() === 'k');
-      if (cmdK) { e.preventDefault(); openCmd(); }
-      if (e.key === 'Escape' && cmdOverlay.classList.contains('open')) closeCmd();
-
-      // quick shortcuts when not typing
-      if (!cmdOverlay.classList.contains('open') && !/input|textarea/i.test(document.activeElement?.tagName || '')) {
-        if (e.key.toLowerCase() === 'g') openCoach();
-        if (e.key.toLowerCase() === 'c') fireConfetti();
-        if (e.key.toLowerCase() === 't') showToast('success', 'Shortcut: toast!');
-      }
-    });
-    cmdInput.addEventListener('input', (e) => filterCmdItems(e.target.value));
-
-    // Command actions
-    document.querySelectorAll('.cmd-item').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const cmd = btn.getAttribute('data-cmd');
-        closeCmd();
-        if (cmd === 'open-modal') openExampleModal();
-        if (cmd === 'open-drawer') openAppDrawer();
-        if (cmd === 'success-toast') showToast('success', 'Command palette: success!');
-        if (cmd === 'morph-button') morphBtn.click();
-        if (cmd === 'open-coach') openCoach();
-        if (cmd === 'confetti') fireConfetti();
-      });
-    });
-
-    // Media play button: small pulse toggle (visual only)
-    const mediaPlayBtn = document.getElementById('mediaPlayBtn');
-    const mediaPlayIcon = document.getElementById('mediaPlayIcon');
-    let mediaPlaying = false;
-    mediaPlayBtn.addEventListener('click', () => {
-      mediaPlaying = !mediaPlaying;
-      mediaPlayBtn.classList.toggle('playing', mediaPlaying);
-      if (mediaPlaying) {
-        Sound.info();
-        mediaPlayIcon.innerHTML = '<path d="M5.75 4.5A1.25 1.25 0 0 1 7 3.25h.5A1.25 1.25 0 0 1 8.75 4.5v11A1.25 1.25 0 0 1 7.5 16.75H7A1.25 1.25 0 0 1 5.75 15.5v-11Zm5.5 0A1.25 1.25 0 0 1 12.5 3.25h.5A1.25 1.25 0 0 1 14.25 4.5v11A1.25 1.25 0 0 1 13 16.75h-.5A1.25 1.25 0 0 1 11.25 15.5v-11Z"/>';
-      } else {
-        Sound.click();
-        mediaPlayIcon.innerHTML = '<path d="M6.5 4.75a.75.75 0 0 1 1.127-.624l6 3.75a.75.75 0 0 1 0 1.248l-6 3.75A.75.75 0 0 1 6.5 12.25v-7.5Z"/>';
-      }
-    });
-  </script>
-  <!-- Modern UI Enhancement Scripts -->
-  <script src="/assets/js/theme.js"></script>
-  <script src="/assets/js/modern-ui.js"></script>
-  <script src="/assets/js/page-transitions.js"></script>
-  <script src="/assets/js/accessibility-panel.js"></script>
+<div id="toastStack" class="toast-stack" aria-live="polite"></div>
+<script src="assets/lab.js"></script>
 </body>
 </html>

@@ -804,10 +804,14 @@
       }
 
       // A genuine remote change – apply it and re-render.
-      if (remoteData.season)                     state.season   = remoteData.season;
-      if (Array.isArray(remoteData.subteams))    state.subteams = remoteData.subteams;
-      if (remoteData.zoom)                       state.zoom     = remoteData.zoom;
-      if (typeof remoteData.nextId === 'number') state.nextId   = remoteData.nextId;
+      if (remoteData.season && typeof remoteData.season === 'object')
+        state.season   = remoteData.season;
+      if (Array.isArray(remoteData.subteams))
+        state.subteams = remoteData.subteams;
+      if (typeof remoteData.zoom === 'string' && remoteData.zoom)
+        state.zoom     = remoteData.zoom;
+      if (typeof remoteData.nextId === 'number')
+        state.nextId   = remoteData.nextId;
       state.selectedId = null; // clear any stale selection
 
       // Keep localStorage in sync with the latest remote state.

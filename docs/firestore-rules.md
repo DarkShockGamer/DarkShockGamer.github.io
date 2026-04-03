@@ -29,10 +29,15 @@ service cloud.firestore {
 
     // ── Timeline (shared, team-editable) ─────────────────────────────────────
     // Single shared document storing the Build Season Gantt state.
-    // Readable/writable by any authenticated user; open to all visitors when
-    // no auth is present (the page is public and non-sensitive).
+    // Two options:
+    //   (a) Require authentication (recommended if all editors are signed in):
+    //         allow read, write: if request.auth != null;
+    //   (b) Fully public (any visitor can read/write – suitable when the page
+    //       is used without sign-in):
+    //         allow read, write: if true;
+    // Default to option (a) for stronger security.
     match /sharedState/timeline {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
     }
 
     // ── Tasks ─────────────────────────────────────────────────────────────

@@ -58,7 +58,7 @@ The Build Season Timeline page (`/timeline/`) stores Gantt data in a single shar
 - **Collection / document**: `sharedState / timeline`
 - **SDK**: Firebase JS SDK v10 (module, loaded from `gstatic.com`)
 - **Behaviour**: On load, the latest remote snapshot is applied automatically. Every edit is auto-saved to Firestore (debounced 1.5 s) and to `localStorage` as an offline fallback. If Firestore is unreachable, the page shows "Offline – local only" and continues to work with the cached data.
-- **Firestore rules**: add the `sharedState/timeline` rule from `docs/firestore-rules.md` in the Firebase Console.
+- **Firestore rules**: add the `sharedState/timeline` rule from `docs/firestore-rules.md` in the Firebase Console. The default rule requires `request.auth != null`; change to `if true` only if the page is used without sign-in.
 
 Setup steps:
 1. Open the [Firebase Console](https://console.firebase.google.com/) → project **tridenttaskboard**.

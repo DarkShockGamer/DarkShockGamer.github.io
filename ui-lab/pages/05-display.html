@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/assets/js/theme-prepaint.js"></script>
+  <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
+  <link rel="stylesheet" href="/assets/css/modern-ui.css">
+  <title>05 · Display & Content — UI Lab</title>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
+  <script src="/assets/js/auth-config.js"></script>
+  <script src="/assets/js/auth-utils.js"></script>
+  <script src="/assets/js/auth-guard-developer.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <style>
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+
+    /* ── Section scroll anchor offset ── */
+    .display-section { scroll-margin-top: 4.5rem; }
+
+    /* ── Card hover lift ── */
+    .content-card {
+      background: var(--lab-surface);
+      border: 1px solid var(--lab-border);
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: var(--lab-shadow);
+      transition: transform 220ms cubic-bezier(.34,1.56,.64,1), box-shadow 220ms;
+    }
+    .content-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 40px rgba(14,165,233,.14);
+    }
+    .card-image-area {
+      height: 10rem;
+      background: linear-gradient(135deg, #0ea5e9 0%, #818cf8 50%, #ec4899 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem;
+    }
+    .card-body { padding: 1.25rem; }
+    .card-title { font-size: 1.0625rem; font-weight: 700; color: var(--lab-text); margin-bottom: .35rem; }
+    .card-desc { font-size: .875rem; color: var(--lab-muted); line-height: 1.5; margin-bottom: .75rem; }
+    .card-link { font-size: .875rem; font-weight: 600; color: var(--lab-primary); text-decoration: none; }
+    .card-link:hover { text-decoration: underline; }
+
+    /* ── Pricing features list ── */
+    .feature-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .5rem; }
+    .feature-list li { font-size: .875rem; color: var(--lab-text); display: flex; align-items: center; gap: .5rem; }
+    .feature-list li::before { content: '✓'; color: var(--lab-success); font-weight: 700; flex-shrink: 0; }
+    .pricing-name { font-size: 1rem; font-weight: 700; color: var(--lab-text); }
+    .pricing-desc { font-size: .8125rem; color: var(--lab-muted); }
+    .pricing-actions { margin-top: auto; }
+
+    /* ── Avatar group overlap ── */
+    .avatar-group { display: flex; align-items: center; }
+    .avatar-group .lab-avatar + .lab-avatar { margin-left: -.625rem; }
+    .avatar-group .overflow-badge {
+      margin-left: -.5rem;
+      width: 2.5rem; height: 2.5rem;
+      border-radius: 50%;
+      background: #e2e8f0;
+      border: 2px solid white;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700; color: var(--lab-muted);
+    }
+    .dark .avatar-group .overflow-badge { background: #1e293b; border-color: #0f172a; color: #94a3b8; }
+
+    /* ── Status dot ── */
+    .avatar-wrap { position: relative; display: inline-block; }
+    .status-dot {
+      position: absolute; bottom: 1px; right: 1px;
+      width: .7rem; height: .7rem;
+      border-radius: 50%;
+      border: 2px solid var(--lab-surface);
+    }
+    .status-dot.online  { background: var(--lab-success); }
+    .status-dot.offline { background: #94a3b8; }
+
+    /* ── Chip remove animation ── */
+    .lab-chip.removing {
+      transform: scale(.8);
+      opacity: 0;
+      transition: transform 180ms ease, opacity 180ms ease;
+    }
+
+    /* ── Table striped rows ── */
+    .lab-table tbody tr:nth-child(even) td { background: #f8fafc; }
+    .dark .lab-table tbody tr:nth-child(even) td { background: #0a1628; }
+    .sort-arrow { margin-left: .3rem; opacity: .4; font-size: .7rem; }
+    .sort-arrow.active { opacity: 1; color: var(--lab-primary); }
+
+    /* ── Code block wrapper ── */
+    .code-wrap { position: relative; }
+    .copy-btn {
+      position: absolute; top: .75rem; right: .75rem;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+      color: #e6edf3;
+      font-size: .75rem; font-weight: 600;
+      padding: .25rem .6rem; border-radius: .375rem;
+      cursor: pointer; transition: background 150ms;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,.2); }
+
+    /* ── Syntax highlight ── */
+    .kw  { color: #ff7b72; }   /* keywords  — red    */
+    .fn  { color: #d2a8ff; }   /* functions — purple */
+    .str { color: #a5d6ff; }   /* strings   — blue   */
+    .num { color: #79c0ff; }   /* numbers   — light blue */
+    .cm  { color: #8b949e; font-style: italic; } /* comments  — gray   */
+    .pr  { color: #ffa657; }   /* params    — orange */
+
+    /* ── Color palette swatch text ── */
+    .swatch-label { color: white; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
+    .swatch-label.dark-text { color: #0f172a; text-shadow: none; }
+
+    /* ── Media card extras ── */
+    .media-info { flex: 1; min-width: 0; }
+    .media-title { font-size: 1rem; font-weight: 700; color: white; }
+    .media-artist { font-size: .8125rem; color: rgba(255,255,255,.65); margin-top: .125rem; }
+    .media-duration { font-size: .75rem; color: rgba(255,255,255,.5); margin-top: .25rem; }
+    .media-controls { display: flex; align-items: center; gap: .625rem; margin-top: .875rem; }
+    .media-ctrl-btn {
+      background: rgba(255,255,255,.12); border: none; color: white;
+      width: 2rem; height: 2rem; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: .9rem;
+      transition: background 150ms;
+    }
+    .media-ctrl-btn:hover { background: rgba(255,255,255,.22); }
+    .media-progress-wrap { margin-top: .75rem; }
+    .media-progress-bg {
+      height: 4px; background: rgba(255,255,255,.2); border-radius: 9999px;
+      cursor: pointer; position: relative; overflow: hidden;
+    }
+    .media-progress-fill {
+      height: 100%; border-radius: 9999px;
+      background: linear-gradient(90deg, #0ea5e9, #818cf8);
+      transition: width 1s linear;
+    }
+
+    /* ── Grid demo ── */
+    #rg-grid { display: grid; grid-template-columns: 1fr; gap: .625rem; transition: all 250ms; }
+    .rg-col-btn { font-size: .8125rem; padding: .35rem .8rem; border-radius: .375rem;
+      border: 1.5px solid var(--lab-border); background: var(--lab-surface);
+      color: var(--lab-muted); cursor: pointer; font-weight: 600; transition: all 150ms; }
+    .rg-col-btn.active, .rg-col-btn:hover {
+      border-color: var(--lab-primary); color: var(--lab-primary);
+      background: rgba(14,165,233,.08);
+    }
+
+    /* ── Event stream ── */
+    .event-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .event-title { font-weight: 600; color: var(--lab-text); flex: 1; }
+    .event-time { font-size: .75rem; color: var(--lab-muted); white-space: nowrap; }
+  </style>
+</head>
+<body class="min-h-screen" style="background:var(--lab-surface)">
+
+  <!-- ── Sticky Header ── -->
+  <header class="lab-sticky-header">
+    <a href="../index.html" class="lab-back-link">← Lab</a>
+    <div class="flex-1">
+      <div class="font-bold" style="color:var(--lab-text)">05 · Display & Content</div>
+      <div class="text-xs" style="color:var(--lab-muted)">12 components</div>
+    </div>
+    <button id="toggleSound" class="btn-secondary btn-ripple" style="font-size:.8rem;padding:.35rem .75rem">🔊 Sound: On</button>
+    <button onclick="document.documentElement.classList.toggle('dark')" class="btn-icon">🌙</button>
+  </header>
+
+  <!-- ── Main content ── -->
+  <main class="max-w-5xl mx-auto px-4 py-8 flex flex-col gap-10">
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 1. Basic Card                                               -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <section id="card" class="display-section lab-panel">
+      <div class="lab-section-title">1 · Basic Card</div>
+      <div class="flex justify-center">
+        <div class="content-card" style="max-width:22rem;width:100%">
+          <div class="card-image-area">🤖</div>
+          <div class="card-body">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <div class="card-title">FRC Robot 2024</div>
+              <span class="lab-badge accent" style="white-space:nowrap">Robotics</span>
+            </div>
+            <p class="card-desc">
+              Meet Trident Alpha — our award-winning FRC competition robot featuring a
+              high-torque swerve drivetrain, precision shooter, and full autonomous path
+              planning via PathPlanner.
+            </p>
+            <a href="#card" class="card-link" onclick="if(window.Sound)Sound.tab();return false;">
+              View Details →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 2. Pricing Cards                                            -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <section id="pricing" class="display-section lab-panel">
+      <div class="lab-section-title">2 · Pricing Cards</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+        <!-- Free -->
+        <div class="pricing-card flex flex-col">
+          <div>
+            <div class="pricing-name">Free</div>
+            <div class="pricing-desc">Great for getting started</div>
+          </div>
+          <div>
+            <span class="price"><sup>$</sup>0<sub>/mo</sub></span>
+          </div>
+          <ul class="feature-list flex-1">
+            <li>Up to 2 projects</li>
+            <li>Basic analytics</li>
+            <li>Community support</li>
+          </ul>
+          <div class="pricing-actions">
+            <button class="btn-ghost btn-ripple w-full" style="width:100%;justify-content:center"
+              onclick="if(window.Sound)Sound.click();showToast('info','Welcome to Free plan!')">
+              Get Started
+            </button>
+          </div>
+        </div>
+
+        <!-- Pro (recommended) -->
+        <div class="pricing-card recommended flex flex-col" style="position:relative">
+          <div style="position:absolute;top:-1px;left:50%;transform:translateX(-50%)">
+            <span class="lab-badge accent" style="border-radius:0 0 .5rem .5rem;font-size:.7rem">Most Popular</span>
+          </div>
+          <div style="margin-top:.75rem">
+            <div class="pricing-name" style="color:var(--lab-primary)">Pro</div>
+            <div class="pricing-desc">For growing teams</div>
+          </div>
+          <div>
+            <span class="price" style="color:var(--lab-primary)"><sup>$</sup>12<sub>/mo</sub></span>
+          </div>
+          <ul class="feature-list flex-1">
+            <li>Unlimited projects</li>
+            <li>Advanced analytics</li>
+            <li>Priority email support</li>
+            <li>Custom domains</li>
+            <li>API access</li>
+            <li>Team collaboration</li>
+          </ul>
+          <div class="pricing-actions">
+            <button class="btn-primary btn-ripple" style="width:100%;justify-content:center"
+              onclick="if(window.Sound)Sound.success();showToast('success','Free trial started!')">
+              Start Free Trial
+            </button>
+          </div>
+        </div>
+
+        <!-- Team -->
+        <div class="pricing-card flex flex-col">
+          <div>
+            <div class="pricing-name">Team</div>
+            <div class="pricing-desc">Enterprise-grade power</div>
+          </div>
+          <div>
+            <span class="price"><sup>$</sup>29<sub>/mo</sub></span>
+          </div>
+          <ul class="feature-list flex-1">
+            <li>Everything in Pro</li>
+            <li>SSO / SAML</li>
+            <li>Dedicated support</li>
+            <li>SLA guarantee</li>
+            <li>Audit logs</li>
+            <li>Role-based access</li>
+            <li>Custom integrations</li>
+            <li>On-prem option</li>
+            <li>White-label ready</li>
+          </ul>
+          <div class="pricing-actions">
+            <button class="btn-secondary btn-ripple" style="width:100%;justify-content:center"
+              onclick="if(window.Sound)Sound.info();showToast('info','Sales team will reach out!')">
+              Contact Sales
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 3. Stats Widgets                                            -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <section id="stats" class="display-section lab-panel">
+      <div class="lab-section-title">3 · Stats Widgets</div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+        <div class="stat-card">
+          <div class="stat-value">1,247</div>
+          <div class="stat-label">Total Matches</div>
+          <div class="stat-trend up">↑ 12% vs last season</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-value">94%</div>
+          <div class="stat-label">Win Rate</div>
+          <div class="stat-trend down">↓ 2% this week</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-value">38</div>
+          <div class="stat-label">Team Members</div>
+          <div class="stat-trend up">↑ 5 new this month</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 4. Avatar                                                    -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <section id="avatar" class="display-section lab-panel">
+      <div class="lab-section-title">4 · Avatar</div>
+      <div class="flex flex-wrap gap-8 items-center">
+
+        <!-- Single large avatar with online dot -->
+        <div class="flex flex-col items-center gap-2">
+          <div class="avatar-wrap">
+            <div class="lab-avatar lg" style="background:linear-gradient(135deg,#0ea5e9,#818cf8)">TR</div>
+            <span class="status-dot online"></span>
+          </div>
+          <span style="font-size:.8125rem;color:var(--lab-muted)">Online</span>
+        </div>
+
+        <!-- Single avatar with offline dot -->
+        <div class="flex flex-col items-center gap-2">
+          <div class="avatar-wrap">
+            <div class="lab-avatar lg" style="background:linear-gradient(135deg,#ec4899,#f43f5e)">AB</div>
+            <span class="status-dot offline"></span>
+          </div>
+          <span style="font-size:.8125rem;color:var(--lab-muted)">Offline</span>
+        </div>
+
+        <!-- Avatar group -->
+        <div class="flex flex-col items-center gap-2">
+          <div class="avatar-group">
+            <div class="lab-avatar" style="background:linear-gradient(135deg,#0ea5e9,#22d3ee)">JD</div>
+            <div class="lab-avatar" style="background:linear-gradient(135deg,#818cf8,#c084fc)">KL</div>
+            <div class="lab-avatar" style="background:linear-gradient(135deg,#22c55e,#4ade80)">MP</div>
+            <div class="lab-avatar" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)">SR</div>
+            <div class="overflow-badge">+3</div>
+          </div>
+          <span style="font-size:.8125rem;color:var(--lab-muted)">Team of 7</span>
+        </div>
+
+        <!-- Small avatars row -->
+        <div class="flex flex-col items-center gap-2">
+          <div class="flex items-center gap-2">
+            <div class="lab-avatar sm" style="background:linear-gradient(135deg,#ef4444,#f97316)">FX</div>
+            <div class="lab-avatar sm" style="background:linear-gradient(135deg,#0ea5e9,#818cf8)">TR</div>
+            <div class="lab-avatar sm" style="background:linear-gradient(135deg,#22c55e,#0ea5e9)">GH</div>
+          </div>
+          <span style="font-size:.8125rem;color:var(--lab-muted)">Small (sm)</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 5. Badges / Chips / Tags                                    -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <section id="badges" class="display-section lab-panel">
+      <div class="lab-section-title">5 · Badges · Chips · Tags</div>
+      <div class="flex flex-col gap-4">
+
+        <!-- Solid badges -->
+        <div>
+          <div class="lab-component-title">Badges</div>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="lab-badge">Default</span>
+            <span class="lab-badge success">Success</span>
+            <span class="lab-badge warn">Warning</span>
+            <span class="lab-badge error">Error</span>
+            <span class="lab-badge accent">Accent</span>
+          </div>
+        </div>
+
+        <!-- Dot badges -->
+        <div>
+          <div class="lab-component-title">Badge with Dot</div>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="lab-badge lab-badge-dot">Active</span>
+            <span class="lab-badge success lab-badge-dot">Online</span>
+            <span class="lab-badge warn lab-badge-dot">Away</span>
+            <span class="lab-badge error lab-badge-dot">Offline</span>
+            <span class="lab-badge accent lab-badge-dot">Beta</span>
+          </div>
+        </div>
+
+        <!-- Chips with remove -->
+        <div>
+          <div class="lab-component-title">Chips</div>
+          <div id="chipContainer" class="flex flex-wrap gap-2 mt-2">
+            <span class="lab-chip" data-chip="react">React <span class="remove" title="Remove">×</span></span>
+            <span class="lab-chip" data-chip="ts">TypeScript <span class="remove" title="Remove">×</span></span>
+            <span class="lab-chip" data-chip="css">CSS <span class="remove" title="Remove">×</span></span>
+            <span class="lab-chip" data-chip="html">HTML <span class="remove" title="Remove">×</span></span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 6. Data Table                                               -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <section id="table" class="display-section lab-panel">
+      <div class="lab-section-title">6 · Data Table</div>
+      <div style="overflow-x:auto;border-radius:.625rem;border:1px solid var(--lab-border)">
+        <table class="lab-table" id="matchTable">
+          <thead>
+            <tr>
+              <th data-col="match" onclick="sortTable('match')">Match # <span class="sort-arrow" id="arr-match">↕</span></th>
+              <th data-col="robot" onclick="sortTable('robot')">Robot <span class="sort-arrow" id="arr-robot">↕</span></th>
+              <th data-col="score" onclick="sortTable('score')">Score <span class="sort-arrow" id="arr-score">↕</span></th>
+              <th data-col="alliance" onclick="sortTable('alliance')">Alliance <span class="sort-arrow" id="arr-alliance">↕</span></th>
+              <th data-col="result" onclick="sortTable('result')">Result <span class="sort-arrow" id="arr-result">↕</span></th>
+            </tr>
+          </thead>
+          <tbody id="matchTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 7. Timeline                                                  -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <section id="timeline" class="display-section lab-panel">
+      <div class="lab-section-title">7 · Timeline</div>
+      <div class="timeline" style="max-width:34rem">
+
+        <div class="timeline-item">
+          <div class="timeline-dot">🏆</div>
+          <div class="timeline-content">
+            <div style="font-weight:700;color:var(--lab-text)">Won Regional Championship</div>
+            <div class="timeline-time">March 2024</div>
+            <div style="font-size:.875rem;color:var(--lab-muted);margin-top:.25rem">
+              Trident Robotics claimed first place at the Silicon Valley Regional, earning a
+              coveted blue banner and a direct invite to the World Championship.
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot">🤖</div>
+          <div class="timeline-content">
+            <div style="font-weight:700;color:var(--lab-text)">Robot Completed</div>
+            <div class="timeline-time">January 2024</div>
+            <div style="font-size:.875rem;color:var(--lab-muted);margin-top:.25rem">
+              Final assembly and wiring completed. All subsystems—shooter, intake, and
+              climber—passed full integration testing.
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot">🔧</div>
+          <div class="timeline-content">
+            <div style="font-weight:700;color:var(--lab-text)">Build Season Starts</div>
+            <div class="timeline-time">January 2024 — Week 1</div>
+            <div style="font-size:.875rem;color:var(--lab-muted);margin-top:.25rem">
+              FRC Kickoff! The team gathered for reveal day, analyzed the game manual,
+              and immediately began brainstorming robot concepts.
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot">📋</div>
+          <div class="timeline-content">
+            <div style="font-weight:700;color:var(--lab-text)">Team Registration</div>
+            <div class="timeline-time">September 2023</div>
+            <div style="font-size:.875rem;color:var(--lab-muted);margin-top:.25rem">
+              Officially signed up for the 2024 FRC season. Mentor onboarding and
+              new student recruitment completed within the first two weeks.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 8. Code Block                                               -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <section id="code" class="display-section lab-panel">
+      <div class="lab-section-title">8 · Code Block</div>
+      <div class="code-wrap">
+        <button class="copy-btn btn-ripple" id="copyBtn" onclick="copyCode()">📋 Copy</button>
+        <pre class="lab-code" id="codeBlock"><span class="cm">// Trident Robotics — Auto Scoring Function</span>
+<span class="kw">function</span> <span class="fn">calculateAutoScore</span>(<span class="pr">targets</span>, <span class="pr">accuracy</span>) {
+  <span class="kw">const</span> BASE_POINTS = <span class="num">10</span>;
+  <span class="kw">const</span> hits = targets.<span class="fn">filter</span>(<span class="pr">t</span> => t.hit);
+  <span class="kw">return</span> hits.<span class="fn">reduce</span>((<span class="pr">total</span>, <span class="pr">target</span>) => {
+    <span class="kw">return</span> total + (BASE_POINTS * target.multiplier * accuracy);
+  }, <span class="num">0</span>);
+}</pre>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 9. Color Palette                                            -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <section id="palette" class="display-section lab-panel">
+      <div class="lab-section-title">9 · Color Palette</div>
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+
+        <div class="flex flex-col gap-1">
+          <div class="color-swatch" style="background:#0ea5e9">
+            <span class="swatch-label">Sky 500</span>
+          </div>
+          <div style="font-size:.75rem;font-weight:600;color:var(--lab-text)">#0ea5e9</div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="color-swatch" style="background:#818cf8">
+            <span class="swatch-label">Indigo 400</span>
+          </div>
+          <div style="font-size:.75rem;font-weight:600;color:var(--lab-text)">#818cf8</div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="color-swatch" style="background:#22c55e">
+            <span class="swatch-label">Emerald 500</span>
+          </div>
+          <div style="font-size:.75rem;font-weight:600;color:var(--lab-text)">#22c55e</div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="color-swatch" style="background:#eab308">
+            <span class="swatch-label">Amber 500</span>
+          </div>
+          <div style="font-size:.75rem;font-weight:600;color:var(--lab-text)">#eab308</div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="color-swatch" style="background:#ef4444">
+            <span class="swatch-label">Rose 500</span>
+          </div>
+          <div style="font-size:.75rem;font-weight:600;color:var(--lab-text)">#ef4444</div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="color-swatch" style="background:#0f172a">
+            <span class="swatch-label">Slate 900</span>
+          </div>
+          <div style="font-size:.75rem;font-weight:600;color:var(--lab-text)">#0f172a</div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="color-swatch" style="background:#334155">
+            <span class="swatch-label">Slate 700</span>
+          </div>
+          <div style="font-size:.75rem;font-weight:600;color:var(--lab-text)">#334155</div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="color-swatch" style="background:#94a3b8">
+            <span class="swatch-label">Slate 400</span>
+          </div>
+          <div style="font-size:.75rem;font-weight:600;color:var(--lab-text)">#94a3b8</div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="color-swatch" style="background:#ffffff;border:1px solid #e2e8f0">
+            <span class="swatch-label dark-text">White</span>
+          </div>
+          <div style="font-size:.75rem;font-weight:600;color:var(--lab-text)">#ffffff</div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <div class="color-swatch" style="background:#f8fafc;border:1px solid #e2e8f0">
+            <span class="swatch-label dark-text">Slate 50</span>
+          </div>
+          <div style="font-size:.75rem;font-weight:600;color:var(--lab-text)">#f8fafc</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 10. Media Card                                              -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <section id="media" class="display-section lab-panel">
+      <div class="lab-section-title">10 · Media Card</div>
+      <div style="max-width:28rem">
+        <div class="media-card">
+          <div class="media-art">🎵</div>
+          <div class="media-info">
+            <div style="font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:600;margin-bottom:.2rem">Now Playing</div>
+            <div class="media-title">Trident Theme</div>
+            <div class="media-artist">Robotics Crew</div>
+            <div class="media-duration">3:42</div>
+            <div class="media-progress-wrap">
+              <div class="media-progress-bg" id="progressBg" onclick="seekTrack(event)">
+                <div class="media-progress-fill" id="progressFill" style="width:28%"></div>
+              </div>
+            </div>
+            <div class="media-controls">
+              <button class="media-ctrl-btn" id="prevBtn" title="Previous" onclick="prevTrack()">⏮</button>
+              <button class="media-play-btn" id="playPauseBtn" onclick="togglePlay()">▶</button>
+              <button class="media-ctrl-btn" id="nextBtn" title="Next" onclick="nextTrack()">⏭</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 11. Responsive Grid Demo                                    -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <section id="grid" class="display-section lab-panel">
+      <div class="lab-section-title">11 · Responsive Grid Demo</div>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button class="rg-col-btn active" data-cols="1" onclick="setGrid(1,this)">1 Col</button>
+        <button class="rg-col-btn" data-cols="2" onclick="setGrid(2,this)">2 Col</button>
+        <button class="rg-col-btn" data-cols="3" onclick="setGrid(3,this)">3 Col</button>
+        <button class="rg-col-btn" data-cols="4" onclick="setGrid(4,this)">4 Col</button>
+      </div>
+      <div id="rg-grid">
+        <div class="rg-cell">Cell 1</div>
+        <div class="rg-cell">Cell 2</div>
+        <div class="rg-cell">Cell 3</div>
+        <div class="rg-cell">Cell 4</div>
+        <div class="rg-cell">Cell 5</div>
+        <div class="rg-cell">Cell 6</div>
+        <div class="rg-cell">Cell 7</div>
+        <div class="rg-cell">Cell 8</div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 12. Notification / Event Stream                             -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <section id="stream" class="display-section lab-panel">
+      <div class="lab-section-title">12 · Event Stream</div>
+      <div class="flex items-center justify-between mb-3">
+        <span style="font-size:.8125rem;color:var(--lab-muted)">Live telemetry feed</span>
+        <button class="btn-primary btn-ripple" style="font-size:.8rem;padding:.35rem .85rem" onclick="pingEvent()">
+          📡 Ping
+        </button>
+      </div>
+      <div class="event-feed" id="eventFeed"></div>
+    </section>
+
+  </main>
+
+  <div id="toastStack" class="toast-stack" aria-live="polite"></div>
+  <script src="../assets/lab.js"></script>
+
+  <!-- ── Page-specific JavaScript ── -->
+  <script>
+  /* ══════════════════════════════════════════════════════════════════
+     1. CHIP REMOVE
+  ══════════════════════════════════════════════════════════════════ */
+  document.getElementById('chipContainer').addEventListener('click', (e) => {
+    if (!e.target.classList.contains('remove')) return;
+    const chip = e.target.closest('.lab-chip');
+    if (!chip) return;
+    if (window.Sound) Sound.click();
+    chip.classList.add('removing');
+    setTimeout(() => chip.remove(), 190);
+  });
+
+  /* ══════════════════════════════════════════════════════════════════
+     2. TABLE SORT
+  ══════════════════════════════════════════════════════════════════ */
+  const TABLE_DATA = [
+    { match: '001', robot: 'Trident Alpha', score: 142, alliance: 'Red',  result: 'Win'  },
+    { match: '002', robot: 'Iron Claw',     score: 98,  alliance: 'Blue', result: 'Loss' },
+    { match: '003', robot: 'Trident Alpha', score: 167, alliance: 'Blue', result: 'Win'  },
+    { match: '004', robot: 'Apex Drive',    score: 115, alliance: 'Red',  result: 'Tie'  },
+    { match: '005', robot: 'Trident Alpha', score: 189, alliance: 'Red',  result: 'Win'  },
+  ];
+
+  let sortCol = null, sortAsc = true;
+
+  function renderTable(data) {
+    const tbody = document.getElementById('matchTableBody');
+    tbody.innerHTML = '';
+    data.forEach((row, i) => {
+      const resultBadge = row.result === 'Win'
+        ? `<span class="lab-badge success">${row.result}</span>`
+        : row.result === 'Loss'
+          ? `<span class="lab-badge error">${row.result}</span>`
+          : `<span class="lab-badge warn">${row.result}</span>`;
+      const allianceBadge = row.alliance === 'Red'
+        ? `<span class="lab-badge error">${row.alliance}</span>`
+        : `<span class="lab-badge">${row.alliance}</span>`;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="font-weight:600">#${row.match}</td>
+        <td>${row.robot}</td>
+        <td style="font-weight:700;color:var(--lab-primary)">${row.score}</td>
+        <td>${allianceBadge}</td>
+        <td>${resultBadge}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function sortTable(col) {
+    if (window.Sound) Sound.click();
+    if (sortCol === col) {
+      sortAsc = !sortAsc;
+    } else {
+      sortCol = col;
+      sortAsc = true;
+    }
+    // Update arrows
+    ['match','robot','score','alliance','result'].forEach(c => {
+      const el = document.getElementById(`arr-${c}`);
+      if (!el) return;
+      el.textContent = '↕';
+      el.classList.remove('active');
+    });
+    const activeArr = document.getElementById(`arr-${col}`);
+    if (activeArr) {
+      activeArr.textContent = sortAsc ? '↑' : '↓';
+      activeArr.classList.add('active');
+    }
+    const sorted = [...TABLE_DATA].sort((a, b) => {
+      let va = a[col], vb = b[col];
+      if (typeof va === 'number') return sortAsc ? va - vb : vb - va;
+      return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    });
+    renderTable(sorted);
+  }
+
+  renderTable(TABLE_DATA);
+
+  /* ══════════════════════════════════════════════════════════════════
+     3. CODE COPY
+  ══════════════════════════════════════════════════════════════════ */
+  const RAW_CODE = `// Trident Robotics — Auto Scoring Function
+function calculateAutoScore(targets, accuracy) {
+  const BASE_POINTS = 10;
+  const hits = targets.filter(t => t.hit);
+  return hits.reduce((total, target) => {
+    return total + (BASE_POINTS * target.multiplier * accuracy);
+  }, 0);
+}`;
+
+  function copyCode() {
+    navigator.clipboard.writeText(RAW_CODE).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '✅ Copied!';
+      if (window.Sound) Sound.success();
+      showToast('success', 'Code copied to clipboard!');
+      setTimeout(() => { btn.textContent = '📋 Copy'; }, 2200);
+    }).catch(() => {
+      if (window.Sound) Sound.error();
+      showToast('error', 'Copy failed — try manually selecting the code.');
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     4. MEDIA CARD PLAY / PAUSE
+  ══════════════════════════════════════════════════════════════════ */
+  let isPlaying = false;
+  let progressValue = 28;
+  let progressTimer = null;
+
+  function togglePlay() {
+    isPlaying = !isPlaying;
+    const btn = document.getElementById('playPauseBtn');
+    btn.textContent = isPlaying ? '⏸' : '▶';
+    if (window.Sound) Sound.toggle();
+
+    if (isPlaying) {
+      progressTimer = setInterval(() => {
+        progressValue = Math.min(progressValue + 0.5, 100);
+        document.getElementById('progressFill').style.width = progressValue + '%';
+        if (progressValue >= 100) {
+          progressValue = 0;
+          isPlaying = false;
+          btn.textContent = '▶';
+          clearInterval(progressTimer);
+        }
+      }, 1000);
+    } else {
+      clearInterval(progressTimer);
+    }
+  }
+
+  function prevTrack() {
+    if (window.Sound) Sound.click();
+    progressValue = 0;
+    document.getElementById('progressFill').style.width = '0%';
+    showToast('info', '⏮ Restarted track');
+  }
+
+  function nextTrack() {
+    if (window.Sound) Sound.click();
+    progressValue = 0;
+    document.getElementById('progressFill').style.width = '0%';
+    isPlaying = false;
+    clearInterval(progressTimer);
+    document.getElementById('playPauseBtn').textContent = '▶';
+    showToast('info', '⏭ Next track');
+  }
+
+  function seekTrack(e) {
+    const bg = document.getElementById('progressBg');
+    const rect = bg.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+    progressValue = pct;
+    document.getElementById('progressFill').style.width = pct + '%';
+    if (window.Sound) Sound.click();
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     5. RESPONSIVE GRID SWITCHER
+  ══════════════════════════════════════════════════════════════════ */
+  function setGrid(cols, btn) {
+    if (window.Sound) Sound.tab();
+    document.getElementById('rg-grid').style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    document.querySelectorAll('.rg-col-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     6. EVENT STREAM
+  ══════════════════════════════════════════════════════════════════ */
+  const EVENT_TEMPLATES = [
+    { icon: '📡', title: 'New telemetry data received' },
+    { icon: '⚡', title: 'Sensor #3 triggered' },
+    { icon: '🔗', title: 'Connection established' },
+    { icon: '📊', title: 'Match analytics updated' },
+    { icon: '🤖', title: 'Robot status: Ready' },
+    { icon: '🏁', title: 'Autonomous routine complete' },
+    { icon: '⚠️', title: 'Low battery warning' },
+    { icon: '✅', title: 'System check passed' },
+    { icon: '🔄', title: 'Config reloaded' },
+    { icon: '📥', title: 'New match data uploaded' },
+  ];
+
+  let eventCounter = 0;
+  const MAX_EVENTS = 8;
+
+  function getRelativeTime(secsAgo) {
+    if (secsAgo < 5)  return 'just now';
+    if (secsAgo < 60) return `${secsAgo}s ago`;
+    return `${Math.floor(secsAgo / 60)}m ago`;
+  }
+
+  function createEventEl(template, secsAgo) {
+    const el = document.createElement('div');
+    el.className = 'event-item';
+    el.innerHTML = `
+      <span class="event-icon">${template.icon}</span>
+      <span class="event-title">${template.title}</span>
+      <span class="event-time">${getRelativeTime(secsAgo)}</span>
+    `;
+    return el;
+  }
+
+  // Seed with 3 initial events
+  const feed = document.getElementById('eventFeed');
+  const seedTemplates = [
+    { icon: '🔗', title: 'Connection established' },
+    { icon: '✅', title: 'System check passed' },
+    { icon: '🤖', title: 'Robot status: Ready' },
+  ];
+  [180, 45, 8].forEach((ago, i) => {
+    feed.appendChild(createEventEl(seedTemplates[i], ago));
+  });
+
+  // Update relative times every 10 s
+  setInterval(() => {
+    const items = feed.querySelectorAll('.event-item');
+    items.forEach((item, idx) => {
+      const timeEl = item.querySelector('.event-time');
+      if (!timeEl) return;
+      const cur = timeEl.dataset.secs ? parseInt(timeEl.dataset.secs) : 0;
+      const next = cur + 10;
+      timeEl.dataset.secs = next;
+      timeEl.textContent = getRelativeTime(next);
+    });
+  }, 10000);
+
+  // Initialise data-secs on seed items
+  feed.querySelectorAll('.event-time').forEach((el, i) => {
+    el.dataset.secs = [180, 45, 8][i] || 0;
+  });
+
+  function pingEvent() {
+    if (window.Sound) Sound.info();
+    const tmpl = EVENT_TEMPLATES[eventCounter % EVENT_TEMPLATES.length];
+    eventCounter++;
+    const el = createEventEl(tmpl, 0);
+    const timeEl = el.querySelector('.event-time');
+    if (timeEl) timeEl.dataset.secs = 0;
+    feed.insertBefore(el, feed.firstChild);
+    // Trim to max 8
+    while (feed.children.length > MAX_EVENTS) {
+      feed.removeChild(feed.lastChild);
+    }
+    showToast('info', `📡 ${tmpl.title}`);
+  }
+  </script>
+</body>
+</html>

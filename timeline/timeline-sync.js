@@ -97,13 +97,14 @@ function applyRemote(remoteState) {
 }
 
 // ── Debounced Firestore write ─────────────────────────────────────────────────
-let _saveTimer       = null;
-/** Set true just before we write so our own onSnapshot echo is ignored. */
-let _suppressNext    = false;
+let _saveTimer = null;
 
 /**
  * Schedule a debounced write to Firestore.
  * Strips UI-only fields (selectedId) before persisting.
+ * merge: false is intentional — the entire state is always written atomically,
+ * so a partial merge would be incorrect here. Last writer wins, which is the
+ * expected behaviour for a shared team Gantt chart.
  * @param {object} stateSnapshot - full state from timeline.js
  */
 function scheduleSave(stateSnapshot) {
@@ -112,12 +113,10 @@ function scheduleSave(stateSnapshot) {
     // Strip UI-only field that has no meaning for other clients.
     const { selectedId: _ignored, ...persistable } = stateSnapshot;
     setStatus('Saving…', 'warn');
-    _suppressNext = true;
     setDoc(ref, { state: persistable, updatedAt: serverTimestamp() }, { merge: false })
       .then(()  => setStatus('Synced ✓'))
       .catch(err => {
         console.error('[TimelineSync] Save error:', err);
-        _suppressNext = false;
         setStatus('Sync error', 'error');
       });
   }, DEBOUNCE_MS);
@@ -142,8 +141,11 @@ function scheduleSave(stateSnapshot) {
       }
 
       // Real-time listener for updates from other clients.
-      onSnapshot(ref, snapshot => {
-        if (_suppressNext) { _suppressNext = false; return; }
+      // includeMetadataChanges: true lets us detect local pending writes via
+      // snapshot.metadata.hasPendingWrites and skip echo-backs of our own saves.
+      onSnapshot(ref, { includeMetadataChanges: true }, snapshot => {
+        // Ignore events that reflect our own uncommitted/pending writes.
+        if (snapshot.metadata.hasPendingWrites) return;
         if (snapshot.exists()) {
           applyRemote(snapshot.data().state);
         }

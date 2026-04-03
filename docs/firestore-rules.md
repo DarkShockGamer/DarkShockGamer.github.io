@@ -135,5 +135,10 @@ match /timeline/{docId} {
 ```
 
 You will also need to ensure users sign in via `firebase-profile-sync.js`
-before any timeline saves are attempted.
+before any timeline saves are attempted.  If a save is attempted while the user
+is not signed in, `timeline-sync.js` will catch the Firestore permission error
+and display **"Sync error"** in the status indicator; the change will still be
+saved to `localStorage` so no data is lost.  You may want to show a sign-in
+prompt at that point by listening for the `'Sync error'` status or by wrapping
+the `scheduleSave` call with an auth check.
 

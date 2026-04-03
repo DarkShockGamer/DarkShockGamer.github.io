@@ -52,6 +52,20 @@ The site includes optional profile syncing for signed-in users using Firebase Au
 Main module:
 - `assets/js/firebase-profile-sync.js`
 
+## Cross-device timeline sync
+The Build Season Timeline page (`/timeline/`) stores Gantt data in a single shared **Firestore** document so all team members see the same state in real time.
+
+- **Collection / document**: `sharedState / timeline`
+- **SDK**: Firebase JS SDK v10 (module, loaded from `gstatic.com`)
+- **Behaviour**: On load, the latest remote snapshot is applied automatically. Every edit is auto-saved to Firestore (debounced 1.5 s) and to `localStorage` as an offline fallback. If Firestore is unreachable, the page shows "Offline – local only" and continues to work with the cached data.
+- **Firestore rules**: add the `sharedState/timeline` rule from `docs/firestore-rules.md` in the Firebase Console.
+
+Setup steps:
+1. Open the [Firebase Console](https://console.firebase.google.com/) → project **tridenttaskboard**.
+2. Navigate to **Firestore Database → Rules**.
+3. Paste the full rule set from `docs/firestore-rules.md` and publish.
+4. The timeline page will start syncing immediately — no other configuration needed.
+
 ## Local development
 Because some pages fetch JSON, you should run a local server (not `file://`).
 

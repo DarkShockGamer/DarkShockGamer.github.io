@@ -45,6 +45,22 @@
   /** Active pointer-resize interaction. */
   let resizeState = null;
 
+  // ── Sync state ──────────────────────────────────────────────────────────────
+
+  /** Timer handle for debounced Firestore saves. */
+  let _saveDebounceTimer = null;
+
+  /**
+   * Stable hash of the sync-relevant state fields.
+   * Used to detect whether an incoming snapshot is our own committed write.
+   */
+  let _lastPushedHash = null;
+
+  /** Returns a canonical JSON string of the fields that are synced. */
+  function hashState(s) {
+    return JSON.stringify({ season: s.season, zoom: s.zoom, subteams: s.subteams, nextId: s.nextId });
+  }
+
   // ── Date Helpers ────────────────────────────────────────────────────────────
 
   /**
@@ -119,13 +135,39 @@
   }
 
   function saveState(notify = true) {
+    // Always persist to localStorage for instant offline fallback
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      if (notify) showSaveStatus('Saved ✓');
     } catch (e) {
-      console.error('[Timeline] Save error:', e);
-      showSaveStatus('Save failed', true);
+      console.error('[Timeline] localStorage save error:', e);
     }
+
+    if (notify) showSaveStatus('Saving…');
+
+    // Debounce remote save so rapid edits (drag, keyboard) don't flood Firestore
+    clearTimeout(_saveDebounceTimer);
+    _saveDebounceTimer = setTimeout(async () => {
+      const sync = window._timelineSync;
+      if (!sync?.isAvailable) {
+        if (notify) showSaveStatus('Saved locally ✓');
+        return;
+      }
+      try {
+        const payload = {
+          season:    state.season,
+          zoom:      state.zoom,
+          subteams:  state.subteams,
+          nextId:    state.nextId,
+          updatedAt: new Date().toISOString(),
+        };
+        _lastPushedHash = hashState(state);
+        await sync.save(payload);
+        if (notify) showSaveStatus('Synced ✓');
+      } catch (err) {
+        console.error('[Timeline] Firestore save error:', err);
+        if (notify) showSaveStatus('Saved locally ✓');
+      }
+    }, 1500);
   }
 
   function showSaveStatus(msg, isError = false) {
@@ -134,7 +176,10 @@
     el.textContent = msg;
     el.style.color = isError ? '#ef4444' : '#10b981';
     clearTimeout(showSaveStatus._t);
-    showSaveStatus._t = setTimeout(() => { el.textContent = ''; }, 2000);
+    // Persist error messages; transient success/status messages fade after 2 s
+    if (!isError) {
+      showSaveStatus._t = setTimeout(() => { el.textContent = ''; }, 2000);
+    }
   }
 
   function clone(x) { return JSON.parse(JSON.stringify(x)); }
@@ -721,10 +766,73 @@
 
   // ── Bootstrap ────────────────────────────────────────────────────────────────
 
+  /**
+   * Called once the Firebase sync module signals readiness.
+   * Subscribes to real-time Firestore updates and applies any remote state
+   * that differs from the locally-loaded snapshot.
+   */
+  function setupSync() {
+    const sync = window._timelineSync;
+    if (!sync?.isAvailable) {
+      showSaveStatus('Offline – local only', true);
+      return;
+    }
+
+    showSaveStatus('Connecting…');
+
+    sync.subscribe((remoteData, meta) => {
+      // hasPendingWrites = true means this is our own in-flight write; skip it.
+      if (meta?.hasPendingWrites) return;
+
+      // No remote document yet – keep local defaults and mark as ready.
+      if (!remoteData) {
+        showSaveStatus('Synced ✓');
+        return;
+      }
+
+      const remoteHash = JSON.stringify({
+        season:   remoteData.season,
+        zoom:     remoteData.zoom,
+        subteams: remoteData.subteams,
+        nextId:   remoteData.nextId,
+      });
+
+      // Skip if this snapshot matches the last payload we pushed (our own commit).
+      if (remoteHash === _lastPushedHash) {
+        showSaveStatus('Synced ✓');
+        return;
+      }
+
+      // A genuine remote change – apply it and re-render.
+      if (remoteData.season)                     state.season   = remoteData.season;
+      if (Array.isArray(remoteData.subteams))    state.subteams = remoteData.subteams;
+      if (remoteData.zoom)                       state.zoom     = remoteData.zoom;
+      if (typeof remoteData.nextId === 'number') state.nextId   = remoteData.nextId;
+      state.selectedId = null; // clear any stale selection
+
+      // Keep localStorage in sync with the latest remote state.
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
+
+      _lastPushedHash = remoteHash;
+      render();
+      showSaveStatus('Synced ✓');
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     loadState();
     wireEvents();
     render();
+
+    // Set up Firebase real-time sync.
+    // The module script in index.html dispatches 'timeline-sync-ready' once
+    // Firebase is initialised (or fails).  Handle both orderings: the module
+    // may have finished before or after DOMContentLoaded.
+    if (window._timelineSync !== undefined) {
+      setupSync();
+    } else {
+      document.addEventListener('timeline-sync-ready', setupSync, { once: true });
+    }
   });
 
   // Minimal public API for console-level customisation

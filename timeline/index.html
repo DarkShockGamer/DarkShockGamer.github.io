@@ -180,7 +180,7 @@
         <li><strong>Drag handles</strong> on either end of a bar to resize it directly</li>
         <li><strong>Keyboard:</strong> focus a bar, then press <kbd>←</kbd>/<kbd>→</kbd> (or <kbd>Shift+←/→</kbd> for week jumps) to adjust the end date; <kbd>Enter</kbd> to open editor</li>
         <li><strong>Season dates</strong> set the overall view window; <strong>Zoom</strong> narrows it further</li>
-        <li><strong>Auto-save:</strong> every change is saved to your browser automatically</li>
+        <li><strong>Auto-save &amp; sync:</strong> every change is auto-saved and synced to all team members in real time</li>
         <li><strong>Export / Import</strong> JSON to share or back up your timeline</li>
         <li>The <span class="tl-today-badge">red line</span> marks today's date</li>
       </ul>
@@ -188,5 +188,55 @@
   </div>
 
   <script src="timeline.js"></script>
+
+  <!-- Firebase cross-device sync for Build Season Timeline -->
+  <script type="module">
+    import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js';
+    import { getFirestore, doc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js';
+
+    const FIREBASE_CONFIG = {
+      apiKey:            'AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHGWZI',
+      authDomain:        'tridenttaskboard.firebaseapp.com',
+      projectId:         'tridenttaskboard',
+      storageBucket:     'tridenttaskboard.firebasestorage.appspot.com',
+      messagingSenderId: '143400263387',
+      appId:             '1:143400263387:web:66ed521ae75af588e836fe',
+    };
+
+    // Firestore path: collection "sharedState", document "timeline"
+    const SYNC_COLLECTION = 'sharedState';
+    const SYNC_DOC_ID     = 'timeline';
+
+    try {
+      const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
+      const db  = getFirestore(app);
+      const tlRef = doc(db, SYNC_COLLECTION, SYNC_DOC_ID);
+
+      window._timelineSync = {
+        isAvailable: true,
+        /**
+         * Persist timeline state to Firestore.
+         * @param {object} payload - serialisable state object
+         */
+        save: payload => setDoc(tlRef, payload),
+        /**
+         * Subscribe to real-time updates.
+         * @param {function} callback - called with (data, metadata)
+         * @returns {function} unsubscribe
+         */
+        subscribe: callback => onSnapshot(
+          tlRef,
+          snap => { callback(snap.exists() ? snap.data() : null, snap.metadata); },
+          err  => console.warn('[Timeline] Firestore listen error:', err),
+        ),
+      };
+    } catch (err) {
+      console.warn('[Timeline] Firebase init error:', err);
+      window._timelineSync = { isAvailable: false };
+    }
+
+    // Signal timeline.js that the sync layer is ready
+    document.dispatchEvent(new CustomEvent('timeline-sync-ready'));
+  </script>
 </body>
 </html>

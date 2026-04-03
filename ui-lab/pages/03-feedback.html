@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/assets/js/theme-prepaint.js"></script>
+  <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
+  <link rel="stylesheet" href="/assets/css/modern-ui.css">
+  <title>03 · Feedback &amp; Overlays — UI Lab</title>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
+  <script src="/assets/js/auth-config.js"></script>
+  <script src="/assets/js/auth-utils.js"></script>
+  <script src="/assets/js/auth-guard-developer.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <style>
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+
+    /* ── Skeleton card layout ── */
+    .skeleton-card {
+      background: var(--lab-surface);
+      border: 1px solid var(--lab-border);
+      border-radius: .75rem;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+    }
+    .skeleton-top { display: flex; align-items: center; gap: .75rem; }
+
+    /* ── Real content card (hidden by default) ── */
+    .real-card {
+      background: var(--lab-surface);
+      border: 1px solid var(--lab-border);
+      border-radius: .75rem;
+      padding: 1rem;
+      display: none;
+      flex-direction: column;
+      gap: .5rem;
+      animation: fade-up 350ms ease both;
+    }
+    .real-card.show { display: flex; }
+    @keyframes fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Alert dismiss animation ── */
+    .lab-alert { transition: opacity 200ms, transform 200ms, max-height 300ms, padding 300ms, margin 300ms; }
+    .lab-alert.dismissing { opacity: 0; transform: translateX(12px); max-height: 0 !important; padding-top: 0 !important; padding-bottom: 0 !important; margin-bottom: 0 !important; overflow: hidden; }
+
+    /* ── Progress label ── */
+    .progress-label {
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--lab-primary);
+      transition: color 200ms;
+    }
+
+    /* ── Coach step badge ── */
+    .coach-step-badge {
+      display: inline-block;
+      padding: .2em .7em;
+      border-radius: 9999px;
+      background: rgba(14,165,233,.12);
+      color: var(--lab-primary);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      margin-bottom: .75rem;
+    }
+    .coach-icon { font-size: 2.5rem; margin-bottom: .5rem; }
+
+    /* ── Drawer content ── */
+    .drawer-section {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--lab-border);
+    }
+    .drawer-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .75rem 0;
+      border-bottom: 1px solid var(--lab-border);
+      font-size: .875rem;
+      color: var(--lab-text);
+    }
+    .drawer-item:last-child { border-bottom: none; }
+    .drawer-item-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: .5rem;
+      background: rgba(14,165,233,.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    /* ── Quick-nav pills ── */
+    .quick-nav {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+    .quick-nav a {
+      font-size: .78rem;
+      padding: .3rem .75rem;
+      border-radius: 9999px;
+      background: var(--lab-surface);
+      border: 1px solid var(--lab-border);
+      color: var(--lab-text);
+      text-decoration: none;
+      transition: background 150ms, border-color 150ms, color 150ms;
+      white-space: nowrap;
+    }
+    .quick-nav a:hover {
+      background: rgba(14,165,233,.1);
+      border-color: var(--lab-primary);
+      color: var(--lab-primary);
+    }
+
+    /* ── Modal icon accent ── */
+    .modal-icon-ring {
+      width: 3.5rem; height: 3.5rem;
+      border-radius: 9999px;
+      background: rgba(14,165,233,.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      margin: 0 auto 1rem;
+    }
+
+    /* ── Cmd palette empty state ── */
+    .cmd-empty {
+      padding: 1.25rem 1rem;
+      text-align: center;
+      font-size: .875rem;
+      color: var(--lab-muted);
+    }
+
+    /* ── Tooltip demo wrapper ── */
+    .tooltip-demo-row {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen" style="background:linear-gradient(to bottom,#f0f9ff,#ffffff);color:var(--lab-text)">
+
+<!-- ─── Sticky Header ─────────────────────────────────────────────────────── -->
+<header class="lab-sticky-header">
+  <a href="../index.html" class="lab-back-link">← Lab</a>
+  <div class="flex-1">
+    <div class="font-bold" style="color:var(--lab-text)">03 · Feedback &amp; Overlays</div>
+    <div class="text-xs" style="color:var(--lab-muted)">9 components</div>
+  </div>
+  <button id="toggleSound" class="btn-secondary btn-ripple" style="font-size:.8rem;padding:.35rem .75rem">🔊 Sound: On</button>
+  <button onclick="document.documentElement.classList.toggle('dark')" class="btn-icon">🌙</button>
+</header>
+
+<!-- ─── Main Content ──────────────────────────────────────────────────────── -->
+<main class="lab-page-wrap">
+
+  <!-- Page title -->
+  <div class="mb-6 reveal">
+    <h1 class="lab-section-title mb-1">Feedback &amp; Overlays</h1>
+    <p style="color:var(--lab-muted);font-size:.9rem">
+      Toasts, alerts, modals, drawers, progress, skeletons, tooltips, command palette &amp; coach marks.
+    </p>
+  </div>
+
+  <!-- Quick navigation -->
+  <div class="lab-panel mb-8 reveal">
+    <span class="lab-component-title">Jump to component</span>
+    <nav class="quick-nav">
+      <a href="#toasts">1 · Toasts</a>
+      <a href="#alerts">2 · Alerts</a>
+      <a href="#modal">3 · Modal</a>
+      <a href="#drawer">4 · Drawer</a>
+      <a href="#progress">5 · Progress</a>
+      <a href="#skeleton">6 · Skeleton</a>
+      <a href="#tooltip">7 · Tooltip</a>
+      <a href="#cmdpalette">8 · Command Palette</a>
+      <a href="#coachmark">9 · Coach Mark</a>
+    </nav>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- 1 · TOAST NOTIFICATIONS                                               -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section id="toasts" class="lab-section reveal">
+    <div class="lab-panel">
+      <span class="lab-component-title">1 · Toast Notifications</span>
+      <h2 class="lab-section-title mb-1" style="font-size:1.15rem">Toast Notifications</h2>
+      <p class="mb-4 text-sm" style="color:var(--lab-muted)">
+        Non-blocking feedback messages that auto-dismiss. Click to trigger each variant.
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <button class="btn-primary btn-ripple" onclick="showToast('success','Changes saved successfully! ✓'); Sound.success()">
+          ✅ Success
+        </button>
+        <button class="btn-secondary btn-ripple" onclick="showToast('info','Your session will expire in 5 minutes.'); Sound.info()">
+          ℹ️ Info
+        </button>
+        <button class="btn-secondary btn-ripple" onclick="showToast('warn','Storage usage is at 87%.'); Sound.warn()"
+                style="background:#fffbeb;border-color:#fde68a;color:#92400e">
+          ⚠️ Warning
+        </button>
+        <button class="btn-danger btn-ripple" onclick="showToast('error','Connection lost. Retrying…'); Sound.error()">
+          ⛔ Error
+        </button>
+      </div>
+      <div class="mt-4 p-3 rounded-lg text-xs" style="background:rgba(14,165,233,.06);color:var(--lab-muted);border:1px solid var(--lab-border)">
+        💡 Toasts stack in the top-right corner, auto-dismiss after 3.5 s, and pause on hover.
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- 2 · ALERT BANNERS                                                     -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section id="alerts" class="lab-section reveal">
+    <div class="lab-panel">
+      <span class="lab-component-title">2 · Alert Banners</span>
+      <h2 class="lab-section-title mb-1" style="font-size:1.15rem">Alert Banners</h2>
+      <p class="mb-4 text-sm" style="color:var(--lab-muted)">
+        Persistent inline feedback. Click × to dismiss with a slide-out animation.
+      </p>
+      <div class="flex flex-col gap-3" id="alertsContainer">
+        <!-- Success -->
+        <div class="lab-alert alert-success" role="alert" style="max-height:200px">
+          <span class="alert-icon">✅</span>
+          <div class="alert-body">
+            <strong>Deployment successful!</strong>
+            <div class="text-sm mt-0.5">Your application is now live on production servers.</div>
+          </div>
+          <button class="alert-dismiss" aria-label="Dismiss" title="Dismiss">✕</button>
+        </div>
+        <!-- Info -->
+        <div class="lab-alert alert-info" role="status" style="max-height:200px">
+          <span class="alert-icon">ℹ️</span>
+          <div class="alert-body">
+            <strong>Scheduled maintenance</strong>
+            <div class="text-sm mt-0.5">The system will be unavailable on Sunday from 2–4 AM UTC.</div>
+          </div>
+          <button class="alert-dismiss" aria-label="Dismiss" title="Dismiss">✕</button>
+        </div>
+        <!-- Warning -->
+        <div class="lab-alert alert-warn" role="alert" style="max-height:200px">
+          <span class="alert-icon">⚠️</span>
+          <div class="alert-body">
+            <strong>API rate limit approaching</strong>
+            <div class="text-sm mt-0.5">You've used 4,820 of 5,000 requests this hour.</div>
+          </div>
+          <button class="alert-dismiss" aria-label="Dismiss" title="Dismiss">✕</button>
+        </div>
+        <!-- Error -->
+        <div class="lab-alert alert-error" role="alert" style="max-height:200px">
+          <span class="alert-icon">⛔</span>
+          <div class="alert-body">
+            <strong>Payment failed</strong>
+            <div class="text-sm mt-0.5">Your card was declined. Please update your billing details.</div>
+          </div>
+          <button class="alert-dismiss" aria-label="Dismiss" title="Dismiss">✕</button>
+        </div>
+      </div>
+      <button id="restoreAlerts" class="btn-ghost mt-4" style="font-size:.82rem;padding:.35rem .9rem" onclick="restoreAllAlerts()">
+        ↺ Restore All Alerts
+      </button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- 3 · MODAL DIALOG                                                      -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section id="modal" class="lab-section reveal">
+    <div class="lab-panel">
+      <span class="lab-component-title">3 · Modal Dialog</span>
+      <h2 class="lab-section-title mb-1" style="font-size:1.15rem">Modal Dialog</h2>
+      <p class="mb-4 text-sm" style="color:var(--lab-muted)">
+        Focus-trapped overlay. Close with Escape, overlay click, Cancel, or Confirm.
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <button class="btn-primary btn-ripple" onclick="openModal()">🪟 Open Modal</button>
+        <button class="btn-danger btn-ripple" onclick="openDangerModal()">🗑️ Delete Dialog</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- 4 · DRAWER / SIDE PANEL                                               -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section id="drawer" class="lab-section reveal">
+    <div class="lab-panel">
+      <span class="lab-component-title">4 · Drawer / Side Panel</span>
+      <h2 class="lab-section-title mb-1" style="font-size:1.15rem">Drawer / Side Panel</h2>
+      <p class="mb-4 text-sm" style="color:var(--lab-muted)">
+        Slides in from the right. Close with ×, overlay click, or Escape key.
+      </p>
+      <button class="btn-primary btn-ripple" onclick="openDrawer()">☰ Open Drawer</button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- 5 · PROGRESS BAR                                                      -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section id="progress" class="lab-section reveal">
+    <div class="lab-panel">
+      <span class="lab-component-title">5 · Progress Bar</span>
+      <h2 class="lab-section-title mb-1" style="font-size:1.15rem">Progress Bar</h2>
+      <p class="mb-4 text-sm" style="color:var(--lab-muted)">
+        Animated progress indicator with live percentage feedback.
+      </p>
+
+      <!-- Progress bar -->
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-sm font-medium" style="color:var(--lab-text)">Upload progress</span>
+        <span id="progressLabel" class="progress-label">0%</span>
+      </div>
+      <div class="lab-progress mb-4" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progressBar" aria-label="Upload progress">
+        <div class="lab-progress-bar" id="progressFill" style="width:0%"></div>
+      </div>
+
+      <!-- Stepped variant -->
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-sm font-medium" style="color:var(--lab-text)">Build pipeline</span>
+        <span id="progressLabel2" class="progress-label">0%</span>
+      </div>
+      <div class="lab-progress mb-1" style="height:6px">
+        <div class="lab-progress-bar" id="progressFill2" style="width:0%;background:linear-gradient(90deg,#818cf8,#c084fc)"></div>
+      </div>
+      <div class="flex gap-1 mb-4">
+        <span id="step1" class="text-xs px-2 py-0.5 rounded-full" style="background:#e0f2fe;color:#075985">Compile</span>
+        <span id="step2" class="text-xs px-2 py-0.5 rounded-full" style="background:#e2e8f0;color:var(--lab-muted)">Test</span>
+        <span id="step3" class="text-xs px-2 py-0.5 rounded-full" style="background:#e2e8f0;color:var(--lab-muted)">Bundle</span>
+        <span id="step4" class="text-xs px-2 py-0.5 rounded-full" style="background:#e2e8f0;color:var(--lab-muted)">Deploy</span>
+      </div>
+
+      <div class="flex gap-3">
+        <button class="btn-primary btn-ripple" id="progressStart" onclick="startProgress()">▶ Start</button>
+        <button class="btn-secondary btn-ripple" id="progressReset" onclick="resetProgress()">↺ Reset</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- 6 · SKELETON LOADER                                                   -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section id="skeleton" class="lab-section reveal">
+    <div class="lab-panel">
+      <span class="lab-component-title">6 · Skeleton Loader</span>
+      <h2 class="lab-section-title mb-1" style="font-size:1.15rem">Skeleton Loader</h2>
+      <p class="mb-4 text-sm" style="color:var(--lab-muted)">
+        Shimmering placeholders that signal loading. Click "Load Content" to reveal real data.
+      </p>
+
+      <div class="grid gap-4 mb-4" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))" id="skeletonGrid">
+
+        <!-- Skeleton card 1 -->
+        <div class="skeleton-card" id="sk1">
+          <div class="skeleton-top">
+            <div class="lab-skeleton rounded-full flex-shrink-0" style="width:3rem;height:3rem"></div>
+            <div class="flex-1 flex flex-col gap-2">
+              <div class="lab-skeleton rounded" style="height:14px;width:75%"></div>
+              <div class="lab-skeleton rounded" style="height:11px;width:50%"></div>
+            </div>
+          </div>
+          <div class="lab-skeleton rounded" style="height:11px;width:100%"></div>
+          <div class="lab-skeleton rounded" style="height:11px;width:85%"></div>
+        </div>
+
+        <!-- Skeleton card 2 -->
+        <div class="skeleton-card" id="sk2">
+          <div class="skeleton-top">
+            <div class="lab-skeleton rounded-full flex-shrink-0" style="width:3rem;height:3rem"></div>
+            <div class="flex-1 flex flex-col gap-2">
+              <div class="lab-skeleton rounded" style="height:14px;width:65%"></div>
+              <div class="lab-skeleton rounded" style="height:11px;width:45%"></div>
+            </div>
+          </div>
+          <div class="lab-skeleton rounded" style="height:11px;width:100%"></div>
+          <div class="lab-skeleton rounded" style="height:11px;width:70%"></div>
+        </div>
+
+        <!-- Skeleton card 3 -->
+        <div class="skeleton-card" id="sk3">
+          <div class="skeleton-top">
+            <div class="lab-skeleton rounded-full flex-shrink-0" style="width:3rem;height:3rem"></div>
+            <div class="flex-1 flex flex-col gap-2">
+              <div class="lab-skeleton rounded" style="height:14px;width:80%"></div>
+              <div class="lab-skeleton rounded" style="height:11px;width:55%"></div>
+            </div>
+          </div>
+          <div class="lab-skeleton rounded" style="height:11px;width:100%"></div>
+          <div class="lab-skeleton rounded" style="height:11px;width:60%"></div>
+        </div>
+
+      </div>
+
+      <!-- Real content (hidden until loaded) -->
+      <div class="grid gap-4 mb-4" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))" id="realGrid">
+        <!-- Real card 1 -->
+        <div class="real-card" id="rc1">
+          <div class="flex items-center gap-3">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white" style="background:linear-gradient(135deg,#0ea5e9,#818cf8)">A</div>
+            <div>
+              <div class="font-semibold text-sm" style="color:var(--lab-text)">Alex Carter</div>
+              <div class="text-xs" style="color:var(--lab-muted)">Lead Engineer</div>
+            </div>
+          </div>
+          <p class="text-sm" style="color:var(--lab-muted)">Architected the core navigation module and CI/CD pipeline.</p>
+          <span class="lab-badge success" style="align-self:flex-start">✓ Active</span>
+        </div>
+        <!-- Real card 2 -->
+        <div class="real-card" id="rc2">
+          <div class="flex items-center gap-3">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white" style="background:linear-gradient(135deg,#22c55e,#0ea5e9)">M</div>
+            <div>
+              <div class="font-semibold text-sm" style="color:var(--lab-text)">Maya Patel</div>
+              <div class="text-xs" style="color:var(--lab-muted)">UI Designer</div>
+            </div>
+          </div>
+          <p class="text-sm" style="color:var(--lab-muted)">Crafted the design system and component library from scratch.</p>
+          <span class="lab-badge accent" style="align-self:flex-start">✦ Design</span>
+        </div>
+        <!-- Real card 3 -->
+        <div class="real-card" id="rc3">
+          <div class="flex items-center gap-3">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">J</div>
+            <div>
+              <div class="font-semibold text-sm" style="color:var(--lab-text)">Jordan Lee</div>
+              <div class="text-xs" style="color:var(--lab-muted)">Data Analyst</div>
+            </div>
+          </div>
+          <p class="text-sm" style="color:var(--lab-muted)">Builds dashboards and telemetry pipelines for mission data.</p>
+          <span class="lab-badge warn" style="align-self:flex-start">◉ Remote</span>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button class="btn-primary btn-ripple" id="loadBtn" onclick="loadContent()">⬇ Load Content</button>
+        <button class="btn-secondary btn-ripple" id="skelResetBtn" onclick="resetSkeleton()">↺ Reset</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- 7 · TOOLTIPS                                                          -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section id="tooltip" class="lab-section reveal">
+    <div class="lab-panel">
+      <span class="lab-component-title">7 · Tooltip</span>
+      <h2 class="lab-section-title mb-1" style="font-size:1.15rem">Tooltip</h2>
+      <p class="mb-5 text-sm" style="color:var(--lab-muted)">
+        CSS-only tooltips — no JavaScript required. Hover or focus each element.
+      </p>
+
+      <div class="tooltip-demo-row">
+
+        <!-- Above (default) -->
+        <span class="tooltip-wrap">
+          <button class="btn-primary btn-ripple">Hover me ↑</button>
+          <span class="tooltip-tip" role="tooltip">Tooltip above the button</span>
+        </span>
+
+        <!-- Below -->
+        <span class="tooltip-wrap">
+          <button class="btn-secondary btn-ripple">Below tooltip ↓</button>
+          <span class="tooltip-tip below" role="tooltip">Tooltip below the element</span>
+        </span>
+
+        <!-- Text element with tooltip -->
+        <span class="tooltip-wrap" tabindex="0" style="cursor:help;text-decoration:underline dotted;text-underline-offset:3px;color:var(--lab-primary);font-size:.9rem;font-weight:600">
+          What is a tooltip?
+          <span class="tooltip-tip" role="tooltip">A small info popup that appears on hover or focus to provide extra context without cluttering the UI.</span>
+        </span>
+
+        <!-- Icon button with tooltip -->
+        <span class="tooltip-wrap">
+          <button class="btn-icon btn-ripple" aria-label="Information">ℹ️</button>
+          <span class="tooltip-tip" role="tooltip">View documentation</span>
+        </span>
+
+        <!-- Badge with tooltip -->
+        <span class="tooltip-wrap">
+          <span class="lab-badge accent" style="cursor:default">Beta Feature</span>
+          <span class="tooltip-tip below" role="tooltip">This feature is in public beta. Feedback welcome!</span>
+        </span>
+
+      </div>
+
+      <div class="mt-5 p-3 rounded-lg text-xs" style="background:rgba(14,165,233,.06);color:var(--lab-muted);border:1px solid var(--lab-border)">
+        💡 Implemented purely with CSS <code>:hover</code> and <code>:focus-within</code> — zero JS, fully accessible with keyboard focus.
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- 8 · COMMAND PALETTE                                                   -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section id="cmdpalette" class="lab-section reveal">
+    <div class="lab-panel">
+      <span class="lab-component-title">8 · Command Palette</span>
+      <h2 class="lab-section-title mb-1" style="font-size:1.15rem">Command Palette</h2>
+      <p class="mb-4 text-sm" style="color:var(--lab-muted)">
+        Searchable command launcher. Use <kbd style="font-family:monospace;background:var(--lab-border);padding:.1em .45em;border-radius:.25rem;font-size:.85em">⌘K</kbd> / <kbd style="font-family:monospace;background:var(--lab-border);padding:.1em .45em;border-radius:.25rem;font-size:.85em">Ctrl+K</kbd> or the button below.
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <button class="btn-primary btn-ripple" onclick="openCmdPalette()">⌘K&nbsp;&nbsp;Open Command Palette</button>
+      </div>
+      <div class="mt-4 p-3 rounded-lg text-xs flex flex-wrap gap-x-4 gap-y-1" style="background:rgba(14,165,233,.06);color:var(--lab-muted);border:1px solid var(--lab-border)">
+        <span>↑↓ Navigate</span>
+        <span>↵ Select</span>
+        <span>Esc Close</span>
+        <span>Type to filter</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- 9 · COACH MARK / GUIDED TOUR                                          -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <section id="coachmark" class="lab-section reveal">
+    <div class="lab-panel">
+      <span class="lab-component-title">9 · Coach Mark / Guided Tour</span>
+      <h2 class="lab-section-title mb-1" style="font-size:1.15rem">Coach Mark / Guided Tour</h2>
+      <p class="mb-4 text-sm" style="color:var(--lab-muted)">
+        3-step onboarding overlay to highlight key features for new users.
+      </p>
+      <button class="btn-primary btn-ripple" onclick="startTour()">🎓 Start Tour</button>
+    </div>
+  </section>
+
+  <!-- ─── Page Navigation ───────────────────────────────────────────────── -->
+  <div class="flex items-center justify-between mt-8 pt-6 reveal" style="border-top:1px solid var(--lab-border)">
+    <a href="02-inputs.html" class="btn-secondary" style="font-size:.875rem">← 02 · Forms &amp; Inputs</a>
+    <a href="04-data.html" class="btn-primary" style="font-size:.875rem">04 · Data Display →</a>
+  </div>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL                                                                      -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div class="lab-modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="lab-modal-panel" id="modalPanel">
+    <div class="modal-icon-ring">🪟</div>
+    <h3 id="modalTitle" class="text-lg font-bold text-center mb-2" style="color:var(--lab-text)">Confirm Action</h3>
+    <p class="text-sm text-center mb-6" style="color:var(--lab-muted)">
+      Are you sure you want to publish this revision? This will make it visible to all users immediately.
+    </p>
+    <div class="flex gap-3 justify-end">
+      <button class="btn-secondary btn-ripple" id="modalCancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary btn-ripple" id="modalConfirm" onclick="confirmModal()">Publish Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- DANGER MODAL -->
+<div class="lab-modal-overlay" id="dangerModalOverlay" role="dialog" aria-modal="true" aria-labelledby="dangerModalTitle">
+  <div class="lab-modal-panel" id="dangerModalPanel">
+    <div class="modal-icon-ring" style="background:rgba(239,68,68,.12)">🗑️</div>
+    <h3 id="dangerModalTitle" class="text-lg font-bold text-center mb-2" style="color:var(--lab-text)">Delete Record?</h3>
+    <p class="text-sm text-center mb-6" style="color:var(--lab-muted)">
+      This will permanently delete the selected record and all associated data. This action <strong>cannot be undone.</strong>
+    </p>
+    <div class="flex gap-3 justify-end">
+      <button class="btn-secondary btn-ripple" onclick="closeDangerModal()">Cancel</button>
+      <button class="btn-danger btn-ripple" onclick="confirmDangerModal()">Delete Permanently</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- DRAWER                                                                     -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div class="lab-drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<aside class="lab-drawer" id="mainDrawer" role="complementary" aria-label="Side panel">
+  <!-- Drawer header -->
+  <div class="drawer-section flex items-center justify-between" style="padding:.875rem 1.25rem">
+    <div>
+      <div class="font-bold" style="color:var(--lab-text)">Panel</div>
+      <div class="text-xs" style="color:var(--lab-muted)">Quick access</div>
+    </div>
+    <button class="btn-icon btn-ripple" onclick="closeDrawer()" aria-label="Close drawer">✕</button>
+  </div>
+
+  <!-- Search -->
+  <div class="drawer-section">
+    <input type="search" placeholder="🔍 Search…" class="lab-input" style="font-size:.875rem" aria-label="Search">
+  </div>
+
+  <!-- Nav items -->
+  <div class="flex-1 overflow-y-auto" style="padding:0 1.25rem">
+    <div class="text-xs font-bold mt-3 mb-1" style="color:var(--lab-muted);letter-spacing:.08em;text-transform:uppercase">Navigation</div>
+    <div class="drawer-item">
+      <div class="drawer-item-icon">🏠</div>
+      <div>
+        <div class="font-medium text-sm">Home</div>
+        <div class="text-xs" style="color:var(--lab-muted)">Main landing page</div>
+      </div>
+    </div>
+    <div class="drawer-item">
+      <div class="drawer-item-icon">📊</div>
+      <div>
+        <div class="font-medium text-sm">Dashboard</div>
+        <div class="text-xs" style="color:var(--lab-muted)">Analytics overview</div>
+      </div>
+    </div>
+    <div class="drawer-item">
+      <div class="drawer-item-icon">📅</div>
+      <div>
+        <div class="font-medium text-sm">Calendar</div>
+        <div class="text-xs" style="color:var(--lab-muted)">Events & schedule</div>
+      </div>
+    </div>
+    <div class="text-xs font-bold mt-4 mb-1" style="color:var(--lab-muted);letter-spacing:.08em;text-transform:uppercase">Settings</div>
+    <div class="drawer-item">
+      <div class="drawer-item-icon">⚙️</div>
+      <div>
+        <div class="font-medium text-sm">Preferences</div>
+        <div class="text-xs" style="color:var(--lab-muted)">Account & display</div>
+      </div>
+    </div>
+    <div class="drawer-item">
+      <div class="drawer-item-icon">🔔</div>
+      <div>
+        <div class="font-medium text-sm">Notifications</div>
+        <div class="text-xs" style="color:var(--lab-muted)">Alerts and updates</div>
+      </div>
+    </div>
+    <div class="drawer-item" style="border-bottom:none">
+      <div class="drawer-item-icon">🔒</div>
+      <div>
+        <div class="font-medium text-sm">Security</div>
+        <div class="text-xs" style="color:var(--lab-muted)">Password & 2FA</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="drawer-section" style="border-top:1px solid var(--lab-border);border-bottom:none;padding:.875rem 1.25rem">
+    <button class="btn-danger btn-ripple" style="width:100%;font-size:.85rem" onclick="closeDrawer(); showToast('info','Signed out successfully.')">
+      Sign Out
+    </button>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- COMMAND PALETTE                                                            -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div class="cmd-overlay" id="cmdOverlay" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="cmd-box" id="cmdBox">
+    <input
+      type="search"
+      class="cmd-input"
+      id="cmdInput"
+      placeholder="Type a command or search…"
+      autocomplete="off"
+      spellcheck="false"
+      aria-label="Command search"
+      aria-autocomplete="list"
+      aria-controls="cmdListEl"
+    >
+    <div class="cmd-list" id="cmdListEl" role="listbox" aria-label="Commands"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- COACH MARK OVERLAY                                                         -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div class="coach-overlay" id="coachOverlay">
+  <div class="coach-card" id="coachCard">
+    <div class="coach-icon" id="coachIcon">🏠</div>
+    <div class="coach-step-badge" id="coachStep">1 of 3</div>
+    <h3 class="text-lg font-bold mb-2" style="color:var(--lab-text)" id="coachTitle">Welcome to the UI Lab</h3>
+    <p class="text-sm mb-5" style="color:var(--lab-muted)" id="coachDesc">
+      This is your interactive playground for every UI component. Each section demonstrates a different pattern used across the site.
+    </p>
+    <div class="flex flex-col gap-2 items-center">
+      <button class="btn-primary btn-ripple" style="width:100%;justify-content:center" id="coachNext" onclick="coachNext()">
+        Next →
+      </button>
+      <button class="btn-ghost" style="font-size:.82rem;padding:.3rem .75rem" onclick="skipTour()">Skip Tour</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Toast Stack ───────────────────────────────────────────────────────── -->
+<div id="toastStack" class="toast-stack" aria-live="polite"></div>
+
+<!-- ─── Scripts ──────────────────────────────────────────────────────────── -->
+<script src="../assets/lab.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  // ── Sound toggle override ──────────────────────────────────────────────
+  const toggleSoundBtn = document.getElementById('toggleSound');
+  if (toggleSoundBtn) {
+    const clone = toggleSoundBtn.cloneNode(true);
+    toggleSoundBtn.parentNode.replaceChild(clone, toggleSoundBtn);
+    clone.addEventListener('click', () => {
+      const nowOn = window.Sound.isEnabled();
+      window.Sound.setEnabled(!nowOn);
+      clone.textContent = `🔊 Sound: ${nowOn ? 'Off' : 'On'}`;
+      if (!nowOn) Sound.info();
+    });
+  }
+
+  // ── Alert dismiss ──────────────────────────────────────────────────────
+  document.getElementById('alertsContainer').addEventListener('click', e => {
+    const btn = e.target.closest('.alert-dismiss');
+    if (!btn) return;
+    const alert = btn.closest('.lab-alert');
+    if (!alert) return;
+    alert.style.maxHeight = alert.offsetHeight + 'px';
+    alert.offsetHeight; // force reflow
+    alert.classList.add('dismissing');
+    Sound.click();
+    setTimeout(() => alert.remove(), 320);
+  });
+
+  // ── Ctrl/Cmd+K ────────────────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      openCmdPalette();
+    }
+    if (e.key === 'Escape') {
+      if (document.getElementById('cmdOverlay').classList.contains('open')) closeCmdPalette();
+      if (document.getElementById('modalOverlay').classList.contains('open')) closeModal();
+      if (document.getElementById('dangerModalOverlay').classList.contains('open')) closeDangerModal();
+      if (document.getElementById('mainDrawer').classList.contains('open')) closeDrawer();
+    }
+  });
+
+  // ── Command palette keyboard nav ───────────────────────────────────────
+  document.getElementById('cmdInput').addEventListener('keydown', e => {
+    const items = [...document.querySelectorAll('.cmd-item')];
+    if (!items.length) return;
+    const sel = document.querySelector('.cmd-item.selected');
+    let idx = sel ? items.indexOf(sel) : -1;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (sel) sel.classList.remove('selected');
+      idx = (idx + 1) % items.length;
+      items[idx].classList.add('selected');
+      items[idx].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (sel) sel.classList.remove('selected');
+      idx = (idx - 1 + items.length) % items.length;
+      items[idx].classList.add('selected');
+      items[idx].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+      const chosen = document.querySelector('.cmd-item.selected') || items[0];
+      if (chosen) chosen.click();
+    }
+  });
+
+  document.getElementById('cmdInput').addEventListener('input', filterCommands);
+
+  // ── Close cmd palette on overlay backdrop click ────────────────────────
+  document.getElementById('cmdOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('cmdOverlay')) closeCmdPalette();
+  });
+
+  // ── Close modal on overlay backdrop click ─────────────────────────────
+  document.getElementById('modalOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  });
+  document.getElementById('dangerModalOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('dangerModalOverlay')) closeDangerModal();
+  });
+
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════════════════════════════════ */
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('modalConfirm').focus();
+  Sound.whoosh();
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  Sound.click();
+}
+function confirmModal() {
+  closeModal();
+  showToast('success', 'Revision published successfully!');
+}
+
+function openDangerModal() {
+  document.getElementById('dangerModalOverlay').classList.add('open');
+  Sound.error();
+}
+function closeDangerModal() {
+  document.getElementById('dangerModalOverlay').classList.remove('open');
+  Sound.click();
+}
+function confirmDangerModal() {
+  closeDangerModal();
+  showToast('error', 'Record deleted permanently.');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DRAWER
+═══════════════════════════════════════════════════════════════════════════ */
+function openDrawer() {
+  document.getElementById('mainDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('active');
+  Sound.whoosh();
+}
+function closeDrawer() {
+  document.getElementById('mainDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('active');
+  Sound.click();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROGRESS BAR
+═══════════════════════════════════════════════════════════════════════════ */
+let progressTimer = null;
+let progressVal = 0;
+let progressVal2 = 0;
+const STEPS = [
+  { id: 'step1', threshold: 25 },
+  { id: 'step2', threshold: 50 },
+  { id: 'step3', threshold: 75 },
+  { id: 'step4', threshold: 100 },
+];
+
+function setProgress(val) {
+  progressVal = Math.min(100, Math.max(0, val));
+  const fill = document.getElementById('progressFill');
+  const label = document.getElementById('progressLabel');
+  const bar = document.getElementById('progressBar');
+  fill.style.width = progressVal + '%';
+  label.textContent = progressVal + '%';
+  bar.setAttribute('aria-valuenow', progressVal);
+}
+
+function setProgress2(val) {
+  progressVal2 = Math.min(100, Math.max(0, val));
+  const fill2 = document.getElementById('progressFill2');
+  const label2 = document.getElementById('progressLabel2');
+  fill2.style.width = progressVal2 + '%';
+  label2.textContent = progressVal2 + '%';
+  // Update step badges
+  STEPS.forEach(s => {
+    const el = document.getElementById(s.id);
+    if (progressVal2 >= s.threshold) {
+      el.style.background = '#dcfce7';
+      el.style.color = '#15803d';
+    } else if (progressVal2 >= s.threshold - 25) {
+      el.style.background = '#e0f2fe';
+      el.style.color = '#075985';
+    } else {
+      el.style.background = '#e2e8f0';
+      el.style.color = 'var(--lab-muted)';
+    }
+  });
+}
+
+function startProgress() {
+  if (progressTimer) return;
+  if (progressVal >= 100) resetProgress();
+  const startBtn = document.getElementById('progressStart');
+  startBtn.disabled = true;
+  startBtn.innerHTML = '<span class="spinner"></span> Running…';
+
+  progressTimer = setInterval(() => {
+    const inc = Math.random() * 3.5 + 0.5;
+    setProgress(progressVal + inc);
+    setProgress2(progressVal2 + inc);
+    if (progressVal >= 100) {
+      clearInterval(progressTimer);
+      progressTimer = null;
+      setProgress(100);
+      setProgress2(100);
+      startBtn.disabled = false;
+      startBtn.textContent = '▶ Start';
+      showToast('success', 'Upload complete!');
+      Sound.success();
+    }
+  }, 80);
+}
+
+function resetProgress() {
+  if (progressTimer) { clearInterval(progressTimer); progressTimer = null; }
+  const startBtn = document.getElementById('progressStart');
+  startBtn.disabled = false;
+  startBtn.textContent = '▶ Start';
+  setProgress(0);
+  setProgress2(0);
+  STEPS.forEach(s => {
+    const el = document.getElementById(s.id);
+    el.style.background = '#e2e8f0';
+    el.style.color = 'var(--lab-muted)';
+  });
+  document.getElementById('step1').style.background = '#e0f2fe';
+  document.getElementById('step1').style.color = '#075985';
+  Sound.click();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SKELETON LOADER
+═══════════════════════════════════════════════════════════════════════════ */
+function loadContent() {
+  const loadBtn = document.getElementById('loadBtn');
+  loadBtn.disabled = true;
+  loadBtn.innerHTML = '<span class="spinner"></span> Loading…';
+  Sound.info();
+
+  setTimeout(() => {
+    // Hide skeletons
+    document.getElementById('skeletonGrid').style.display = 'none';
+    // Show real cards with staggered delay
+    ['rc1','rc2','rc3'].forEach((id, i) => {
+      setTimeout(() => {
+        const card = document.getElementById(id);
+        card.classList.add('show');
+        card.style.animationDelay = (i * 80) + 'ms';
+      }, i * 100);
+    });
+    loadBtn.disabled = false;
+    loadBtn.textContent = '✓ Loaded';
+    loadBtn.classList.remove('btn-primary');
+    loadBtn.classList.add('btn-secondary');
+    Sound.success();
+    showToast('success', 'Content loaded successfully!');
+  }, 1800);
+}
+
+function resetSkeleton() {
+  document.getElementById('skeletonGrid').style.display = 'grid';
+  ['rc1','rc2','rc3'].forEach(id => {
+    document.getElementById(id).classList.remove('show');
+    document.getElementById(id).style.animationDelay = '';
+  });
+  const loadBtn = document.getElementById('loadBtn');
+  loadBtn.disabled = false;
+  loadBtn.textContent = '⬇ Load Content';
+  loadBtn.classList.remove('btn-secondary');
+  loadBtn.classList.add('btn-primary');
+  Sound.click();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ALERT RESTORE
+═══════════════════════════════════════════════════════════════════════════ */
+const ALERT_TEMPLATES = [
+  { type: 'alert-success', icon: '✅', title: 'Deployment successful!', body: 'Your application is now live on production servers.' },
+  { type: 'alert-info',    icon: 'ℹ️', title: 'Scheduled maintenance', body: 'The system will be unavailable on Sunday from 2–4 AM UTC.' },
+  { type: 'alert-warn',    icon: '⚠️', title: 'API rate limit approaching', body: 'You\'ve used 4,820 of 5,000 requests this hour.' },
+  { type: 'alert-error',   icon: '⛔', title: 'Payment failed', body: 'Your card was declined. Please update your billing details.' },
+];
+
+function restoreAllAlerts() {
+  const container = document.getElementById('alertsContainer');
+  container.innerHTML = '';
+  ALERT_TEMPLATES.forEach(t => {
+    const div = document.createElement('div');
+    div.className = `lab-alert ${t.type}`;
+    div.setAttribute('role', 'alert');
+    div.style.maxHeight = '200px';
+    div.innerHTML = `
+      <span class="alert-icon">${t.icon}</span>
+      <div class="alert-body">
+        <strong>${t.title}</strong>
+        <div class="text-sm mt-0.5">${t.body}</div>
+      </div>
+      <button class="alert-dismiss" aria-label="Dismiss" title="Dismiss">✕</button>
+    `;
+    container.appendChild(div);
+    requestAnimationFrame(() => {
+      div.style.opacity = '0';
+      div.style.transform = 'translateX(-8px)';
+      div.style.transition = 'opacity 250ms, transform 250ms';
+      requestAnimationFrame(() => {
+        div.style.opacity = '';
+        div.style.transform = '';
+      });
+    });
+  });
+  Sound.info();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMMAND PALETTE
+═══════════════════════════════════════════════════════════════════════════ */
+const CMD_ITEMS = [
+  { icon: '🏠', label: 'Go to Home',       desc: 'Navigate to the main page',    action: () => showToast('info', 'Navigating to Home…') },
+  { icon: '📊', label: 'View Dashboard',   desc: 'Open the analytics dashboard', action: () => showToast('info', 'Opening Dashboard…') },
+  { icon: '⚙️', label: 'Settings',         desc: 'Manage account preferences',   action: () => showToast('info', 'Opening Settings…') },
+  { icon: '🔍', label: 'Search',           desc: 'Full-site search',             action: () => showToast('info', 'Opening Search…') },
+  { icon: '📝', label: 'New Post',         desc: 'Create a new blog post',       action: () => showToast('success', 'New post draft created!') },
+  { icon: '👤', label: 'Profile',          desc: 'View and edit your profile',   action: () => showToast('info', 'Opening Profile…') },
+  { icon: '🌙', label: 'Toggle Theme',     desc: 'Switch dark / light mode',     action: () => { document.documentElement.classList.toggle('dark'); Sound.toggle(); } },
+  { icon: '❓', label: 'Help',             desc: 'Browse documentation & FAQs',  action: () => showToast('info', 'Opening Help center…') },
+];
+
+let cmdOpen = false;
+
+function renderCmdItems(filter = '') {
+  const list = document.getElementById('cmdListEl');
+  const q = filter.toLowerCase().trim();
+  const filtered = q ? CMD_ITEMS.filter(c => c.label.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q)) : CMD_ITEMS;
+  list.innerHTML = '';
+  if (!filtered.length) {
+    list.innerHTML = '<div class="cmd-empty">No commands found for "<strong>' + filter + '</strong>"</div>';
+    return;
+  }
+  filtered.forEach(item => {
+    const btn = document.createElement('button');
+    btn.className = 'cmd-item';
+    btn.setAttribute('role', 'option');
+    btn.innerHTML = `
+      <span style="font-size:1.2rem;flex-shrink:0">${item.icon}</span>
+      <div class="flex-1 text-left min-w-0">
+        <div class="font-medium" style="color:var(--lab-text)">${item.label}</div>
+        <div class="text-xs" style="color:var(--lab-muted)">${item.desc}</div>
+      </div>
+    `;
+    btn.addEventListener('click', () => {
+      closeCmdPalette();
+      Sound.click();
+      item.action();
+    });
+    list.appendChild(btn);
+  });
+}
+
+function filterCommands() {
+  renderCmdItems(document.getElementById('cmdInput').value);
+  // Remove previous selection
+  document.querySelectorAll('.cmd-item.selected').forEach(el => el.classList.remove('selected'));
+}
+
+function openCmdPalette() {
+  cmdOpen = true;
+  document.getElementById('cmdOverlay').classList.add('open');
+  const input = document.getElementById('cmdInput');
+  input.value = '';
+  renderCmdItems();
+  setTimeout(() => input.focus(), 50);
+  Sound.whoosh();
+}
+
+function closeCmdPalette() {
+  cmdOpen = false;
+  document.getElementById('cmdOverlay').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COACH MARK TOUR
+═══════════════════════════════════════════════════════════════════════════ */
+const TOUR_STEPS = [
+  {
+    icon: '🔬',
+    step: '1 of 3',
+    title: 'Welcome to the UI Lab',
+    desc: 'This is your interactive playground for every UI component used across the Trident Robotics site. Each section demonstrates a different pattern.',
+    next: 'Next →',
+  },
+  {
+    icon: '🎨',
+    step: '2 of 3',
+    title: 'Dark Mode & Theming',
+    desc: 'Every component adapts seamlessly to dark mode. Press 🌙 in the header to toggle — notice colors, shadows, and borders all respond instantly.',
+    next: 'Next →',
+  },
+  {
+    icon: '🎵',
+    step: '3 of 3',
+    title: 'Interactive Sound Engine',
+    desc: 'Actions are paired with subtle audio feedback via the Web Audio API. Use the 🔊 Sound button to toggle it. Each interaction type has its own distinctive sound.',
+    next: 'Finish Tour ✓',
+  },
+];
+let tourStep = 0;
+
+function startTour() {
+  tourStep = 0;
+  renderCoachStep();
+  document.getElementById('coachOverlay').classList.add('active');
+  Sound.iconChime();
+}
+
+function renderCoachStep() {
+  const s = TOUR_STEPS[tourStep];
+  document.getElementById('coachIcon').textContent = s.icon;
+  document.getElementById('coachStep').textContent = s.step;
+  document.getElementById('coachTitle').textContent = s.title;
+  document.getElementById('coachDesc').textContent = s.desc;
+  document.getElementById('coachNext').textContent = s.next;
+  // Animate card
+  const card = document.getElementById('coachCard');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'pop-in 250ms cubic-bezier(.34,1.56,.64,1)';
+}
+
+function coachNext() {
+  if (tourStep < TOUR_STEPS.length - 1) {
+    tourStep++;
+    renderCoachStep();
+    Sound.tab();
+  } else {
+    skipTour();
+    showToast('success', 'Tour complete! Explore the components below. 🎉');
+  }
+}
+
+function skipTour() {
+  document.getElementById('coachOverlay').classList.remove('active');
+  Sound.click();
+}
+</script>
+</body>
+</html>

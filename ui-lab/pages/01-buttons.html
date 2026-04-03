@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/assets/js/theme-prepaint.js"></script>
+  <link rel="stylesheet" href="/assets/css/adaptive-themes.css">
+  <link rel="stylesheet" href="/assets/css/modern-ui.css">
+  <title>01 · Buttons & Actions — UI Lab</title>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3/build/jwt-decode.min.js"></script>
+  <script src="/assets/js/auth-config.js"></script>
+  <script src="/assets/js/auth-utils.js"></script>
+  <script src="/assets/js/auth-guard-developer.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <link rel="stylesheet" href="../assets/lab.css">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(to bottom, #f0f9ff, #ffffff);
+    }
+    .dark body {
+      background: linear-gradient(to bottom, #0a1628, #0f172a);
+    }
+    /* Loading spinner inside button */
+    .spinner {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* CTA Banner */
+    .cta-banner {
+      background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 60%, #818cf8 100%);
+      border-radius: 1.25rem;
+      padding: 3rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(255,255,255,.12), transparent);
+      pointer-events: none;
+    }
+
+    /* FAB demo container */
+    .fab-demo-container {
+      position: relative;
+      height: 120px;
+      background: #f0f9ff;
+      border-radius: .75rem;
+      border: 1px dashed var(--lab-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dark .fab-demo-container {
+      background: #0c1e33;
+    }
+    .fab-demo-container .lab-fab {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+    }
+
+    /* Section meta bar */
+    .section-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .75rem;
+    }
+
+    /* Page number chip */
+    .comp-index {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: .7rem;
+      font-weight: 800;
+      border: 1px solid #bae6fd;
+      flex-shrink: 0;
+    }
+    .dark .comp-index {
+      background: #0c2d4a;
+      color: #7dd3fc;
+      border-color: #164e63;
+    }
+
+    /* Morph animation keyframes */
+    @keyframes morphGradient {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .btn-morph {
+      background: linear-gradient(135deg, #0ea5e9, #818cf8, #22d3ee, #6366f1);
+      background-size: 300% 300%;
+      animation: morphGradient 4s ease infinite;
+    }
+    .btn-morph:hover {
+      animation-duration: 1.5s;
+    }
+
+    /* Icon button row spacing */
+    .icon-btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      align-items: center;
+    }
+    .icon-btn-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .375rem;
+      font-size: .7rem;
+      color: var(--lab-muted);
+      font-weight: 500;
+    }
+
+    /* Section anchor offset for sticky header */
+    .lab-section {
+      scroll-margin-top: 70px;
+    }
+  </style>
+</head>
+<body class="min-h-screen dark:bg-slate-900">
+
+<!-- ─── Sticky Header ──────────────────────────────────────────────────────── -->
+<header class="lab-sticky-header">
+  <a href="../index.html" class="lab-back-link">← Lab</a>
+  <div class="flex-1 min-w-0">
+    <div class="font-bold truncate" style="color:var(--lab-text)">01 · Buttons &amp; Actions</div>
+    <div class="text-xs" style="color:var(--lab-muted)">11 components</div>
+  </div>
+  <button id="toggleSound" class="btn-secondary btn-ripple" data-sound="click" style="font-size:.8rem;padding:.35rem .75rem">🔊 Sound: On</button>
+  <button onclick="document.documentElement.classList.toggle('dark')" class="btn-icon" title="Toggle dark mode">🌙</button>
+</header>
+
+<!-- ─── Main ──────────────────────────────────────────────────────────────── -->
+<main class="lab-page-wrap">
+
+  <!-- Page title -->
+  <div class="mb-8 reveal">
+    <div class="flex items-center gap-3 mb-2">
+      <span style="font-size:2rem">🖱️</span>
+      <h1 class="lab-section-title" style="font-size:1.75rem">Buttons &amp; Actions</h1>
+    </div>
+    <p class="text-sm" style="color:var(--lab-muted);max-width:540px">
+      All interactive button components — primary, secondary, danger, ghost, icon, loading, groups, segmented controls, morphing gradients, FABs, and CTAs. Click any button to hear the sound and see the ripple effect.
+    </p>
+    <div class="flex flex-wrap gap-2 mt-3">
+      <span class="lab-badge">11 components</span>
+      <span class="lab-badge success">✅ Sound-enabled</span>
+      <span class="lab-badge accent">♿ Accessible</span>
+    </div>
+  </div>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+    1. Primary Button
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <section id="primary" class="lab-section reveal">
+    <div class="section-meta">
+      <div class="flex items-center gap-2">
+        <span class="comp-index">1</span>
+        <span class="lab-component-title" style="margin-bottom:0">Primary Button</span>
+      </div>
+      <span class="lab-badge" style="font-size:.7rem">btn-primary</span>
+    </div>
+    <div class="lab-panel">
+      <p class="text-sm mb-4" style="color:var(--lab-muted)">
+        The main call-to-action button. Used for the most important action on a page. High visual weight with the brand sky-blue fill.
+      </p>
+      <div class="flex flex-wrap gap-3 items-center">
+        <button class="btn-primary btn-ripple" data-sound="click">Primary Button</button>
+        <button class="btn-primary btn-ripple" data-sound="click" style="opacity:.6" disabled>Disabled</button>
+        <button class="btn-primary btn-ripple" data-sound="click" style="font-size:.8rem;padding:.375rem 1rem">Small</button>
+        <button class="btn-primary btn-ripple" data-sound="click" style="font-size:1rem;padding:.65rem 1.75rem">Large</button>
+      </div>
+      <div class="mt-4 lab-code" style="font-size:.78rem">
+&lt;button class="btn-primary btn-ripple" data-sound="click"&gt;Primary Button&lt;/button&gt;</div>
+    </div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+    2. Secondary Button
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <section id="secondary" class="lab-section reveal">
+    <div class="section-meta">
+      <div class="flex items-center gap-2">
+        <span class="comp-index">2</span>
+        <span class="lab-component-title" style="margin-bottom:0">Secondary Button</span>
+      </div>
+      <span class="lab-badge" style="font-size:.7rem">btn-secondary</span>
+    </div>
+    <div class="lab-panel">
+      <p class="text-sm mb-4" style="color:var(--lab-muted)">
+        Lower visual weight alternative. Pairs well with a primary button for cancel / confirm patterns.
+      </p>
+      <div class="flex flex-wrap gap-3 items-center">
+        <button class="btn-secondary btn-ripple" data-sound="click">Secondary Button</button>
+        <button class="btn-secondary btn-ripple" data-sound="click" disabled style="opacity:.5;cursor:not-allowed">Disabled</button>
+        <button class="btn-secondary btn-ripple" data-sound="click" style="font-size:.8rem;padding:.375rem 1rem">Small</button>
+        <button class="btn-secondary btn-ripple" data-sound="click" style="font-size:1rem;padding:.65rem 1.75rem">Large</button>
+      </div>
+      <div class="mt-4 lab-code" style="font-size:.78rem">
+&lt;button class="btn-secondary btn-ripple" data-sound="click"&gt;Secondary Button&lt;/button&gt;</div>
+    </div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+    3. Danger Button
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <section id="danger" class="lab-section reveal">
+    <div class="section-meta">
+      <div class="flex items-center gap-2">
+        <span class="comp-index">3</span>
+        <span class="lab-component-title" style="margin-bottom:0">Danger Button</span>
+      </div>
+      <span class="lab-badge error" style="font-size:.7rem">btn-danger</span>
+    </div>
+    <div class="lab-panel">
+      <p class="text-sm mb-4" style="color:var(--lab-muted)">
+        Destructive action button. Use for deletes, removals, or irreversible actions that need user attention.
+      </p>
+      <div class="flex flex-wrap gap-3 items-center">
+        <button class="btn-danger btn-ripple" data-sound="error">Delete Account</button>
+        <button class="btn-danger btn-ripple" data-sound="error">🗑️ Remove</button>
+        <button class="btn-danger btn-ripple" data-sound="error" disabled style="opacity:.5;cursor:not-allowed">Disabled</button>
+      </div>
+      <div class="mt-4 lab-code" style="font-size:.78rem">
+&lt;button class="btn-danger btn-ripple" data-sound="error"&gt;Delete Account&lt;/button&gt;</div>
+    </div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+    4. Ghost Button
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <section id="ghost" class="lab-section reveal">
+    <div class="section-meta">
+      <div class="flex items-center gap-2">
+        <span class="comp-index">4</span>
+        <span class="lab-component-title" style="margin-bottom:0">Ghost Button</span>
+      </div>
+      <span class="lab-badge accent" style="font-size:.7rem">btn-ghost</span>
+    </div>
+    <div class="lab-panel">
+      <p class="text-sm mb-4" style="color:var(--lab-muted)">
+        Outlined transparent button. Subtle — great for secondary actions alongside a primary CTA, or in toolbars.
+      </p>
+      <div class="flex flex-wrap gap-3 items-center">
+        <button class="btn-ghost btn-ripple" data-sound="click">Ghost Button</button>
+        <button class="btn-ghost btn-ripple" data-sound="click">Learn More</button>
+        <button class="btn-ghost btn-ripple" data-sound="click" disabled style="opacity:.5;cursor:not-allowed">Disabled</button>
+      </div>
+      <div class="mt-4 lab-code" style="font-size:.78rem">
+&lt;button class="btn-ghost btn-ripple" data-sound="click"&gt;Ghost Button&lt;/button&gt;</div>
+    </div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+    5. Icon Buttons
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <section id="icon" class="lab-section reveal">
+    <div class="section-meta">
+      <div class="flex items-center gap-2">
+        <span class="comp-index">5</span>
+        <span class="lab-component-title" style="margin-bottom:0">Icon Buttons</span>
+      </div>
+      <span class="lab-badge" style="font-size:.7rem">btn-icon</span>
+    </div>
+    <div class="lab-panel">
+      <p class="text-sm mb-4" style="color:var(--lab-muted)">
+        Compact circular buttons for single actions in toolbars and card headers. Always include a <code style="font-size:.78rem;background:#f1f5f9;padding:.1em .35em;border-radius:.25rem">title</code> attribute for accessibility.
+      </p>
+      <div class="icon-btn-row mb-4">
+        <div class="icon-btn-label">
+          <button class="btn-icon btn-ripple" data-sound="chime" title="Edit" style="width:2.5rem;height:2.5rem;font-size:1rem">✏️</button>
+          <span>Edit</span>
+        </div>
+        <div class="icon-btn-label">
+          <button class="btn-icon btn-ripple" data-sound="chime" title="Delete" style="width:2.5rem;height:2.5rem;font-size:1rem">🗑️</button>
+          <span>Delete</span>
+        </div>
+        <div class="icon-btn-label">
+          <button class="btn-icon btn-ripple" data-sound="chime" title="Share" style="width:2.5rem;height:2.5rem;font-size:1rem">📤</button>
+          <span>Share</span>
+        </div>
+        <div class="icon-btn-label">
+          <button class="btn-icon btn-ripple" data-sound="chime" title="Settings" style="width:2.5rem;height:2.5rem;font-size:1rem">⚙️</button>
+          <span>Settings</span>
+        </div>
+        <div class="icon-btn-label">
+          <button class="btn-icon btn-ripple" data-sound="chime" title="Search" style="width:2.5rem;height:2.5rem;font-size:1rem">🔍</button>
+          <span>Search</span>
+        </div>
+        <div class="icon-btn-label">
+          <button class="btn-icon btn-ripple" data-sound="chime" title="Bookmark" style="width:2.5rem;height:2.5rem;font-size:1rem">🔖</button>
+          <span>Bookmark</span>
+        </div>
+      </div>
+      <div class="lab-code" style="font-size:.78rem">
+&lt;button class="btn-icon btn-ripple" data-sound="chime" title="Edit"&gt;✏️&lt;/button&gt;
+&lt;button class="btn-icon btn-ripple" data-sound="chime" title="Delete"&gt;🗑️&lt;/button&gt;
+&lt;button class="btn-icon btn-ripple" data-sound="chime" title="Share"&gt;📤&lt;/button&gt;</div>
+    </div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+    6. Loading Button
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <section id="loading" class="lab-section reveal">
+    <div class="section-meta">
+      <div class="flex items-center gap-2">
+        <span class="comp-index">6</span>
+        <span class="lab-component-title" style="margin-bottom:0">Loading Button</span>
+      </div>
+      <span class="lab-badge" style="font-size:.7rem">loading state</span>
+    </div>
+    <div class="lab-panel">
+      <p class="text-sm mb-4" style="color:var(--lab-muted)">
+        Triggers an async loading state on click. The spinner replaces the label and the button is disabled until the operation completes (2.5 s demo). Prevents double-submit.
+      </p>
+      <div class="flex flex-wrap gap-3 items-center">
+        <button id="loadingBtn" class="btn-primary btn-ripple" data-sound="click" style="min-width:9rem">
+          🚀 Submit Form
+        </button>
+        <button id="loadingBtnAlt" class="btn-secondary btn-ripple" data-sound="click" style="min-width:9rem">
+          💾 Save Draft
+        </button>
+      </div>
+      <p class="mt-3 text-xs" style="color:var(--lab-muted)">Click either button to see the loading state — it auto-resets after 2.5 s.</p>
+      <div class="mt-4 lab-code" style="font-size:.78rem">
+<span style="color:#7dd3fc">// JavaScript: toggle loading state</span>
+btn.addEventListener('click', () =&gt; {
+  btn.disabled = true;
+  btn.innerHTML = '&lt;span class="spinner"&gt;&lt;/span&gt; Loading…';
+  setTimeout(() =&gt; {
+    btn.disabled = false;
+    btn.innerHTML = originalLabel;
+  }, 2500);
+});</div>
+    </div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+    7. Button Group
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <section id="group" class="lab-section reveal">
+    <div class="section-meta">
+      <div class="flex items-center gap-2">
+        <span class="comp-index">7</span>
+        <span class="lab-component-title" style="margin-bottom:0">Button Group</span>
+      </div>
+      <span class="lab-badge" style="font-size:.7rem">btn-group</span>
+    </div>
+    <div class="lab-panel">
+      <p class="text-sm mb-4" style="color:var(--lab-muted)">
+        A visually joined set of related buttons. Borders are merged to create a single unified control. Perfect for view-mode toggles or related actions.
+      </p>
+      <div class="flex flex-wrap gap-6 items-start">
+        <!-- Text group -->
+        <div>
+          <div class="text-xs mb-2 font-medium" style="color:var(--lab-muted)">Text labels</div>
+          <div class="btn-group">
+            <button class="btn-secondary btn-ripple" data-sound="click">Left</button>
+            <button class="btn-secondary btn-ripple" data-sound="click">Middle</button>
+            <button class="btn-secondary btn-ripple" data-sound="click">Right</button>
+          </div>
+        </div>
+        <!-- Icon group -->
+        <div>
+          <div class="text-xs mb-2 font-medium" style="color:var(--lab-muted)">Icon labels</div>
+          <div class="btn-group">
+            <button class="btn-secondary btn-ripple" data-sound="click" title="List view" style="padding:.5rem .875rem">☰</button>
+            <button class="btn-secondary btn-ripple" data-sound="click" title="Grid view" style="padding:.5rem .875rem">⊞</button>
+            <button class="btn-secondary btn-ripple" data-sound="click" title="Card view" style="padding:.5rem .875rem">⊟</button>
+          </div>
+        </div>
+        <!-- Primary group -->
+        <div>
+          <div class="text-xs mb-2 font-medium" style="color:var(--lab-muted)">Primary variant</div>
+          <div class="btn-group">
+            <button class="btn-primary btn-ripple" data-sound="click">Save</button>
+            <button class="btn-primary btn-ripple" data-sound="click" style="padding:.5rem .625rem">▾</button>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 lab-code" style="font-size:.78rem">
+&lt;div class="btn-group"&gt;
+  &lt;button class="btn-secondary btn-ripple" data-sound="click"&gt;Left&lt;/button&gt;
+  &lt;button class="btn-secondary btn-ripple" data-sound="click"&gt;Middle&lt;/button&gt;
+  &lt;button class="btn-secondary btn-ripple" data-sound="click"&gt;Right&lt;/button&gt;
+&lt;/div&gt;</div>
+    </div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+    8. Segmented Control
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <section id="segmented" class="lab-section reveal">
+    <div class="section-meta">
+      <div class="flex items-center gap-2">
+        <span class="comp-index">8</span>
+        <span class="lab-component-title" style="margin-bottom:0">Segmented Control</span>
+      </div>
+      <span class="lab-badge" style="font-size:.7rem">seg-control</span>
+    </div>
+    <div class="lab-panel">
+      <p class="text-sm mb-4" style="color:var(--lab-muted)">
+        Pill-style mutually-exclusive selector. One option is always active. Great for switching views, chart ranges, or filter states.
+      </p>
+      <div class="flex flex-wrap gap-6 items-start">
+        <!-- Time range -->
+        <div>
+          <div class="text-xs mb-3 font-medium" style="color:var(--lab-muted)">Time range</div>
+          <div class="seg-control" id="segTime" role="group" aria-label="Time range">
+            <button class="seg-btn active" data-seg="segTime">Daily</button>
+            <button class="seg-btn" data-seg="segTime">Weekly</button>
+            <button class="seg-btn" data-seg="segTime">Monthly</button>
+          </div>
+        </div>
+        <!-- View type -->
+        <div>
+          <div class="text-xs mb-3 font-medium" style="color:var(--lab-muted)">View type</div>
+          <div class="seg-control" id="segView" role="group" aria-label="View type">
+            <button class="seg-btn active" data-seg="segView">📋 List</button>
+            <button class="seg-btn" data-seg="segView">⊞ Grid</button>
+            <button class="seg-btn" data-seg="segView">📊 Chart</button>
+          </div>
+        </div>
+        <!-- Size -->
+        <div>
+          <div class="text-xs mb-3 font-medium" style="color:var(--lab-muted)">Difficulty</div>
+          <div class="seg-control" id="segDiff" role="group" aria-label="Difficulty">
+            <button class="seg-btn" data-seg="segDiff">Rookie</button>
+            <button class="seg-btn active" data-seg="segDiff">Varsity</button>
+            <button class="seg-btn" data-seg="segDiff">Expert</button>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 lab-code" style="font-size:.78rem">
+&lt;div class="seg-control" role="group"&gt;
+  &lt;button class="seg-btn active"&gt;Daily&lt;/button&gt;
+  &lt;button class="seg-btn"&gt;Weekly&lt;/button&gt;
+  &lt;button class="seg-btn"&gt;Monthly&lt;/button&gt;
+&lt;/div&gt;</div>
+    </div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+    9. Morphing Gradient Button
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <section id="morph" class="lab-section reveal">
+    <div class="section-meta">
+      <div class="flex items-center gap-2">
+        <span class="comp-index">9</span>
+        <span class="lab-component-title" style="margin-bottom:0">Morphing Gradient Button</span>
+      </div>
+      <span class="lab-badge accent" style="font-size:.7rem">btn-morph</span>
+    </div>
+    <div class="lab-panel">
+      <p class="text-sm mb-4" style="color:var(--lab-muted)">
+        Animated multi-stop gradient button. The gradient continuously shifts position, creating a living, pulsing effect. Hover accelerates the animation.
+      </p>
+      <div class="flex flex-wrap gap-4 items-center">
+        <button class="btn-morph btn-ripple" data-sound="morph">✨ Activate</button>
+        <button class="btn-morph btn-ripple" data-sound="morph" style="border-radius:9999px;padding:.625rem 2rem">🚀 Launch</button>
+        <button class="btn-morph btn-ripple" data-sound="morph" style="font-size:.8rem;padding:.45rem 1.25rem">⚡ Quick Action</button>
+      </div>
+      <div class="mt-4 lab-code" style="font-size:.78rem">
+&lt;button class="btn-morph btn-ripple" data-sound="morph"&gt;✨ Activate&lt;/button&gt;</div>
+    </div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+    10. Floating Action Button
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <section id="fab" class="lab-section reveal">
+    <div class="section-meta">
+      <div class="flex items-center gap-2">
+        <span class="comp-index">10</span>
+        <span class="lab-component-title" style="margin-bottom:0">Floating Action Button (FAB)</span>
+      </div>
+      <span class="lab-badge" style="font-size:.7rem">lab-fab</span>
+    </div>
+    <div class="lab-panel">
+      <p class="text-sm mb-4" style="color:var(--lab-muted)">
+        Prominent circular button for the primary action of a screen — typically positioned at the bottom-right corner. In production it uses <code style="font-size:.78rem;background:#f1f5f9;padding:.1em .35em;border-radius:.25rem">position:fixed</code>; below is a relative-position demo.
+      </p>
+      <div class="fab-demo-container">
+        <span class="text-xs text-center px-4" style="color:var(--lab-muted)">
+          In production the FAB is <strong>fixed</strong> bottom-right.<br>
+          This is a contained demo — hover the button!
+        </span>
+        <button class="lab-fab btn-ripple" data-sound="morph" title="Add new item" aria-label="Add new item">
+          +
+        </button>
+      </div>
+      <div class="flex flex-wrap gap-4 items-center mt-4">
+        <div class="flex flex-col items-center gap-1">
+          <button class="lab-fab btn-ripple" data-sound="morph" title="Compose" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">✏️</button>
+          <span class="text-xs" style="color:var(--lab-muted)">Compose</span>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <button class="lab-fab btn-ripple" data-sound="morph" title="Share" style="background:linear-gradient(135deg,#22c55e,#0ea5e9)">📤</button>
+          <span class="text-xs" style="color:var(--lab-muted)">Share</span>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <button class="lab-fab btn-ripple" data-sound="chime" title="Notify" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🔔</button>
+          <span class="text-xs" style="color:var(--lab-muted)">Notify</span>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <button class="lab-fab btn-ripple" data-sound="morph" title="Add" style="width:2.5rem;height:2.5rem;font-size:1rem">+</button>
+          <span class="text-xs" style="color:var(--lab-muted)">Small</span>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <button class="lab-fab btn-ripple" data-sound="morph" title="Add" style="width:4.5rem;height:4.5rem;font-size:2rem">+</button>
+          <span class="text-xs" style="color:var(--lab-muted)">Large</span>
+        </div>
+      </div>
+      <div class="mt-4 lab-code" style="font-size:.78rem">
+<span style="color:#7dd3fc">/* Typically: position:fixed; bottom:1.5rem; right:1.5rem */</span>
+&lt;button class="lab-fab btn-ripple" data-sound="morph" title="Add new item"&gt;
+  +
+&lt;/button&gt;</div>
+    </div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+    11. CTA Banner
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <section id="cta" class="lab-section reveal">
+    <div class="section-meta">
+      <div class="flex items-center gap-2">
+        <span class="comp-index">11</span>
+        <span class="lab-component-title" style="margin-bottom:0">CTA Banner</span>
+      </div>
+      <span class="lab-badge success" style="font-size:.7rem">full-width</span>
+    </div>
+    <div class="cta-banner">
+      <div class="relative">
+        <div class="lab-badge accent mb-4" style="font-size:.8rem;display:inline-flex">🤖 Trident Robotics · Season 2025</div>
+        <h2 class="font-black text-white mb-3" style="font-size:clamp(1.5rem,4vw,2.5rem);line-height:1.15;text-shadow:0 2px 8px rgba(0,0,0,.15)">
+          Ready to join the team?
+        </h2>
+        <p class="text-white mb-6" style="opacity:.88;font-size:1rem;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.6">
+          Explore opportunities with Trident Robotics this season. We're looking for driven students in engineering, programming, and design.
+        </p>
+        <div class="flex flex-wrap gap-3 justify-center">
+          <button class="btn-ripple" data-sound="success"
+            style="background:white;color:#0369a1;font-weight:700;padding:.625rem 1.75rem;border-radius:.625rem;border:none;font-size:.9375rem;cursor:pointer;transition:transform 150ms,box-shadow 150ms;box-shadow:0 4px 16px rgba(0,0,0,.18)"
+            onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.22)'"
+            onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(0,0,0,.18)'"
+            onclick="showToast('success','Welcome to Trident Robotics! 🤖')">
+            Get Started
+          </button>
+          <button class="btn-ripple" data-sound="click"
+            style="background:rgba(255,255,255,.15);color:white;font-weight:600;padding:.625rem 1.75rem;border-radius:.625rem;border:1.5px solid rgba(255,255,255,.4);font-size:.9375rem;cursor:pointer;transition:background 150ms,transform 150ms;backdrop-filter:blur(6px)"
+            onmouseover="this.style.background='rgba(255,255,255,.25)';this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.background='rgba(255,255,255,.15)';this.style.transform=''">
+            Learn More →
+          </button>
+        </div>
+        <div class="flex flex-wrap gap-3 justify-center mt-5">
+          <span style="color:rgba(255,255,255,.75);font-size:.8rem">✓ No experience required</span>
+          <span style="color:rgba(255,255,255,.5);font-size:.8rem">·</span>
+          <span style="color:rgba(255,255,255,.75);font-size:.8rem">✓ All skill levels welcome</span>
+          <span style="color:rgba(255,255,255,.5);font-size:.8rem">·</span>
+          <span style="color:rgba(255,255,255,.75);font-size:.8rem">✓ Free to join</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Component Nav ────────────────────────────────────────────────────── -->
+  <div class="mt-8 pt-6 reveal" style="border-top:1px solid var(--lab-border)">
+    <div class="lab-component-title mb-3">Jump to Component</div>
+    <div class="flex flex-wrap gap-2">
+      <a href="#primary"   class="btn-secondary" style="font-size:.78rem;padding:.3rem .75rem">1 · Primary</a>
+      <a href="#secondary" class="btn-secondary" style="font-size:.78rem;padding:.3rem .75rem">2 · Secondary</a>
+      <a href="#danger"    class="btn-secondary" style="font-size:.78rem;padding:.3rem .75rem">3 · Danger</a>
+      <a href="#ghost"     class="btn-secondary" style="font-size:.78rem;padding:.3rem .75rem">4 · Ghost</a>
+      <a href="#icon"      class="btn-secondary" style="font-size:.78rem;padding:.3rem .75rem">5 · Icon</a>
+      <a href="#loading"   class="btn-secondary" style="font-size:.78rem;padding:.3rem .75rem">6 · Loading</a>
+      <a href="#group"     class="btn-secondary" style="font-size:.78rem;padding:.3rem .75rem">7 · Group</a>
+      <a href="#segmented" class="btn-secondary" style="font-size:.78rem;padding:.3rem .75rem">8 · Segmented</a>
+      <a href="#morph"     class="btn-secondary" style="font-size:.78rem;padding:.3rem .75rem">9 · Morph</a>
+      <a href="#fab"       class="btn-secondary" style="font-size:.78rem;padding:.3rem .75rem">10 · FAB</a>
+      <a href="#cta"       class="btn-secondary" style="font-size:.78rem;padding:.3rem .75rem">11 · CTA</a>
+    </div>
+  </div>
+
+  <!-- ─── Page Navigation ─────────────────────────────────────────────────── -->
+  <div class="flex items-center justify-between mt-8 pt-6 reveal" style="border-top:1px solid var(--lab-border)">
+    <a href="../index.html" class="btn-secondary" style="font-size:.875rem">← Lab Index</a>
+    <a href="02-inputs.html" class="btn-primary" style="font-size:.875rem">02 · Forms &amp; Inputs →</a>
+  </div>
+
+</main>
+
+<!-- ─── Toast Stack ───────────────────────────────────────────────────────── -->
+<div id="toastStack" class="toast-stack" aria-live="polite"></div>
+
+<!-- ─── Scripts ──────────────────────────────────────────────────────────── -->
+<script src="../assets/lab.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  // ── Loading Button ──────────────────────────────────────────────────────
+  function makeLoadingButton(btn, originalHTML, loadingLabel) {
+    btn.addEventListener('click', () => {
+      if (btn.disabled) return;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner"></span> ${loadingLabel}`;
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+        showToast('success', 'Operation completed successfully!');
+      }, 2500);
+    });
+  }
+
+  const loadingBtn    = document.getElementById('loadingBtn');
+  const loadingBtnAlt = document.getElementById('loadingBtnAlt');
+  if (loadingBtn)    makeLoadingButton(loadingBtn,    '🚀 Submit Form', 'Submitting…');
+  if (loadingBtnAlt) makeLoadingButton(loadingBtnAlt, '💾 Save Draft',  'Saving…');
+
+  // ── Segmented Controls ──────────────────────────────────────────────────
+  document.querySelectorAll('.seg-control').forEach(ctrl => {
+    ctrl.querySelectorAll('.seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        ctrl.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (window.Sound) Sound.tab();
+      });
+    });
+  });
+
+  // ── Sound toggle (handled by lab.js, but ensure label sync) ────────────
+  const toggleSoundBtn = document.getElementById('toggleSound');
+  if (toggleSoundBtn) {
+    // Override default lab.js handler to use our label format
+    const clone = toggleSoundBtn.cloneNode(true);
+    toggleSoundBtn.parentNode.replaceChild(clone, toggleSoundBtn);
+    clone.addEventListener('click', () => {
+      const nowOn = window.Sound.isEnabled();
+      window.Sound.setEnabled(!nowOn);
+      clone.textContent = `🔊 Sound: ${nowOn ? 'Off' : 'On'}`;
+      if (!nowOn) Sound.info();
+    });
+  }
+
+});
+</script>
+</body>
+</html>

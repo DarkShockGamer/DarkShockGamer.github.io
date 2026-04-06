@@ -803,7 +803,7 @@
     .roles-panel-overlay.active { display: block; }
 
     .roles-panel {
-      position: fixed; top: 0; left: -300px; width: 260px; max-width: 90vw; height: 100vh;
+      position: fixed; top: 0; left: -260px; width: 260px; max-width: 90vw; height: 100vh;
       background: #f8fafc; border-right: 1px solid #e2e8f0;
       box-shadow: 4px 0 24px rgba(0,0,0,0.12); transition: left 0.25s ease;
       z-index: 1101; display: flex; flex-direction: column; overflow: hidden;
@@ -3211,7 +3211,9 @@ filterInput.oninput = () => { renderBoard(); };
       // Resolve latest profiles then render
       const members = allTeamMembers.length ? allTeamMembers : [];
       if (window.FirebaseProfileSync?.resolveProfiles && members.length) {
-        try { await window.FirebaseProfileSync.resolveProfiles(members); } catch (_) {}
+        try { await window.FirebaseProfileSync.resolveProfiles(members); } catch (e) {
+          console.warn('[RolesPanel] resolveProfiles error:', e);
+        }
       }
       renderRolesPanel(members);
     }

@@ -2243,20 +2243,23 @@
       }
     }
 
+    var MAX_SYNC_RETRIES = 20;
+    var SYNC_RETRY_DELAY_MS = 100;
+
     function waitForSyncThenInit(retries) {
       if (window.FirebaseProfileSync && typeof window.FirebaseProfileSync.adminSetBadges === 'function') {
         initBadgeManagement();
       } else if (retries > 0) {
-        setTimeout(function () { waitForSyncThenInit(retries - 1); }, 100);
+        setTimeout(function () { waitForSyncThenInit(retries - 1); }, SYNC_RETRY_DELAY_MS);
       } else {
         initBadgeManagement(); // init anyway — error toast shown inline if sync missing
       }
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function () { waitForSyncThenInit(20); });
+      document.addEventListener('DOMContentLoaded', function () { waitForSyncThenInit(MAX_SYNC_RETRIES); });
     } else {
-      waitForSyncThenInit(20);
+      waitForSyncThenInit(MAX_SYNC_RETRIES);
     }
   }());
   </script>

@@ -348,6 +348,74 @@ async function updateDisplayName(displayName) {
 const _ENSURE_SIGNED_IN_TIMEOUT_MS = 5000;
 
 /**
+ * Admin-assign badges for any team member via the Cloudflare Worker.
+ *
+ * The Worker verifies that the requester's email (from the Google ID token) is
+ * listed in https://darkshockgamer.github.io/assets/data/developers.json before
+ * writing the badges to Firestore. This allows cross-device badge syncing without
+ * relaxing Firestore security rules.
+ *
+ * On success the local Profile store and resolve-cache are updated immediately
+ * so the UI reflects the change without a page reload.
+ *
+ * @param {string} targetEmail - Email of the user whose badges should be updated
+ * @param {Array}  badges      - Array of badge objects {id, name, emoji, color}
+ * @returns {Promise<object>}  - Worker response JSON
+ * @throws {Error}             - On network error, auth failure, or "user not found"
+ */
+async function adminSetBadges(targetEmail, badges) {
+  const credKey = (window.G_CRED_KEY || 'g_credential_v1');
+  const googleIdToken = localStorage.getItem(credKey);
+  if (!googleIdToken) {
+    throw new Error('No stored sign-in credential found. Please sign in first.');
+  }
+
+  const email = (targetEmail || '').trim().toLowerCase();
+
+  const res = await fetch('https://auth-worker.darkshock-dev.workers.dev/setBadges', {
+    method:  'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': 'Bearer ' + googleIdToken
+    },
+    body: JSON.stringify({
+      targetEmail: email,
+      badges:      Array.isArray(badges) ? badges : []
+    })
+  });
+
+  let data = {};
+  try {
+    data = await res.json();
+  } catch (_) {
+    // non-JSON body — handled below
+  }
+
+  if (!res.ok) {
+    const msg = (data && data.error) ? data.error : ('Worker /setBadges error (' + res.status + ')');
+    throw new Error(msg);
+  }
+
+  // Success — update local Profile store so UI reflects the change immediately
+  const badgeArray = Array.isArray(badges) ? badges : [];
+  if (typeof window.Profile !== 'undefined') {
+    window.Profile.set(email, { badges: badgeArray });
+  }
+
+  // Invalidate resolve-cache so the next resolveProfiles call fetches fresh data
+  _resolveCache.delete(email);
+  try { localStorage.removeItem('trident.profileCache.' + email); } catch (_) {}
+
+  // Notify pages of the profile change
+  try {
+    document.dispatchEvent(new CustomEvent('profilesHydrated', { detail: { email } }));
+  } catch (_) {}
+
+  console.log('[ProfileSync] adminSetBadges: synced', badgeArray.length, 'badge(s) for', email);
+  return data;
+}
+
+/**
  * Update the badges field in Firestore for the currently signed-in user.
  * Only succeeds when the provided email matches the signed-in user's email
  * (Firestore rules only permit a user to write their own profile).
@@ -529,7 +597,7 @@ async function resolveProfiles(emails) {
 }
 
 // ── Expose API globally for consumption by non-module scripts ─────────────────
-window.FirebaseProfileSync = { signInAndSync, hydrate, signOut, updateDisplayName, updateBadges, resolveProfiles, ensureSignedIn };
+window.FirebaseProfileSync = { signInAndSync, hydrate, signOut, updateDisplayName, updateBadges, adminSetBadges, resolveProfiles, ensureSignedIn };
 
 // ── Auto-start hydration on module load ──────────────────────────────────────
 // This runs on every page that includes this module script, so any previously

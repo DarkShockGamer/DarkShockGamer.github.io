@@ -22,6 +22,8 @@
   <script src="/assets/js/auth-utils.js"></script>
   <!-- Developer-specific auth guard -->
   <script src="/assets/js/auth-guard-developer.js"></script>
+  <!-- Profile sync / Worker client — required for adminSetBadges -->
+  <script src="/assets/js/firebase-profile-sync.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     // Configure Tailwind to use class-based dark mode instead of media query
@@ -2154,7 +2156,10 @@
               if (typeof showToast === 'function') showToast('error', e.message || 'Failed to remove badge.');
             }
           } else {
-            if (typeof showToast === 'function') showToast('info', 'Badge removed.');
+            // Revert the local removal — sync script is missing so we cannot persist
+            if (removedBadge && typeof Profile !== 'undefined') Profile.addBadge(email, removedBadge);
+            renderCurrentBadges(email);
+            if (typeof showToast === 'function') showToast('error', 'Badge sync unavailable: FirebaseProfileSync.adminSetBadges is not loaded. Badge was not removed.');
           }
         });
       });
@@ -2212,7 +2217,10 @@
               if (typeof showToast === 'function') showToast('error', e.message || 'Failed to assign badge.');
             }
           } else {
-            if (typeof showToast === 'function') showToast('success', 'Badge assigned: ' + def.emoji + ' ' + def.name);
+            // Revert the local addition — sync script is missing so we cannot persist
+            Profile.removeBadge(email, def.id);
+            renderCurrentBadges(email);
+            if (typeof showToast === 'function') showToast('error', 'Badge sync unavailable: FirebaseProfileSync.adminSetBadges is not loaded. Badge was not assigned.');
           }
         });
       }

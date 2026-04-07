@@ -22,8 +22,8 @@
   <script src="/assets/js/auth-utils.js"></script>
   <!-- Developer-specific auth guard -->
   <script src="/assets/js/auth-guard-developer.js"></script>
-  <!-- Profile sync / Worker client — required for adminSetBadges -->
-  <script src="/assets/js/firebase-profile-sync.js"></script>
+  <!-- Profile sync / Worker client — required for adminSetBadges (ES module) -->
+  <script type="module" src="/assets/js/firebase-profile-sync.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     // Configure Tailwind to use class-based dark mode instead of media query
@@ -2243,10 +2243,23 @@
       }
     }
 
+    var MAX_SYNC_RETRIES = 20;
+    var SYNC_RETRY_DELAY_MS = 100;
+
+    function waitForSyncThenInit(retries) {
+      if (window.FirebaseProfileSync && typeof window.FirebaseProfileSync.adminSetBadges === 'function') {
+        initBadgeManagement();
+      } else if (retries > 0) {
+        setTimeout(function () { waitForSyncThenInit(retries - 1); }, SYNC_RETRY_DELAY_MS);
+      } else {
+        initBadgeManagement(); // init anyway — error toast shown inline if sync missing
+      }
+    }
+
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initBadgeManagement);
+      document.addEventListener('DOMContentLoaded', function () { waitForSyncThenInit(MAX_SYNC_RETRIES); });
     } else {
-      initBadgeManagement();
+      waitForSyncThenInit(MAX_SYNC_RETRIES);
     }
   }());
   </script>

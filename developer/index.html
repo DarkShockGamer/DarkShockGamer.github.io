@@ -508,7 +508,7 @@
       </div>
       <div class="section-body mt-3">
 
-      <p class="muted mt-1">Assign or remove role badges for team members (similar to Discord roles). Changes are saved locally in each user's browser storage.</p>
+      <p class="muted mt-1">Assign or remove role badges for team members (similar to Discord roles). Changes are synced across all devices via Firestore.</p>
 
       <!-- User picker -->
       <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2136,15 +2136,26 @@
       }).join('');
 
       list.querySelectorAll('.remove-badge-btn').forEach(function (btn) {
-        btn.addEventListener('click', function () {
+        btn.addEventListener('click', async function () {
           var badgeId = this.getAttribute('data-badge-id');
+          // Capture the badge before removing it so we can restore on failure
+          var allBadges = (typeof Profile !== 'undefined') ? Profile.getBadges(email) : [];
+          var removedBadge = allBadges.find(function (b) { return b.id === badgeId; });
           if (typeof Profile !== 'undefined') Profile.removeBadge(email, badgeId);
           renderCurrentBadges(email);
-          if (window.FirebaseProfileSync) {
-            window.FirebaseProfileSync.updateBadges(email, (typeof Profile !== 'undefined') ? Profile.getBadges(email) : [])
-              .catch(function (e) { console.warn('[ProfileSync] updateBadges error:', e); });
+          if (window.FirebaseProfileSync && window.FirebaseProfileSync.adminSetBadges) {
+            try {
+              await window.FirebaseProfileSync.adminSetBadges(email, (typeof Profile !== 'undefined') ? Profile.getBadges(email) : []);
+              if (typeof showToast === 'function') showToast('info', 'Badge removed.');
+            } catch (e) {
+              // Revert the local removal
+              if (removedBadge && typeof Profile !== 'undefined') Profile.addBadge(email, removedBadge);
+              renderCurrentBadges(email);
+              if (typeof showToast === 'function') showToast('error', e.message || 'Failed to remove badge.');
+            }
+          } else {
+            if (typeof showToast === 'function') showToast('info', 'Badge removed.');
           }
-          if (typeof showToast === 'function') showToast('info', 'Badge removed.');
         });
       });
     }
@@ -2182,7 +2193,7 @@
       });
 
       if (assignBtn) {
-        assignBtn.addEventListener('click', function () {
+        assignBtn.addEventListener('click', async function () {
           var email = userSelect.value;
           var defId = document.getElementById('badgeDefSelect').value;
           if (!email || !defId || typeof Profile === 'undefined') return;
@@ -2191,11 +2202,18 @@
           if (!def) return;
           Profile.addBadge(email, def);
           renderCurrentBadges(email);
-          if (window.FirebaseProfileSync) {
-            window.FirebaseProfileSync.updateBadges(email, Profile.getBadges(email))
-              .catch(function (e) { console.warn('[ProfileSync] updateBadges error:', e); });
+          if (window.FirebaseProfileSync && window.FirebaseProfileSync.adminSetBadges) {
+            try {
+              await window.FirebaseProfileSync.adminSetBadges(email, Profile.getBadges(email));
+              if (typeof showToast === 'function') showToast('success', 'Badge assigned: ' + def.emoji + ' ' + def.name);
+            } catch (e) {
+              Profile.removeBadge(email, def.id);
+              renderCurrentBadges(email);
+              if (typeof showToast === 'function') showToast('error', e.message || 'Failed to assign badge.');
+            }
+          } else {
+            if (typeof showToast === 'function') showToast('success', 'Badge assigned: ' + def.emoji + ' ' + def.name);
           }
-          if (typeof showToast === 'function') showToast('success', 'Badge assigned: ' + def.emoji + ' ' + def.name);
         });
       }
 

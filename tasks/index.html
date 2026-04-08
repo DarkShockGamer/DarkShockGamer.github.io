@@ -795,6 +795,21 @@
       display: inline-flex; align-items: center; gap: 4px;
     }
     .profile-chip:hover { text-decoration: underline; }
+    .profile-chip-multi {
+      background: none; border: none; cursor: pointer; padding: 0;
+      display: inline-flex; align-items: center;
+    }
+    .profile-chip-multi:hover { opacity: 0.8; }
+    .profile-chip-multi:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; border-radius: 4px; }
+    .assignees-modal-item {
+      display: flex; align-items: center; gap: 0.75rem; width: 100%;
+      padding: 0.5rem 0.625rem; border: none; background: none; cursor: pointer;
+      border-radius: 0.5rem; text-align: left; color: inherit;
+      transition: background 0.15s;
+    }
+    .assignees-modal-item:hover { background: #f1f5f9; }
+    html.theme-dark .assignees-modal-item:hover { background: #1e293b !important; }
+    .assignees-modal-item:focus-visible { outline: 2px solid #38bdf8; outline-offset: 1px; }
 
     /* ── Roles Panel (Discord-style left pop-out) ────────────────────────── */
     .roles-panel-overlay {
@@ -1192,6 +1207,66 @@ document.addEventListener("click", (e) => {
     openProfileModal(chip.dataset.email);
   }
 });
+
+// Delegated click handler for multi-assignee stacked avatar button
+document.addEventListener("click", (e) => {
+  const chip = e.target.closest(".profile-chip-multi");
+  if (chip && chip.dataset.emails) {
+    e.stopPropagation();
+    try {
+      const emails = JSON.parse(chip.dataset.emails);
+      if (Array.isArray(emails) && emails.length > 0) openAssigneesModal(emails);
+    } catch (err) {
+      console.warn('[tasks] Failed to parse data-emails on profile-chip-multi:', err);
+    }
+  }
+});
+
+async function openAssigneesModal(emails) {
+  if (!emails || !emails.length || !profileModalOverlay || !profileModalBody) return;
+
+  profileModalBody.innerHTML = '<div style="text-align:center;padding:2rem;color:#94a3b8;">Loading…</div>';
+  profileModalOverlay.classList.add("active");
+  profileModalOverlay.setAttribute("aria-hidden", "false");
+
+  if (window.FirebaseProfileSync) {
+    try { await window.FirebaseProfileSync.resolveProfiles(emails); } catch (err) {
+      console.warn('[tasks] Failed to resolve profiles for assignees modal:', err);
+    }
+  }
+
+  renderAssigneesList(emails);
+}
+
+function renderAssigneesList(emails) {
+  if (!profileModalBody) return;
+  const listItems = emails.map(email => {
+    const name = (typeof Profile !== 'undefined') ? Profile.getDisplayName(email) : email;
+    const avatarHtml = (typeof Profile !== 'undefined') ? Profile.renderAvatar(email, 36) : '';
+    return '<button class="assignees-modal-item" data-email="' + escHtml(email) + '" aria-label="View profile of ' + escHtml(name) + '">' +
+      '<div style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">' + avatarHtml + '</div>' +
+      '<div style="min-width:0;">' +
+        '<div style="font-weight:600;font-size:0.875rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="text-slate-800 dark:text-slate-200">' + escHtml(name) + '</div>' +
+        '<div style="font-size:0.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="text-slate-400 dark:text-slate-500">' + escHtml(email) + '</div>' +
+      '</div>' +
+    '</button>';
+  }).join('');
+
+  profileModalBody.innerHTML =
+    '<div id="profileModalTitle" style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.625rem;" class="text-slate-500 dark:text-slate-400">' +
+      'Assignees (' + emails.length + ')' +
+    '</div>' +
+    '<div role="list" aria-label="Assignees list" style="display:flex;flex-direction:column;gap:2px;">' +
+      listItems +
+    '</div>';
+
+  profileModalBody.querySelectorAll('.assignees-modal-item').forEach(btn => {
+    btn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      openProfileModal(btn.dataset.email);
+    });
+  });
+}
 /* ──────────────────────────────────────────────────────────────────────── */
 
 /* Tag dropdown */
@@ -1332,7 +1407,7 @@ function getAssigneeDisplay(assignees) {
     }
     return escHtml(email);
   }
-  // Multiple assignees: stacked avatars with tooltip
+  // Multiple assignees: stacked avatars — clicking opens the assignees list modal
   const names = assignees.map(e => (typeof Profile !== 'undefined') ? Profile.getDisplayName(e) : e);
   const tooltip = escHtml(names.join(', '));
   const avatarsHtml = assignees.map((e, i) => {
@@ -1354,8 +1429,11 @@ function getAssigneeDisplay(assignees) {
     }
     return escHtml(e);
   }).join('');
-  return '<span class="profile-chip-multi text-xs inline-flex items-center" title="' + tooltip + '">' +
-    avatarsHtml + '</span>';
+  return '<button class="profile-chip-multi text-xs inline-flex items-center" ' +
+    'data-emails="' + escHtml(JSON.stringify(assignees)) + '" ' +
+    'title="' + tooltip + '" ' +
+    'aria-label="View assignees: ' + tooltip + '">' +
+    avatarsHtml + '</button>';
 }
 
 /**

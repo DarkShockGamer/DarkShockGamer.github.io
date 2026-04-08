@@ -17,7 +17,6 @@
     { id: 'captain',     name: 'Captain',          emoji: '⭐', color: '#f59e0b' },
     { id: 'mentor',      name: 'Mentor',            emoji: '🎓', color: '#10b981' },
     { id: 'developer',   name: 'Developer',         emoji: '💻', color: '#6366f1' },
-    { id: 'team-member', name: 'Team Member',       emoji: '🛡️', color: '#0ea5e9' },
     { id: 'design',      name: 'Design Lead',       emoji: '🎨', color: '#ec4899' },
     { id: 'mechanical',  name: 'Mechanical Lead',   emoji: '🔧', color: '#f97316' },
     { id: 'programming', name: 'Programming Lead',  emoji: '⚡', color: '#3b82f6' },
@@ -74,25 +73,7 @@
 
   function getPicture(email) {
     const p = getProfile(email);
-    if (!p) return null;
-    // Prefer user-chosen avatar override over the Google picture.
-    if (p.avatarOverride) return p.avatarOverride;
-    return p.picture || null;
-  }
-
-  function getBanner(email) {
-    const p = getProfile(email);
-    return (p && p.banner) ? p.banner : null;
-  }
-
-  function setAvatarOverride(email, urlOrNull) {
-    if (!email) return;
-    setProfile(email, { avatarOverride: urlOrNull || null });
-  }
-
-  function setBanner(email, urlOrNull) {
-    if (!email) return;
-    setProfile(email, { banner: urlOrNull || null });
+    return (p && p.picture) ? p.picture : null;
   }
 
   // ── badge management ─────────────────────────────────────────────────────
@@ -199,27 +180,6 @@
     }).join(' ');
   }
 
-  /**
-   * Returns an HTML string for a profile banner image.
-   * Falls back to an empty string (no element) when no banner is set.
-   * @param {string} email
-   * @param {{ height?: number, radius?: string, alt?: string }} [opts]
-   */
-  function renderBanner(email, opts) {
-    const url = getBanner(email);
-    if (!url) return '';
-    opts = opts || {};
-    // Clamp height to a safe integer to prevent style injection.
-    const height = Math.max(1, Math.min(1000, parseInt(opts.height || 160, 10) || 160));
-    // Allow only safe CSS length values for border-radius.
-    const rawRadius = String(opts.radius || '12px');
-    const radius = /^[\d.]+(?:px|rem|em|%)$/.test(rawRadius) ? rawRadius : '12px';
-    const alt = _esc(opts.alt || 'Profile banner');
-    return '<img src="' + _esc(url) + '" alt="' + alt + '" ' +
-      'style="width:100%;height:' + height + 'px;object-fit:cover;border-radius:' + radius + ';display:block;" ' +
-      'onerror="this.style.display=\'none\';" />';
-  }
-
   // ── private helpers ───────────────────────────────────────────────────────
 
   function _esc(str) {
@@ -239,9 +199,6 @@
     getAll: getAllProfiles,
     getDisplayName: getDisplayName,
     getPicture: getPicture,
-    getBanner: getBanner,
-    setAvatarOverride: setAvatarOverride,
-    setBanner: setBanner,
     getBadges: getBadges,
     addBadge: addBadge,
     removeBadge: removeBadge,
@@ -250,7 +207,6 @@
     saveBadgeDef: saveBadgeDef,
     renderAvatar: renderAvatar,
     renderBadges: renderBadges,
-    renderBanner: renderBanner,
     normalizeEmail: normalizeEmail,
   };
 }());

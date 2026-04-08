@@ -128,16 +128,6 @@ async function _upsertProfile(uid, { email, name, picture }) {
     updates.displayName = null;
   }
 
-  // Preserve user-chosen avatar override — Google sign-in must NOT overwrite it.
-  if (existing.avatarOverride !== undefined) {
-    updates.avatarOverride = existing.avatarOverride;
-  }
-
-  // Preserve banner if already set.
-  if (existing.banner !== undefined) {
-    updates.banner = existing.banner;
-  }
-
   await setDoc(ref, updates, { merge: true });
   return Object.assign({}, existing, updates);
 }
@@ -164,7 +154,7 @@ async function _fetchProfile(uid) {
  * @param {boolean} [isSelf=false] - When true, also updates signedInEmail in localStorage
  * @param {Array|null} [badges=null] - When provided, overwrites local badges with remote values
  */
-function _hydrateLocal(email, displayName, picture, isSelf = false, badges = null, avatarOverride = undefined, banner = undefined) {
+function _hydrateLocal(email, displayName, picture, isSelf = false, badges = null) {
   if (!email) return;
 
   if (typeof window.Profile !== "undefined") {
@@ -179,14 +169,6 @@ function _hydrateLocal(email, displayName, picture, isSelf = false, badges = nul
     // Sync badges when remote provides them (null means "not available in this context")
     if (badges !== null && Array.isArray(badges)) {
       window.Profile.set(email, { badges });
-    }
-    // Sync avatarOverride – undefined means "not provided", null means "cleared"
-    if (avatarOverride !== undefined) {
-      window.Profile.set(email, { avatarOverride: avatarOverride || null });
-    }
-    // Sync banner
-    if (banner !== undefined) {
-      window.Profile.set(email, { banner: banner || null });
     }
   }
 
@@ -251,27 +233,7 @@ async function signInAndSync(credentialJwt) {
   // Immediately hydrate local Profile store.
   // _upsertProfile already resolves the correct displayName (preserving user-chosen
   // names and seeding from Google only when none exists), so use saved values directly.
-  _hydrateLocal(decoded.email, saved.displayName, saved.picture, true,
-    Array.isArray(saved.badges) ? saved.badges : null,
-    saved.avatarOverride,
-    saved.banner);
-
-  // Enforce system-managed role badges (developer / team-member).
-  // If any badge was added, persist the updated list to Firestore.
-  if (typeof window.ProfileAutoBadges !== "undefined") {
-    try {
-      const badgeAdded = await window.ProfileAutoBadges.enforceRoleBadges(decoded.email);
-      if (badgeAdded) {
-        const updatedBadges = typeof window.Profile !== "undefined"
-          ? window.Profile.getBadges(decoded.email) : [];
-        const ref2 = doc(_db, "publicProfiles", uid);
-        await setDoc(ref2, { badges: updatedBadges, updatedAt: serverTimestamp() }, { merge: true });
-        console.log("[ProfileSync] Persisted auto-badges after sign-in");
-      }
-    } catch (e) {
-      console.warn("[ProfileSync] enforceRoleBadges after sign-in failed:", e);
-    }
-  }
+  _hydrateLocal(decoded.email, saved.displayName, saved.picture, true);
 
   return { uid, email: decoded.email };
 }
@@ -301,9 +263,7 @@ function hydrate(onComplete) {
         remote.displayName || "",
         remote.picture     || "",
         true,
-        remoteBadges,
-        remote.avatarOverride,
-        remote.banner
+        remoteBadges
       );
 
       // If Firestore has no badges yet, push any locally-stored badges up once.
@@ -318,22 +278,6 @@ function hydrate(onComplete) {
           } catch (e) {
             console.warn("[ProfileSync] Failed to push local badges to Firestore:", e);
           }
-        }
-      }
-
-      // Enforce system-managed role badges after every hydration.
-      if (typeof window.ProfileAutoBadges !== "undefined") {
-        try {
-          const badgeAdded = await window.ProfileAutoBadges.enforceRoleBadges(remote.email);
-          if (badgeAdded) {
-            const updatedBadges = typeof window.Profile !== "undefined"
-              ? window.Profile.getBadges(remote.email) : [];
-            const ref = doc(_db, "publicProfiles", user.uid);
-            await setDoc(ref, { badges: updatedBadges, updatedAt: serverTimestamp() }, { merge: true });
-            console.log("[ProfileSync] Persisted auto-badges after hydration");
-          }
-        } catch (e) {
-          console.warn("[ProfileSync] enforceRoleBadges in hydrate failed:", e);
         }
       }
 
@@ -447,32 +391,6 @@ async function adminSetBadges(targetEmail, badges) {
   const badgeArray = Array.isArray(badges) ? badges : [];
   if (typeof window.Profile !== 'undefined') {
     window.Profile.set(email, { badges: badgeArray });
-  }
-
-  // Re-enforce system-managed role badges after any admin badge update.
-  // This ensures forced badges cannot be removed via adminSetBadges.
-  if (typeof window.ProfileAutoBadges !== "undefined") {
-    try {
-      const badgeAdded = await window.ProfileAutoBadges.enforceRoleBadges(email);
-      if (badgeAdded) {
-        // The auto-badge was re-added locally. Persist the corrected list via the
-        // Worker (we already have the credential so we can make a second call).
-        const finalBadges = typeof window.Profile !== "undefined"
-          ? window.Profile.getBadges(email) : badgeArray;
-        const credKey2 = (window.G_CRED_KEY || 'g_credential_v1');
-        const tok2 = localStorage.getItem(credKey2);
-        if (tok2) {
-          await fetch('https://auth-worker.darkshock-dev.workers.dev/setBadges', {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok2 },
-            body: JSON.stringify({ targetEmail: email, badges: finalBadges })
-          });
-          console.log('[ProfileSync] Re-persisted auto-badges after adminSetBadges for', email);
-        }
-      }
-    } catch (e) {
-      console.warn('[ProfileSync] enforceRoleBadges in adminSetBadges failed:', e);
-    }
   }
 
   // Invalidate resolve-cache so the next resolveProfiles call fetches fresh data
@@ -647,12 +565,10 @@ async function resolveProfiles(emails) {
         if (!em) return;
 
         const entry = {
-          displayName:   data.displayName   || null,
-          picture:       data.picture       || null,
-          badges:        Array.isArray(data.badges) ? data.badges : null,
-          avatarOverride: data.avatarOverride !== undefined ? (data.avatarOverride || null) : undefined,
-          banner:         data.banner        !== undefined ? (data.banner        || null) : undefined,
-          cachedAt:      Date.now()
+          displayName: data.displayName || null,
+          picture:     data.picture     || null,
+          badges:      Array.isArray(data.badges) ? data.badges : null,
+          cachedAt:    Date.now()
         };
 
         // Update caches
@@ -663,7 +579,7 @@ async function resolveProfiles(emails) {
 
         // Seed the local Profile store → triggers UI update
         const isSelf = em === (localStorage.getItem("signedInEmail") || "").trim().toLowerCase();
-        _hydrateLocal(em, entry.displayName, entry.picture, isSelf, entry.badges, entry.avatarOverride, entry.banner);
+        _hydrateLocal(em, entry.displayName, entry.picture, isSelf, entry.badges);
       });
     }
   } catch (e) {
@@ -671,57 +587,8 @@ async function resolveProfiles(emails) {
   }
 }
 
-/**
- * Update (or clear) the custom avatar override URL for the currently signed-in user.
- * Stores separately from the Google `picture` so sign-in never overwrites it.
- *
- * @param {string|null} urlOrNull - URL string to set, or null/empty to clear
- * @returns {Promise<void>}
- */
-async function updateAvatarOverride(urlOrNull) {
-  const user = _auth.currentUser;
-  if (!user) {
-    console.warn("[ProfileSync] updateAvatarOverride: no signed-in Firebase user");
-    return;
-  }
-
-  const value = urlOrNull || null;
-  const ref = doc(_db, "publicProfiles", user.uid);
-  await setDoc(ref, { avatarOverride: value, updatedAt: serverTimestamp() }, { merge: true });
-  console.log("[ProfileSync] Saved avatarOverride to Firestore:", value);
-
-  const email = localStorage.getItem("signedInEmail");
-  if (email && typeof window.Profile !== "undefined") {
-    window.Profile.setAvatarOverride(email, value);
-  }
-}
-
-/**
- * Update (or clear) the profile banner URL for the currently signed-in user.
- *
- * @param {string|null} urlOrNull - URL string to set, or null/empty to clear
- * @returns {Promise<void>}
- */
-async function updateBanner(urlOrNull) {
-  const user = _auth.currentUser;
-  if (!user) {
-    console.warn("[ProfileSync] updateBanner: no signed-in Firebase user");
-    return;
-  }
-
-  const value = urlOrNull || null;
-  const ref = doc(_db, "publicProfiles", user.uid);
-  await setDoc(ref, { banner: value, updatedAt: serverTimestamp() }, { merge: true });
-  console.log("[ProfileSync] Saved banner to Firestore:", value);
-
-  const email = localStorage.getItem("signedInEmail");
-  if (email && typeof window.Profile !== "undefined") {
-    window.Profile.setBanner(email, value);
-  }
-}
-
 // ── Expose API globally for consumption by non-module scripts ─────────────────
-window.FirebaseProfileSync = { signInAndSync, hydrate, signOut, updateDisplayName, updateBadges, adminSetBadges, resolveProfiles, ensureSignedIn, updateAvatarOverride, updateBanner };
+window.FirebaseProfileSync = { signInAndSync, hydrate, signOut, updateDisplayName, updateBadges, adminSetBadges, resolveProfiles, ensureSignedIn };
 
 // ── Auto-start hydration on module load ──────────────────────────────────────
 // This runs on every page that includes this module script, so any previously

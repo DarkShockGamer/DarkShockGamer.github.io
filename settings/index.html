@@ -975,6 +975,42 @@
             <p class="setting-description" style="margin:0;">Your Google profile photo is used automatically across the site. Sign in with Google to show your picture.</p>
           </div>
         </div>
+
+        <!-- Avatar Override -->
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>🎭</span>
+            <span>Avatar Override</span>
+          </div>
+          <p class="setting-description" style="margin-bottom:0.5rem;">Set a custom avatar URL to replace your Google photo everywhere on the site.</p>
+          <div class="flex items-center gap-3 mt-2">
+            <div id="avatarOverridePreview" style="width:48px;height:48px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#38bdf8,#818cf8);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.25rem;font-weight:700;color:white;">?</div>
+            <div class="flex-1">
+              <input id="avatarOverrideUrl" type="url" placeholder="https://example.com/my-avatar.png"
+                     class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" />
+            </div>
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button type="button" id="saveAvatarOverrideBtn" class="save-btn btn-primary" style="margin-top:0;">Save Avatar</button>
+            <button type="button" id="clearAvatarOverrideBtn" class="cancel-btn" style="margin-top:0;">Clear</button>
+          </div>
+        </div>
+
+        <!-- Profile Banner -->
+        <div class="setting-card">
+          <div class="setting-label">
+            <span>🏔️</span>
+            <span>Profile Banner</span>
+          </div>
+          <p class="setting-description" style="margin-bottom:0.5rem;">Set a banner image displayed at the top of your profile.</p>
+          <div id="bannerPreview" style="width:100%;height:80px;border-radius:8px;overflow:hidden;background:linear-gradient(135deg,#0ea5e9,#818cf8);margin-bottom:0.5rem;"></div>
+          <input id="bannerUrl" type="url" placeholder="https://example.com/my-banner.png"
+                 class="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" />
+          <div class="flex gap-2 mt-2">
+            <button type="button" id="saveBannerBtn" class="save-btn btn-primary" style="margin-top:0;">Save Banner</button>
+            <button type="button" id="clearBannerBtn" class="cancel-btn" style="margin-top:0;">Clear</button>
+          </div>
+        </div>
         <div class="setting-card">
           <div class="setting-label">
             <span>📧</span>
@@ -1661,13 +1697,14 @@
     }
   </script>
   <script src="/assets/js/profile.js"></script>
+  <script src="/assets/js/auth-config.js"></script>
+  <script src="/assets/js/auth-utils.js"></script>
+  <script src="/assets/js/profile-auto-badges.js"></script>
   <script src="/assets/js/settings.js"></script>
   <!-- Profile avatar + badges population for Account tab -->
   <script>
     (function () {
-      function populateProfileUI() {
-        if (typeof Profile === 'undefined') return;
-        // Determine the current user's email
+      function getCurrentEmail() {
         var email = null;
         try {
           var credKey = window.G_CRED_KEY || 'g_credential_v1';
@@ -1678,37 +1715,215 @@
           }
         } catch (e) {}
         if (!email) email = localStorage.getItem('signedInEmail');
+        return email;
+      }
+
+      /** Only allow http/https URLs for user-supplied media URLs. */
+      function _safeMediaUrl(url) {
+        if (!url) return null;
+        try {
+          var u = new URL(url);
+          return (u.protocol === 'https:' || u.protocol === 'http:') ? url : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function updateAvatarPreview(url) {
+        var preview = document.getElementById('avatarOverridePreview');
+        if (!preview) return;
+        preview.innerHTML = '';
+        var safeUrl = _safeMediaUrl(url);
+        if (safeUrl) {
+          var img = document.createElement('img');
+          img.setAttribute('src', safeUrl);
+          img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+          img.onerror = function () { preview.textContent = '?'; };
+          preview.appendChild(img);
+        } else {
+          preview.textContent = '?';
+        }
+      }
+
+      function updateBannerPreview(url) {
+        var preview = document.getElementById('bannerPreview');
+        if (!preview) return;
+        var safeUrl = _safeMediaUrl(url);
+        if (safeUrl) {
+          // Re-encode the URL to prevent any CSS injection characters.
+          // encodeURI normalises the URL and percent-encodes characters that are
+          // invalid in CSS string context (e.g. single quotes, backslashes).
+          var encodedUrl = encodeURI(decodeURI(safeUrl));
+          preview.style.backgroundImage = "url('" + encodedUrl.replace(/'/g, '%27') + "')";
+          preview.style.backgroundSize = 'cover';
+          preview.style.backgroundPosition = 'center';
+        } else {
+          preview.style.backgroundImage = '';
+        }
+      }
+
+      function populateProfileUI() {
+        if (typeof Profile === 'undefined') return;
+        var email = getCurrentEmail();
 
         var wrap = document.getElementById('profileAvatarWrap');
         if (wrap && email) {
-          var picture = Profile.getPicture(email);
-          var name = Profile.getDisplayName(email);
-          var initials = ((name && name[0]) || '?').toUpperCase();
-          if (picture) {
-            wrap.innerHTML =
-              '<img src="' + picture + '" alt="Profile photo" ' +
-              'style="width:64px;height:64px;border-radius:50%;object-fit:cover;" ' +
-              'onerror="this.style.display=\'none\';" />';
-          } else {
-            wrap.textContent = initials;
-          }
+          _setAvatarWrap(wrap, Profile.getPicture(email), Profile.getDisplayName(email));
         }
 
-        // Populate badges
+        // Populate avatar override input + preview
         if (email) {
+          var p = Profile.get(email) || {};
+          var overrideUrl = p.avatarOverride || '';
+          var overrideInput = document.getElementById('avatarOverrideUrl');
+          if (overrideInput) overrideInput.value = overrideUrl;
+          updateAvatarPreview(overrideUrl);
+
+          var bannerUrl = p.banner || '';
+          var bannerInput = document.getElementById('bannerUrl');
+          if (bannerInput) bannerInput.value = bannerUrl;
+          updateBannerPreview(bannerUrl);
+        }
+
+        // Populate badges (and enforce auto-badges)
+        if (email) {
+          // Enforce system-managed auto-badges (async, best-effort)
+          if (typeof ProfileAutoBadges !== 'undefined') {
+            ProfileAutoBadges.enforceRoleBadges(email).then(function (added) {
+              if (added) {
+                var badgesWrap2 = document.getElementById('profileBadgesWrap');
+                var badgesCard2 = document.getElementById('badgesCard');
+                if (badgesWrap2 && badgesCard2 && typeof Profile !== 'undefined') {
+                  var updatedBadges = Profile.getBadges(email);
+                  badgesCard2.style.display = '';
+                  badgesWrap2.innerHTML = updatedBadges.length
+                    ? Profile.renderBadges(email)
+                    : '<span class="setting-description" style="margin:0;">No badges yet.</span>';
+                }
+              }
+            });
+          }
+
           var badges = Profile.getBadges(email);
           var badgesCard = document.getElementById('badgesCard');
           var badgesWrap = document.getElementById('profileBadgesWrap');
           if (badgesCard && badgesWrap) {
+            badgesCard.style.display = '';
             if (badges.length) {
-              badgesCard.style.display = '';
               badgesWrap.innerHTML = Profile.renderBadges(email);
             } else {
-              badgesCard.style.display = '';
               badgesWrap.innerHTML = '<span class="setting-description" style="margin:0;">No badges yet.</span>';
             }
           }
         }
+      }
+
+      // Avatar override live preview
+      var aoInput = document.getElementById('avatarOverrideUrl');
+      if (aoInput) {
+        aoInput.addEventListener('input', function () { updateAvatarPreview(this.value.trim()); });
+      }
+
+      // Banner live preview
+      var banInput = document.getElementById('bannerUrl');
+      if (banInput) {
+        banInput.addEventListener('input', function () { updateBannerPreview(this.value.trim()); });
+      }
+
+      function _setAvatarWrap(wrap, pic, name) {
+        wrap.innerHTML = '';
+        var safeUrl = _safeMediaUrl(pic);
+        if (safeUrl) {
+          var img = document.createElement('img');
+          img.setAttribute('src', safeUrl);
+          img.alt = 'Profile photo';
+          img.style.cssText = 'width:64px;height:64px;border-radius:50%;object-fit:cover;';
+          img.onerror = function () { img.style.display = 'none'; };
+          wrap.appendChild(img);
+        } else {
+          wrap.textContent = ((name && name[0]) || '?').toUpperCase();
+        }
+      }
+
+      // Save avatar override
+      var saveAoBtn = document.getElementById('saveAvatarOverrideBtn');
+      if (saveAoBtn) {
+        saveAoBtn.addEventListener('click', async function () {
+          var email = getCurrentEmail();
+          if (!email) { alert('Sign in first.'); return; }
+          var raw = (document.getElementById('avatarOverrideUrl').value || '').trim();
+          var url = raw ? (_safeMediaUrl(raw) || null) : null;
+          if (typeof Profile !== 'undefined') Profile.setAvatarOverride(email, url);
+          updateAvatarPreview(url);
+          // Also update profileAvatarWrap immediately
+          var wrap = document.getElementById('profileAvatarWrap');
+          if (wrap && typeof Profile !== 'undefined') {
+            _setAvatarWrap(wrap, Profile.getPicture(email), Profile.getDisplayName(email));
+          }
+          if (window.FirebaseProfileSync && window.FirebaseProfileSync.updateAvatarOverride) {
+            try {
+              await window.FirebaseProfileSync.updateAvatarOverride(url);
+            } catch (e) {
+              console.warn('[Settings] updateAvatarOverride sync failed:', e);
+            }
+          }
+        });
+      }
+
+      // Clear avatar override
+      var clearAoBtn = document.getElementById('clearAvatarOverrideBtn');
+      if (clearAoBtn) {
+        clearAoBtn.addEventListener('click', async function () {
+          var email = getCurrentEmail();
+          if (!email) return;
+          if (typeof Profile !== 'undefined') Profile.setAvatarOverride(email, null);
+          var aoIn = document.getElementById('avatarOverrideUrl');
+          if (aoIn) aoIn.value = '';
+          updateAvatarPreview(null);
+          var wrap = document.getElementById('profileAvatarWrap');
+          if (wrap && typeof Profile !== 'undefined') {
+            _setAvatarWrap(wrap, Profile.getPicture(email), Profile.getDisplayName(email));
+          }
+          if (window.FirebaseProfileSync && window.FirebaseProfileSync.updateAvatarOverride) {
+            try { await window.FirebaseProfileSync.updateAvatarOverride(null); } catch (e) {}
+          }
+        });
+      }
+
+      // Save banner
+      var saveBannerBtn = document.getElementById('saveBannerBtn');
+      if (saveBannerBtn) {
+        saveBannerBtn.addEventListener('click', async function () {
+          var email = getCurrentEmail();
+          if (!email) { alert('Sign in first.'); return; }
+          var raw = (document.getElementById('bannerUrl').value || '').trim();
+          var url = raw ? (_safeMediaUrl(raw) || null) : null;
+          if (typeof Profile !== 'undefined') Profile.setBanner(email, url);
+          updateBannerPreview(url);
+          if (window.FirebaseProfileSync && window.FirebaseProfileSync.updateBanner) {
+            try {
+              await window.FirebaseProfileSync.updateBanner(url);
+            } catch (e) {
+              console.warn('[Settings] updateBanner sync failed:', e);
+            }
+          }
+        });
+      }
+
+      // Clear banner
+      var clearBannerBtn = document.getElementById('clearBannerBtn');
+      if (clearBannerBtn) {
+        clearBannerBtn.addEventListener('click', async function () {
+          var email = getCurrentEmail();
+          if (!email) return;
+          if (typeof Profile !== 'undefined') Profile.setBanner(email, null);
+          var banIn = document.getElementById('bannerUrl');
+          if (banIn) banIn.value = '';
+          updateBannerPreview(null);
+          if (window.FirebaseProfileSync && window.FirebaseProfileSync.updateBanner) {
+            try { await window.FirebaseProfileSync.updateBanner(null); } catch (e) {}
+          }
+        });
       }
 
       // Run after DOM + scripts are ready

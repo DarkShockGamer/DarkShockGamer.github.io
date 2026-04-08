@@ -1750,8 +1750,11 @@
         if (!preview) return;
         var safeUrl = _safeMediaUrl(url);
         if (safeUrl) {
-          // Escape single quotes in the URL for safe CSS url() value
-          preview.style.backgroundImage = "url('" + safeUrl.replace(/'/g, '%27') + "')";
+          // Re-encode the URL to prevent any CSS injection characters.
+          // encodeURI normalises the URL and percent-encodes characters that are
+          // invalid in CSS string context (e.g. single quotes, backslashes).
+          var encodedUrl = encodeURI(decodeURI(safeUrl));
+          preview.style.backgroundImage = "url('" + encodedUrl.replace(/'/g, '%27') + "')";
           preview.style.backgroundSize = 'cover';
           preview.style.backgroundPosition = 'center';
         } else {

@@ -753,13 +753,6 @@
         const r = await fetch('/data/site.json?_=' + Date.now());
         if (!r.ok) return; const site = await r.json(); const media = site.media || {};
 
-        // Escape a string for use in HTML attribute values or text nodes
-        function esc(str) {
-          const d = document.createElement('span');
-          d.textContent = String(str || '');
-          return d.innerHTML;
-        }
-
         // Validate a URL is http/https/relative to prevent javascript: injection
         function safeUrl(url) {
           if (!url) return '';
@@ -776,7 +769,7 @@
         const hero = document.querySelector('header img.hero-bg');
         if (hero && media.sponsorsHeader) hero.src = safeUrl(media.sponsorsHeader) || hero.src;
 
-        // Sponsors grid
+        // Sponsors grid — built with DOM APIs to safely handle values from site.json
         const grid = document.getElementById('sponsorGrid');
         if (grid) {
           let sponsors = Array.isArray(site.sponsors) ? site.sponsors : [
@@ -786,45 +779,70 @@
             { name: "WW Displays Inc", logo: "assets/WWDisplays.png", url: "" },
             { name: "Patel Family", logo: "assets/PatelFamily.png", url: "" }
           ];
-          grid.innerHTML = sponsors.map(s => {
-            const name = esc((s && s.name) ? s.name : '');
-            const logo = esc(safeUrl((s && s.logo) ? s.logo : ''));
-            const url  = esc(safeUrl((s && s.url)  ? s.url  : ''));
-            const safeAlt = name ? `${name} logo` : 'Sponsor logo';
-            const mediaBlock = `
-              <div class="sponsor-media">
-                <img class="sponsor-logo" src="${logo}" alt="${safeAlt}" loading="lazy" decoding="async">
-              </div>`;
-            const nameBlock = `<div class="sponsor-name">${name}</div>`;
+          grid.innerHTML = '';
+          sponsors.forEach(s => {
+            const name = String((s && s.name) ? s.name : '');
+            const logo = safeUrl((s && s.logo) ? s.logo : '');
+            const url  = safeUrl((s && s.url)  ? s.url  : '');
+
+            // Build <img> and name div using DOM to avoid HTML injection
+            const img = document.createElement('img');
+            img.className = 'sponsor-logo';
+            img.src = logo;
+            img.alt = name ? `${name} logo` : 'Sponsor logo';
+            img.loading = 'lazy';
+            img.decoding = 'async';
+
+            const mediaDiv = document.createElement('div');
+            mediaDiv.className = 'sponsor-media';
+            mediaDiv.appendChild(img);
+
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'sponsor-name';
+            nameDiv.textContent = name;
+
+            const article = document.createElement('article');
+            article.className = 'sponsor-card';
+
             if (url) {
-              return `
-                <article class="sponsor-card">
-                  <a href="${url}" target="_blank" rel="noopener noreferrer" title="${name}" aria-label="${name} (opens in new tab)">
-                    ${mediaBlock}${nameBlock}
-                  </a>
-                </article>`;
+              const a = document.createElement('a');
+              a.href = url;
+              a.target = '_blank';
+              a.rel = 'noopener noreferrer';
+              a.title = name;
+              a.setAttribute('aria-label', `${name} (opens in new tab)`);
+              a.appendChild(mediaDiv);
+              a.appendChild(nameDiv);
+              article.appendChild(a);
             } else {
-              return `
-                <article class="sponsor-card" tabindex="0" aria-label="${name}">
-                  ${mediaBlock}${nameBlock}
-                </article>`;
+              article.tabIndex = 0;
+              article.setAttribute('aria-label', name);
+              article.appendChild(mediaDiv);
+              article.appendChild(nameDiv);
             }
-          }).join('');
+
+            grid.appendChild(article);
+          });
         }
 
-        // Competition gallery
+        // Competition gallery — built with DOM APIs to safely handle URLs from site.json
         const gallery = document.getElementById('competitionGallery');
         if (gallery) {
           let images = Array.isArray(media.competitionImages) ? media.competitionImages : [];
           if (!images.length && media.competitionImage) images = [media.competitionImage];
           if (!images.length) images = ['assets/Competition-Photo1.png'];
-          gallery.innerHTML = images.map(url => {
-            const safeImg = esc(safeUrl(url));
-            return `
-            <div class="competition-item">
-              <img src="${safeImg}" alt="Competition moment" loading="lazy" decoding="async">
-            </div>`;
-          }).join('');
+          gallery.innerHTML = '';
+          images.forEach(url => {
+            const img = document.createElement('img');
+            img.src = safeUrl(url);
+            img.alt = 'Competition moment';
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            const wrapper = document.createElement('div');
+            wrapper.className = 'competition-item';
+            wrapper.appendChild(img);
+            gallery.appendChild(wrapper);
+          });
         }
       } catch(e) { /* ignore */ }
     })();

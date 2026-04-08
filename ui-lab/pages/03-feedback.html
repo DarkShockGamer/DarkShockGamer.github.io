@@ -1013,7 +1013,14 @@ function renderCmdItems(filter = '') {
   const filtered = q ? CMD_ITEMS.filter(c => c.label.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q)) : CMD_ITEMS;
   list.innerHTML = '';
   if (!filtered.length) {
-    list.innerHTML = '<div class="cmd-empty">No commands found for "<strong>' + filter + '</strong>"</div>';
+    const emptyDiv = document.createElement('div');
+    emptyDiv.className = 'cmd-empty';
+    emptyDiv.append('No commands found for "');
+    const strong = document.createElement('strong');
+    strong.textContent = filter;
+    emptyDiv.appendChild(strong);
+    emptyDiv.append('"');
+    list.appendChild(emptyDiv);
     return;
   }
   filtered.forEach(item => {

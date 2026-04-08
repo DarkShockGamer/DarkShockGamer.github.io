@@ -753,9 +753,28 @@
         const r = await fetch('/data/site.json?_=' + Date.now());
         if (!r.ok) return; const site = await r.json(); const media = site.media || {};
 
+        // Escape a string for use in HTML attribute values or text nodes
+        function esc(str) {
+          const d = document.createElement('span');
+          d.textContent = String(str || '');
+          return d.innerHTML;
+        }
+
+        // Validate a URL is http/https/relative to prevent javascript: injection
+        function safeUrl(url) {
+          if (!url) return '';
+          try {
+            const u = new URL(url, location.href);
+            return (u.protocol === 'http:' || u.protocol === 'https:') ? url : '';
+          } catch (_) {
+            // Relative path (no protocol) – allow as-is
+            return /^[^:]*$/.test(url) ? url : '';
+          }
+        }
+
         // Header hero override
         const hero = document.querySelector('header img.hero-bg');
-        if (hero && media.sponsorsHeader) hero.src = media.sponsorsHeader;
+        if (hero && media.sponsorsHeader) hero.src = safeUrl(media.sponsorsHeader) || hero.src;
 
         // Sponsors grid
         const grid = document.getElementById('sponsorGrid');
@@ -768,9 +787,9 @@
             { name: "Patel Family", logo: "assets/PatelFamily.png", url: "" }
           ];
           grid.innerHTML = sponsors.map(s => {
-            const name = (s && s.name) ? s.name : '';
-            const logo = (s && s.logo) ? s.logo : '';
-            const url = (s && s.url) ? s.url : '';
+            const name = esc((s && s.name) ? s.name : '');
+            const logo = esc(safeUrl((s && s.logo) ? s.logo : ''));
+            const url  = esc(safeUrl((s && s.url)  ? s.url  : ''));
             const safeAlt = name ? `${name} logo` : 'Sponsor logo';
             const mediaBlock = `
               <div class="sponsor-media">
@@ -799,10 +818,13 @@
           let images = Array.isArray(media.competitionImages) ? media.competitionImages : [];
           if (!images.length && media.competitionImage) images = [media.competitionImage];
           if (!images.length) images = ['assets/Competition-Photo1.png'];
-          gallery.innerHTML = images.map(url => `
+          gallery.innerHTML = images.map(url => {
+            const safeImg = esc(safeUrl(url));
+            return `
             <div class="competition-item">
-              <img src="${url}" alt="Competition moment" loading="lazy" decoding="async">
-            </div>`).join('');
+              <img src="${safeImg}" alt="Competition moment" loading="lazy" decoding="async">
+            </div>`;
+          }).join('');
         }
       } catch(e) { /* ignore */ }
     })();

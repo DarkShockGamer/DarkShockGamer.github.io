@@ -17,13 +17,17 @@ const TEAM_MEMBER_CACHE_KEY = 'team_member_emails_cache';
 const TEAM_MEMBER_CACHE_TIME_KEY = 'team_member_emails_cache_time';
 const WELCOME_SHOWN_KEY = 'welcome_shown_';
 
-// Hardcoded developer emails (always allowed, cannot be removed)
+// Hardcoded developer emails (always allowed, cannot be removed).
+// NOTE: These are team-configuration values, not secret credentials. They are
+// email addresses that grant portal/developer access and are intentionally
+// visible in this public repository.
 const HARDCODED_DEVELOPERS = [
   'blackshocktrooper@gmail.com',
   'palm4215@wths.net'
 ];
 
-// Hardcoded team member emails (always allowed, cannot be removed)
+// Hardcoded team member emails (always allowed, cannot be removed).
+// NOTE: Same as above — configuration only, not secrets.
 const HARDCODED_TEAM_MEMBERS = [
   'blackshocktrooper@gmail.com',
   'palm4215@wths.net'

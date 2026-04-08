@@ -444,6 +444,31 @@
       color: white;
       box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
     }
+    /* Neon theme gets magenta-cyan gradient */
+    .theme-option[data-theme="neon"].active {
+      background: linear-gradient(90deg, #ff00ff, #00ffff);
+      color: #000000;
+      box-shadow: 0 2px 8px rgba(255, 0, 255, 0.4);
+    }
+    /* OLED theme gets dark/minimal style */
+    .theme-option[data-theme="oled"].active {
+      background: #1a1a1a;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+    /* Paper theme gets sepia/warm style */
+    .theme-option[data-theme="paper"].active {
+      background: #4a4a46;
+      color: #fdfdf8;
+      box-shadow: 0 2px 8px rgba(74, 74, 70, 0.3);
+    }
+    /* Retro CRT theme gets green-on-black style */
+    .theme-option[data-theme="retro-crt"].active {
+      background: #003300;
+      color: #00ff00;
+      box-shadow: 0 2px 8px rgba(0, 255, 0, 0.4);
+      text-shadow: 0 0 5px #00ff00;
+    }
     /* Dark mode styles are now controlled by theme classes in adaptive-themes.css */
       .theme-option:hover {
         background: rgba(56, 189, 248, 0.15);

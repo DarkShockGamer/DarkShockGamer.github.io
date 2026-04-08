@@ -1133,3 +1133,1153 @@ html.theme-retro-crt .toast {
   box-shadow: 0 0 15px rgba(0, 255, 0, 0.4) !important;
   text-shadow: 0 0 2px #00ff00;
 }
+
+/* ============================================================ */
+/* EXTENDED PAGE-SPECIFIC THEME OVERRIDES                       */
+/* Settings, Tasks, Calendar, FAQ, Documentation, Links pages   */
+/* ============================================================ */
+
+/* ---- HIGH-CONTRAST-LIGHT: Additional page components ---- */
+
+/* Settings page */
+html.theme-high-contrast-light .tabs {
+  background: #e5e5e5;
+  border: 3px solid #000000;
+}
+html.theme-high-contrast-light .tab-btn {
+  color: #000000;
+  font-weight: 700;
+}
+html.theme-high-contrast-light .tab-btn[aria-selected="true"] {
+  background: #16a34a;
+  color: #ffffff;
+  border: 3px solid #000000;
+}
+html.theme-high-contrast-light .tab-indicator { display: none; }
+html.theme-high-contrast-light .toggle {
+  background: #ffffff;
+  border: 3px solid #000000;
+  box-shadow: none;
+}
+html.theme-high-contrast-light .toggle.on { background: #16a34a; }
+html.theme-high-contrast-light .toggle-knob { background: #000000; box-shadow: none; }
+html.theme-high-contrast-light .toggle.on .toggle-knob { background: #ffffff; }
+html.theme-high-contrast-light .save-btn {
+  background: #16a34a;
+  color: #ffffff;
+  border: 3px solid #000000;
+  font-weight: 700;
+  box-shadow: none;
+}
+html.theme-high-contrast-light .cancel-btn {
+  border: 3px solid #000000;
+  color: #000000;
+  font-weight: 700;
+}
+html.theme-high-contrast-light .chip {
+  background: #16a34a;
+  color: #ffffff;
+  border: 3px solid #000000;
+  font-weight: 700;
+}
+html.theme-high-contrast-light .theme-selector {
+  background: #e5e5e5;
+  border: 3px solid #000000;
+}
+html.theme-high-contrast-light .theme-option {
+  color: #000000;
+  border: 2px solid transparent;
+}
+html.theme-high-contrast-light .theme-option:hover {
+  background: #d4d4d4;
+  border-color: #000000;
+  color: #000000;
+}
+html.theme-high-contrast-light .theme-option.active {
+  background: #0284c7;
+  color: #ffffff;
+  border: 3px solid #000000;
+  box-shadow: none;
+}
+html.theme-high-contrast-light .setting-label {
+  color: #000000;
+  font-weight: 700;
+}
+html.theme-high-contrast-light .setting-description {
+  color: #000000;
+  font-weight: 600;
+}
+
+/* Tasks page */
+html.theme-high-contrast-light .tag-chip {
+  background: #ffff00 !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+}
+html.theme-high-contrast-light .dropdown-btn {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  color: #000000 !important;
+}
+html.theme-high-contrast-light .dropdown-btn:hover { border-color: #000000 !important; }
+html.theme-high-contrast-light .dropdown-list {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  box-shadow: none;
+}
+html.theme-high-contrast-light .dropdown-list label:hover { background-color: #ffff00 !important; }
+html.theme-high-contrast-light .column-section {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  box-shadow: none !important;
+}
+html.theme-high-contrast-light .column-header {
+  background: #f0f0f0 !important;
+  border: 1px solid #000000 !important;
+}
+html.theme-high-contrast-light .task-card {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+html.theme-high-contrast-light .task-card:hover { border-color: #0000cc !important; }
+html.theme-high-contrast-light .drawer {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+html.theme-high-contrast-light .desc-checkbox {
+  background-color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+/* Calendar page */
+html.theme-high-contrast-light .day-cell {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  box-shadow: none !important;
+}
+html.theme-high-contrast-light .day-cell:hover { border-color: #0000cc !important; }
+html.theme-high-contrast-light .weekday {
+  color: #000000 !important;
+  font-weight: 700;
+}
+html.theme-high-contrast-light .event-pill {
+  background: #ffff00 !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+}
+html.theme-high-contrast-light .task-pill {
+  background: #00cc44 !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+}
+html.theme-high-contrast-light .modal-card {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+html.theme-high-contrast-light .agenda-day {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+html.theme-high-contrast-light .agenda-day-header {
+  color: #000000 !important;
+  border-color: #000000 !important;
+  font-weight: 700;
+}
+
+/* FAQ page */
+html.theme-high-contrast-light .faq-card {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  box-shadow: none !important;
+}
+html.theme-high-contrast-light .faq-card:hover {
+  border-color: #0000cc !important;
+  box-shadow: none !important;
+}
+
+/* Documentation page */
+html.theme-high-contrast-light .sketch-wrap {
+  background: #ffffff;
+  border: 2px solid #000000;
+}
+html.theme-high-contrast-light #divider::before { background: #000000; }
+html.theme-high-contrast-light .grid-on::after {
+  background-image:
+    linear-gradient(to right, rgba(0,0,0,0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,0.4) 1px, transparent 1px);
+}
+html.theme-high-contrast-light #designLog {
+  background: #ffffff;
+  border: 2px solid #000000;
+  color: #000000;
+}
+html.theme-high-contrast-light #designLog:focus { box-shadow: 0 0 0 3px #0000cc; }
+html.theme-high-contrast-light .btn-sky {
+  background: #0284c7;
+  color: #ffffff;
+  border: 2px solid #000000;
+}
+html.theme-high-contrast-light .btn-sky:hover { background: #0369a1; }
+
+/* Telemetry stat-card */
+html.theme-high-contrast-light .stat-card {
+  background: #ffffff;
+  border: 2px solid #000000;
+  color: #000000;
+  box-shadow: none;
+}
+
+/* ---- HIGH-CONTRAST-DARK: Additional page components ---- */
+
+/* Settings page */
+html.theme-high-contrast-dark .tabs {
+  background: #000000;
+  border: 3px solid #ffffff;
+}
+html.theme-high-contrast-dark .tab-btn {
+  color: #ffffff;
+  font-weight: 700;
+}
+html.theme-high-contrast-dark .tab-btn[aria-selected="true"] {
+  background: #22c55e;
+  color: #000000;
+  border: 3px solid #ffffff;
+}
+html.theme-high-contrast-dark .tab-indicator { display: none; }
+html.theme-high-contrast-dark .toggle {
+  background: #000000;
+  border: 3px solid #ffffff;
+  box-shadow: none;
+}
+html.theme-high-contrast-dark .toggle.on { background: #22c55e; border-color: #ffffff; }
+html.theme-high-contrast-dark .toggle-knob { background: #ffffff; box-shadow: none; }
+html.theme-high-contrast-dark .toggle.on .toggle-knob { background: #000000; }
+html.theme-high-contrast-dark .save-btn {
+  background: #22c55e;
+  color: #000000;
+  border: 3px solid #ffffff;
+  font-weight: 700;
+  box-shadow: none;
+}
+html.theme-high-contrast-dark .cancel-btn {
+  border: 3px solid #ffffff;
+  color: #ffffff;
+  font-weight: 700;
+}
+html.theme-high-contrast-dark .chip {
+  background: #22c55e;
+  color: #000000;
+  border: 3px solid #ffffff;
+  font-weight: 700;
+}
+html.theme-high-contrast-dark .theme-selector {
+  background: #000000;
+  border: 3px solid #ffffff;
+}
+html.theme-high-contrast-dark .theme-option {
+  color: #ffffff;
+  border: 2px solid transparent;
+}
+html.theme-high-contrast-dark .theme-option:hover {
+  background: #2a2a2a;
+  border-color: #ffffff;
+}
+html.theme-high-contrast-dark .theme-option.active {
+  background: #0284c7;
+  color: #000000;
+  border: 3px solid #ffffff;
+  box-shadow: none;
+}
+html.theme-high-contrast-dark .setting-label {
+  color: #ffffff;
+  font-weight: 700;
+}
+html.theme-high-contrast-dark .setting-description {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Tasks page */
+html.theme-high-contrast-dark .tag-chip {
+  background: #ffff00 !important;
+  color: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+html.theme-high-contrast-dark .dropdown-btn {
+  background: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+html.theme-high-contrast-dark .dropdown-btn:hover { border-color: #ffff00 !important; }
+html.theme-high-contrast-dark .dropdown-list {
+  background: #1a1a1a !important;
+  border: 2px solid #ffffff !important;
+}
+html.theme-high-contrast-dark .dropdown-list label:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+html.theme-high-contrast-dark .column-section {
+  background: #1a1a1a !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: none !important;
+}
+html.theme-high-contrast-dark .column-header {
+  background: #2a2a2a !important;
+  border: 1px solid #ffffff !important;
+}
+html.theme-high-contrast-dark .task-card {
+  background: #0a0a0a !important;
+  border: 2px solid #ffffff !important;
+}
+html.theme-high-contrast-dark .task-card:hover { border-color: #ffff00 !important; }
+html.theme-high-contrast-dark .drawer {
+  background: #1a1a1a !important;
+  border: 2px solid #ffffff !important;
+}
+html.theme-high-contrast-dark .desc-checkbox {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+
+/* Calendar page */
+html.theme-high-contrast-dark .day-cell {
+  background: #1a1a1a !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: none !important;
+}
+html.theme-high-contrast-dark .day-cell:hover { border-color: #ffff00 !important; }
+html.theme-high-contrast-dark .weekday {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+html.theme-high-contrast-dark .event-pill {
+  background: #ffff00 !important;
+  color: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+html.theme-high-contrast-dark .task-pill {
+  background: #00ff00 !important;
+  color: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+html.theme-high-contrast-dark .modal-card {
+  background: #1a1a1a !important;
+  border: 2px solid #ffffff !important;
+}
+html.theme-high-contrast-dark .agenda-day {
+  background: #1a1a1a !important;
+  border: 2px solid #ffffff !important;
+}
+html.theme-high-contrast-dark .agenda-day-header {
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  font-weight: 700;
+}
+
+/* FAQ page */
+html.theme-high-contrast-dark .faq-card {
+  background: #1a1a1a !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: none !important;
+}
+html.theme-high-contrast-dark .faq-card:hover {
+  border-color: #ffff00 !important;
+  box-shadow: none !important;
+}
+
+/* Documentation page */
+html.theme-high-contrast-dark .sketch-wrap {
+  background: #000000;
+  border: 2px solid #ffffff;
+}
+html.theme-high-contrast-dark #divider::before { background: #ffffff; }
+html.theme-high-contrast-dark .grid-on::after {
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.4) 1px, transparent 1px);
+}
+html.theme-high-contrast-dark #designLog {
+  background: #000000;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+}
+html.theme-high-contrast-dark #designLog:focus { box-shadow: 0 0 0 3px #ffff00; }
+html.theme-high-contrast-dark .btn-sky {
+  background: #22c55e;
+  color: #000000;
+  border: 2px solid #ffffff;
+}
+html.theme-high-contrast-dark .btn-sky:hover { background: #16a34a; }
+
+/* Telemetry stat-card */
+html.theme-high-contrast-dark .stat-card {
+  background: #000000;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+/* ---- NEON: Additional page components ---- */
+
+/* Settings page */
+html.theme-neon .tabs {
+  background: #0a0a0f;
+  border: 2px solid #ff00ff;
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+}
+html.theme-neon .tab-btn { color: #e0e0e0; }
+html.theme-neon .tab-btn[aria-selected="true"] {
+  background: linear-gradient(90deg, #ff00ff, #00ffff);
+  color: #000000;
+}
+html.theme-neon .tab-indicator {
+  background: linear-gradient(90deg, #ff00ff, #00ffff);
+  box-shadow: 0 0 8px rgba(255, 0, 255, 0.5);
+}
+html.theme-neon .toggle {
+  background: #1a0a2e;
+  border: 2px solid #ff00ff;
+  box-shadow: 0 0 5px rgba(255, 0, 255, 0.3);
+}
+html.theme-neon .toggle.on {
+  background: linear-gradient(90deg, #ff00ff, #00ffff);
+  border-color: #00ffff;
+}
+html.theme-neon .toggle-knob { background: #e0e0e0; }
+html.theme-neon .toggle.on .toggle-knob { background: #000000; }
+html.theme-neon .save-btn {
+  background: linear-gradient(90deg, #ff00ff, #00ffff);
+  color: #000000;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.4);
+}
+html.theme-neon .cancel-btn {
+  border: 2px solid #ff00ff;
+  color: #00ffff;
+}
+html.theme-neon .chip {
+  background: rgba(255, 0, 255, 0.2);
+  color: #00ffff;
+  border-color: #ff00ff;
+}
+html.theme-neon .theme-selector {
+  background: #0a0a0f;
+  border: 2px solid #ff00ff;
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.2);
+}
+html.theme-neon .theme-option { color: #e0e0e0; }
+html.theme-neon .theme-option:hover {
+  background: rgba(255, 0, 255, 0.2);
+  color: #00ffff;
+}
+html.theme-neon .theme-option.active {
+  background: linear-gradient(90deg, #ff00ff, #00ffff);
+  color: #000000;
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.4);
+}
+html.theme-neon .setting-label {
+  color: #00ffff;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+html.theme-neon .setting-description { color: #e0e0e0; }
+
+/* Tasks page */
+html.theme-neon .tag-chip {
+  background: #1a0a2e !important;
+  color: #00ffff !important;
+  border-color: #ff00ff !important;
+}
+html.theme-neon .dropdown-btn {
+  background: #0a0a0f !important;
+  border-color: #ff00ff !important;
+  color: #e0e0e0 !important;
+}
+html.theme-neon .dropdown-btn:hover { border-color: #00ffff !important; }
+html.theme-neon .dropdown-list {
+  background: #0a0a0f !important;
+  border-color: #ff00ff !important;
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+}
+html.theme-neon .dropdown-list label:hover { background-color: rgba(255, 0, 255, 0.15) !important; }
+html.theme-neon .column-section {
+  background: rgba(10, 10, 20, 0.9) !important;
+  border: 2px solid #ff00ff !important;
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.3) !important;
+}
+html.theme-neon .column-header {
+  background: rgba(26, 10, 46, 0.9) !important;
+  border-color: #ff00ff !important;
+}
+html.theme-neon .task-card {
+  background: rgba(10, 10, 20, 0.85) !important;
+  border: 1px solid #ff00ff !important;
+}
+html.theme-neon .task-card:hover {
+  border-color: #00ffff !important;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3) !important;
+}
+html.theme-neon .drawer {
+  background: #0a0a0f !important;
+  border-left: 2px solid #ff00ff !important;
+}
+html.theme-neon .desc-checkbox {
+  background-color: #0a0a0f !important;
+  border-color: #ff00ff !important;
+}
+
+/* Calendar page */
+html.theme-neon .day-cell {
+  background: rgba(10, 10, 20, 0.9) !important;
+  border-color: #ff00ff !important;
+}
+html.theme-neon .day-cell:hover {
+  border-color: #00ffff !important;
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.3) !important;
+}
+html.theme-neon .weekday {
+  color: #00ffff !important;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+html.theme-neon .event-pill {
+  background: #1a0a2e !important;
+  color: #00ffff !important;
+  border-color: #ff00ff !important;
+}
+html.theme-neon .task-pill {
+  background: #0a1a0f !important;
+  color: #00ffff !important;
+  border-color: #00ff41 !important;
+}
+html.theme-neon .modal-card {
+  background: rgba(10, 10, 20, 0.95) !important;
+  border: 2px solid #ff00ff !important;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.3) !important;
+}
+html.theme-neon .agenda-day {
+  background: rgba(10, 10, 20, 0.9) !important;
+  border-color: #ff00ff !important;
+}
+html.theme-neon .agenda-day-header {
+  color: #00ffff !important;
+  border-color: #ff00ff !important;
+}
+
+/* FAQ page */
+html.theme-neon .faq-card {
+  background: rgba(10, 10, 20, 0.9) !important;
+  border: 2px solid #ff00ff !important;
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.3) !important;
+}
+html.theme-neon .faq-card:hover {
+  border-color: #00ffff !important;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4) !important;
+}
+
+/* Documentation page */
+html.theme-neon .sketch-wrap {
+  background: #0a0a0f;
+  border: 2px solid #ff00ff;
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+}
+html.theme-neon #divider::before {
+  background: linear-gradient(to bottom, rgba(255,0,255,0.0), rgba(255,0,255,0.5), rgba(255,0,255,0.0));
+}
+html.theme-neon .grid-on::after {
+  background-image:
+    linear-gradient(to right, rgba(255,0,255,0.2) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,0,255,0.2) 1px, transparent 1px);
+}
+html.theme-neon #designLog {
+  background: #0a0a0f;
+  border: 2px solid #ff00ff;
+  color: #e0e0e0;
+  box-shadow: 0 0 5px rgba(255, 0, 255, 0.2);
+}
+html.theme-neon #designLog:focus { box-shadow: 0 0 0 4px rgba(255, 0, 255, 0.4); }
+html.theme-neon .btn-sky {
+  background: linear-gradient(90deg, #ff00ff, #00ffff);
+  color: #000000;
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+}
+html.theme-neon .btn-sky:hover { background: linear-gradient(90deg, #cc00cc, #00cccc); }
+
+/* Links page .card */
+html.theme-neon .card {
+  background: rgba(10, 10, 20, 0.9) !important;
+  border: 2px solid #ff00ff !important;
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.2) !important;
+}
+
+/* Telemetry stat-card */
+html.theme-neon .stat-card {
+  background: rgba(26, 10, 46, 0.95);
+  border: 2px solid #ff00ff;
+  color: #e0e0e0;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+}
+
+/* ---- OLED: Additional page components ---- */
+
+/* Settings page */
+html.theme-oled .tabs {
+  background: #000000;
+  border: 1px solid #333333;
+}
+html.theme-oled .tab-btn { color: #e0e0e0; }
+html.theme-oled .tab-btn[aria-selected="true"] {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+html.theme-oled .tab-indicator {
+  background: #333333;
+  box-shadow: none;
+}
+html.theme-oled .toggle {
+  background: #000000;
+  border: 1px solid #444444;
+  box-shadow: none;
+}
+html.theme-oled .toggle.on {
+  background: #1a1a1a;
+  border-color: #60a5fa;
+}
+html.theme-oled .toggle-knob { background: #e0e0e0; box-shadow: none; }
+html.theme-oled .toggle.on .toggle-knob { background: #60a5fa; }
+html.theme-oled .save-btn {
+  background: #1a1a1a;
+  color: #ffffff;
+  border: 1px solid #444444;
+  box-shadow: none;
+}
+html.theme-oled .cancel-btn {
+  border: 1px solid #444444;
+  color: #e0e0e0;
+}
+html.theme-oled .chip {
+  background: #1a1a1a;
+  color: #60a5fa;
+  border-color: #333333;
+}
+html.theme-oled .theme-selector {
+  background: #0a0a0a;
+  border: 1px solid #333333;
+}
+html.theme-oled .theme-option { color: #e0e0e0; }
+html.theme-oled .theme-option:hover {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+html.theme-oled .theme-option.active {
+  background: #1a1a1a;
+  color: #ffffff;
+  border: 1px solid #555555;
+  box-shadow: none;
+}
+html.theme-oled .setting-label { color: #ffffff; }
+html.theme-oled .setting-description { color: #a0a0a0; }
+
+/* Tasks page */
+html.theme-oled .tag-chip {
+  background: #1a1a1a !important;
+  color: #e0e0e0 !important;
+  border-color: #333333 !important;
+}
+html.theme-oled .dropdown-btn {
+  background: #000000 !important;
+  border-color: #333333 !important;
+  color: #e0e0e0 !important;
+}
+html.theme-oled .dropdown-btn:hover { border-color: #60a5fa !important; }
+html.theme-oled .dropdown-list {
+  background: #000000 !important;
+  border-color: #333333 !important;
+}
+html.theme-oled .dropdown-list label:hover { background-color: #1a1a1a !important; }
+html.theme-oled .column-section {
+  background: #0a0a0a !important;
+  border: 1px solid #333333 !important;
+  box-shadow: none !important;
+}
+html.theme-oled .column-header {
+  background: #000000 !important;
+  border-color: #333333 !important;
+}
+html.theme-oled .task-card {
+  background: #000000 !important;
+  border: 1px solid #333333 !important;
+}
+html.theme-oled .task-card:hover { border-color: #60a5fa !important; }
+html.theme-oled .drawer {
+  background: #000000 !important;
+  border-left: 1px solid #333333 !important;
+}
+html.theme-oled .desc-checkbox {
+  background-color: #000000 !important;
+  border-color: #444444 !important;
+}
+
+/* Calendar page */
+html.theme-oled .day-cell {
+  background: #000000 !important;
+  border-color: #333333 !important;
+  box-shadow: none !important;
+}
+html.theme-oled .day-cell:hover { border-color: #60a5fa !important; }
+html.theme-oled .weekday { color: #60a5fa !important; }
+html.theme-oled .event-pill {
+  background: #1a1a1a !important;
+  color: #60a5fa !important;
+  border-color: #333333 !important;
+}
+html.theme-oled .task-pill {
+  background: #0a0a0a !important;
+  color: #86efac !important;
+  border-color: #333333 !important;
+}
+html.theme-oled .modal-card {
+  background: #000000 !important;
+  border: 1px solid #333333 !important;
+}
+html.theme-oled .agenda-day {
+  background: #000000 !important;
+  border-color: #333333 !important;
+}
+html.theme-oled .agenda-day-header {
+  color: #60a5fa !important;
+  border-color: #333333 !important;
+}
+
+/* FAQ page */
+html.theme-oled .faq-card {
+  background: #000000 !important;
+  border: 1px solid #333333 !important;
+  box-shadow: none !important;
+}
+html.theme-oled .faq-card:hover { border-color: #60a5fa !important; }
+
+/* Documentation page */
+html.theme-oled .sketch-wrap {
+  background: #000000;
+  border: 1px solid #333333;
+}
+html.theme-oled #divider::before {
+  background: linear-gradient(to bottom, rgba(96,165,250,0.0), rgba(96,165,250,0.2), rgba(96,165,250,0.0));
+}
+html.theme-oled .grid-on::after {
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px);
+}
+html.theme-oled #designLog {
+  background: #000000;
+  border: 1px solid #333333;
+  color: #e0e0e0;
+}
+html.theme-oled #designLog:focus { box-shadow: 0 0 0 2px #60a5fa; }
+html.theme-oled .btn-sky {
+  background: #1a1a1a;
+  color: #60a5fa;
+  border: 1px solid #444444;
+}
+html.theme-oled .btn-sky:hover { background: #2a2a2a; }
+
+/* Telemetry stat-card */
+html.theme-oled .stat-card {
+  background: #000000;
+  border: 1px solid #333333;
+  color: #e0e0e0;
+  box-shadow: none;
+}
+
+/* ---- PAPER: Additional page components ---- */
+
+/* Settings page */
+html.theme-paper .tabs {
+  background: #f8f8f0;
+  border: 1px solid #d4d4d0;
+}
+html.theme-paper .tab-btn { color: #2c2c2c; }
+html.theme-paper .tab-btn[aria-selected="true"] {
+  background: #4a4a46;
+  color: #fdfdf8;
+}
+html.theme-paper .tab-indicator {
+  background: #4a4a46;
+  box-shadow: none;
+}
+html.theme-paper .toggle {
+  background: #e8e8e0;
+  border: 1px solid #c0c0b8;
+  box-shadow: none;
+}
+html.theme-paper .toggle.on {
+  background: #4a4a46;
+  border-color: #3a3a36;
+}
+html.theme-paper .toggle-knob { background: #fdfdf8; box-shadow: none; }
+html.theme-paper .toggle.on .toggle-knob { background: #fdfdf8; }
+html.theme-paper .save-btn {
+  background: #4a4a46;
+  color: #fdfdf8;
+  border: 1px solid #3a3a36;
+  box-shadow: none;
+}
+html.theme-paper .cancel-btn {
+  border: 1px solid #c0c0b8;
+  color: #5a5a54;
+}
+html.theme-paper .chip {
+  background: #f0f0e8;
+  color: #4a4a46;
+  border-color: #c0c0b8;
+}
+html.theme-paper .theme-selector {
+  background: #f8f8f0;
+  border: 1px solid #d4d4d0;
+}
+html.theme-paper .theme-option { color: #2c2c2c; }
+html.theme-paper .theme-option:hover {
+  background: #f0f0e8;
+  color: #1a1a1a;
+}
+html.theme-paper .theme-option.active {
+  background: #4a4a46;
+  color: #fdfdf8;
+  box-shadow: none;
+}
+html.theme-paper .setting-label { color: #1a1a1a; }
+html.theme-paper .setting-description { color: #5a5a54; }
+
+/* Tasks page */
+html.theme-paper .tag-chip {
+  background: #f0f0e8 !important;
+  color: #2c2c2c !important;
+  border-color: #c0c0b8 !important;
+}
+html.theme-paper .dropdown-btn {
+  background: #fdfdf8 !important;
+  border-color: #c0c0b8 !important;
+  color: #2c2c2c !important;
+}
+html.theme-paper .dropdown-btn:hover { border-color: #4a4a46 !important; }
+html.theme-paper .dropdown-list {
+  background: #fdfdf8 !important;
+  border-color: #c0c0b8 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+html.theme-paper .dropdown-list label:hover { background-color: #f0f0e8 !important; }
+html.theme-paper .column-section {
+  background: #ffffff !important;
+  border: 1px solid #d4d4d0 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+html.theme-paper .column-header {
+  background: #f8f8f0 !important;
+  border-color: #d4d4d0 !important;
+}
+html.theme-paper .task-card {
+  background: #fdfdf8 !important;
+  border: 1px solid #d4d4d0 !important;
+}
+html.theme-paper .task-card:hover { border-color: #4a4a46 !important; }
+html.theme-paper .drawer {
+  background: #fdfdf8 !important;
+  border-left: 1px solid #d4d4d0 !important;
+}
+html.theme-paper .desc-checkbox {
+  background-color: #fdfdf8 !important;
+  border-color: #c0c0b8 !important;
+}
+
+/* Calendar page */
+html.theme-paper .day-cell {
+  background: #ffffff !important;
+  border-color: #d4d4d0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+html.theme-paper .day-cell:hover { border-color: #4a4a46 !important; }
+html.theme-paper .weekday { color: #5a5a54 !important; }
+html.theme-paper .event-pill {
+  background: #f0f0e8 !important;
+  color: #2c2c2c !important;
+  border-color: #c0c0b8 !important;
+}
+html.theme-paper .task-pill {
+  background: #e8f0e8 !important;
+  color: #2c2c2c !important;
+  border-color: #c0c0b8 !important;
+}
+html.theme-paper .modal-card {
+  background: #ffffff !important;
+  border: 1px solid #d4d4d0 !important;
+}
+html.theme-paper .agenda-day {
+  background: #ffffff !important;
+  border-color: #d4d4d0 !important;
+}
+html.theme-paper .agenda-day-header {
+  color: #1a1a1a !important;
+  border-color: #d4d4d0 !important;
+}
+
+/* FAQ page */
+html.theme-paper .faq-card {
+  background: #ffffff !important;
+  border: 1px solid #d4d4d0 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+}
+html.theme-paper .faq-card:hover { border-color: #4a4a46 !important; }
+
+/* Documentation page */
+html.theme-paper .sketch-wrap {
+  background: #ffffff;
+  border: 1px solid #d4d4d0;
+}
+html.theme-paper #divider::before {
+  background: linear-gradient(to bottom, rgba(90,90,84,0.0), rgba(90,90,84,0.3), rgba(90,90,84,0.0));
+}
+html.theme-paper .grid-on::after {
+  background-image:
+    linear-gradient(to right, rgba(44,44,44,0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(44,44,44,0.1) 1px, transparent 1px);
+}
+html.theme-paper #designLog {
+  background: rgba(253, 253, 248, 0.8);
+  border: 1px solid #c0c0b8;
+  color: #2c2c2c;
+}
+html.theme-paper #designLog:focus { box-shadow: 0 0 0 3px rgba(90, 90, 84, 0.2); }
+html.theme-paper .btn-sky {
+  background: #4a4a46;
+  color: #fdfdf8;
+}
+html.theme-paper .btn-sky:hover { background: #3a3a36; }
+
+/* Links page .card */
+html.theme-paper .card {
+  background: #ffffff !important;
+  border: 1px solid #d4d4d0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Telemetry stat-card */
+html.theme-paper .stat-card {
+  background: #f8f8f0;
+  border: 1px solid #d4d4d0;
+  color: #2c2c2c;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ---- RETRO-CRT: Additional page components ---- */
+
+/* Settings page */
+html.theme-retro-crt .tabs {
+  background: #001a00;
+  border: 2px solid #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+}
+html.theme-retro-crt .tab-btn {
+  color: #00ff00;
+  text-shadow: 0 0 3px #00ff00;
+}
+html.theme-retro-crt:not(.dyslexia-font) .tab-btn { font-family: 'Courier New', monospace; }
+html.theme-retro-crt .tab-btn[aria-selected="true"] {
+  background: #003300;
+  color: #00ff00;
+}
+html.theme-retro-crt .tab-indicator {
+  background: #003300;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.4);
+}
+html.theme-retro-crt .toggle {
+  background: #001a00;
+  border: 1px solid #00ff00;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.2);
+}
+html.theme-retro-crt .toggle.on {
+  background: #003300;
+  border-color: #00ff00;
+}
+html.theme-retro-crt .toggle-knob {
+  background: #00ff00;
+  box-shadow: 0 0 3px #00ff00;
+}
+html.theme-retro-crt .toggle.on .toggle-knob { background: #00ff00; }
+html.theme-retro-crt .save-btn {
+  background: #003300;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+  text-shadow: 0 0 3px #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+}
+html.theme-retro-crt:not(.dyslexia-font) .save-btn { font-family: 'Courier New', monospace; }
+html.theme-retro-crt .cancel-btn {
+  border: 1px solid #00ff00;
+  color: #00ff00;
+}
+html.theme-retro-crt:not(.dyslexia-font) .cancel-btn { font-family: 'Courier New', monospace; }
+html.theme-retro-crt .chip {
+  background: #003300;
+  color: #00ff00;
+  border-color: #00ff00;
+  text-shadow: 0 0 3px #00ff00;
+}
+html.theme-retro-crt .theme-selector {
+  background: #001a00;
+  border: 2px solid #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
+}
+html.theme-retro-crt .theme-option {
+  color: #00ff00;
+  text-shadow: 0 0 3px #00ff00;
+}
+html.theme-retro-crt:not(.dyslexia-font) .theme-option { font-family: 'Courier New', monospace; }
+html.theme-retro-crt .theme-option:hover { background: #003300; }
+html.theme-retro-crt .theme-option.active {
+  background: #003300;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+}
+html.theme-retro-crt .setting-label {
+  color: #00ff00;
+  text-shadow: 0 0 3px #00ff00;
+}
+html.theme-retro-crt:not(.dyslexia-font) .setting-label { font-family: 'Courier New', monospace; }
+html.theme-retro-crt .setting-description { color: #00cc00; }
+html.theme-retro-crt:not(.dyslexia-font) .setting-description { font-family: 'Courier New', monospace; }
+
+/* Tasks page */
+html.theme-retro-crt .tag-chip {
+  background: #003300 !important;
+  color: #00ff00 !important;
+  border-color: #00ff00 !important;
+}
+html.theme-retro-crt .dropdown-btn {
+  background: #000000 !important;
+  border-color: #00ff00 !important;
+  color: #00ff00 !important;
+}
+html.theme-retro-crt .dropdown-btn:hover { box-shadow: 0 0 5px rgba(0, 255, 0, 0.3); }
+html.theme-retro-crt .dropdown-list {
+  background: #001a00 !important;
+  border-color: #00ff00 !important;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+html.theme-retro-crt .dropdown-list label:hover { background-color: #003300 !important; }
+html.theme-retro-crt .column-section {
+  background: #001a00 !important;
+  border: 2px solid #00ff00 !important;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3) !important;
+}
+html.theme-retro-crt .column-header {
+  background: #002200 !important;
+  border-color: #00ff00 !important;
+}
+html.theme-retro-crt .task-card {
+  background: #001a00 !important;
+  border: 1px solid #00ff00 !important;
+}
+html.theme-retro-crt .task-card:hover {
+  border-color: #00ff00 !important;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.4) !important;
+}
+html.theme-retro-crt .drawer {
+  background: #001a00 !important;
+  border-left: 2px solid #00ff00 !important;
+}
+html.theme-retro-crt .desc-checkbox {
+  background-color: #001a00 !important;
+  border-color: #00ff00 !important;
+}
+
+/* Calendar page */
+html.theme-retro-crt .day-cell {
+  background: #001a00 !important;
+  border-color: #00ff00 !important;
+}
+html.theme-retro-crt .day-cell:hover {
+  border-color: #00ff00 !important;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.4) !important;
+}
+html.theme-retro-crt .weekday {
+  color: #00ff00 !important;
+  text-shadow: 0 0 3px #00ff00;
+}
+html.theme-retro-crt .event-pill {
+  background: #003300 !important;
+  color: #00ff00 !important;
+  border-color: #00ff00 !important;
+}
+html.theme-retro-crt .task-pill {
+  background: #001a00 !important;
+  color: #00ff00 !important;
+  border-color: #00ff00 !important;
+}
+html.theme-retro-crt .modal-card {
+  background: #001a00 !important;
+  border: 2px solid #00ff00 !important;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.3) !important;
+}
+html.theme-retro-crt .agenda-day {
+  background: #001a00 !important;
+  border-color: #00ff00 !important;
+}
+html.theme-retro-crt .agenda-day-header {
+  color: #00ff00 !important;
+  border-color: #00ff00 !important;
+  text-shadow: 0 0 3px #00ff00;
+}
+
+/* FAQ page */
+html.theme-retro-crt .faq-card {
+  background: #001a00 !important;
+  border: 2px solid #00ff00 !important;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.2) !important;
+}
+html.theme-retro-crt .faq-card:hover {
+  border-color: #00ff00 !important;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.4) !important;
+}
+
+/* Documentation page */
+html.theme-retro-crt .sketch-wrap {
+  background: #001a00;
+  border: 2px solid #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
+}
+html.theme-retro-crt #divider::before {
+  background: linear-gradient(to bottom, rgba(0,255,0,0.0), rgba(0,255,0,0.4), rgba(0,255,0,0.0));
+}
+html.theme-retro-crt .grid-on::after {
+  background-image:
+    linear-gradient(to right, rgba(0,255,0,0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,255,0,0.12) 1px, transparent 1px);
+}
+html.theme-retro-crt #designLog {
+  background: #001a00;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  text-shadow: 0 0 2px #00ff00;
+}
+html.theme-retro-crt:not(.dyslexia-font) #designLog { font-family: 'Courier New', monospace; }
+html.theme-retro-crt #designLog:focus { box-shadow: 0 0 0 3px rgba(0, 255, 0, 0.4); }
+html.theme-retro-crt .btn-sky {
+  background: #003300;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+  text-shadow: 0 0 3px #00ff00;
+}
+html.theme-retro-crt .btn-sky:hover {
+  background: #004400;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+/* Telemetry stat-card */
+html.theme-retro-crt .stat-card {
+  background: #001a00;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+}

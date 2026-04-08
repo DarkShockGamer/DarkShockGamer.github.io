@@ -1718,13 +1718,25 @@
         return email;
       }
 
+      /** Only allow http/https URLs for user-supplied media URLs. */
+      function _safeMediaUrl(url) {
+        if (!url) return null;
+        try {
+          var u = new URL(url);
+          return (u.protocol === 'https:' || u.protocol === 'http:') ? url : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
       function updateAvatarPreview(url) {
         var preview = document.getElementById('avatarOverridePreview');
         if (!preview) return;
         preview.innerHTML = '';
-        if (url) {
+        var safeUrl = _safeMediaUrl(url);
+        if (safeUrl) {
           var img = document.createElement('img');
-          img.src = url;
+          img.setAttribute('src', safeUrl);
           img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
           img.onerror = function () { preview.textContent = '?'; };
           preview.appendChild(img);
@@ -1736,8 +1748,10 @@
       function updateBannerPreview(url) {
         var preview = document.getElementById('bannerPreview');
         if (!preview) return;
-        if (url) {
-          preview.style.backgroundImage = 'url(' + JSON.stringify(url) + ')';
+        var safeUrl = _safeMediaUrl(url);
+        if (safeUrl) {
+          // Escape single quotes in the URL for safe CSS url() value
+          preview.style.backgroundImage = "url('" + safeUrl.replace(/'/g, '%27') + "')";
           preview.style.backgroundSize = 'cover';
           preview.style.backgroundPosition = 'center';
         } else {
@@ -1815,9 +1829,10 @@
 
       function _setAvatarWrap(wrap, pic, name) {
         wrap.innerHTML = '';
-        if (pic) {
+        var safeUrl = _safeMediaUrl(pic);
+        if (safeUrl) {
           var img = document.createElement('img');
-          img.src = pic;
+          img.setAttribute('src', safeUrl);
           img.alt = 'Profile photo';
           img.style.cssText = 'width:64px;height:64px;border-radius:50%;object-fit:cover;';
           img.onerror = function () { img.style.display = 'none'; };
@@ -1833,7 +1848,8 @@
         saveAoBtn.addEventListener('click', async function () {
           var email = getCurrentEmail();
           if (!email) { alert('Sign in first.'); return; }
-          var url = (document.getElementById('avatarOverrideUrl').value || '').trim() || null;
+          var raw = (document.getElementById('avatarOverrideUrl').value || '').trim();
+          var url = raw ? (_safeMediaUrl(raw) || null) : null;
           if (typeof Profile !== 'undefined') Profile.setAvatarOverride(email, url);
           updateAvatarPreview(url);
           // Also update profileAvatarWrap immediately
@@ -1877,7 +1893,8 @@
         saveBannerBtn.addEventListener('click', async function () {
           var email = getCurrentEmail();
           if (!email) { alert('Sign in first.'); return; }
-          var url = (document.getElementById('bannerUrl').value || '').trim() || null;
+          var raw = (document.getElementById('bannerUrl').value || '').trim();
+          var url = raw ? (_safeMediaUrl(raw) || null) : null;
           if (typeof Profile !== 'undefined') Profile.setBanner(email, url);
           updateBannerPreview(url);
           if (window.FirebaseProfileSync && window.FirebaseProfileSync.updateBanner) {

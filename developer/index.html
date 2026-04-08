@@ -20,6 +20,7 @@
   <script src="/assets/js/auth-config.js"></script>
   <script src="/assets/js/profile.js"></script>
   <script src="/assets/js/auth-utils.js"></script>
+  <script src="/assets/js/profile-auto-badges.js"></script>
   <!-- Developer-specific auth guard -->
   <script src="/assets/js/auth-guard-developer.js"></script>
   <!-- Profile sync / Worker client — required for adminSetBadges (ES module) -->
@@ -553,6 +554,67 @@
           <button id="createBadgeBtn" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm">Create &amp; Add</button>
         </div>
         <p class="text-xs muted mt-1">Custom badges are stored locally and appear in the badge list above.</p>
+      </div>
+
+      <!-- Role Badge Definitions -->
+      <div class="mt-6 border-t border-slate-100 dark:border-slate-700 pt-4">
+        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Auto-Role Badge Definitions</h3>
+        <p class="text-xs muted mb-3">These badges are automatically assigned to users in the Developer / Team Member allowlists and <strong>cannot be removed</strong> by users or via the badge manager. Edit the definitions below and push to save.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="roleBadgeDefsGrid">
+          <!-- Developer badge -->
+          <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+            <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400 mb-2">💻 Developer Badge <span class="font-normal text-slate-400 text-xs">(auto for developers list)</span></p>
+            <div class="grid grid-cols-3 gap-2">
+              <div class="col-span-2">
+                <label class="block text-xs text-slate-500 dark:text-slate-400 mb-0.5">Name</label>
+                <input id="rbDevName" type="text" value="Developer"
+                       class="w-full rounded border border-slate-300 px-2 py-1 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+              </div>
+              <div>
+                <label class="block text-xs text-slate-500 dark:text-slate-400 mb-0.5">Emoji</label>
+                <input id="rbDevEmoji" type="text" value="💻"
+                       class="w-full rounded border border-slate-300 px-2 py-1 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+              </div>
+              <div class="col-span-3">
+                <label class="block text-xs text-slate-500 dark:text-slate-400 mb-0.5">Color</label>
+                <input id="rbDevColor" type="color" value="#6366f1"
+                       class="rounded border border-slate-300 h-8 w-full cursor-pointer dark:border-slate-700">
+              </div>
+            </div>
+          </div>
+
+          <!-- Team Member badge -->
+          <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+            <p class="text-xs font-bold text-sky-600 dark:text-sky-400 mb-2">🛡️ Team Member Badge <span class="font-normal text-slate-400 text-xs">(auto for team list)</span></p>
+            <div class="grid grid-cols-3 gap-2">
+              <div class="col-span-2">
+                <label class="block text-xs text-slate-500 dark:text-slate-400 mb-0.5">Name</label>
+                <input id="rbTeamName" type="text" value="Team Member"
+                       class="w-full rounded border border-slate-300 px-2 py-1 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+              </div>
+              <div>
+                <label class="block text-xs text-slate-500 dark:text-slate-400 mb-0.5">Emoji</label>
+                <input id="rbTeamEmoji" type="text" value="🛡️"
+                       class="w-full rounded border border-slate-300 px-2 py-1 text-sm dark:bg-slate-950 dark:border-slate-700 dark:text-slate-200">
+              </div>
+              <div class="col-span-3">
+                <label class="block text-xs text-slate-500 dark:text-slate-400 mb-0.5">Color</label>
+                <input id="rbTeamColor" type="color" value="#0ea5e9"
+                       class="rounded border border-slate-300 h-8 w-full cursor-pointer dark:border-slate-700">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 flex items-center gap-3">
+          <button id="pushRoleBadgesBtn"
+                  class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-semibold shadow-sm text-sm">
+            💾 Push Role Badge Definitions to GitHub
+          </button>
+          <span id="roleBadgesPending" class="hidden text-xs text-amber-600 dark:text-amber-400 font-medium">● Unsaved changes</span>
+        </div>
+        <p class="text-xs muted mt-1">Saves to <code>assets/data/role-badges.json</code>. Requires a PAT entered in the "Save Changes to GitHub" section below.</p>
       </div>
       </div>
     </section>
@@ -2129,17 +2191,32 @@
       }
 
       list.innerHTML = badges.map(function (b) {
+        // Determine if this badge is system-managed and non-removable for this user
+        var isLocked = (typeof ProfileAutoBadges !== 'undefined')
+          ? ProfileAutoBadges.isSystemBadge(b.id, email)
+          : false;
+
+        var removeOrLock = isLocked
+          ? '<span title="Auto-assigned based on allowlist; cannot be removed." ' +
+            'style="margin-left:4px;font-size:0.7rem;opacity:0.65;cursor:default;" aria-label="Locked badge">🔒</span>'
+          : '<button data-badge-id="' + escHtml(b.id) + '" class="remove-badge-btn" ' +
+            'title="Remove badge" style="margin-left:4px;background:none;border:none;cursor:pointer;color:inherit;font-size:0.9rem;line-height:1;padding:0 2px;">✕</button>';
+
         return '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:9999px;font-size:0.75rem;font-weight:700;' +
           'background:' + b.color + '22;color:' + b.color + ';border:1px solid ' + b.color + '66;">' +
           escHtml(b.emoji) + ' ' + escHtml(b.name) +
-          '<button data-badge-id="' + escHtml(b.id) + '" class="remove-badge-btn" ' +
-          'title="Remove badge" style="margin-left:4px;background:none;border:none;cursor:pointer;color:inherit;font-size:0.9rem;line-height:1;padding:0 2px;">✕</button>' +
+          removeOrLock +
           '</span>';
       }).join('');
 
       list.querySelectorAll('.remove-badge-btn').forEach(function (btn) {
         btn.addEventListener('click', async function () {
           var badgeId = this.getAttribute('data-badge-id');
+          // Guard: do not remove system-managed badges
+          if (typeof ProfileAutoBadges !== 'undefined' && ProfileAutoBadges.isSystemBadge(badgeId, email)) {
+            if (typeof showToast === 'function') showToast('warn', 'This badge is auto-assigned and cannot be removed.');
+            return;
+          }
           // Capture the badge before removing it so we can restore on failure
           var allBadges = (typeof Profile !== 'undefined') ? Profile.getBadges(email) : [];
           var removedBadge = allBadges.find(function (b) { return b.id === badgeId; });
@@ -2260,6 +2337,123 @@
       document.addEventListener('DOMContentLoaded', function () { waitForSyncThenInit(MAX_SYNC_RETRIES); });
     } else {
       waitForSyncThenInit(MAX_SYNC_RETRIES);
+    }
+  }());
+  </script>
+
+  <!-- Role Badge Definitions UI -->
+  <script>
+  (function () {
+    'use strict';
+
+    var GH_OWNER_RB  = 'DarkShockGamer';
+    var GH_REPO_RB   = 'DarkShockGamer.github.io';
+    var GH_BRANCH_RB = 'main';
+    var GH_PATH_RB   = 'assets/data/role-badges.json';
+
+    function rbEsc(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    /** Populate inputs from loaded defs */
+    function populateRoleBadgeInputs(defs) {
+      if (!defs) return;
+      var db = defs.developerBadge  || {};
+      var tb = defs.teamMemberBadge || {};
+      var setVal = function (id, val) { var el = document.getElementById(id); if (el && val) el.value = val; };
+      setVal('rbDevName',   db.name  || 'Developer');
+      setVal('rbDevEmoji',  db.emoji || '💻');
+      setVal('rbDevColor',  db.color || '#6366f1');
+      setVal('rbTeamName',  tb.name  || 'Team Member');
+      setVal('rbTeamEmoji', tb.emoji || '🛡️');
+      setVal('rbTeamColor', tb.color || '#0ea5e9');
+    }
+
+    /** Mark unsaved indicator */
+    function markRoleBadgesUnsaved() {
+      var el = document.getElementById('roleBadgesPending');
+      if (el) el.classList.remove('hidden');
+    }
+
+    /** Read current input values as a role-badges.json payload */
+    function buildRoleBadgesPayload() {
+      var get = function (id) { var el = document.getElementById(id); return el ? (el.value || '').trim() : ''; };
+      return {
+        version: 1,
+        updatedAt: new Date().toISOString(),
+        developerBadge: {
+          id:    'developer',
+          name:  get('rbDevName')  || 'Developer',
+          emoji: get('rbDevEmoji') || '💻',
+          color: get('rbDevColor') || '#6366f1'
+        },
+        teamMemberBadge: {
+          id:    'team-member',
+          name:  get('rbTeamName')  || 'Team Member',
+          emoji: get('rbTeamEmoji') || '🛡️',
+          color: get('rbTeamColor') || '#0ea5e9'
+        }
+      };
+    }
+
+    function initRoleBadgeDefs() {
+      // Load current defs to populate inputs
+      if (typeof ProfileAutoBadges !== 'undefined') {
+        ProfileAutoBadges.getRoleBadgeDefs().then(populateRoleBadgeInputs);
+      }
+
+      // Mark dirty on any input change
+      ['rbDevName','rbDevEmoji','rbDevColor','rbTeamName','rbTeamEmoji','rbTeamColor'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('input', markRoleBadgesUnsaved);
+        if (el) el.addEventListener('change', markRoleBadgesUnsaved);
+      });
+
+      var pushBtn = document.getElementById('pushRoleBadgesBtn');
+      if (!pushBtn) return;
+
+      pushBtn.addEventListener('click', async function () {
+        var token = (document.getElementById('gh-token') || {}).value || '';
+        if (!token) {
+          if (typeof showToast === 'function') showToast('warn', 'Enter a GitHub PAT in the "Save Changes to GitHub" section first.');
+          return;
+        }
+
+        pushBtn.disabled = true;
+        pushBtn.textContent = 'Pushing…';
+        try {
+          var payload = buildRoleBadgesPayload();
+          var content = JSON.stringify(payload, null, 2) + '\n';
+
+          // Use the shared pushFile helper defined in the main developer page script
+          if (typeof pushFile !== 'function') throw new Error('pushFile helper not available');
+          var result = await pushFile(
+            GH_OWNER_RB, GH_REPO_RB, GH_PATH_RB, GH_BRANCH_RB, token,
+            content, 'Update role badge definitions via developer page'
+          );
+
+          if (result && result.content) {
+            if (typeof showToast === 'function') showToast('success', 'Role badge definitions pushed to GitHub ✓');
+            // Invalidate cached defs so they are re-fetched on next use
+            if (typeof ProfileAutoBadges !== 'undefined') ProfileAutoBadges.invalidateRoleBadgeDefsCache();
+            var pending = document.getElementById('roleBadgesPending');
+            if (pending) pending.classList.add('hidden');
+          } else if (result && result.message) {
+            throw new Error(result.message);
+          }
+        } catch (e) {
+          if (typeof showToast === 'function') showToast('error', 'Push failed: ' + (e.message || String(e)));
+        } finally {
+          pushBtn.disabled = false;
+          pushBtn.textContent = '💾 Push Role Badge Definitions to GitHub';
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initRoleBadgeDefs);
+    } else {
+      initRoleBadgeDefs();
     }
   }());
   </script>

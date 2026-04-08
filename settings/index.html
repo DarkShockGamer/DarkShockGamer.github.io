@@ -1721,10 +1721,14 @@
       function updateAvatarPreview(url) {
         var preview = document.getElementById('avatarOverridePreview');
         if (!preview) return;
+        preview.innerHTML = '';
         if (url) {
-          preview.innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.textContent=\'?\'" />';
+          var img = document.createElement('img');
+          img.src = url;
+          img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+          img.onerror = function () { preview.textContent = '?'; };
+          preview.appendChild(img);
         } else {
-          preview.innerHTML = '';
           preview.textContent = '?';
         }
       }
@@ -1747,17 +1751,7 @@
 
         var wrap = document.getElementById('profileAvatarWrap');
         if (wrap && email) {
-          var picture = Profile.getPicture(email);
-          var name = Profile.getDisplayName(email);
-          var initials = ((name && name[0]) || '?').toUpperCase();
-          if (picture) {
-            wrap.innerHTML =
-              '<img src="' + picture + '" alt="Profile photo" ' +
-              'style="width:64px;height:64px;border-radius:50%;object-fit:cover;" ' +
-              'onerror="this.style.display=\'none\';" />';
-          } else {
-            wrap.textContent = initials;
-          }
+          _setAvatarWrap(wrap, Profile.getPicture(email), Profile.getDisplayName(email));
         }
 
         // Populate avatar override input + preview
@@ -1819,6 +1813,20 @@
         banInput.addEventListener('input', function () { updateBannerPreview(this.value.trim()); });
       }
 
+      function _setAvatarWrap(wrap, pic, name) {
+        wrap.innerHTML = '';
+        if (pic) {
+          var img = document.createElement('img');
+          img.src = pic;
+          img.alt = 'Profile photo';
+          img.style.cssText = 'width:64px;height:64px;border-radius:50%;object-fit:cover;';
+          img.onerror = function () { img.style.display = 'none'; };
+          wrap.appendChild(img);
+        } else {
+          wrap.textContent = ((name && name[0]) || '?').toUpperCase();
+        }
+      }
+
       // Save avatar override
       var saveAoBtn = document.getElementById('saveAvatarOverrideBtn');
       if (saveAoBtn) {
@@ -1831,13 +1839,7 @@
           // Also update profileAvatarWrap immediately
           var wrap = document.getElementById('profileAvatarWrap');
           if (wrap && typeof Profile !== 'undefined') {
-            var pic = Profile.getPicture(email);
-            var name = Profile.getDisplayName(email);
-            if (pic) {
-              wrap.innerHTML = '<img src="' + pic + '" alt="Profile photo" style="width:64px;height:64px;border-radius:50%;object-fit:cover;" onerror="this.style.display=\'none\';" />';
-            } else {
-              wrap.textContent = ((name && name[0]) || '?').toUpperCase();
-            }
+            _setAvatarWrap(wrap, Profile.getPicture(email), Profile.getDisplayName(email));
           }
           if (window.FirebaseProfileSync && window.FirebaseProfileSync.updateAvatarOverride) {
             try {
@@ -1861,13 +1863,7 @@
           updateAvatarPreview(null);
           var wrap = document.getElementById('profileAvatarWrap');
           if (wrap && typeof Profile !== 'undefined') {
-            var pic = Profile.getPicture(email);
-            var name = Profile.getDisplayName(email);
-            if (pic) {
-              wrap.innerHTML = '<img src="' + pic + '" alt="Profile photo" style="width:64px;height:64px;border-radius:50%;object-fit:cover;" onerror="this.style.display=\'none\';" />';
-            } else {
-              wrap.textContent = ((name && name[0]) || '?').toUpperCase();
-            }
+            _setAvatarWrap(wrap, Profile.getPicture(email), Profile.getDisplayName(email));
           }
           if (window.FirebaseProfileSync && window.FirebaseProfileSync.updateAvatarOverride) {
             try { await window.FirebaseProfileSync.updateAvatarOverride(null); } catch (e) {}

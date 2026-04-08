@@ -209,8 +209,11 @@
     const url = getBanner(email);
     if (!url) return '';
     opts = opts || {};
-    const height = opts.height || 160;
-    const radius = opts.radius || '12px';
+    // Clamp height to a safe integer to prevent style injection.
+    const height = Math.max(1, Math.min(1000, parseInt(opts.height || 160, 10) || 160));
+    // Allow only safe CSS length values for border-radius.
+    const rawRadius = String(opts.radius || '12px');
+    const radius = /^[\d.]+(?:px|rem|em|%)$/.test(rawRadius) ? rawRadius : '12px';
     const alt = _esc(opts.alt || 'Profile banner');
     return '<img src="' + _esc(url) + '" alt="' + alt + '" ' +
       'style="width:100%;height:' + height + 'px;object-fit:cover;border-radius:' + radius + ';display:block;" ' +

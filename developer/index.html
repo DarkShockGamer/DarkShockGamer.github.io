@@ -2174,6 +2174,19 @@
       return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    /** Sanitize a CSS color value to prevent style injection.
+     *  Allows only hex colors, named colors (letters only), and rgb/rgba/hsl forms. */
+    function safeCssColor(color) {
+      var s = String(color || '').trim();
+      // Hex: #rgb, #rrggbb, #rrggbbaa
+      if (/^#[0-9a-fA-F]{3,8}$/.test(s)) return s;
+      // Named colors: letters only
+      if (/^[a-zA-Z]+$/.test(s)) return s;
+      // rgb/rgba/hsl/hsla with numbers and commas
+      if (/^(?:rgb|rgba|hsl|hsla)\([\d\s,%.]+\)$/.test(s)) return s;
+      return '#888888'; // fallback to neutral gray
+    }
+
     function renderCurrentBadges(email) {
       const list = document.getElementById('currentBadgesList');
       const area = document.getElementById('currentBadgesArea');
@@ -2203,7 +2216,7 @@
             'title="Remove badge" style="margin-left:4px;background:none;border:none;cursor:pointer;color:inherit;font-size:0.9rem;line-height:1;padding:0 2px;">✕</button>';
 
         return '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:9999px;font-size:0.75rem;font-weight:700;' +
-          'background:' + b.color + '22;color:' + b.color + ';border:1px solid ' + b.color + '66;">' +
+          'background:' + safeCssColor(b.color) + '22;color:' + safeCssColor(b.color) + ';border:1px solid ' + safeCssColor(b.color) + '66;">' +
           escHtml(b.emoji) + ' ' + escHtml(b.name) +
           removeOrLock +
           '</span>';

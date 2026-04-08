@@ -30,10 +30,10 @@
       if (ev.description) item.setAttribute('data-info', ev.description);
       const dateP = document.createElement('p');
       dateP.className = 'timeline-date';
-      dateP.innerHTML = ev.date || ev.year || '';
+      dateP.textContent = ev.date || ev.year || '';
       const textP = document.createElement('p');
       textP.className = 'timeline-text';
-      textP.innerHTML = ev.title || '';
+      textP.textContent = ev.title || '';
       item.appendChild(dateP);
       item.appendChild(textP);
       container.appendChild(item);
@@ -64,7 +64,10 @@
       card.appendChild(h3);
       (g.members || []).forEach(m => {
         const p = document.createElement('p');
-        p.innerHTML = `<strong>${g.role}:</strong> ${m}`;
+        const strong = document.createElement('strong');
+        strong.textContent = g.role + ':';
+        p.appendChild(strong);
+        p.append(' ' + m);
         card.appendChild(p);
       });
       teamGridEl.appendChild(card);
@@ -90,9 +93,13 @@
     // update heading if present
     const h = aboutContainer.querySelector('h2');
     if (h && data.about.heading) h.textContent = data.about.heading;
-    // update body - content is allowed to contain HTML
+    // update body - content (paragraphs) is allowed to contain HTML from site.json
     const paragraphs = data.about.content || '';
-    setInnerHTMLSafe(aboutContainer, `<h2>${data.about.heading || (h ? h.textContent : 'About')}</h2>${paragraphs}`);
+    const headingText = data.about.heading || (h ? h.textContent : 'About');
+    // Escape the heading so it is treated as plain text inside the <h2> tag
+    const headingEl = document.createElement('h2');
+    headingEl.textContent = headingText;
+    setInnerHTMLSafe(aboutContainer, headingEl.outerHTML + paragraphs);
   }
 
   // Timeline

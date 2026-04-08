@@ -49,19 +49,10 @@ import {
   where,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+import { FIREBASE_CONFIG } from "./firebase-config.js";
 
-// ── Firebase config (same project used by tasks/calendar) ────────────────────
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHFWZI",
-  authDomain: "tridenttaskboard.firebaseapp.com",
-  projectId: "tridenttaskboard",
-  storageBucket: "tridenttaskboard.firebasestorage.appspot.com",
-  messagingSenderId: "143400263387",
-  appId: "1:143400263387:web:66ed521ae75af588e836fe",
-  measurementId: "G-F12DDQCX87"
-};
-
-// Cloudflare Worker endpoint: exchanges a GIS Google ID token for a Firebase custom token
+// Cloudflare Worker endpoint: exchanges a GIS Google ID token for a Firebase custom token.
+// This URL is a public, unauthenticated endpoint — it is not a secret credential.
 const WORKER_ENDPOINT = "https://auth-worker.darkshock-dev.workers.dev/firebaseToken";
 
 // Named app so this module never conflicts with other Firebase instances on the same page

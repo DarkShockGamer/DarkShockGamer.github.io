@@ -1074,16 +1074,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, setDoc, doc, deleteDoc, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyC7k3xdqmsuYOEBBDbDfnrmuaebLaHGWZI",
-  authDomain: "tridenttaskboard.firebaseapp.com",
-  projectId: "tridenttaskboard",
-  storageBucket: "tridenttaskboard.firebasestorage.appspot.com",
-  messagingSenderId: "143400263387",
-  appId: "1:143400263387:web:66ed521ae75af588e836fe",
-  measurementId: "G-F12DRDCX87"
-};
+import { FIREBASE_CONFIG as firebaseConfig } from "/assets/js/firebase-config.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);

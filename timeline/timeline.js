@@ -8,7 +8,8 @@
  *  - Edit panel with date pickers, name + color inputs, delete
  *  - Season date range + zoom level (Full / 8w / 4w / 2w)
  *  - Today indicator line
- *  - LocalStorage persistence; Reset to defaults; Export/Import JSON
+ *  - LocalStorage persistence + Firebase Firestore auto-sync (timeline-sync.js)
+ *  - Reset to defaults; Export/Import JSON
  *  - Multi-theme support via html.theme-* classes
  */
 (function () {
@@ -121,14 +122,27 @@
   function saveState(notify = true) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      if (notify) showSaveStatus('Saved ✓');
     } catch (e) {
       console.error('[Timeline] Save error:', e);
       showSaveStatus('Save failed', true);
+      return;
+    }
+    if (notify) {
+      if (window.TimelineSync) {
+        // Remote sync is active; it owns the status indicator.
+        window.TimelineSync.save(clone(state));
+      } else {
+        showSaveStatus('Saved ✓');
+      }
     }
   }
 
   function showSaveStatus(msg, isError = false) {
+    if (window.TimelineSync) {
+      // Delegate to the sync module's richer status helper.
+      window.TimelineSync.setStatus(msg, isError ? 'error' : 'info');
+      return;
+    }
     const el = document.getElementById('saveStatus');
     if (!el) return;
     el.textContent = msg;
@@ -737,6 +751,21 @@
       state.season     = { ...DEFAULT_SEASON };
       state.selectedId = null;
       saveState(); render();
+    },
+    /**
+     * Called by timeline-sync.js when a newer state arrives from Firestore.
+     * Merges the remote snapshot into local state without triggering another
+     * remote save, then re-renders the timeline.
+     * @param {object} remoteState
+     */
+    applyRemoteState(remoteState) {
+      if (!remoteState || typeof remoteState !== 'object') return;
+      // Preserve local-only UI fields; merge everything else.
+      const prev = clone(state);
+      state = Object.assign(state, remoteState, { selectedId: prev.selectedId });
+      // Recompute nextId to avoid ID collisions after a remote add.
+      state.nextId = state.subteams.reduce((mx, t) => Math.max(mx, t.id + 1), state.nextId);
+      render();
     },
   };
 

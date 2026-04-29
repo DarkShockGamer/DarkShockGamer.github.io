@@ -180,13 +180,15 @@
         <li><strong>Drag handles</strong> on either end of a bar to resize it directly</li>
         <li><strong>Keyboard:</strong> focus a bar, then press <kbd>←</kbd>/<kbd>→</kbd> (or <kbd>Shift+←/→</kbd> for week jumps) to adjust the end date; <kbd>Enter</kbd> to open editor</li>
         <li><strong>Season dates</strong> set the overall view window; <strong>Zoom</strong> narrows it further</li>
-        <li><strong>Auto-save:</strong> every change is saved to your browser automatically</li>
+        <li><strong>Auto-sync:</strong> every change is saved automatically and shared with all devices in real-time</li>
         <li><strong>Export / Import</strong> JSON to share or back up your timeline</li>
         <li>The <span class="tl-today-badge">red line</span> marks today's date</li>
       </ul>
     </div>
   </div>
 
+  <!-- Firebase Firestore auto-sync (module; always deferred, runs after timeline.js) -->
+  <script type="module" src="timeline-sync.js"></script>
   <script src="timeline.js"></script>
 </body>
 </html>
